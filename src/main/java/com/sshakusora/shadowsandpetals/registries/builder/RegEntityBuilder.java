@@ -1,0 +1,241 @@
+package com.sshakusora.shadowsandpetals.registries.builder;
+
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class RegEntityBuilder<E extends Entity> {
+    private final DeferredRegister<EntityType<?>> registry;
+    private final String name;
+    private final MobCategory category;
+    private EntityType.EntityFactory<E> factory;
+    private float width = 0.6f;
+    private float height = 1.8f;
+    private boolean fireImmune;
+    private boolean canSpawnFarFromPlayer;
+    private boolean clientTrackingSet;
+    private int clientTrackingRange;
+    private int updateInterval = 3;
+    private boolean summonable = true;
+    private boolean serialize = true;
+    private float spawnDimensionsScale = -1.0f;
+    private float eyeHeight = -1.0f;
+    private final List<Block> immuneToBlocks = new ArrayList<>();
+    private final List<ResourceLocation> aliases = new ArrayList<>();
+
+    public RegEntityBuilder(DeferredRegister<EntityType<?>> registry, String name, MobCategory category) {
+        this.registry = registry;
+        this.name = name;
+        this.category = category;
+    }
+
+    public RegEntityBuilder<E> factory(EntityType.EntityFactory<E> factory) {
+        this.factory = factory;
+        return this;
+    }
+
+    public RegEntityBuilder<E> dimensions(float width, float height) {
+        this.width = width;
+        this.height = height;
+        return this;
+    }
+
+    public RegEntityBuilder<E> dimensions(EntityDimensions dimensions) {
+        this.width = dimensions.width();
+        this.height = dimensions.height();
+        return this;
+    }
+
+    public RegEntityBuilder<E> fireImmune() {
+        this.fireImmune = true;
+        return this;
+    }
+
+    public RegEntityBuilder<E> canSpawnFarFromPlayer() {
+        this.canSpawnFarFromPlayer = true;
+        return this;
+    }
+
+    public RegEntityBuilder<E> clientTrackingRange(int range) {
+        this.clientTrackingSet = true;
+        this.clientTrackingRange = range;
+        return this;
+    }
+
+    public RegEntityBuilder<E> updateInterval(int interval) {
+        this.updateInterval = interval;
+        return this;
+    }
+
+    public RegEntityBuilder<E> summonable(boolean summonable) {
+        this.summonable = summonable;
+        return this;
+    }
+
+    public RegEntityBuilder<E> serialize(boolean serialize) {
+        this.serialize = serialize;
+        return this;
+    }
+
+    public RegEntityBuilder<E> spawnDimensionsScale(float scale) {
+        this.spawnDimensionsScale = scale;
+        return this;
+    }
+
+    public RegEntityBuilder<E> eyeHeight(float height) {
+        this.eyeHeight = height;
+        return this;
+    }
+
+    public RegEntityBuilder<E> immuneTo(Block... blocks) {
+        for (Block block : blocks) {
+            this.immuneToBlocks.add(block);
+        }
+        return this;
+    }
+
+    public RegEntityBuilder<E> alias(String oldPath) {
+        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        return this;
+    }
+
+    public RegEntityBuilder<E> alias(String oldNamespace, String oldPath) {
+        this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        return this;
+    }
+
+    public DeferredHolder<EntityType<?>, EntityType<E>> register() {
+        DeferredHolder<EntityType<?>, EntityType<E>> deferredHolder = registry.register(name, key -> {
+            EntityType.Builder<E> builder = EntityType.Builder.of(factory, category)
+                    .sized(width, height)
+                    .updateInterval(updateInterval);
+
+            if (spawnDimensionsScale > 0) builder.spawnDimensionsScale(spawnDimensionsScale);
+            if (eyeHeight > 0) builder.eyeHeight(eyeHeight);
+            if (fireImmune) builder.fireImmune();
+            if (canSpawnFarFromPlayer) builder.canSpawnFarFromPlayer();
+            if (clientTrackingSet) builder.clientTrackingRange(clientTrackingRange);
+            if (!summonable) builder.noSummon();
+            if (!serialize) builder.noSave();
+            if (!immuneToBlocks.isEmpty()) builder.immuneTo(immuneToBlocks.toArray(Block[]::new));
+
+            return builder.build(name);
+        });
+
+        for (ResourceLocation alias : aliases) {
+            registry.addAlias(alias, deferredHolder.getId());
+        }
+        return deferredHolder;
+    }
+
+    public static class MobBuilder<E extends Mob> extends RegEntityBuilder<E> {
+        private net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder attributes;
+
+        public MobBuilder(DeferredRegister<EntityType<?>> registry, String name, MobCategory category) {
+            super(registry, name, category);
+        }
+
+        @Override
+        public MobBuilder<E> factory(EntityType.EntityFactory<E> factory) {
+            super.factory(factory);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> dimensions(float width, float height) {
+            super.dimensions(width, height);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> dimensions(EntityDimensions dimensions) {
+            super.dimensions(dimensions);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> fireImmune() {
+            super.fireImmune();
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> canSpawnFarFromPlayer() {
+            super.canSpawnFarFromPlayer();
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> clientTrackingRange(int range) {
+            super.clientTrackingRange(range);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> updateInterval(int interval) {
+            super.updateInterval(interval);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> summonable(boolean summonable) {
+            super.summonable(summonable);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> serialize(boolean serialize) {
+            super.serialize(serialize);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> spawnDimensionsScale(float scale) {
+            super.spawnDimensionsScale(scale);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> eyeHeight(float height) {
+            super.eyeHeight(height);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> immuneTo(Block... blocks) {
+            super.immuneTo(blocks);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> alias(String oldPath) {
+            super.alias(oldPath);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> alias(String oldNamespace, String oldPath) {
+            super.alias(oldNamespace, oldPath);
+            return this;
+        }
+
+        public MobBuilder<E> attributes(net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder attributes) {
+            this.attributes = attributes;
+            return this;
+        }
+
+        public net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder getAttributesBuilder() {
+            return attributes;
+        }
+    }
+}
