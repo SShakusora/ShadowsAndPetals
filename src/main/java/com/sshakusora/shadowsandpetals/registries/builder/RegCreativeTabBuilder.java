@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -20,6 +21,7 @@ public class RegCreativeTabBuilder {
     private final DeferredRegister<CreativeModeTab> registry;
     private final String name;
     private Component title;
+    private String langName;
     private Supplier<ItemLike> iconSupplier = () -> Items.BARRIER;
     private final List<ItemStack> items = new ArrayList<>();
     private final List<Consumer<CreativeModeTab.Output>> simpleDisplayGenerators = new ArrayList<>();
@@ -39,6 +41,12 @@ public class RegCreativeTabBuilder {
 
     public RegCreativeTabBuilder title(String translationKey) {
         this.title = Component.translatable(translationKey);
+        return this;
+    }
+
+    public RegCreativeTabBuilder lang(String name) {
+        this.langName = name;
+        this.title = Component.translatable("itemGroup." + ShadowsAndPetals.MOD_ID + "." + this.name);
         return this;
     }
 
@@ -120,6 +128,9 @@ public class RegCreativeTabBuilder {
 
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, tab.getId());
+        }
+        if (langName != null) {
+            DatagenLangRegistry.add("itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), langName);
         }
         return tab;
     }

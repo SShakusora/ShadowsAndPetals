@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
@@ -30,6 +31,7 @@ public class RegEntityBuilder<E extends Entity> {
     private boolean serialize = true;
     private float spawnDimensionsScale = -1.0f;
     private float eyeHeight = -1.0f;
+    private String langName;
     private final List<Block> immuneToBlocks = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
@@ -97,6 +99,11 @@ public class RegEntityBuilder<E extends Entity> {
         return this;
     }
 
+    public RegEntityBuilder<E> lang(String name) {
+        this.langName = name;
+        return this;
+    }
+
     public RegEntityBuilder<E> immuneTo(Block... blocks) {
         for (Block block : blocks) {
             this.immuneToBlocks.add(block);
@@ -134,6 +141,9 @@ public class RegEntityBuilder<E extends Entity> {
 
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, deferredHolder.getId());
+        }
+        if (langName != null) {
+            DatagenLangRegistry.add("entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), langName);
         }
         return deferredHolder;
     }
@@ -208,6 +218,12 @@ public class RegEntityBuilder<E extends Entity> {
         @Override
         public MobBuilder<E> eyeHeight(float height) {
             super.eyeHeight(height);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> lang(String name) {
+            super.lang(name);
             return this;
         }
 

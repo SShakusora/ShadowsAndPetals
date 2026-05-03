@@ -14,23 +14,28 @@ public class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         SAPRegistries.BLOCKS.getEntries().forEach(entry -> {
             String path = entry.getId().getPath();
-            add("block." + ShadowsAndPetals.MOD_ID + "." + path, toEnglishName(path));
+            addWithFallback("block." + ShadowsAndPetals.MOD_ID + "." + path, path);
         });
 
         SAPRegistries.ITEMS.getEntries().forEach(entry -> {
             String path = entry.getId().getPath();
-            add("item." + ShadowsAndPetals.MOD_ID + "." + path, toEnglishName(path));
+            addWithFallback("item." + ShadowsAndPetals.MOD_ID + "." + path, path);
         });
 
         SAPRegistries.CREATIVE_TABS.getEntries().forEach(entry -> {
             String path = entry.getId().getPath();
-            add("itemGroup." + ShadowsAndPetals.MOD_ID + "." + path, toEnglishName(path));
+            addWithFallback("itemGroup." + ShadowsAndPetals.MOD_ID + "." + path, path);
         });
 
         SAPRegistries.ENTITIES.getEntries().forEach(entry -> {
             String path = entry.getId().getPath();
-            add("entity." + ShadowsAndPetals.MOD_ID + "." + path, toEnglishName(path));
+            addWithFallback("entity." + ShadowsAndPetals.MOD_ID + "." + path, path);
         });
+    }
+
+    private void addWithFallback(String key, String path) {
+        String explicitValue = DatagenLangRegistry.get(key);
+        add(key, explicitValue != null ? explicitValue : toEnglishName(path));
     }
 
     private String toEnglishName(String id) {

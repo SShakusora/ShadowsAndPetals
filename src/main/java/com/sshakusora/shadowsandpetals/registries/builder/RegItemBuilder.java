@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -18,6 +19,7 @@ public class RegItemBuilder<I extends Item> {
     private final String name;
     private Item.Properties properties = new Item.Properties();
     private Function<Item.Properties, I> itemFactory;
+    private String langName;
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
     public RegItemBuilder(DeferredRegister.Items registry, String name) {
@@ -37,6 +39,11 @@ public class RegItemBuilder<I extends Item> {
 
     public RegItemBuilder<I> item(Function<Item.Properties, I> factory) {
         this.itemFactory = factory;
+        return this;
+    }
+
+    public RegItemBuilder<I> lang(String name) {
+        this.langName = name;
         return this;
     }
 
@@ -62,6 +69,9 @@ public class RegItemBuilder<I extends Item> {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, deferredItem.getId());
         }
+        if (langName != null) {
+            DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
+        }
         return deferredItem;
     }
 
@@ -75,6 +85,7 @@ public class RegItemBuilder<I extends Item> {
         private Supplier<? extends Block> blockSupplier;
         private DeferredBlock<? extends Block> deferredBlock;
         private Item.Properties properties = new Item.Properties();
+        private String langName;
         private final List<ResourceLocation> aliases = new ArrayList<>();
 
         public BlockItemBuilder(DeferredRegister.Items registry, String name) {
@@ -99,6 +110,11 @@ public class RegItemBuilder<I extends Item> {
 
         public BlockItemBuilder properties(Function<Item.Properties, Item.Properties> configurator) {
             this.properties = configurator.apply(new Item.Properties());
+            return this;
+        }
+
+        public BlockItemBuilder lang(String name) {
+            this.langName = name;
             return this;
         }
 
@@ -128,6 +144,9 @@ public class RegItemBuilder<I extends Item> {
 
             for (ResourceLocation alias : aliases) {
                 registry.addAlias(alias, deferredItem.getId());
+            }
+            if (langName != null) {
+                DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
             }
             return deferredItem;
         }

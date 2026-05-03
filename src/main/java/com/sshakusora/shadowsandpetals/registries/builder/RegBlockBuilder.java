@@ -1,6 +1,9 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.DatagenBlockStateRegistry;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
+import com.sshakusora.shadowsandpetals.data.ModBlockStateProvider;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -12,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class RegBlockBuilder<B extends Block> {
@@ -22,6 +26,8 @@ public class RegBlockBuilder<B extends Block> {
     private boolean withItem;
     private Item.Properties itemProperties;
     private Function<Block, ? extends BlockItem> itemFactory;
+    private String langName;
+    private BiConsumer<ModBlockStateProvider, DeferredBlock<B>> blockStateGenerator;
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
     public RegBlockBuilder(DeferredRegister.Blocks registry, String name) {
@@ -68,6 +74,16 @@ public class RegBlockBuilder<B extends Block> {
         return this;
     }
 
+    public RegBlockBuilder<B> lang(String name) {
+        this.langName = name;
+        return this;
+    }
+
+    public RegBlockBuilder<B> blockstate(BiConsumer<ModBlockStateProvider, DeferredBlock<B>> generator) {
+        this.blockStateGenerator = generator;
+        return this;
+    }
+
     public RegBlockBuilder<B> alias(String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
@@ -88,7 +104,7 @@ public class RegBlockBuilder<B extends Block> {
             deferredBlock = registry.registerBlock(name, blockFactory, properties);
         }
 
-        applyAliases(deferredBlock.getId());
+        postRegister(deferredBlock);
 
         if (withItem) {
             registerBlockItem(deferredBlock);
@@ -96,10 +112,37 @@ public class RegBlockBuilder<B extends Block> {
         return deferredBlock;
     }
 
+    private void postRegister(DeferredBlock<? extends Block> block) {
+        applyAliases(block.getId());
+        applyLang(block.getId().getPath());
+        applyBlockStateUnchecked(block);
+    }
+
     private void applyAliases(ResourceLocation targetId) {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, targetId);
         }
+    }
+
+    private void applyLang(String path) {
+        if (langName == null) {
+            return;
+        }
+
+        DatagenLangRegistry.add("block." + ShadowsAndPetals.MOD_ID + "." + path, langName);
+        if (withItem) {
+            DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + path, langName);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applyBlockStateUnchecked(DeferredBlock<? extends Block> block) {
+        if (blockStateGenerator == null) {
+            return;
+        }
+
+        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        DatagenBlockStateRegistry.add(block.getId(), provider -> blockStateGenerator.accept(provider, typedBlock));
     }
 
     private void registerBlockItem(DeferredBlock<? extends Block> block) {
@@ -113,11 +156,15 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     public DeferredBlock<Block> simple() {
-        return registry.registerSimpleBlock(name, properties);
+        DeferredBlock<Block> block = registry.registerSimpleBlock(name, properties);
+        postRegister(block);
+        return block;
     }
 
     public DeferredBlock<Block> simpleWithItem() {
         DeferredBlock<Block> block = registry.registerSimpleBlock(name, properties);
+        this.withItem = true;
+        postRegister(block);
         final Item.Properties props = itemProperties != null ? itemProperties : new Item.Properties();
         SAPRegistries.ITEMS.register(name, key -> new BlockItem(block.get(), props));
         return block;

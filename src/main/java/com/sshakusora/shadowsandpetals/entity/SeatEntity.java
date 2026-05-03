@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.entity;
 
-import com.sshakusora.shadowsandpetals.block.CafeChairBlock;
+import com.sshakusora.shadowsandpetals.block.decortion.CafeChairBlock;
 import com.sshakusora.shadowsandpetals.registries.EntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
