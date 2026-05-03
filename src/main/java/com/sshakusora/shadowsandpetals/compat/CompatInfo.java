@@ -7,9 +7,11 @@ public class CompatInfo {
     public static String CM = "chinjufumod";
 
     public static String getDyedBlockAlias(DyeColor color, String prefix) {
-        String colorName = color.equals(DyeColor.LIGHT_BLUE) ? "lightb" :
-                           color.equals(DyeColor.LIGHT_GRAY) ? "lightg" :
-                           color.getName();
+        String colorName = switch (color) {
+            case LIGHT_BLUE -> "lightb";
+            case LIGHT_GRAY -> "lightg";
+            default -> color.getName();
+        };
         return prefix + "_" + colorName;
     }
 
