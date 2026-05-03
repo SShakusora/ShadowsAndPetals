@@ -3,6 +3,8 @@ package com.sshakusora.shadowsandpetals.registries;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.CafeTableBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.ModularDeskBlock;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
@@ -14,9 +16,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 
 public class BlockRegistry {
-    // TODO 需要对应方块类
-    public static final WoodBlockList<Block> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
-            block(woodType.getName() + "_modular_desk", Block::new)
+    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
+            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
             .alias(CompatInfo.CM, CompatInfo.getWoodBlockAlias(woodType, "block_unitdesk"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
@@ -33,9 +34,8 @@ public class BlockRegistry {
                     .save(provider.output()))
             .register());
 
-    // TODO 需要对应方块类
-    public static final WoodBlockList<Block> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
-            block(woodType.getName() + "_cafe_table", Block::new)
+    public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
+            block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
             .alias(CompatInfo.CM, CompatInfo.getWoodBlockAlias(woodType, "block_cafetable"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)

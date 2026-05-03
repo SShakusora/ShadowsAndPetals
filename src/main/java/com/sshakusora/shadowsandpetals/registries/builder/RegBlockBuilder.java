@@ -14,6 +14,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -103,9 +104,7 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     public RegBlockBuilder<B> creativeTabs(CreativeTabType... tabs) {
-        for (CreativeTabType tab : tabs) {
-            this.creativeTabs.add(tab);
-        }
+        Collections.addAll(this.creativeTabs, tabs);
         return this;
     }
 
