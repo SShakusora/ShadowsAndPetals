@@ -1,14 +1,13 @@
 package com.sshakusora.shadowsandpetals.block;
 
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.registries.DeferredBlock;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
-
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.Block;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import org.jetbrains.annotations.NotNull;
 
 public class DyedBlockList<T extends Block> implements Iterable<DeferredBlock<T>> {
 
@@ -42,7 +41,6 @@ public class DyedBlockList<T extends Block> implements Iterable<DeferredBlock<T>
     }
 
     @Override
-    @NotNull
     public Iterator<DeferredBlock<T>> iterator() {
         return new Iterator<>() {
             private int index = 0;

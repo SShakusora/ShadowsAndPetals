@@ -2,6 +2,10 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
+import com.sshakusora.shadowsandpetals.data.DatagenRecipeRegistry;
+import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -11,6 +15,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,6 +25,8 @@ public class RegItemBuilder<I extends Item> {
     private Item.Properties properties = new Item.Properties();
     private Function<Item.Properties, I> itemFactory;
     private String langName;
+    private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
+    private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
     public RegItemBuilder(DeferredRegister.Items registry, String name) {
@@ -44,6 +51,23 @@ public class RegItemBuilder<I extends Item> {
 
     public RegItemBuilder<I> lang(String name) {
         this.langName = name;
+        return this;
+    }
+
+    public RegItemBuilder<I> recipe(BiConsumer<ModRecipeProvider, DeferredItem<I>> generator) {
+        this.recipeGenerator = generator;
+        return this;
+    }
+
+    public RegItemBuilder<I> creativeTab(CreativeTabType tab) {
+        this.creativeTabs.add(tab);
+        return this;
+    }
+
+    public RegItemBuilder<I> creativeTabs(CreativeTabType... tabs) {
+        for (CreativeTabType tab : tabs) {
+            this.creativeTabs.add(tab);
+        }
         return this;
     }
 
@@ -72,6 +96,12 @@ public class RegItemBuilder<I extends Item> {
         if (langName != null) {
             DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
         }
+        if (recipeGenerator != null) {
+            DatagenRecipeRegistry.add(deferredItem.getId(), provider -> recipeGenerator.accept(provider, deferredItem));
+        }
+        for (CreativeTabType tab : creativeTabs) {
+            CreativeTabContentsRegistry.add(tab, deferredItem::get);
+        }
         return deferredItem;
     }
 
@@ -86,6 +116,7 @@ public class RegItemBuilder<I extends Item> {
         private DeferredBlock<? extends Block> deferredBlock;
         private Item.Properties properties = new Item.Properties();
         private String langName;
+        private final List<CreativeTabType> creativeTabs = new ArrayList<>();
         private final List<ResourceLocation> aliases = new ArrayList<>();
 
         public BlockItemBuilder(DeferredRegister.Items registry, String name) {
@@ -118,6 +149,18 @@ public class RegItemBuilder<I extends Item> {
             return this;
         }
 
+        public BlockItemBuilder creativeTab(CreativeTabType tab) {
+            this.creativeTabs.add(tab);
+            return this;
+        }
+
+        public BlockItemBuilder creativeTabs(CreativeTabType... tabs) {
+            for (CreativeTabType tab : tabs) {
+                this.creativeTabs.add(tab);
+            }
+            return this;
+        }
+
         public BlockItemBuilder alias(String oldPath) {
             this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
             return this;
@@ -147,6 +190,9 @@ public class RegItemBuilder<I extends Item> {
             }
             if (langName != null) {
                 DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
+            }
+            for (CreativeTabType tab : creativeTabs) {
+                CreativeTabContentsRegistry.add(tab, deferredItem::get);
             }
             return deferredItem;
         }

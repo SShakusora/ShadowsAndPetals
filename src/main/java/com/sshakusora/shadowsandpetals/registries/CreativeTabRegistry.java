@@ -4,13 +4,17 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class CreativeTabRegistry {
-    public static DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN = SAPRegistries
-            .creativeTab("main")
-            .lang("Shadows & Petals")
-            .addItems(output -> {
-                BlockRegistry.CAFE_CHAIRS.forEach(chair -> output.accept(chair.get()));
-            })
-            .register();
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN = register(CreativeTabType.MAIN);
+
+    private static DeferredHolder<CreativeModeTab, CreativeModeTab> register(CreativeTabType type) {
+        DeferredHolder<CreativeModeTab, CreativeModeTab> holder = SAPRegistries
+                .creativeTab(type.getName())
+                .lang(type.getLangName())
+                .addItems(CreativeTabContentsRegistry.generator(type))
+                .register();
+        type.bind(holder);
+        return holder;
+    }
 
     public static void init() {}
 }

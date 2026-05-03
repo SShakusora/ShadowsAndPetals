@@ -1,9 +1,9 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.data.DatagenBlockStateRegistry;
-import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
-import com.sshakusora.shadowsandpetals.data.ModBlockStateProvider;
+import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
@@ -28,6 +28,9 @@ public class RegBlockBuilder<B extends Block> {
     private Function<Block, ? extends BlockItem> itemFactory;
     private String langName;
     private BiConsumer<ModBlockStateProvider, DeferredBlock<B>> blockStateGenerator;
+    private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
+    private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
+    private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
     public RegBlockBuilder(DeferredRegister.Blocks registry, String name) {
@@ -84,6 +87,28 @@ public class RegBlockBuilder<B extends Block> {
         return this;
     }
 
+    public RegBlockBuilder<B> loot(BiConsumer<ModBlockLootProvider, DeferredBlock<B>> generator) {
+        this.blockLootGenerator = generator;
+        return this;
+    }
+
+    public RegBlockBuilder<B> recipe(BiConsumer<ModRecipeProvider, DeferredBlock<B>> generator) {
+        this.recipeGenerator = generator;
+        return this;
+    }
+
+    public RegBlockBuilder<B> creativeTab(CreativeTabType tab) {
+        this.creativeTabs.add(tab);
+        return this;
+    }
+
+    public RegBlockBuilder<B> creativeTabs(CreativeTabType... tabs) {
+        for (CreativeTabType tab : tabs) {
+            this.creativeTabs.add(tab);
+        }
+        return this;
+    }
+
     public RegBlockBuilder<B> alias(String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
@@ -109,6 +134,8 @@ public class RegBlockBuilder<B extends Block> {
         if (withItem) {
             registerBlockItem(deferredBlock);
         }
+
+        registerCreativeTabs(deferredBlock);
         return deferredBlock;
     }
 
@@ -116,6 +143,8 @@ public class RegBlockBuilder<B extends Block> {
         applyAliases(block.getId());
         applyLang(block.getId().getPath());
         applyBlockStateUnchecked(block);
+        applyBlockLootUnchecked(block);
+        applyRecipeUnchecked(block);
     }
 
     private void applyAliases(ResourceLocation targetId) {
@@ -145,6 +174,29 @@ public class RegBlockBuilder<B extends Block> {
         DatagenBlockStateRegistry.add(block.getId(), provider -> blockStateGenerator.accept(provider, typedBlock));
     }
 
+    @SuppressWarnings("unchecked")
+    private void applyBlockLootUnchecked(DeferredBlock<? extends Block> block) {
+        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        if (blockLootGenerator != null) {
+            DatagenBlockLootRegistry.add(block.getId(), provider -> blockLootGenerator.accept(provider, typedBlock));
+            return;
+        }
+
+        if (withItem) {
+            DatagenBlockLootRegistry.add(block.getId(), provider -> provider.dropSelf(typedBlock.get()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applyRecipeUnchecked(DeferredBlock<? extends Block> block) {
+        if (recipeGenerator == null) {
+            return;
+        }
+
+        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        DatagenRecipeRegistry.add(block.getId(), provider -> recipeGenerator.accept(provider, typedBlock));
+    }
+
     private void registerBlockItem(DeferredBlock<? extends Block> block) {
         DeferredRegister.Items items = SAPRegistries.ITEMS;
         if (itemFactory != null) {
@@ -152,6 +204,20 @@ public class RegBlockBuilder<B extends Block> {
         } else {
             final Item.Properties props = itemProperties;
             items.register(name, key -> new BlockItem(block.get(), props));
+        }
+    }
+
+    private void registerCreativeTabs(DeferredBlock<? extends Block> block) {
+        if (creativeTabs.isEmpty()) {
+            return;
+        }
+
+        if (!withItem) {
+            throw new IllegalStateException("Block '" + name + "' cannot be added to a creative tab without an item");
+        }
+
+        for (CreativeTabType tab : creativeTabs) {
+            CreativeTabContentsRegistry.add(tab, block::get);
         }
     }
 

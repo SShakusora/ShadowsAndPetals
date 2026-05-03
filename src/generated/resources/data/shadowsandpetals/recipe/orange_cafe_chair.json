@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "item": "minecraft:orange_wool"
+    }
+  },
+  "pattern": [
+    " W ",
+    " S ",
+    "SSS"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shadowsandpetals:orange_cafe_chair"
+  }
+}
