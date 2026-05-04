@@ -11,14 +11,42 @@ import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.neoforged.neoforge.registries.DeferredBlock;
 
 public class BlockRegistry {
+    public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
+            .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
+            .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(3.0F, 3.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .register();
+
+    public static final DeferredBlock<DropExperienceBlock> DEEPSLATE_BAUXITE_ORE = SAPRegistries
+            .block("deepslate_bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
+            .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore_deep")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
+                    .strength(4.5F, 3.0F)
+                    .sound(SoundType.DEEPSLATE)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .register();
+
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
             .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_unitdesk"))

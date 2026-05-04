@@ -5,10 +5,12 @@ import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.legacy.BlockStateAliasRegistry;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.legacy.LegacyStateBlock;
+import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -49,6 +51,7 @@ public class RegBlockBuilder<B extends Block> {
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
+    private final List<TagKey<Block>> blockTags = new ArrayList<>();
 
     public RegBlockBuilder(DeferredRegister.Blocks registry, String name) {
         this.registry = registry;
@@ -164,6 +167,23 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     /**
+     * Adds a block tag for datagen (e.g. {@link net.minecraft.tags.BlockTags#MINEABLE_WITH_PICKAXE}).
+     */
+    public RegBlockBuilder<B> tag(TagKey<Block> tag) {
+        this.blockTags.add(tag);
+        return this;
+    }
+
+    /**
+     * Adds multiple block tags for datagen.
+     */
+    @SafeVarargs
+    public final RegBlockBuilder<B> tags(TagKey<Block>... tags) {
+        Collections.addAll(this.blockTags, tags);
+        return this;
+    }
+
+    /**
      * Adds a same-namespace registry alias for save compatibility or renames.
      */
     public RegBlockBuilder<B> alias(String oldPath) {
@@ -253,6 +273,7 @@ public class RegBlockBuilder<B extends Block> {
 
         registerStateAliases(deferredBlock);
         postRegister(deferredBlock);
+        registerBlockTags(deferredBlock);
 
         if (withItem) {
             registerBlockItem(deferredBlock);
@@ -273,6 +294,12 @@ public class RegBlockBuilder<B extends Block> {
     private void applyAliases(ResourceLocation targetId) {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, targetId);
+        }
+    }
+
+    private void registerBlockTags(DeferredBlock<B> block) {
+        for (TagKey<Block> tag : blockTags) {
+            BlockTagRegistry.add(tag, block);
         }
     }
 
