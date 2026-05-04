@@ -17,6 +17,15 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+/**
+ * Fluent builder for {@link BlockEntityType} registration.
+ * <p>
+ * Besides normal block entity registration, this builder can declare registry aliases and
+ * migration aliases that deserialize legacy block entity ids into temporary compatibility
+ * instances before converting their NBT into the new block entity format.
+ *
+ * @param <T> registered block entity type
+ */
 public class RegBlockEntityBuilder<T extends BlockEntity> {
     private final DeferredRegister<BlockEntityType<?>> registry;
     private final String name;
@@ -30,27 +39,45 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
         this.name = name;
     }
 
+    /**
+     * Sets the constructor used by the resulting {@link BlockEntityType}.
+     */
     public RegBlockEntityBuilder<T> factory(BiFunction<BlockPos, BlockState, T> factory) {
         this.factory = factory;
         return this;
     }
 
+    /**
+     * Declares the blocks this block entity type is valid for.
+     */
     @SafeVarargs
     public final RegBlockEntityBuilder<T> validBlocks(Supplier<? extends Block>... blocks) {
         this.validBlocks.addAll(Arrays.asList(blocks));
         return this;
     }
 
+    /**
+     * Adds a same-namespace registry alias for the block entity type id.
+     */
     public RegBlockEntityBuilder<T> alias(String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
+    /**
+     * Adds a cross-namespace registry alias for the block entity type id.
+     */
     public RegBlockEntityBuilder<T> alias(String oldNamespace, String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
+    /**
+     * Declares a legacy block entity id whose NBT should be migrated into this block entity type.
+     * <p>
+     * The provided legacy blocks must match the compatibility blocks that can host the old block
+     * entity while the migration runs.
+     */
     @SafeVarargs
     public final RegBlockEntityBuilder<T> dataAlias(
             String oldNamespace,
@@ -66,6 +93,9 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
         return this;
     }
 
+    /**
+     * Finalizes the block entity type registration and all declared compatibility aliases.
+     */
     public DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> register() {
         if (factory == null) {
             throw new IllegalStateException("Block entity factory is required for '" + name + "'");

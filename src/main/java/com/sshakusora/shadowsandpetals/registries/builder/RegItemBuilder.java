@@ -20,6 +20,11 @@ import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Fluent builder for item registration.
+ *
+ * @param <I> registered item type
+ */
 public class RegItemBuilder<I extends Item> {
     private final DeferredRegister.Items registry;
     private final String name;
@@ -35,51 +40,81 @@ public class RegItemBuilder<I extends Item> {
         this.name = name;
     }
 
+    /**
+     * Sets the exact {@link Item.Properties} instance used for registration.
+     */
     public RegItemBuilder<I> properties(Item.Properties properties) {
         this.properties = properties;
         return this;
     }
 
+    /**
+     * Builds a fresh {@link Item.Properties} through a configurator.
+     */
     public RegItemBuilder<I> properties(Function<Item.Properties, Item.Properties> configurator) {
         this.properties = configurator.apply(new Item.Properties());
         return this;
     }
 
+    /**
+     * Sets the custom item factory used during registration.
+     */
     public RegItemBuilder<I> item(Function<Item.Properties, I> factory) {
         this.itemFactory = factory;
         return this;
     }
 
+    /**
+     * Adds a generated language entry for the item.
+     */
     public RegItemBuilder<I> lang(String name) {
         this.langName = name;
         return this;
     }
 
+    /**
+     * Attaches a recipe datagen callback.
+     */
     public RegItemBuilder<I> recipe(BiConsumer<ModRecipeProvider, DeferredItem<I>> generator) {
         this.recipeGenerator = generator;
         return this;
     }
 
+    /**
+     * Adds the registered item to a creative tab.
+     */
     public RegItemBuilder<I> creativeTab(CreativeTabType tab) {
         this.creativeTabs.add(tab);
         return this;
     }
 
+    /**
+     * Adds the registered item to multiple creative tabs.
+     */
     public RegItemBuilder<I> creativeTabs(CreativeTabType... tabs) {
         this.creativeTabs.addAll(Arrays.asList(tabs));
         return this;
     }
 
+    /**
+     * Adds a same-namespace registry alias for this item.
+     */
     public RegItemBuilder<I> alias(String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
+    /**
+     * Adds a cross-namespace registry alias for this item.
+     */
     public RegItemBuilder<I> alias(String oldNamespace, String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
+    /**
+     * Finalizes item registration and applies aliases, lang, recipe hooks, and creative-tab wiring.
+     */
     @SuppressWarnings("unchecked")
     public DeferredItem<I> register() {
         DeferredItem<I> deferredItem;
@@ -104,10 +139,16 @@ public class RegItemBuilder<I extends Item> {
         return deferredItem;
     }
 
+    /**
+     * Registers a plain {@link Item} using the current properties without extra hooks.
+     */
     public DeferredItem<Item> simple() {
         return registry.registerSimpleItem(name, properties);
     }
 
+    /**
+     * Fluent builder for registering a {@link net.minecraft.world.item.BlockItem} separately from the block.
+     */
     public static class BlockItemBuilder {
         private final DeferredRegister.Items registry;
         private final String name;
@@ -123,11 +164,17 @@ public class RegItemBuilder<I extends Item> {
             this.name = name;
         }
 
+        /**
+         * Uses a direct block supplier as the item source.
+         */
         public BlockItemBuilder fromBlock(Supplier<? extends Block> block) {
             this.blockSupplier = block;
             return this;
         }
 
+        /**
+         * Uses a {@link DeferredBlock} as the item source.
+         */
         public BlockItemBuilder fromDeferredBlock(DeferredBlock<? extends Block> block) {
             this.deferredBlock = block;
             return this;
@@ -168,6 +215,9 @@ public class RegItemBuilder<I extends Item> {
             return this;
         }
 
+        /**
+         * Finalizes block item registration and applies aliases, lang, and creative-tab wiring.
+         */
         public DeferredItem<net.minecraft.world.item.BlockItem> register() {
             DeferredItem<net.minecraft.world.item.BlockItem> deferredItem;
             if (deferredBlock != null) {

@@ -11,6 +11,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Fluent builder for {@link EntityType} registration.
+ *
+ * @param <E> registered entity type
+ */
 public class RegEntityBuilder<E extends Entity> {
     private final DeferredRegister<EntityType<?>> registry;
     private final String name;
@@ -37,69 +42,108 @@ public class RegEntityBuilder<E extends Entity> {
         this.category = category;
     }
 
+    /**
+     * Sets the entity factory used by the resulting {@link EntityType}.
+     */
     public RegEntityBuilder<E> factory(EntityType.EntityFactory<E> factory) {
         this.factory = factory;
         return this;
     }
 
+    /**
+     * Sets the entity dimensions in blocks.
+     */
     public RegEntityBuilder<E> dimensions(float width, float height) {
         this.width = width;
         this.height = height;
         return this;
     }
 
+    /**
+     * Sets the entity dimensions from an existing {@link EntityDimensions} instance.
+     */
     public RegEntityBuilder<E> dimensions(EntityDimensions dimensions) {
         this.width = dimensions.width();
         this.height = dimensions.height();
         return this;
     }
 
+    /**
+     * Marks the entity type as fire immune.
+     */
     public RegEntityBuilder<E> fireImmune() {
         this.fireImmune = true;
         return this;
     }
 
+    /**
+     * Allows the entity to spawn farther away from players.
+     */
     public RegEntityBuilder<E> canSpawnFarFromPlayer() {
         this.canSpawnFarFromPlayer = true;
         return this;
     }
 
+    /**
+     * Overrides the client tracking range.
+     */
     public RegEntityBuilder<E> clientTrackingRange(int range) {
         this.clientTrackingSet = true;
         this.clientTrackingRange = range;
         return this;
     }
 
+    /**
+     * Overrides the entity update interval.
+     */
     public RegEntityBuilder<E> updateInterval(int interval) {
         this.updateInterval = interval;
         return this;
     }
 
+    /**
+     * Controls whether the entity type can be summoned by commands.
+     */
     public RegEntityBuilder<E> summonable(boolean summonable) {
         this.summonable = summonable;
         return this;
     }
 
+    /**
+     * Controls whether the entity type is saved to disk.
+     */
     public RegEntityBuilder<E> serialize(boolean serialize) {
         this.serialize = serialize;
         return this;
     }
 
+    /**
+     * Sets the spawn-dimensions scale used by the entity type.
+     */
     public RegEntityBuilder<E> spawnDimensionsScale(float scale) {
         this.spawnDimensionsScale = scale;
         return this;
     }
 
+    /**
+     * Sets the entity eye height.
+     */
     public RegEntityBuilder<E> eyeHeight(float height) {
         this.eyeHeight = height;
         return this;
     }
 
+    /**
+     * Adds a generated language entry for the entity type.
+     */
     public RegEntityBuilder<E> lang(String name) {
         this.langName = name;
         return this;
     }
 
+    /**
+     * Declares blocks that the entity is immune to.
+     */
     public RegEntityBuilder<E> immuneTo(Block... blocks) {
         for (Block block : blocks) {
             this.immuneToBlocks.add(block);
@@ -107,16 +151,25 @@ public class RegEntityBuilder<E extends Entity> {
         return this;
     }
 
+    /**
+     * Adds a same-namespace registry alias for this entity type.
+     */
     public RegEntityBuilder<E> alias(String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
+    /**
+     * Adds a cross-namespace registry alias for this entity type.
+     */
     public RegEntityBuilder<E> alias(String oldNamespace, String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
+    /**
+     * Finalizes entity registration and applies aliases and lang generation.
+     */
     public DeferredHolder<EntityType<?>, EntityType<E>> register() {
         DeferredHolder<EntityType<?>, EntityType<E>> deferredHolder = registry.register(name, key -> {
             EntityType.Builder<E> builder = EntityType.Builder.of(factory, category)
@@ -144,6 +197,11 @@ public class RegEntityBuilder<E extends Entity> {
         return deferredHolder;
     }
 
+    /**
+     * Specialized builder for mob entities with optional attribute wiring.
+     *
+     * @param <E> registered mob type
+     */
     public static class MobBuilder<E extends Mob> extends RegEntityBuilder<E> {
         private net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder attributes;
 
@@ -241,11 +299,17 @@ public class RegEntityBuilder<E extends Entity> {
             return this;
         }
 
+        /**
+         * Stores the attribute builder that should be associated with the mob type.
+         */
         public MobBuilder<E> attributes(net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder attributes) {
             this.attributes = attributes;
             return this;
         }
 
+        /**
+         * Returns the attribute builder configured for this mob, if any.
+         */
         public net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder getAttributesBuilder() {
             return attributes;
         }

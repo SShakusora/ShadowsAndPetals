@@ -25,6 +25,15 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Fluent builder for block registration.
+ * <p>
+ * This builder wraps a {@link DeferredRegister.Blocks} entry and optionally wires the matching
+ * block item, language entry, datagen hooks, creative tab contents, registry aliases, and
+ * legacy block-state migration rules.
+ *
+ * @param <B> registered block type
+ */
 public class RegBlockBuilder<B extends Block> {
     private final DeferredRegister.Blocks registry;
     private final String name;
@@ -46,85 +55,136 @@ public class RegBlockBuilder<B extends Block> {
         this.name = name;
     }
 
+    /**
+    * Sets the exact {@link BlockBehaviour.Properties} instance used for registration.
+    */
     public RegBlockBuilder<B> properties(BlockBehaviour.Properties properties) {
         this.properties = properties;
         return this;
     }
 
+    /**
+     * Builds a fresh {@link BlockBehaviour.Properties} via a configurator.
+     */
     public RegBlockBuilder<B> properties(Function<BlockBehaviour.Properties, BlockBehaviour.Properties> configurator) {
         this.properties = configurator.apply(BlockBehaviour.Properties.of());
         return this;
     }
 
+    /**
+     * Overrides the block factory used during registration.
+     */
     public RegBlockBuilder<B> block(Function<BlockBehaviour.Properties, B> factory) {
         this.blockFactory = factory;
         return this;
     }
 
+    /**
+     * Registers a default {@link BlockItem} for the block.
+     */
     public RegBlockBuilder<B> withItem() {
         this.withItem = true;
         this.itemProperties = new Item.Properties();
         return this;
     }
 
+    /**
+     * Registers a default {@link BlockItem} using the supplied item properties.
+     */
     public RegBlockBuilder<B> withItem(Item.Properties properties) {
         this.withItem = true;
         this.itemProperties = properties;
         return this;
     }
 
+    /**
+     * Registers a default {@link BlockItem} after configuring a fresh {@link Item.Properties}.
+     */
     public RegBlockBuilder<B> withItem(Function<Item.Properties, Item.Properties> configurator) {
         this.withItem = true;
         this.itemProperties = configurator.apply(new Item.Properties());
         return this;
     }
 
+    /**
+     * Registers a custom {@link BlockItem} implementation for this block.
+     */
     public RegBlockBuilder<B> withCustomItem(Function<Block, ? extends BlockItem> factory) {
         this.withItem = true;
         this.itemFactory = factory;
         return this;
     }
 
+    /**
+     * Adds a generated language entry for the block and, when present, its block item.
+     */
     public RegBlockBuilder<B> lang(String name) {
         this.langName = name;
         return this;
     }
 
+    /**
+     * Attaches a blockstate datagen callback.
+     */
     public RegBlockBuilder<B> blockstate(BiConsumer<ModBlockStateProvider, DeferredBlock<B>> generator) {
         this.blockStateGenerator = generator;
         return this;
     }
 
+    /**
+     * Attaches a loot-table datagen callback.
+     */
     public RegBlockBuilder<B> loot(BiConsumer<ModBlockLootProvider, DeferredBlock<B>> generator) {
         this.blockLootGenerator = generator;
         return this;
     }
 
+    /**
+     * Attaches a recipe datagen callback.
+     */
     public RegBlockBuilder<B> recipe(BiConsumer<ModRecipeProvider, DeferredBlock<B>> generator) {
         this.recipeGenerator = generator;
         return this;
     }
 
+    /**
+     * Adds the registered block item to a creative tab.
+     */
     public RegBlockBuilder<B> creativeTab(CreativeTabType tab) {
         this.creativeTabs.add(tab);
         return this;
     }
 
+    /**
+     * Adds the registered block item to multiple creative tabs.
+     */
     public RegBlockBuilder<B> creativeTabs(CreativeTabType... tabs) {
         Collections.addAll(this.creativeTabs, tabs);
         return this;
     }
 
+    /**
+     * Adds a same-namespace registry alias for save compatibility or renames.
+     */
     public RegBlockBuilder<B> alias(String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
+    /**
+     * Adds a cross-namespace registry alias for save compatibility or mod migrations.
+     */
     public RegBlockBuilder<B> alias(String oldNamespace, String oldPath) {
         this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
+    /**
+     * Registers a legacy block-state alias using a dedicated legacy block implementation.
+     * <p>
+     * Use this when old saves need to deserialize a removed block id that still carries legacy
+     * properties. The legacy state is later converted to this builder's target state.
+     */
     public <L extends Block> RegBlockBuilder<B> stateAlias(
             String oldPath,
             Function<BlockBehaviour.Properties, L> legacyFactory,
@@ -133,6 +193,9 @@ public class RegBlockBuilder<B extends Block> {
         return stateAlias(ShadowsAndPetals.MOD_ID, oldPath, legacyFactory, converter);
     }
 
+    /**
+     * Registers a cross-namespace legacy block-state alias using a dedicated legacy block implementation.
+     */
     public <L extends Block> RegBlockBuilder<B> stateAlias(
             String oldNamespace,
             String oldPath,
@@ -147,6 +210,12 @@ public class RegBlockBuilder<B extends Block> {
         return this;
     }
 
+    /**
+     * Registers a same-namespace legacy block-state alias whose properties are declared inline.
+     * <p>
+     * This is the preferred API when old saves only need a lightweight compatibility block with
+     * dynamically declared properties.
+     */
     public RegBlockBuilder<B> stateAliasProperties(
             String oldPath,
             Consumer<LegacyStateBlock.Builder> legacyStateBuilder,
@@ -155,6 +224,9 @@ public class RegBlockBuilder<B extends Block> {
         return stateAliasProperties(ShadowsAndPetals.MOD_ID, oldPath, legacyStateBuilder, converter);
     }
 
+    /**
+     * Registers a cross-namespace legacy block-state alias whose properties are declared inline.
+     */
     public RegBlockBuilder<B> stateAliasProperties(
             String oldNamespace,
             String oldPath,
@@ -166,6 +238,9 @@ public class RegBlockBuilder<B extends Block> {
         return stateAlias(oldNamespace, oldPath, LegacyStateBlock.factory(builder.build()), converter);
     }
 
+    /**
+     * Finalizes registration and applies all configured side effects.
+     */
     @SuppressWarnings("unchecked")
     public DeferredBlock<B> register() {
         DeferredBlock<B> deferredBlock;
@@ -287,12 +362,18 @@ public class RegBlockBuilder<B extends Block> {
         }
     }
 
+    /**
+     * Registers a plain {@link Block} without item, datagen, or alias side effects beyond the block entry itself.
+     */
     public DeferredBlock<Block> simple() {
         DeferredBlock<Block> block = registry.registerSimpleBlock(name, properties);
         postRegister(block);
         return block;
     }
 
+    /**
+     * Registers a plain {@link Block} and a default {@link BlockItem} using the current item properties.
+     */
     public DeferredBlock<Block> simpleWithItem() {
         DeferredBlock<Block> block = registry.registerSimpleBlock(name, properties);
         this.withItem = true;
