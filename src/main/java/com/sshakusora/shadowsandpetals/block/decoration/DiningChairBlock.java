@@ -2,7 +2,6 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
-import java.util.Map;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -18,6 +17,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+
+import java.util.Map;
 
 public class DiningChairBlock extends AbstractSeatBlock {
     public static final MapCodec<DiningChairBlock> CODEC = simpleCodec(DiningChairBlock::new);

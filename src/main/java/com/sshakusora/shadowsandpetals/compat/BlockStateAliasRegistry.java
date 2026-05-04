@@ -1,10 +1,6 @@
 package com.sshakusora.shadowsandpetals.compat;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Supplier;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -12,6 +8,11 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID)
 public final class BlockStateAliasRegistry {

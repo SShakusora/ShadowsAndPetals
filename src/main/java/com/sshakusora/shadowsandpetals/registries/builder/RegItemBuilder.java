@@ -7,6 +7,7 @@ import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -218,16 +219,16 @@ public class RegItemBuilder<I extends Item> {
         /**
          * Finalizes block item registration and applies aliases, lang, and creative-tab wiring.
          */
-        public DeferredItem<net.minecraft.world.item.BlockItem> register() {
-            DeferredItem<net.minecraft.world.item.BlockItem> deferredItem;
+        public DeferredItem<BlockItem> register() {
+            DeferredItem<BlockItem> deferredItem;
             if (deferredBlock != null) {
                 final var block = deferredBlock;
                 final var props = properties;
-                deferredItem = registry.register(name, key -> new net.minecraft.world.item.BlockItem(block.get(), props));
+                deferredItem = registry.register(name, key -> new BlockItem(block.get(), props));
             } else if (blockSupplier != null) {
                 final var supplier = blockSupplier;
                 final var props = properties;
-                deferredItem = registry.register(name, key -> new net.minecraft.world.item.BlockItem(supplier.get(), props));
+                deferredItem = registry.register(name, key -> new BlockItem(supplier.get(), props));
             } else {
                 throw new IllegalStateException("BlockItemBuilder requires a block source via .fromBlock() or .fromDeferredBlock()");
             }

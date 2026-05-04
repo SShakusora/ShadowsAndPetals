@@ -1,13 +1,14 @@
 package com.sshakusora.shadowsandpetals.block.legacy;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 public class LegacyStateBlock extends LegacyBlock {
     private static final ThreadLocal<Definition> CURRENT_DEFINITION = new ThreadLocal<>();

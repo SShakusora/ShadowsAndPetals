@@ -2,7 +2,10 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
-import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.CafeTableBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.DiningChairBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.ModularDeskBlock;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;

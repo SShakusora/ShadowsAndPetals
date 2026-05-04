@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -203,7 +204,7 @@ public class RegEntityBuilder<E extends Entity> {
      * @param <E> registered mob type
      */
     public static class MobBuilder<E extends Mob> extends RegEntityBuilder<E> {
-        private net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder attributes;
+        private AttributeSupplier.Builder attributes;
 
         public MobBuilder(DeferredRegister<EntityType<?>> registry, String name, MobCategory category) {
             super(registry, name, category);
@@ -302,7 +303,7 @@ public class RegEntityBuilder<E extends Entity> {
         /**
          * Stores the attribute builder that should be associated with the mob type.
          */
-        public MobBuilder<E> attributes(net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder attributes) {
+        public MobBuilder<E> attributes(AttributeSupplier.Builder attributes) {
             this.attributes = attributes;
             return this;
         }
@@ -310,7 +311,7 @@ public class RegEntityBuilder<E extends Entity> {
         /**
          * Returns the attribute builder configured for this mob, if any.
          */
-        public net.minecraft.world.entity.ai.attributes.AttributeSupplier.Builder getAttributesBuilder() {
+        public AttributeSupplier.Builder getAttributesBuilder() {
             return attributes;
         }
     }

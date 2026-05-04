@@ -2,11 +2,7 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.compat.BlockEntityAliasRegistry;
-import com.sshakusora.shadowsandpetals.registries.builder.RegBlockBuilder;
-import com.sshakusora.shadowsandpetals.registries.builder.RegBlockEntityBuilder;
-import com.sshakusora.shadowsandpetals.registries.builder.RegCreativeTabBuilder;
-import com.sshakusora.shadowsandpetals.registries.builder.RegEntityBuilder;
-import com.sshakusora.shadowsandpetals.registries.builder.RegItemBuilder;
+import com.sshakusora.shadowsandpetals.registries.builder.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -15,6 +11,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
@@ -47,7 +44,7 @@ public class SAPRegistries {
         return new RegBlockBuilder<B>(BLOCKS, name).block(factory);
     }
 
-    public static <T extends net.minecraft.world.level.block.entity.BlockEntity> RegBlockEntityBuilder<T> blockEntity(String name) {
+    public static <T extends BlockEntity> RegBlockEntityBuilder<T> blockEntity(String name) {
         return new RegBlockEntityBuilder<>(BLOCK_ENTITIES, name);
     }
 
