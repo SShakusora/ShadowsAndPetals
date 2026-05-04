@@ -102,5 +102,5 @@
   "item.shadowsandpetals.yellow_cafe_chair": "Yellow Cafe Chair",
   "itemGroup.shadowsandpetals.main": "Shadows & Petals",
   "jade.shadowsandpetals.cafe_chair.dyeable": "Dyeable",
-  "message.shadowsandpetals.cafe_chair.dye_hint": "%s can be dyed %s"
+  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s can be dyed "
 }

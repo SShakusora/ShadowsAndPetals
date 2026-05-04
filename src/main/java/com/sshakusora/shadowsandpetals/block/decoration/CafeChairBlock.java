@@ -33,7 +33,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CafeChairBlock extends AbstractSeatBlock {
     public static final MapCodec<CafeChairBlock> CODEC = simpleCodec(CafeChairBlock::new);
-    public static final String DYE_HINT_MESSAGE_KEY = "message.shadowsandpetals.cafe_chair.dye_hint";
+    public static final String DYE_HINT_PREFIX_KEY = "message.shadowsandpetals.cafe_chair.dye_hint_prefix";
     private static final double SEAT_HEIGHT = 0.625D;
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(7.0D, 0.0D, 7.0D, 9.0D, 7.0D, 9.0D),
@@ -95,7 +95,7 @@ public class CafeChairBlock extends AbstractSeatBlock {
     public static Component createDyeHintMessage(BlockState state, DyeColor dyeColor) {
         Component colorName = Component.translatable("color.minecraft." + dyeColor.getName())
                 .withStyle(style -> style.withColor(dyeColor.getTextColor()));
-        return Component.translatable(DYE_HINT_MESSAGE_KEY, state.getBlock().getName(), colorName);
+        return Component.translatable(DYE_HINT_PREFIX_KEY, state.getBlock().getName()).append(colorName);
     }
 
     @Override

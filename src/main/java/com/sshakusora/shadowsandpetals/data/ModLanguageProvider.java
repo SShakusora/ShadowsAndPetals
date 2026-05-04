@@ -16,7 +16,7 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add(CafeChairBlockComponentProvider.DYEABLE_TOOLTIP_KEY, "Dyeable");
-        add(CafeChairBlock.DYE_HINT_MESSAGE_KEY, "%s can be dyed %s");
+        add(CafeChairBlock.DYE_HINT_PREFIX_KEY, "%s can be dyed ");
         add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable", "Dyeable");
         add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable_desc", "Show whether cafe chairs can be recolored with dye.");
 
