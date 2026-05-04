@@ -74,7 +74,7 @@ public abstract class AbstractSeatBlock extends Block implements SimpleWaterlogg
     }
 
     private InteractionResult trySit(Level level, BlockPos pos, Player player) {
-        if (player.isShiftKeyDown() || player.isPassenger()) {
+        if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
         if (level.isClientSide) {

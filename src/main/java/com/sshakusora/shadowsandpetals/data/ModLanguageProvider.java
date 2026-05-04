@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.compat.jade.CafeChairBlockComponentProvider;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -12,6 +13,8 @@ public class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
+        add(CafeChairBlockComponentProvider.DYEABLE_TOOLTIP_KEY, "Dyeable");
+
         SAPRegistries.BLOCKS.getEntries().forEach(entry -> {
             String path = entry.getId().getPath();
             addWithFallback("block." + ShadowsAndPetals.MOD_ID + "." + path, path);
