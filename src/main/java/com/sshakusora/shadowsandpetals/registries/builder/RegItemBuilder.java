@@ -128,6 +128,7 @@ public class RegItemBuilder<I extends Item> {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, deferredItem.getId());
         }
+        DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), deferredItem.getId().getPath());
         if (langName != null) {
             DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
         }
@@ -236,6 +237,7 @@ public class RegItemBuilder<I extends Item> {
             for (ResourceLocation alias : aliases) {
                 registry.addAlias(alias, deferredItem.getId());
             }
+            DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), deferredItem.getId().getPath());
             if (langName != null) {
                 DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
             }

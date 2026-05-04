@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.data;
 
+import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Collection;
@@ -13,6 +14,9 @@ public final class DatagenBlockLootRegistry {
     private DatagenBlockLootRegistry() {}
 
     public static void add(ResourceLocation id, Consumer<ModBlockLootProvider> generator) {
+        if (LegacyCompatIds.isLegacyCompatId(id)) {
+            return;
+        }
         if (GENERATORS.putIfAbsent(id, generator) != null) {
             throw new IllegalStateException("Duplicate block loot datagen generator registered for " + id);
         }

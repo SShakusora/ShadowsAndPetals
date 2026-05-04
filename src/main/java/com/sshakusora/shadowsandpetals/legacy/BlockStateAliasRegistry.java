@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.compat;
+package com.sshakusora.shadowsandpetals.legacy;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.core.BlockPos;

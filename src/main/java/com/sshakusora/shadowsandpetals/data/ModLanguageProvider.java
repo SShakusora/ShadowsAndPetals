@@ -2,9 +2,10 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.compat.jade.CafeChairBlockComponentProvider;
-import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+
+import java.util.Map;
 
 public class ModLanguageProvider extends LanguageProvider {
     public ModLanguageProvider(PackOutput output) {
@@ -14,26 +15,12 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add(CafeChairBlockComponentProvider.DYEABLE_TOOLTIP_KEY, "Dyeable");
+        add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable", "Dyeable");
+        add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable_desc", "Show whether cafe chairs can be recolored with dye.");
 
-        SAPRegistries.BLOCKS.getEntries().forEach(entry -> {
-            String path = entry.getId().getPath();
-            addWithFallback("block." + ShadowsAndPetals.MOD_ID + "." + path, path);
-        });
-
-        SAPRegistries.ITEMS.getEntries().forEach(entry -> {
-            String path = entry.getId().getPath();
-            addWithFallback("item." + ShadowsAndPetals.MOD_ID + "." + path, path);
-        });
-
-        SAPRegistries.CREATIVE_TABS.getEntries().forEach(entry -> {
-            String path = entry.getId().getPath();
-            addWithFallback("itemGroup." + ShadowsAndPetals.MOD_ID + "." + path, path);
-        });
-
-        SAPRegistries.ENTITIES.getEntries().forEach(entry -> {
-            String path = entry.getId().getPath();
-            addWithFallback("entity." + ShadowsAndPetals.MOD_ID + "." + path, path);
-        });
+        for (Map.Entry<String, String> entry : DatagenLangRegistry.fallbacks().entrySet()) {
+            addWithFallback(entry.getKey(), entry.getValue());
+        }
     }
 
     private void addWithFallback(String key, String path) {

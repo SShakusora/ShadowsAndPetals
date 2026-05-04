@@ -1,7 +1,6 @@
-package com.sshakusora.shadowsandpetals.compat;
+package com.sshakusora.shadowsandpetals.legacy;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.blockentity.legacy.LegacyBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;

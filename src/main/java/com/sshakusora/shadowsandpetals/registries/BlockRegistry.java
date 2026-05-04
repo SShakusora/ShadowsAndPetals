@@ -7,12 +7,11 @@ import com.sshakusora.shadowsandpetals.block.decoration.CafeTableBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.DiningChairBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.ModularDeskBlock;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
+import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -100,35 +99,14 @@ public class BlockRegistry {
                     provider.models().getExistingFile(provider.modLoc("block/cafe_chair/" + color.getName()))
             ))
             .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
-                    .define('W', getWool(color))
+                    .define('W', WoolUtils.getWool(color))
                     .define('S', Items.STICK)
                     .pattern(" W ")
                     .pattern(" S ")
                     .pattern("SSS")
-                    .unlockedBy(provider.hasName(getWool(color)), provider.hasItem(getWool(color)))
+                    .unlockedBy(provider.hasName(WoolUtils.getWool(color)), provider.hasItem(WoolUtils.getWool(color)))
                     .save(provider.output()))
             .register());
 
     public static void init() {}
-
-    private static Block getWool(DyeColor color) {
-        return switch (color) {
-            case WHITE -> Blocks.WHITE_WOOL;
-            case ORANGE -> Blocks.ORANGE_WOOL;
-            case MAGENTA -> Blocks.MAGENTA_WOOL;
-            case LIGHT_BLUE -> Blocks.LIGHT_BLUE_WOOL;
-            case YELLOW -> Blocks.YELLOW_WOOL;
-            case LIME -> Blocks.LIME_WOOL;
-            case PINK -> Blocks.PINK_WOOL;
-            case GRAY -> Blocks.GRAY_WOOL;
-            case LIGHT_GRAY -> Blocks.LIGHT_GRAY_WOOL;
-            case CYAN -> Blocks.CYAN_WOOL;
-            case PURPLE -> Blocks.PURPLE_WOOL;
-            case BLUE -> Blocks.BLUE_WOOL;
-            case BROWN -> Blocks.BROWN_WOOL;
-            case GREEN -> Blocks.GREEN_WOOL;
-            case RED -> Blocks.RED_WOOL;
-            case BLACK -> Blocks.BLACK_WOOL;
-        };
-    }
 }

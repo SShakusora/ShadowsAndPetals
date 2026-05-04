@@ -170,6 +170,7 @@ public class RegCreativeTabBuilder {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, tab.getId());
         }
+        DatagenLangRegistry.addFallback("itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), tab.getId().getPath());
         if (langName != null) {
             DatagenLangRegistry.add("itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), langName);
         }

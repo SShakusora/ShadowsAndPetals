@@ -1,9 +1,10 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.legacy.LegacyStateBlock;
-import com.sshakusora.shadowsandpetals.compat.BlockStateAliasRegistry;
 import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.legacy.BlockStateAliasRegistry;
+import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
+import com.sshakusora.shadowsandpetals.legacy.LegacyStateBlock;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
@@ -19,7 +20,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -291,18 +291,19 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     private String buildCompatAliasName(ResourceLocation aliasId, int index) {
-        return name + "__compat_alias_" + index + "__" + aliasId.getNamespace().replace(':', '_').replace('/', '_')
-                + "__" + aliasId.getPath().replace('/', '_').toLowerCase(Locale.ROOT);
+        return LegacyCompatIds.blockName(name, aliasId, index);
     }
 
     private void applyLang(String path) {
-        if (langName == null) {
-            return;
+        DatagenLangRegistry.addFallback("block." + ShadowsAndPetals.MOD_ID + "." + path, path);
+        if (langName != null) {
+            DatagenLangRegistry.add("block." + ShadowsAndPetals.MOD_ID + "." + path, langName);
         }
-
-        DatagenLangRegistry.add("block." + ShadowsAndPetals.MOD_ID + "." + path, langName);
         if (withItem) {
-            DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + path, langName);
+            DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + path, path);
+            if (langName != null) {
+                DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + path, langName);
+            }
         }
     }
 

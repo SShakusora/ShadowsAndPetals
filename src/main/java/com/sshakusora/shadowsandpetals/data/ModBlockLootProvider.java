@@ -1,14 +1,16 @@
 package com.sshakusora.shadowsandpetals.data;
 
+import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.Set;
 
-public class ModBlockLootProvider extends net.minecraft.data.loot.BlockLootSubProvider {
+public class ModBlockLootProvider extends BlockLootSubProvider {
     public ModBlockLootProvider(HolderLookup.Provider registries) {
         super(Set.of(), FeatureFlags.REGISTRY.allFlags(), registries);
     }
@@ -22,7 +24,10 @@ public class ModBlockLootProvider extends net.minecraft.data.loot.BlockLootSubPr
 
     @Override
     protected Iterable<Block> getKnownBlocks() {
-        return SAPRegistries.BLOCKS.getEntries().stream().map(holder -> (Block) holder.get()).toList();
+        return SAPRegistries.BLOCKS.getEntries().stream()
+                .filter(holder -> !LegacyCompatIds.isLegacyCompatId(holder.getId()))
+                .map(holder -> (Block) holder.get())
+                .toList();
     }
 
     public void dropSelf(Block block) {

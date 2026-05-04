@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.block.legacy;
+package com.sshakusora.shadowsandpetals.legacy;
 
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;

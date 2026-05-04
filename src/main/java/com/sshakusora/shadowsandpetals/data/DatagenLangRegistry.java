@@ -5,6 +5,7 @@ import java.util.Map;
 
 public final class DatagenLangRegistry {
     private static final Map<String, String> EN_US = new LinkedHashMap<>();
+    private static final Map<String, String> EN_US_FALLBACKS = new LinkedHashMap<>();
 
     private DatagenLangRegistry() {}
 
@@ -12,7 +13,15 @@ public final class DatagenLangRegistry {
         EN_US.put(key, value);
     }
 
+    public static void addFallback(String key, String path) {
+        EN_US_FALLBACKS.putIfAbsent(key, path);
+    }
+
     public static String get(String key) {
         return EN_US.get(key);
+    }
+
+    public static Map<String, String> fallbacks() {
+        return EN_US_FALLBACKS;
     }
 }

@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.blockentity.legacy;
+package com.sshakusora.shadowsandpetals.legacy;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;

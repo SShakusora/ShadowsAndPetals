@@ -22,6 +22,6 @@ public final class CafeChairBlockComponentProvider implements IBlockComponentPro
 
     @Override
     public ResourceLocation getUid() {
-        return ShadowsAndPetals.asResource("jade/cafe_chair_dyeable");
+        return ShadowsAndPetals.asResource("jade.cafe_chair_dyeable");
     }
 }

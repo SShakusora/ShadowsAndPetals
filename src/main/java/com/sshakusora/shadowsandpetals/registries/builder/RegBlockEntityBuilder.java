@@ -1,7 +1,8 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.compat.BlockEntityAliasRegistry;
+import com.sshakusora.shadowsandpetals.legacy.BlockEntityAliasRegistry;
+import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -126,8 +127,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
     }
 
     private String buildCompatAliasName(ResourceLocation aliasId, int index) {
-        return name + "__compat_be_alias_" + index + "__" + aliasId.getNamespace().replace(':', '_').replace('/', '_')
-                + "__" + aliasId.getPath().replace('/', '_');
+        return LegacyCompatIds.blockEntityName(name, aliasId, index);
     }
 
     private record BlockEntityAliasSpec(

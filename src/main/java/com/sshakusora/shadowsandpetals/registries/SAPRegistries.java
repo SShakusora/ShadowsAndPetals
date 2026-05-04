@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.compat.BlockEntityAliasRegistry;
+import com.sshakusora.shadowsandpetals.legacy.BlockEntityAliasRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;

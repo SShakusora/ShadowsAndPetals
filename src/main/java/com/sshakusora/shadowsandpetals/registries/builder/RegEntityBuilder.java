@@ -192,6 +192,7 @@ public class RegEntityBuilder<E extends Entity> {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, deferredHolder.getId());
         }
+        DatagenLangRegistry.addFallback("entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), deferredHolder.getId().getPath());
         if (langName != null) {
             DatagenLangRegistry.add("entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), langName);
         }
