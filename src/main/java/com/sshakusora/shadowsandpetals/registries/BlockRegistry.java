@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.CafeTableBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.DiningChairBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.ModularDeskBlock;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -18,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 public class BlockRegistry {
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
-            .alias(CompatInfo.CM, CompatInfo.getWoodBlockAlias(woodType, "block_unitdesk"))
+            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_unitdesk"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -36,7 +37,7 @@ public class BlockRegistry {
 
     public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
-            .alias(CompatInfo.CM, CompatInfo.getWoodBlockAlias(woodType, "block_cafetable"))
+            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_cafetable"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -53,9 +54,28 @@ public class BlockRegistry {
                     .save(provider.output()))
             .register());
 
+    public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
+            .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
+            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias2(woodType, "block_diningchair"))
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion())
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
+                    .define('W', woodType.getSlab())
+                    .define('S', Items.STICK)
+                    .pattern("W  ")
+                    .pattern("WWW")
+                    .pattern("S S")
+                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+                    .save(provider.output()))
+            .register());
+
     public static final DyedBlockList<CafeChairBlock> CAFE_CHAIRS = new DyedBlockList<>(color -> SAPRegistries
             .block(color.getName() + "_cafe_chair", CafeChairBlock::new)
-            .alias(CompatInfo.CM, CompatInfo.getDyedBlockAlias(color, "block_cafechair"))
+            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getDyedBlockAlias(color, "block_cafechair"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)

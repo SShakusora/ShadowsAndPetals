@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "item": "minecraft:bamboo_slab"
+    }
+  },
+  "pattern": [
+    "W  ",
+    "WWW",
+    "S S"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shadowsandpetals:bamboo_dining_chair"
+  }
+}

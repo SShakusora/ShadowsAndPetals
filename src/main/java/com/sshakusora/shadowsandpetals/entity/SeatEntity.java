@@ -1,15 +1,20 @@
 package com.sshakusora.shadowsandpetals.entity;
 
-import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.AbstractSeatBlock;
 import com.sshakusora.shadowsandpetals.registries.EntityRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 public class SeatEntity extends Entity {
@@ -56,7 +61,7 @@ public class SeatEntity extends Entity {
             return;
         }
 
-        if (!(level().getBlockState(blockPosition()).getBlock() instanceof CafeChairBlock)) {
+        if (!(level().getBlockState(blockPosition()).getBlock() instanceof AbstractSeatBlock)) {
             discard();
             return;
         }
@@ -69,6 +74,38 @@ public class SeatEntity extends Entity {
     @Override
     protected boolean canRide(Entity passenger) {
         return passenger instanceof Player && getPassengers().isEmpty();
+    }
+
+    @Override
+    public Vec3 getDismountLocationForPassenger(LivingEntity passenger) {
+        Direction direction = passenger.getDirection();
+        if (direction.getAxis() == Direction.Axis.Y) {
+            direction = Direction.NORTH;
+        }
+
+        int[][] offsets = DismountHelper.offsetsForDirection(direction);
+        BlockPos blockPos = blockPosition();
+        BlockPos.MutableBlockPos mutableBlockPos = new BlockPos.MutableBlockPos();
+
+        for (Pose pose : passenger.getDismountPoses()) {
+            AABB bounds = passenger.getLocalBoundsForPose(pose);
+
+            for (int[] offset : offsets) {
+                mutableBlockPos.set(blockPos.getX() + offset[0], blockPos.getY(), blockPos.getZ() + offset[1]);
+                double floorHeight = level().getBlockFloorHeight(mutableBlockPos);
+                if (!DismountHelper.isBlockFloorValid(floorHeight)) {
+                    continue;
+                }
+
+                Vec3 dismountLocation = Vec3.upFromBottomCenterOf(mutableBlockPos, floorHeight);
+                if (DismountHelper.canDismountTo(level(), passenger, bounds.move(dismountLocation))) {
+                    passenger.setPose(pose);
+                    return dismountLocation;
+                }
+            }
+        }
+
+        return super.getDismountLocationForPassenger(passenger);
     }
 
     @Override

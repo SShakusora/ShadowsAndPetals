@@ -14,6 +14,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -65,9 +66,7 @@ public class RegItemBuilder<I extends Item> {
     }
 
     public RegItemBuilder<I> creativeTabs(CreativeTabType... tabs) {
-        for (CreativeTabType tab : tabs) {
-            this.creativeTabs.add(tab);
-        }
+        this.creativeTabs.addAll(Arrays.asList(tabs));
         return this;
     }
 
@@ -100,7 +99,7 @@ public class RegItemBuilder<I extends Item> {
             DatagenRecipeRegistry.add(deferredItem.getId(), provider -> recipeGenerator.accept(provider, deferredItem));
         }
         for (CreativeTabType tab : creativeTabs) {
-            CreativeTabContentsRegistry.add(tab, deferredItem::get);
+            CreativeTabContentsRegistry.add(tab, deferredItem);
         }
         return deferredItem;
     }
@@ -155,9 +154,7 @@ public class RegItemBuilder<I extends Item> {
         }
 
         public BlockItemBuilder creativeTabs(CreativeTabType... tabs) {
-            for (CreativeTabType tab : tabs) {
-                this.creativeTabs.add(tab);
-            }
+            this.creativeTabs.addAll(Arrays.asList(tabs));
             return this;
         }
 
@@ -192,7 +189,7 @@ public class RegItemBuilder<I extends Item> {
                 DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
             }
             for (CreativeTabType tab : creativeTabs) {
-                CreativeTabContentsRegistry.add(tab, deferredItem::get);
+                CreativeTabContentsRegistry.add(tab, deferredItem);
             }
             return deferredItem;
         }

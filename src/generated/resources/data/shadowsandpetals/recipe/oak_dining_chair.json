@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "S": {
+      "item": "minecraft:stick"
+    },
+    "W": {
+      "item": "minecraft:oak_slab"
+    }
+  },
+  "pattern": [
+    "W  ",
+    "WWW",
+    "S S"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shadowsandpetals:oak_dining_chair"
+  }
+}
