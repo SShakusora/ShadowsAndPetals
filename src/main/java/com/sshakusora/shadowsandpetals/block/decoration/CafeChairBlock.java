@@ -2,14 +2,18 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
+import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.network.chat.Component;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
@@ -73,6 +77,8 @@ public class CafeChairBlock extends AbstractSeatBlock {
                 if (!level.isClientSide) {
                     level.setBlock(pos, dyedState, Block.UPDATE_ALL);
                     level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 0.45F, 0.95F);
+                    HumanoidArm brushArm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
+                    spawnDyeParticles((ServerLevel) level, hitResult, player.getViewVector(0.0F), brushArm, getColor(state), dyeItem.getDyeColor());
                     if (!player.getAbilities().instabuild) {
                         stack.shrink(1);
                     }
@@ -92,10 +98,61 @@ public class CafeChairBlock extends AbstractSeatBlock {
                 .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
     }
 
-    public static Component createDyeHintMessage(BlockState state, DyeColor dyeColor) {
-        Component colorName = Component.translatable("color.minecraft." + dyeColor.getName())
-                .withStyle(style -> style.withColor(dyeColor.getTextColor()));
-        return Component.translatable(DYE_HINT_PREFIX_KEY, state.getBlock().getName()).append(colorName);
+    public static DyeColor getColor(BlockState state) {
+        for (DyeColor dyeColor : DyeColor.values()) {
+            if (BlockRegistry.CAFE_CHAIRS.get(dyeColor).get() == state.getBlock()) {
+                return dyeColor;
+            }
+        }
+        return DyeColor.WHITE;
+    }
+
+    private static void spawnDyeParticles(ServerLevel level, BlockHitResult hitResult, Vec3 viewVector, HumanoidArm brushArm, DyeColor sourceColor, DyeColor targetColor) {
+        BlockParticleOption sourceParticle = new BlockParticleOption(ParticleTypes.BLOCK, WoolUtils.getWool(sourceColor).defaultBlockState());
+        BlockParticleOption targetParticle = new BlockParticleOption(ParticleTypes.BLOCK, WoolUtils.getWool(targetColor).defaultBlockState());
+        int armDirection = brushArm == HumanoidArm.RIGHT ? 1 : -1;
+        DustParticlesDelta delta = DustParticlesDelta.fromDirection(viewVector, hitResult.getDirection());
+        spawnDyeParticleBurst(level, hitResult, targetParticle, 7, delta, armDirection, 1.0D);
+        spawnDyeParticleBurst(level, hitResult, sourceParticle, 1, delta, armDirection, -1.0D);
+    }
+
+    private static void spawnDyeParticleBurst(
+            ServerLevel level,
+            BlockHitResult hitResult,
+            BlockParticleOption particle,
+            int count,
+            DustParticlesDelta delta,
+            int armDirection,
+            double sweepDirection
+    ) {
+        Vec3 location = hitResult.getLocation();
+        Direction direction = hitResult.getDirection();
+        for (int i = 0; i < count; i++) {
+            double x = location.x + (level.random.nextDouble() - 0.5D) * 0.28D + surfaceOffset(direction.getStepX());
+            double y = location.y + (level.random.nextDouble() - 0.5D) * 0.012D + surfaceOffset(direction.getStepY());
+            double z = location.z + (level.random.nextDouble() - 0.5D) * 0.28D + surfaceOffset(direction.getStepZ());
+            double sweepSpeed = (0.02D + level.random.nextDouble() * 0.025D) * armDirection * sweepDirection;
+            double speedX = delta.xd() * sweepSpeed + (level.random.nextDouble() - 0.5D) * 0.006D;
+            double speedY = delta.yd() * sweepSpeed + level.random.nextDouble() * 0.003D;
+            double speedZ = delta.zd() * sweepSpeed + (level.random.nextDouble() - 0.5D) * 0.006D;
+            level.sendParticles(particle, x, y, z, 1, speedX, speedY, speedZ, 0.0D);
+        }
+    }
+
+    private static double surfaceOffset(int axisStep) {
+        return axisStep == 0 ? 0.0D : axisStep * 1.0E-4D;
+    }
+
+    private record DustParticlesDelta(double xd, double yd, double zd) {
+        public static DustParticlesDelta fromDirection(Vec3 viewVector, Direction direction) {
+            return switch (direction) {
+                case DOWN, UP -> new DustParticlesDelta(viewVector.z(), 0.0D, -viewVector.x());
+                case NORTH -> new DustParticlesDelta(1.0D, 0.0D, -0.1D);
+                case SOUTH -> new DustParticlesDelta(-1.0D, 0.0D, 0.1D);
+                case WEST -> new DustParticlesDelta(-0.1D, 0.0D, -1.0D);
+                case EAST -> new DustParticlesDelta(0.1D, 0.0D, 1.0D);
+            };
+        }
     }
 
     @Override

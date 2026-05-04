@@ -83,7 +83,7 @@ public final class CafeChairDyeHintHandler {
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Post event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.player == null || displayedTargetState == null || displayedDyeColor == null || displayTicks <= 0) {
+        if (minecraft.options.hideGui || minecraft.player == null || displayedTargetState == null || displayedDyeColor == null || displayTicks <= 0) {
             return;
         }
 
