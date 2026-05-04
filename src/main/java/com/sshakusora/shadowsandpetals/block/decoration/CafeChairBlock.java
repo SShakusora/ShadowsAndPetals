@@ -18,13 +18,14 @@ public class CafeChairBlock extends AbstractSeatBlock {
     public static final MapCodec<CafeChairBlock> CODEC = simpleCodec(CafeChairBlock::new);
     private static final double SEAT_HEIGHT = 0.4375D;
     private static final VoxelShape SHAPE = Shapes.or(
-            Block.box(3.0D, 0.0D, 3.0D, 13.0D, 1.0D, 13.0D),
-            Block.box(4.0D, 1.0D, 4.0D, 12.0D, 8.0D, 12.0D),
-            Block.box(4.0D, 8.0D, 10.0D, 12.0D, 16.0D, 12.0D),
-            Block.box(4.0D, 0.0D, 4.0D, 6.0D, 8.0D, 6.0D),
-            Block.box(10.0D, 0.0D, 4.0D, 12.0D, 8.0D, 6.0D),
-            Block.box(4.0D, 0.0D, 10.0D, 6.0D, 8.0D, 12.0D),
-            Block.box(10.0D, 0.0D, 10.0D, 12.0D, 8.0D, 12.0D)
+            Block.box(7.0D, 0.0D, 7.0D, 9.0D, 7.0D, 9.0D),
+            Block.box(7.5D, 0.0D, 3.0D, 8.5D, 1.0D, 7.0D),
+            Block.box(7.5D, 0.0D, 9.0D, 8.5D, 1.0D, 13.0D),
+            Block.box(3.0D, 0.0D, 7.5D, 7.0D, 1.0D, 8.5D),
+            Block.box(9.0D, 0.0D, 7.5D, 13.0D, 1.0D, 8.5D),
+            Block.box(3.5D, 7.0D, 3.5D, 12.5D, 8.0D, 12.5D),
+            Block.box(3.0D, 7.25D, 3.0D, 13.0D, 9.25D, 13.0D),
+            Block.box(3.5D, 9.25D, 3.5D, 12.5D, 10.25D, 12.5D)
     );
 
     public CafeChairBlock(BlockBehaviour.Properties properties) {
@@ -38,6 +39,11 @@ public class CafeChairBlock extends AbstractSeatBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPE;
     }
 

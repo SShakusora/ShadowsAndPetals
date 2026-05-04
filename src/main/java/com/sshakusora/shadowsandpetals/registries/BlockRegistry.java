@@ -95,6 +95,10 @@ public class BlockRegistry {
                     .noOcclusion())
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, chair) -> provider.simpleBlockWithItem(
+                    chair.get(),
+                    provider.models().getExistingFile(provider.modLoc("block/cafe_chair/" + color.getName()))
+            ))
             .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
                     .define('W', getWool(color))
                     .define('S', Items.STICK)

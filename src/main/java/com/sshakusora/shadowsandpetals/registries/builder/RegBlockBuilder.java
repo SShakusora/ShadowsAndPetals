@@ -287,6 +287,7 @@ public class RegBlockBuilder<B extends Block> {
         DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), properties);
         registry.addAlias(aliasSpec.aliasId(), compatBlock.getId());
         BlockStateAliasRegistry.add(compatBlock, () -> targetBlock.get().defaultBlockState(), aliasSpec.converter());
+        DatagenBlockLootRegistry.add(compatBlock.getId(), provider -> provider.addTable(compatBlock.get(), provider.noDropTable()));
     }
 
     private String buildCompatAliasName(ResourceLocation aliasId, int index) {

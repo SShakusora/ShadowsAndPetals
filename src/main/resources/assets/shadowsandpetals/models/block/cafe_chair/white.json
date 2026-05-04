@@ -1,0 +1,10 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "shadowsandpetals:block/cafe_chair/cafe_chair",
+	"texture_size": [32, 32],
+	"textures": {
+		"particle": "shadowsandpetals:block/cafe_chair/white",
+		"cushion": "shadowsandpetals:block/cafe_chair/white"
+	}
+}

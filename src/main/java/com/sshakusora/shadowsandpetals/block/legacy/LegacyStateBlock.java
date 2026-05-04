@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class LegacyStateBlock extends LegacyBlock {
+public class LegacyStateBlock extends Block {
     private static final ThreadLocal<Definition> CURRENT_DEFINITION = new ThreadLocal<>();
 
     private LegacyStateBlock(BlockBehaviour.Properties properties, Definition definition) {
