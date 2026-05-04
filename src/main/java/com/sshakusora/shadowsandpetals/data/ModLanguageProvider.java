@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
 import com.sshakusora.shadowsandpetals.compat.jade.CafeChairBlockComponentProvider;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -15,6 +16,7 @@ public class ModLanguageProvider extends LanguageProvider {
     @Override
     protected void addTranslations() {
         add(CafeChairBlockComponentProvider.DYEABLE_TOOLTIP_KEY, "Dyeable");
+        add(CafeChairBlock.DYE_HINT_MESSAGE_KEY, "%s can be dyed %s");
         add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable", "Dyeable");
         add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable_desc", "Show whether cafe chairs can be recolored with dye.");
 
