@@ -2,11 +2,9 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
-import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.CafeTableBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.DiningChairBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.ModularDeskBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
+import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.world.item.DyeColor;
@@ -15,6 +13,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 public class BlockRegistry {
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
@@ -56,7 +56,17 @@ public class BlockRegistry {
 
     public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias2(woodType, "block_diningchair"))
+            .stateAliasProperties(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias2(woodType, "block_diningchair"), legacy -> legacy
+                            .property(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)
+                            .property(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
+                            .property(BlockStateProperties.WATERLOGGED, false),
+                    (legacyState, targetState) -> legacyState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER
+                            ? targetState
+                            .setValue(DiningChairBlock.FACING, legacyState.getValue(BlockStateProperties.HORIZONTAL_FACING))
+                            .setValue(DiningChairBlock.WATERLOGGED, legacyState.getValue(BlockStateProperties.WATERLOGGED))
+                            : legacyState.getValue(BlockStateProperties.WATERLOGGED)
+                            ? Blocks.WATER.defaultBlockState()
+                            : Blocks.AIR.defaultBlockState())
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)

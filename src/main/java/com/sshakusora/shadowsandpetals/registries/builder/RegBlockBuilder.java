@@ -1,6 +1,8 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.legacy.LegacyStateBlock;
+import com.sshakusora.shadowsandpetals.compat.BlockStateAliasRegistry;
 import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
@@ -10,13 +12,17 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class RegBlockBuilder<B extends Block> {
@@ -33,6 +39,7 @@ public class RegBlockBuilder<B extends Block> {
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
 
     public RegBlockBuilder(DeferredRegister.Blocks registry, String name) {
         this.registry = registry;
@@ -118,6 +125,47 @@ public class RegBlockBuilder<B extends Block> {
         return this;
     }
 
+    public <L extends Block> RegBlockBuilder<B> stateAlias(
+            String oldPath,
+            Function<BlockBehaviour.Properties, L> legacyFactory,
+            BiFunction<BlockState, BlockState, BlockState> converter
+    ) {
+        return stateAlias(ShadowsAndPetals.MOD_ID, oldPath, legacyFactory, converter);
+    }
+
+    public <L extends Block> RegBlockBuilder<B> stateAlias(
+            String oldNamespace,
+            String oldPath,
+            Function<BlockBehaviour.Properties, L> legacyFactory,
+            BiFunction<BlockState, BlockState, BlockState> converter
+    ) {
+        this.stateAliases.add(new StateAliasSpec<>(
+                ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath),
+                legacyFactory,
+                converter
+        ));
+        return this;
+    }
+
+    public RegBlockBuilder<B> stateAliasProperties(
+            String oldPath,
+            Consumer<LegacyStateBlock.Builder> legacyStateBuilder,
+            BiFunction<BlockState, BlockState, BlockState> converter
+    ) {
+        return stateAliasProperties(ShadowsAndPetals.MOD_ID, oldPath, legacyStateBuilder, converter);
+    }
+
+    public RegBlockBuilder<B> stateAliasProperties(
+            String oldNamespace,
+            String oldPath,
+            Consumer<LegacyStateBlock.Builder> legacyStateBuilder,
+            BiFunction<BlockState, BlockState, BlockState> converter
+    ) {
+        LegacyStateBlock.Builder builder = LegacyStateBlock.builder();
+        legacyStateBuilder.accept(builder);
+        return stateAlias(oldNamespace, oldPath, LegacyStateBlock.factory(builder.build()), converter);
+    }
+
     @SuppressWarnings("unchecked")
     public DeferredBlock<B> register() {
         DeferredBlock<B> deferredBlock;
@@ -128,6 +176,7 @@ public class RegBlockBuilder<B extends Block> {
             deferredBlock = registry.registerBlock(name, blockFactory, properties);
         }
 
+        registerStateAliases(deferredBlock);
         postRegister(deferredBlock);
 
         if (withItem) {
@@ -150,6 +199,24 @@ public class RegBlockBuilder<B extends Block> {
         for (ResourceLocation alias : aliases) {
             registry.addAlias(alias, targetId);
         }
+    }
+
+    private void registerStateAliases(DeferredBlock<B> targetBlock) {
+        for (int i = 0; i < stateAliases.size(); i++) {
+            registerStateAlias(targetBlock, stateAliases.get(i), i);
+        }
+    }
+
+    private <L extends Block> void registerStateAlias(DeferredBlock<B> targetBlock, StateAliasSpec<L> aliasSpec, int index) {
+        String compatName = buildCompatAliasName(aliasSpec.aliasId(), index);
+        DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), properties);
+        registry.addAlias(aliasSpec.aliasId(), compatBlock.getId());
+        BlockStateAliasRegistry.add(compatBlock, () -> targetBlock.get().defaultBlockState(), aliasSpec.converter());
+    }
+
+    private String buildCompatAliasName(ResourceLocation aliasId, int index) {
+        return name + "__compat_alias_" + index + "__" + aliasId.getNamespace().replace(':', '_').replace('/', '_')
+                + "__" + aliasId.getPath().replace('/', '_').toLowerCase(Locale.ROOT);
     }
 
     private void applyLang(String path) {
@@ -234,4 +301,10 @@ public class RegBlockBuilder<B extends Block> {
         SAPRegistries.ITEMS.register(name, key -> new BlockItem(block.get(), props));
         return block;
     }
+
+    private record StateAliasSpec<L extends Block>(
+            ResourceLocation aliasId,
+            Function<BlockBehaviour.Properties, L> factory,
+            BiFunction<BlockState, BlockState, BlockState> converter
+    ) {}
 }
