@@ -1,7 +1,9 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.compat.BlockEntityAliasRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.RegBlockBuilder;
+import com.sshakusora.shadowsandpetals.registries.builder.RegBlockEntityBuilder;
 import com.sshakusora.shadowsandpetals.registries.builder.RegCreativeTabBuilder;
 import com.sshakusora.shadowsandpetals.registries.builder.RegEntityBuilder;
 import com.sshakusora.shadowsandpetals.registries.builder.RegItemBuilder;
@@ -43,6 +45,14 @@ public class SAPRegistries {
 
     public static <B extends Block> RegBlockBuilder<B> block(String name, Function<BlockBehaviour.Properties, B> factory) {
         return new RegBlockBuilder<B>(BLOCKS, name).block(factory);
+    }
+
+    public static <T extends net.minecraft.world.level.block.entity.BlockEntity> RegBlockEntityBuilder<T> blockEntity(String name) {
+        return new RegBlockEntityBuilder<>(BLOCK_ENTITIES, name);
+    }
+
+    public static BlockEntityAliasRegistry.Builder blockEntityAlias(String name) {
+        return BlockEntityAliasRegistry.builder(BLOCK_ENTITIES, name);
     }
 
     // Item helpers
