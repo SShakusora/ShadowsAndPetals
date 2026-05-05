@@ -4,7 +4,7 @@
 	"parent": "shadowsandpetals:block/cafe_chair/cafe_chair",
 	"texture_size": [32, 32],
 	"textures": {
-		"particle": "shadowsandpetals:block/cafe_chair/blue",
+		"particle": "minecraft:block/blue_wool",
 		"cushion": "shadowsandpetals:block/cafe_chair/blue"
 	}
 }
