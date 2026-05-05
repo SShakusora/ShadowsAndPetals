@@ -12,7 +12,6 @@ public class EntityRegistry {
             .dimensions(0.01F, 0.01F)
             .clientTrackingRange(8)
             .updateInterval(1)
-            .serialize(false)
             .summonable(false)
             .register();
 

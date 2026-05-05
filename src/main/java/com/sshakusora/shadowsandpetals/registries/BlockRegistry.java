@@ -6,21 +6,87 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
+import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.DropExperienceBlock;
-import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
+import java.util.function.Supplier;
+
 public class BlockRegistry {
+    // TODO: Replace these oak placeholder textures with custom textures for each tree type.
+    private static final ResourceLocation OAK_LOG_SIDE_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_log");
+    private static final ResourceLocation OAK_LOG_END_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_log_top");
+    private static final ResourceLocation OAK_LEAVES_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_leaves");
+    private static final ResourceLocation OAK_SAPLING_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_sapling");
+
+    public static final DeferredBlock<RotatedPillarBlock> SAKURA_LOG = treeLog(
+            "sakura_log",
+            "block_tree_sakura_log"
+    );
+    public static final DeferredBlock<SaplingBlock> SAKURA_SAPLING = treeSapling(
+            "sakura_sapling",
+            SAPTreeGrowers.SAKURA,
+            "block_tree_sakura_nae"
+    );
+    public static final DeferredBlock<LeavesBlock> SAKURA_LEAVES = treeLeaves(
+            "sakura_leaves",
+            SAKURA_SAPLING,
+            "block_tree_sakura_flow"
+    );
+
+    public static final DeferredBlock<RotatedPillarBlock> MAPLE_LOG = treeLog(
+            "maple_log",
+            "block_tree_kaede_log"
+    );
+    public static final DeferredBlock<SaplingBlock> MAPLE_SAPLING = treeSapling(
+            "maple_sapling",
+            SAPTreeGrowers.MAPLE,
+            "block_tree_kaede_nae"
+    );
+    public static final DeferredBlock<LeavesBlock> MAPLE_LEAVES = treeLeaves(
+            "maple_leaves",
+            MAPLE_SAPLING,
+            "block_tree_kaede_leaf"
+    );
+
+    public static final DeferredBlock<RotatedPillarBlock> GINKGO_LOG = treeLog(
+            "ginkgo_log",
+            "block_tree_ichoh_log"
+    );
+    public static final DeferredBlock<SaplingBlock> GINKGO_SAPLING = treeSapling(
+            "ginkgo_sapling",
+            SAPTreeGrowers.GINKGO,
+            "block_tree_ichoh_nae"
+    );
+    public static final DeferredBlock<LeavesBlock> GINKGO_LEAVES = treeLeaves(
+            "ginkgo_leaves",
+            GINKGO_SAPLING,
+            "block_tree_ichoh_leaf"
+    );
+
+    public static final DeferredBlock<SaplingBlock> AUTUMN_OAK_SAPLING = treeSapling(
+            "autumn_oak_sapling",
+            SAPTreeGrowers.AUTUMN_OAK,
+            "block_tree_oakkare_nae"
+    );
+    public static final DeferredBlock<LeavesBlock> AUTUMN_OAK_LEAVES = treeLeaves(
+            "autumn_oak_leaves",
+            AUTUMN_OAK_SAPLING,
+            "block_tree_oakkare_leaf"
+    );
+
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
             .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
             .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore")
@@ -202,4 +268,51 @@ public class BlockRegistry {
             .register());
 
     public static void init() {}
+
+    private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String compatAlias) {
+        return SAPRegistries.block(id, RotatedPillarBlock::new)
+                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)
+                        .strength(2.0F)
+                        .sound(SoundType.WOOD))
+                .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN, BlockTags.OVERWORLD_NATURAL_LOGS)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE)
+                .blockstate((provider, log) -> provider.logBlockWithItem(log.get(), OAK_LOG_SIDE_TEXTURE, OAK_LOG_END_TEXTURE))
+                .register();
+    }
+
+    private static DeferredBlock<LeavesBlock> treeLeaves(String id, Supplier<SaplingBlock> sapling, String compatAlias) {
+        return SAPRegistries.block(id, LeavesBlock::new)
+                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
+                        .strength(0.2F)
+                        .sound(SoundType.GRASS)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE)
+                .blockstate((provider, leaves) -> provider.leavesBlockWithItem(leaves.get(), OAK_LEAVES_TEXTURE))
+                .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
+                .register();
+    }
+
+    private static DeferredBlock<SaplingBlock> treeSapling(String id, TreeGrower grower, String compatAlias) {
+        return SAPRegistries.block(id, properties -> new SaplingBlock(grower, properties))
+                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING)
+                        .noOcclusion()
+                        .randomTicks()
+                        .instabreak()
+                        .sound(SoundType.GRASS)
+                        .pushReaction(PushReaction.DESTROY))
+                .tags(BlockTags.SAPLINGS)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE)
+                .blockstate((provider, sapling) -> provider.saplingBlockWithItem(sapling.get(), OAK_SAPLING_TEXTURE))
+                .register();
+    }
 }

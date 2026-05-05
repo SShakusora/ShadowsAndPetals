@@ -7,6 +7,8 @@ import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.util.Set;
@@ -45,6 +47,10 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
 
     public void addTable(Block block, LootTable.Builder builder) {
         add(block, builder);
+    }
+
+    public void dropLeaves(LeavesBlock leaves, SaplingBlock sapling) {
+        add(leaves, createLeavesDrops(leaves, sapling, NORMAL_LEAVES_SAPLING_CHANCES));
     }
 
     public LootTable.Builder noDropTable() {

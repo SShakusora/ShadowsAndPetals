@@ -4,61 +4,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-public class WoodBlockList<T extends Block> implements Iterable<DeferredBlock<T>> {
-
-    private static final int WOOD_AMOUNT = WoodType.values().length;
-
-    private final DeferredBlock<?>[] values = new DeferredBlock<?>[WOOD_AMOUNT];
+public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.WoodType, T> {
 
     public WoodBlockList(Function<WoodType, DeferredBlock<? extends T>> filler) {
-        for (WoodType type : WoodType.values()) {
-            values[type.ordinal()] = filler.apply(type);
-        }
+        super(WoodType.class, filler);
     }
 
-    @SuppressWarnings("unchecked")
     public DeferredBlock<T> get(WoodType type) {
-        return (DeferredBlock<T>) values[type.ordinal()];
-    }
-
-    public boolean contains(Block block) {
-        for (DeferredBlock<?> entry : values) {
-            if (entry.get() == block) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @SuppressWarnings("unchecked")
-    public DeferredBlock<T>[] toArray() {
-        return (DeferredBlock<T>[]) Arrays.copyOf(values, values.length);
-    }
-
-    @Override
-    public Iterator<DeferredBlock<T>> iterator() {
-        return new Iterator<>() {
-            private int index = 0;
-
-            @Override
-            public boolean hasNext() {
-                return index < values.length;
-            }
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public DeferredBlock<T> next() {
-                if (!hasNext()) {
-                    throw new NoSuchElementException();
-                }
-                return (DeferredBlock<T>) values[index++];
-            }
-        };
+        return getByOrdinal(type.ordinal());
     }
 
     public enum WoodType {

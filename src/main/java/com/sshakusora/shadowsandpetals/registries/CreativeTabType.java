@@ -5,7 +5,8 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.Nullable;
 
 public enum CreativeTabType {
-    MAIN("main", "Shadows & Petals");
+    MAIN("main", "Shadows & Petals"),
+    NATURE("nature", "Shadows & Petals: Nature");
 
     private final String name;
     @Nullable

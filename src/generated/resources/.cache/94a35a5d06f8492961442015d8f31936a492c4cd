@@ -1,3 +1,10 @@
-// 1.21.1	2026-05-05T12:50:43.7087396	Tags for minecraft:block mod id shadowsandpetals
+// 1.21.1	2026-05-05T21:56:03.4100031	Tags for minecraft:block mod id shadowsandpetals
+2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/leaves.json
+c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/logs.json
+c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/logs_that_burn.json
+c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/mineable/axe.json
+2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/mineable/hoe.json
 ce430b53b4f7b380ba11831c060fa99885ca6d16 data/minecraft/tags/block/mineable/pickaxe.json
 40be6ad479a78b3441e5dac20024ea90e4f87fe3 data/minecraft/tags/block/needs_iron_tool.json
+c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/overworld_natural_logs.json
+28bb576b511a348a732ea2ceff4c79d1609050cc data/minecraft/tags/block/saplings.json

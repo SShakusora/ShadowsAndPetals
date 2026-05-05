@@ -35,6 +35,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 public class CafeChairBlock extends AbstractSeatBlock {
     public static final MapCodec<CafeChairBlock> CODEC = simpleCodec(CafeChairBlock::new);
     public static final String DYE_HINT_PREFIX_KEY = "message.shadowsandpetals.cafe_chair.dye_hint_prefix";
@@ -49,6 +52,7 @@ public class CafeChairBlock extends AbstractSeatBlock {
             Block.box(3.0D, 7.25D, 3.0D, 13.0D, 9.25D, 13.0D),
             Block.box(3.5D, 9.25D, 3.5D, 12.5D, 10.25D, 12.5D)
     );
+    private static Map<Block, DyeColor> colorByBlock;
 
     public CafeChairBlock(BlockBehaviour.Properties properties) {
         super(properties, SEAT_HEIGHT);
@@ -98,13 +102,18 @@ public class CafeChairBlock extends AbstractSeatBlock {
                 .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
     }
 
-    public static DyeColor getColor(BlockState state) {
-        for (DyeColor dyeColor : DyeColor.values()) {
-            if (BlockRegistry.CAFE_CHAIRS.get(dyeColor).get() == state.getBlock()) {
-                return dyeColor;
+    private static Map<Block, DyeColor> getColorMap() {
+        if (colorByBlock == null) {
+            colorByBlock = new IdentityHashMap<>();
+            for (DyeColor dyeColor : DyeColor.values()) {
+                colorByBlock.put(BlockRegistry.CAFE_CHAIRS.get(dyeColor).get(), dyeColor);
             }
         }
-        return DyeColor.WHITE;
+        return colorByBlock;
+    }
+
+    public static DyeColor getColor(BlockState state) {
+        return getColorMap().getOrDefault(state.getBlock(), DyeColor.WHITE);
     }
 
     private static void spawnDyeParticles(ServerLevel level, BlockHitResult hitResult, Vec3 viewVector, HumanoidArm brushArm, DyeColor sourceColor, DyeColor targetColor) {
