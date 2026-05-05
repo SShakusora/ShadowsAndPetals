@@ -8,6 +8,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.ChunkEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ public final class BlockStateAliasRegistry {
         }
     }
 
+    @Nullable
     private static BlockState getReplacement(BlockState state) {
         for (Rule rule : RULES) {
             if (!state.is(rule.legacyBlock.get())) {

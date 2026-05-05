@@ -17,8 +17,7 @@ public class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         add(CafeChairBlockComponentProvider.DYEABLE_TOOLTIP_KEY, "Dyeable");
         add(CafeChairBlock.DYE_HINT_PREFIX_KEY, "%s can be dyed ");
-        add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable", "Dyeable");
-        add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable_desc", "Show whether cafe chairs can be recolored with dye.");
+        add("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable", "Show if cafe chairs are dyeable");
 
         for (Map.Entry<String, String> entry : DatagenLangRegistry.fallbacks().entrySet()) {
             addWithFallback(entry.getKey(), entry.getValue());

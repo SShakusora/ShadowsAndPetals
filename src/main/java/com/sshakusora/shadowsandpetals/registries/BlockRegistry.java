@@ -2,11 +2,9 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
-import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.CafeTableBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.DiningChairBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.ModularDeskBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
+import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -33,6 +31,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_ALUMINUM.get()))
             .register();
 
     public static final DeferredBlock<DropExperienceBlock> DEEPSLATE_BAUXITE_ORE = SAPRegistries
@@ -45,6 +44,72 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_ALUMINUM.get()))
+            .register();
+
+    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
+            .block("aluminum_ingot_pile", IngotPileBlock::new), "block_alumi_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
+                    .strength(2.5F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_pile"))
+            .register();
+
+    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
+            .block("iron_ingot_pile", IngotPileBlock::new), "block_steel_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
+                    .strength(2.5F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.IRON_INGOT, "iron_ingot_from_pile"))
+            .register();
+
+    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
+            .block("copper_ingot_pile", IngotPileBlock::new), "block_copper_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.COPPER_INGOT, "copper_ingot_from_pile"))
+            .register();
+
+    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
+            .block("gold_ingot_pile", IngotPileBlock::new), "block_gold_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.GOLD_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.GOLD_INGOT, "gold_ingot_from_pile"))
+            .register();
+
+    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
+            .block("netherite_ingot_pile", IngotPileBlock::new), "block_netherite_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
+                    .strength(50.0F, 1200.0F)
+                    .sound(SoundType.NETHERITE_BLOCK)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
             .register();
 
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.

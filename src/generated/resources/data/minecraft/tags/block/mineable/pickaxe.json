@@ -1,6 +1,11 @@
 {
   "values": [
     "shadowsandpetals:bauxite_ore",
-    "shadowsandpetals:deepslate_bauxite_ore"
+    "shadowsandpetals:deepslate_bauxite_ore",
+    "shadowsandpetals:aluminum_ingot_pile",
+    "shadowsandpetals:iron_ingot_pile",
+    "shadowsandpetals:copper_ingot_pile",
+    "shadowsandpetals:gold_ingot_pile",
+    "shadowsandpetals:netherite_ingot_pile"
   ]
 }

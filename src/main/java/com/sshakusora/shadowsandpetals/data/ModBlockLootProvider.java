@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
 
@@ -36,6 +37,10 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
 
     public void dropSlab(Block block) {
         add(block, createSlabItemTable(block));
+    }
+
+    public void dropOre(Block block, ItemLike item) {
+        add(block, createOreDrop(block, item.asItem()));
     }
 
     public void addTable(Block block, LootTable.Builder builder) {

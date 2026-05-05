@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "shadowsandpetals:aluminum_ingot_pile"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "shadowsandpetals:aluminum_ingot"
+  }
+}

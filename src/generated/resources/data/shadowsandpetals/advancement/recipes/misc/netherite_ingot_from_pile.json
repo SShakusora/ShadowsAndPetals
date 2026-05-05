@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_netherite_ingot_pile": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:netherite_ingot_pile"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shadowsandpetals:netherite_ingot_from_pile"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_netherite_ingot_pile"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "shadowsandpetals:netherite_ingot_from_pile"
+    ]
+  }
+}

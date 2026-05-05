@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "shadowsandpetals:copper_ingot_pile"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "minecraft:copper_ingot"
+  }
+}
