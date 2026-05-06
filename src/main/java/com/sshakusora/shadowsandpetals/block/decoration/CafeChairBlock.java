@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import net.minecraft.core.BlockPos;
@@ -40,7 +41,7 @@ import java.util.Map;
 
 public class CafeChairBlock extends AbstractSeatBlock {
     public static final MapCodec<CafeChairBlock> CODEC = simpleCodec(CafeChairBlock::new);
-    public static final String DYE_HINT_PREFIX_KEY = "message.shadowsandpetals.cafe_chair.dye_hint_prefix";
+    public static final String DYE_HINT_PREFIX_KEY = BuiltinLanguageKeys.CAFE_CHAIR_DYE_HINT_PREFIX.key();
     private static final double SEAT_HEIGHT = 0.625D;
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(7.0D, 0.0D, 7.0D, 9.0D, 7.0D, 9.0D),

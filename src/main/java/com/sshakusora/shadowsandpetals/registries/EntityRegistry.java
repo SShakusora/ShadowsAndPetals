@@ -13,6 +13,7 @@ public class EntityRegistry {
             .clientTrackingRange(8)
             .updateInterval(1)
             .summonable(false)
+            .lang("zh_cn", "座位")
             .register();
 
     public static void init() {}

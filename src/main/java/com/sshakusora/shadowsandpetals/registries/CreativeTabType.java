@@ -5,17 +5,20 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import org.jetbrains.annotations.Nullable;
 
 public enum CreativeTabType {
-    MAIN("main", "Shadows & Petals"),
-    NATURE("nature", "Shadows & Petals: Nature");
+    MAIN("main", "Shadows & Petals", "织影落花"),
+    NATURE("nature", "Shadows & Petals: Nature", "织影落花：自然");
 
     private final String name;
     @Nullable
     private final String langName;
+    @Nullable
+    private final String zhCnLangName;
     private DeferredHolder<CreativeModeTab, CreativeModeTab> holder;
 
-    CreativeTabType(String name, @Nullable String langName) {
+    CreativeTabType(String name, @Nullable String langName, @Nullable String zhCnLangName) {
         this.name = name;
         this.langName = langName;
+        this.zhCnLangName = zhCnLangName;
     }
 
     public String getName() {
@@ -25,6 +28,11 @@ public enum CreativeTabType {
     @Nullable
     public String getLangName() {
         return langName;
+    }
+
+    @Nullable
+    public String getZhCnLangName() {
+        return zhCnLangName;
     }
 
     public DeferredHolder<CreativeModeTab, CreativeModeTab> getHolder() {

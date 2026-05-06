@@ -10,7 +10,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Fluent builder for {@link EntityType} registration.
@@ -33,7 +35,7 @@ public class RegEntityBuilder<E extends Entity> {
     private boolean serialize = true;
     private float spawnDimensionsScale = -1.0f;
     private float eyeHeight = -1.0f;
-    private String langName;
+    private final Map<String, String> langNames = new LinkedHashMap<>();
     private final List<Block> immuneToBlocks = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
@@ -138,7 +140,15 @@ public class RegEntityBuilder<E extends Entity> {
      * Adds a generated language entry for the entity type.
      */
     public RegEntityBuilder<E> lang(String name) {
-        this.langName = name;
+        this.langNames.put(DatagenLangRegistry.DEFAULT_LOCALE, name);
+        return this;
+    }
+
+    /**
+     * Adds a generated language entry for the entity type for a specific locale.
+     */
+    public RegEntityBuilder<E> lang(String locale, String name) {
+        this.langNames.put(locale, name);
         return this;
     }
 
@@ -193,8 +203,8 @@ public class RegEntityBuilder<E extends Entity> {
             registry.addAlias(alias, deferredHolder.getId());
         }
         DatagenLangRegistry.addFallback("entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), deferredHolder.getId().getPath());
-        if (langName != null) {
-            DatagenLangRegistry.add("entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), langName);
+        for (Map.Entry<String, String> entry : langNames.entrySet()) {
+            DatagenLangRegistry.add(entry.getKey(), "entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), entry.getValue());
         }
         return deferredHolder;
     }
@@ -280,6 +290,12 @@ public class RegEntityBuilder<E extends Entity> {
         @Override
         public MobBuilder<E> lang(String name) {
             super.lang(name);
+            return this;
+        }
+
+        @Override
+        public MobBuilder<E> lang(String locale, String name) {
+            super.lang(locale, name);
             return this;
         }
 

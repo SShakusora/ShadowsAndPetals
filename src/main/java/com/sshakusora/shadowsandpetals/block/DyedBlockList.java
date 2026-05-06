@@ -16,4 +16,25 @@ public class DyedBlockList<T extends Block> extends BlockList<DyeColor, T> {
         return getByOrdinal(color.ordinal());
     }
 
+    public static String zhName(DyeColor color) {
+        return switch (color) {
+            case WHITE -> "白色";
+            case ORANGE -> "橙色";
+            case MAGENTA -> "品红色";
+            case LIGHT_BLUE -> "淡蓝色";
+            case YELLOW -> "黄色";
+            case LIME -> "黄绿色";
+            case PINK -> "粉红色";
+            case GRAY -> "灰色";
+            case LIGHT_GRAY -> "淡灰色";
+            case CYAN -> "青色";
+            case PURPLE -> "紫色";
+            case BLUE -> "蓝色";
+            case BROWN -> "棕色";
+            case GREEN -> "绿色";
+            case RED -> "红色";
+            case BLACK -> "黑色";
+        };
+    }
+
 }

@@ -17,25 +17,27 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
     }
 
     public enum WoodType {
-        OAK("oak", Blocks.OAK_PLANKS, Blocks.OAK_STAIRS, Blocks.OAK_SLAB),
-        SPRUCE("spruce", Blocks.SPRUCE_PLANKS, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_SLAB),
-        BIRCH("birch", Blocks.BIRCH_PLANKS, Blocks.BIRCH_STAIRS, Blocks.BIRCH_SLAB),
-        JUNGLE("jungle", Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_SLAB),
-        ACACIA("acacia", Blocks.ACACIA_PLANKS, Blocks.ACACIA_STAIRS, Blocks.ACACIA_SLAB),
-        DARK_OAK("dark_oak", Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_SLAB),
-        MANGROVE("mangrove", Blocks.MANGROVE_PLANKS, Blocks.MANGROVE_STAIRS, Blocks.MANGROVE_SLAB),
-        CHERRY("cherry", Blocks.CHERRY_PLANKS, Blocks.CHERRY_STAIRS, Blocks.CHERRY_SLAB),
-        BAMBOO("bamboo", Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_STAIRS, Blocks.BAMBOO_SLAB),
-        CRIMSON("crimson", Blocks.CRIMSON_PLANKS, Blocks.CRIMSON_STAIRS, Blocks.CRIMSON_SLAB),
-        WARPED("warped", Blocks.WARPED_PLANKS, Blocks.WARPED_STAIRS, Blocks.WARPED_SLAB);
+        OAK("oak", "橡木", Blocks.OAK_PLANKS, Blocks.OAK_STAIRS, Blocks.OAK_SLAB),
+        SPRUCE("spruce", "云杉木", Blocks.SPRUCE_PLANKS, Blocks.SPRUCE_STAIRS, Blocks.SPRUCE_SLAB),
+        BIRCH("birch", "白桦木", Blocks.BIRCH_PLANKS, Blocks.BIRCH_STAIRS, Blocks.BIRCH_SLAB),
+        JUNGLE("jungle", "丛林木", Blocks.JUNGLE_PLANKS, Blocks.JUNGLE_STAIRS, Blocks.JUNGLE_SLAB),
+        ACACIA("acacia", "金合欢木", Blocks.ACACIA_PLANKS, Blocks.ACACIA_STAIRS, Blocks.ACACIA_SLAB),
+        DARK_OAK("dark_oak", "深色橡木", Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_SLAB),
+        MANGROVE("mangrove", "红树木", Blocks.MANGROVE_PLANKS, Blocks.MANGROVE_STAIRS, Blocks.MANGROVE_SLAB),
+        CHERRY("cherry", "樱花木", Blocks.CHERRY_PLANKS, Blocks.CHERRY_STAIRS, Blocks.CHERRY_SLAB),
+        BAMBOO("bamboo", "竹", Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_STAIRS, Blocks.BAMBOO_SLAB),
+        CRIMSON("crimson", "绯红木", Blocks.CRIMSON_PLANKS, Blocks.CRIMSON_STAIRS, Blocks.CRIMSON_SLAB),
+        WARPED("warped", "诡异木", Blocks.WARPED_PLANKS, Blocks.WARPED_STAIRS, Blocks.WARPED_SLAB);
 
         private final String name;
+        private final String zhName;
         private final Block planks;
         private final Block stairs;
         private final Block slab;
 
-        WoodType(String name, Block planks, Block stairs, Block slab) {
+        WoodType(String name, String zhName, Block planks, Block stairs, Block slab) {
             this.name = name;
+            this.zhName = zhName;
             this.planks = planks;
             this.stairs = stairs;
             this.slab = slab;
@@ -43,6 +45,10 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
 
         public String getName() {
             return name;
+        }
+
+        public String getZhName() {
+            return zhName;
         }
 
         public Block getPlanks() {

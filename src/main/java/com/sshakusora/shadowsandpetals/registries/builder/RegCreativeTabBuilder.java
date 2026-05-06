@@ -12,7 +12,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -23,7 +25,7 @@ public class RegCreativeTabBuilder {
     private final DeferredRegister<CreativeModeTab> registry;
     private final String name;
     private Component title;
-    private String langName;
+    private final Map<String, String> langNames = new LinkedHashMap<>();
     private Supplier<ItemLike> iconSupplier = () -> Items.BARRIER;
     private final List<ItemStack> items = new ArrayList<>();
     private final List<Consumer<CreativeModeTab.Output>> simpleDisplayGenerators = new ArrayList<>();
@@ -56,7 +58,16 @@ public class RegCreativeTabBuilder {
      * Generates a language entry and resets the title to the mod-local translation key.
      */
     public RegCreativeTabBuilder lang(String name) {
-        this.langName = name;
+        this.langNames.put(DatagenLangRegistry.DEFAULT_LOCALE, name);
+        this.title = Component.translatable("itemGroup." + ShadowsAndPetals.MOD_ID + "." + this.name);
+        return this;
+    }
+
+    /**
+     * Generates a language entry for a specific locale and resets the title to the mod-local translation key.
+     */
+    public RegCreativeTabBuilder lang(String locale, String name) {
+        this.langNames.put(locale, name);
         this.title = Component.translatable("itemGroup." + ShadowsAndPetals.MOD_ID + "." + this.name);
         return this;
     }
@@ -171,8 +182,8 @@ public class RegCreativeTabBuilder {
             registry.addAlias(alias, tab.getId());
         }
         DatagenLangRegistry.addFallback("itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), tab.getId().getPath());
-        if (langName != null) {
-            DatagenLangRegistry.add("itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), langName);
+        for (Map.Entry<String, String> entry : langNames.entrySet()) {
+            DatagenLangRegistry.add(entry.getKey(), "itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), entry.getValue());
         }
         return tab;
     }

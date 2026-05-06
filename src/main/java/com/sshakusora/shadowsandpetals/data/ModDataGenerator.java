@@ -26,7 +26,8 @@ public class ModDataGenerator {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, existingFileHelper));
-        generator.addProvider(event.includeClient(), new ModLanguageProvider(output));
+        generator.addProvider(event.includeClient(), new ModLanguageProvider(output, "en_us"));
+        generator.addProvider(event.includeClient(), new ModLanguageProvider(output, "zh_cn"));
         generator.addProvider(event.includeServer(), new ModRecipeProvider(output, lookupProvider));
         generator.addProvider(event.includeServer(), new LootTableProvider(output, Set.of(), List.of(
                 new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK)

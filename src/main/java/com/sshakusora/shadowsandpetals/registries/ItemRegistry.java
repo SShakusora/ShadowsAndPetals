@@ -10,6 +10,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
 public class ItemRegistry {
     public static final DeferredItem<Item> RAW_ALUMINUM = SAPRegistries.item("raw_aluminum")
             .alias(CompatInfo.CHINJUFU_MOD, "item_bauxite")
+            .lang("zh_cn", "粗铝")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
@@ -23,6 +24,7 @@ public class ItemRegistry {
                         .unlockedBy(provider.hasName(RAW_ALUMINUM.get()), provider.hasItem(RAW_ALUMINUM.get()))
                         .save(provider.output(), provider.id("aluminum_ingot_from_blasting"));
             })
+            .lang("zh_cn", "铝锭")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 

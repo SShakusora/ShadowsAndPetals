@@ -19,9 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -44,7 +42,7 @@ public class RegBlockBuilder<B extends Block> {
     private boolean withItem;
     private Item.Properties itemProperties;
     private Function<Block, ? extends BlockItem> itemFactory;
-    private String langName;
+    private final Map<String, String> langNames = new LinkedHashMap<>();
     private BiConsumer<ModBlockStateProvider, DeferredBlock<B>> blockStateGenerator;
     private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
@@ -122,7 +120,15 @@ public class RegBlockBuilder<B extends Block> {
      * Adds a generated language entry for the block and, when present, its block item.
      */
     public RegBlockBuilder<B> lang(String name) {
-        this.langName = name;
+        this.langNames.put(DatagenLangRegistry.DEFAULT_LOCALE, name);
+        return this;
+    }
+
+    /**
+     * Adds a generated language entry for the block and, when present, its block item for a specific locale.
+     */
+    public RegBlockBuilder<B> lang(String locale, String name) {
+        this.langNames.put(locale, name);
         return this;
     }
 
@@ -323,13 +329,13 @@ public class RegBlockBuilder<B extends Block> {
 
     private void applyLang(String path) {
         DatagenLangRegistry.addFallback("block." + ShadowsAndPetals.MOD_ID + "." + path, path);
-        if (langName != null) {
-            DatagenLangRegistry.add("block." + ShadowsAndPetals.MOD_ID + "." + path, langName);
+        for (Map.Entry<String, String> entry : langNames.entrySet()) {
+            DatagenLangRegistry.add(entry.getKey(), "block." + ShadowsAndPetals.MOD_ID + "." + path, entry.getValue());
         }
         if (withItem) {
             DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + path, path);
-            if (langName != null) {
-                DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + path, langName);
+            for (Map.Entry<String, String> entry : langNames.entrySet()) {
+                DatagenLangRegistry.add(entry.getKey(), "item." + ShadowsAndPetals.MOD_ID + "." + path, entry.getValue());
             }
         }
     }

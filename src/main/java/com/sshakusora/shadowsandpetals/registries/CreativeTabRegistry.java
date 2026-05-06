@@ -11,6 +11,7 @@ public class CreativeTabRegistry {
         DeferredHolder<CreativeModeTab, CreativeModeTab> holder = SAPRegistries
                 .creativeTab(type.getName())
                 .lang(type.getLangName())
+                .lang("zh_cn", type.getZhCnLangName())
                 .addItems(CreativeTabContentsRegistry.generator(type))
                 .register();
         type.bind(holder);

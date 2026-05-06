@@ -14,9 +14,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -31,7 +29,7 @@ public class RegItemBuilder<I extends Item> {
     private final String name;
     private Item.Properties properties = new Item.Properties();
     private Function<Item.Properties, I> itemFactory;
-    private String langName;
+    private final Map<String, String> langNames = new LinkedHashMap<>();
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
@@ -69,7 +67,15 @@ public class RegItemBuilder<I extends Item> {
      * Adds a generated language entry for the item.
      */
     public RegItemBuilder<I> lang(String name) {
-        this.langName = name;
+        this.langNames.put(DatagenLangRegistry.DEFAULT_LOCALE, name);
+        return this;
+    }
+
+    /**
+     * Adds a generated language entry for the item for a specific locale.
+     */
+    public RegItemBuilder<I> lang(String locale, String name) {
+        this.langNames.put(locale, name);
         return this;
     }
 
@@ -129,8 +135,8 @@ public class RegItemBuilder<I extends Item> {
             registry.addAlias(alias, deferredItem.getId());
         }
         DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), deferredItem.getId().getPath());
-        if (langName != null) {
-            DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
+        for (Map.Entry<String, String> entry : langNames.entrySet()) {
+            DatagenLangRegistry.add(entry.getKey(), "item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), entry.getValue());
         }
         if (recipeGenerator != null) {
             DatagenRecipeRegistry.add(deferredItem.getId(), provider -> recipeGenerator.accept(provider, deferredItem));
@@ -157,7 +163,7 @@ public class RegItemBuilder<I extends Item> {
         private Supplier<? extends Block> blockSupplier;
         private DeferredBlock<? extends Block> deferredBlock;
         private Item.Properties properties = new Item.Properties();
-        private String langName;
+        private final Map<String, String> langNames = new LinkedHashMap<>();
         private final List<CreativeTabType> creativeTabs = new ArrayList<>();
         private final List<ResourceLocation> aliases = new ArrayList<>();
 
@@ -193,7 +199,12 @@ public class RegItemBuilder<I extends Item> {
         }
 
         public BlockItemBuilder lang(String name) {
-            this.langName = name;
+            this.langNames.put(DatagenLangRegistry.DEFAULT_LOCALE, name);
+            return this;
+        }
+
+        public BlockItemBuilder lang(String locale, String name) {
+            this.langNames.put(locale, name);
             return this;
         }
 
@@ -238,8 +249,8 @@ public class RegItemBuilder<I extends Item> {
                 registry.addAlias(alias, deferredItem.getId());
             }
             DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), deferredItem.getId().getPath());
-            if (langName != null) {
-                DatagenLangRegistry.add("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), langName);
+            for (Map.Entry<String, String> entry : langNames.entrySet()) {
+                DatagenLangRegistry.add(entry.getKey(), "item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), entry.getValue());
             }
             for (CreativeTabType tab : creativeTabs) {
                 CreativeTabContentsRegistry.add(tab, deferredItem);
