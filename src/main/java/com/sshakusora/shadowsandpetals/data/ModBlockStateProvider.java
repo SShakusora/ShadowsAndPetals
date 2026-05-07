@@ -1,13 +1,17 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
+import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class ModBlockStateProvider extends BlockStateProvider {
@@ -50,6 +54,24 @@ public class ModBlockStateProvider extends BlockStateProvider {
         var model = models().cross(name(block), texture).renderType("cutout");
         simpleBlock(block, model);
         simpleBlockItem(block, model);
+    }
+
+    public void ingotPileBlock(IngotPileBlock block) {
+        String blockName = name(block);
+        String metalName = blockName.endsWith("_ingot_pile")
+                ? blockName.substring(0, blockName.length() - "_ingot_pile".length())
+                : blockName;
+
+        getVariantBuilder(block).forAllStates(state -> {
+            boolean isDouble = state.getValue(IngotPileBlock.TYPE) == SlabType.DOUBLE;
+            boolean isZ = state.getValue(IngotPileBlock.HORIZONTAL_AXIS) == Direction.Axis.Z;
+            String modelPath = "block/ingot_pile/" + metalName + (isDouble ? "_double" : "_bottom");
+            return ConfiguredModel.builder()
+                    .modelFile(models().getExistingFile(modLoc(modelPath)))
+                    .rotationY(isZ ? 90 : 0)
+                    .build();
+        });
+        simpleBlockItem(block, models().getExistingFile(modLoc("block/ingot_pile/" + metalName + "_bottom")));
     }
 
     private String name(Block block) {

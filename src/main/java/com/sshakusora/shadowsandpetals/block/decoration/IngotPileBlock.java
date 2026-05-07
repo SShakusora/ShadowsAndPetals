@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
+import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -23,6 +24,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.EnumMap;
+import java.util.Map;
+
 public class IngotPileBlock extends SlabBlock {
     public static final MapCodec<IngotPileBlock> CODEC = simpleCodec(IngotPileBlock::new);
     public static final EnumProperty<Direction.Axis> HORIZONTAL_AXIS = BlockStateProperties.HORIZONTAL_AXIS;
@@ -33,6 +37,28 @@ public class IngotPileBlock extends SlabBlock {
             Block.box(0.5D, 4.0D, 8.25D, 15.5D, 8.0D, 15.0D),
             Block.box(0.5D, 4.0D, 1.0D, 15.5D, 8.0D, 7.75D)
     );
+
+    private static final VoxelShape INGOT_PILE_DOUBLE_SHAPE = Shapes.or(
+            INGOT_PILE_BOTTOM_SHAPE,
+            Block.box(1.0D, 8.0D, 0.5D, 7.75D, 12.0D, 15.5D),
+            Block.box(8.25D, 8.0D, 0.5D, 15.0D, 12.0D, 15.5D),
+            Block.box(0.5D, 12.0D, 1.0D, 15.5D, 16.0D, 7.75D),
+            Block.box(0.5D, 12.0D, 8.25D, 15.5D, 16.0D, 15.0D)
+    );
+
+    private static final Map<Direction.Axis, VoxelShape> BOTTOM_SHAPES = new EnumMap<>(Direction.Axis.class);
+    private static final Map<Direction.Axis, VoxelShape> DOUBLE_SHAPES = new EnumMap<>(Direction.Axis.class);
+
+    static {
+        Map<Direction, VoxelShape> bottomRotated = VoxelShapeUtils.rotateHorizontal(INGOT_PILE_BOTTOM_SHAPE);
+        Map<Direction, VoxelShape> doubleRotated = VoxelShapeUtils.rotateHorizontal(INGOT_PILE_DOUBLE_SHAPE);
+
+        BOTTOM_SHAPES.put(Direction.Axis.X, bottomRotated.get(Direction.NORTH));
+        BOTTOM_SHAPES.put(Direction.Axis.Z, bottomRotated.get(Direction.EAST));
+
+        DOUBLE_SHAPES.put(Direction.Axis.X, doubleRotated.get(Direction.NORTH));
+        DOUBLE_SHAPES.put(Direction.Axis.Z, doubleRotated.get(Direction.EAST));
+    }
 
     public IngotPileBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -51,8 +77,11 @@ public class IngotPileBlock extends SlabBlock {
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos pos = context.getClickedPos();
         BlockState currentState = context.getLevel().getBlockState(pos);
-        if (currentState.is(this) && currentState.getValue(TYPE) == SlabType.BOTTOM) {
-            return currentState.setValue(TYPE, SlabType.DOUBLE).setValue(WATERLOGGED, false);
+        if (currentState.is(this)
+                && currentState.getValue(TYPE) == SlabType.BOTTOM
+                && context.getItemInHand().is(asItem())
+                && context.getClickedFace() == Direction.UP) {
+            return currentState.setValue(TYPE, SlabType.DOUBLE);
         }
 
         BlockState state = super.getStateForPlacement(context);
@@ -75,7 +104,10 @@ public class IngotPileBlock extends SlabBlock {
 
     @Override
     public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
-        return state.getValue(TYPE) != SlabType.DOUBLE && context.getItemInHand().is(asItem());
+        return state.getValue(TYPE) == SlabType.BOTTOM
+                && context.getItemInHand().is(asItem())
+                && context.replacingClickedOnBlock()
+                && context.getClickedFace() == Direction.UP;
     }
 
     @Override
@@ -123,11 +155,13 @@ public class IngotPileBlock extends SlabBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(TYPE) == SlabType.DOUBLE ? super.getShape(state, level, pos, context) : INGOT_PILE_BOTTOM_SHAPE;
+        Direction.Axis axis = state.getValue(HORIZONTAL_AXIS);
+        return state.getValue(TYPE) == SlabType.DOUBLE ? DOUBLE_SHAPES.get(axis) : BOTTOM_SHAPES.get(axis);
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return state.getValue(TYPE) == SlabType.DOUBLE ? super.getCollisionShape(state, level, pos, context) : INGOT_PILE_BOTTOM_SHAPE;
+        Direction.Axis axis = state.getValue(HORIZONTAL_AXIS);
+        return state.getValue(TYPE) == SlabType.DOUBLE ? DOUBLE_SHAPES.get(axis) : BOTTOM_SHAPES.get(axis);
     }
 }

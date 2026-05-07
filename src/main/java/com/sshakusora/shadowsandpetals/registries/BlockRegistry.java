@@ -136,6 +136,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_pile"))
             .lang("zh_cn", "铝锭堆")
             .register();
@@ -150,6 +152,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.IRON_INGOT, "iron_ingot_from_pile"))
             .lang("zh_cn", "铁锭堆")
             .register();
@@ -164,6 +168,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.COPPER_INGOT, "copper_ingot_from_pile"))
             .lang("zh_cn", "铜锭堆")
             .register();
@@ -178,6 +184,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.GOLD_INGOT, "gold_ingot_from_pile"))
             .lang("zh_cn", "金锭堆")
             .register();
@@ -192,6 +200,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
             .lang("zh_cn", "下界合金锭堆")
             .register();

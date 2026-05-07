@@ -1,0 +1,46 @@
+{
+  "variants": {
+    "axis=x,type=bottom,waterlogged=false": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom"
+    },
+    "axis=x,type=bottom,waterlogged=true": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom"
+    },
+    "axis=x,type=double,waterlogged=false": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_double"
+    },
+    "axis=x,type=double,waterlogged=true": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_double"
+    },
+    "axis=x,type=top,waterlogged=false": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom"
+    },
+    "axis=x,type=top,waterlogged=true": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom"
+    },
+    "axis=z,type=bottom,waterlogged=false": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom",
+      "y": 90
+    },
+    "axis=z,type=bottom,waterlogged=true": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom",
+      "y": 90
+    },
+    "axis=z,type=double,waterlogged=false": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_double",
+      "y": 90
+    },
+    "axis=z,type=double,waterlogged=true": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_double",
+      "y": 90
+    },
+    "axis=z,type=top,waterlogged=false": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom",
+      "y": 90
+    },
+    "axis=z,type=top,waterlogged=true": {
+      "model": "shadowsandpetals:block/ingot_pile/netherite_bottom",
+      "y": 90
+    }
+  }
+}

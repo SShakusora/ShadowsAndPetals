@@ -1,0 +1,10 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "shadowsandpetals:block/ingot_pile/ingot_pile_double",
+	"texture_size": [32, 32],
+	"textures": {
+		"particle": "minecraft:block/copper_block",
+		"ingot_pile": "shadowsandpetals:block/ingot_pile/copper"
+	}
+}
