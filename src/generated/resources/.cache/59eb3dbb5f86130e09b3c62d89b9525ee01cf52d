@@ -1,4 +1,4 @@
-// 1.21.1	2026-05-09T12:29:35.2276741	Loot Tables
+// 1.21.1	2026-05-09T15:38:34.7695996	Loot Tables
 9d0cb766260770385537494dfe8f2b3826297f57 data/shadowsandpetals/loot_table/blocks/acacia_cafe_table.json
 70178d20aadde3fbb874c521272a74cd1fbec6e1 data/shadowsandpetals/loot_table/blocks/acacia_dining_chair.json
 f1e3a1a646710636bfac8a547c1c276da4215f68 data/shadowsandpetals/loot_table/blocks/acacia_modular_desk.json
@@ -55,6 +55,7 @@ f9418aa12d18848ad6ee3dfc5acbad1ad1320e6b data/shadowsandpetals/loot_table/blocks
 d58a80deb305ea27f92ad309be0160540966a553 data/shadowsandpetals/loot_table/blocks/orange_cafe_chair.json
 3e07b5a3aced2cd790af45c03d8119ff03291eb3 data/shadowsandpetals/loot_table/blocks/pink_cafe_chair.json
 d2b8602dec8ce101c04818afb1b1c87182025c04 data/shadowsandpetals/loot_table/blocks/purple_cafe_chair.json
+01494cfa536419b741107ccec926a05d7ee099dc data/shadowsandpetals/loot_table/blocks/raw_bauxite_block.json
 c53958c300e2d20dc52cc427b82989f194c08f66 data/shadowsandpetals/loot_table/blocks/red_cafe_chair.json
 ef9249d26407b31911d1097f9bf7c8929c8fbdf0 data/shadowsandpetals/loot_table/blocks/sakura_leaves.json
 cbec64dac54e48b8903ed804aaba3ee637dcfec1 data/shadowsandpetals/loot_table/blocks/sakura_log.json

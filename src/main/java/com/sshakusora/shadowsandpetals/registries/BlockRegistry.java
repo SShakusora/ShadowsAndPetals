@@ -128,6 +128,21 @@ public class BlockRegistry {
             .lang("zh_cn", "深层矾土矿石")
             .register();
 
+    public static final DeferredBlock<Block> RAW_BAUXITE_BLOCK = SAPRegistries
+            .block("raw_bauxite_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK)
+                    .strength(5.0F, 6.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.RAW_BAUXITE.get(), "raw_bauxite_from_block"))
+            .lang("zh_cn", "粗矾土块")
+            .register();
+
     public static final DeferredBlock<Block> ALUMINUM_BLOCK = SAPRegistries
             .block("aluminum_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
