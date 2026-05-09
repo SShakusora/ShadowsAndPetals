@@ -8,7 +8,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
@@ -57,15 +57,15 @@ public class ModRecipeProvider extends RecipeProvider {
         return "has_" + tag.location().getPath().replace('/', '_');
     }
 
-    public ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, path);
+    public Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, path);
     }
 
     public void save(RecipeBuilder builder) {
         builder.save(output());
     }
 
-    public void save(RecipeBuilder builder, ResourceLocation id) {
+    public void save(RecipeBuilder builder, Identifier id) {
         builder.save(output(), id);
     }
 }

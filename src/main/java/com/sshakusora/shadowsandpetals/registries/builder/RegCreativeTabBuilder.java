@@ -3,7 +3,7 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -30,7 +30,7 @@ public class RegCreativeTabBuilder {
     private final List<ItemStack> items = new ArrayList<>();
     private final List<Consumer<CreativeModeTab.Output>> simpleDisplayGenerators = new ArrayList<>();
     private CreativeModeTab.DisplayItemsGenerator fullGenerator;
-    private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<Identifier> aliases = new ArrayList<>();
 
     public RegCreativeTabBuilder(DeferredRegister<CreativeModeTab> registry, String name) {
         this.registry = registry;
@@ -134,7 +134,7 @@ public class RegCreativeTabBuilder {
      * Adds a same-namespace registry alias for this creative tab.
      */
     public RegCreativeTabBuilder alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
@@ -142,7 +142,7 @@ public class RegCreativeTabBuilder {
      * Adds a cross-namespace registry alias for this creative tab.
      */
     public RegCreativeTabBuilder alias(String oldNamespace, String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
@@ -178,7 +178,7 @@ public class RegCreativeTabBuilder {
                     .build();
         });
 
-        for (ResourceLocation alias : aliases) {
+        for (Identifier alias : aliases) {
             registry.addAlias(alias, tab.getId());
         }
         DatagenLangRegistry.addFallback("itemGroup." + ShadowsAndPetals.MOD_ID + "." + tab.getId().getPath(), tab.getId().getPath());

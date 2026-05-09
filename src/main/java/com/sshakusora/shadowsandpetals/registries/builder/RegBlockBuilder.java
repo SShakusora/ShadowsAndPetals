@@ -9,7 +9,7 @@ import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -47,7 +47,7 @@ public class RegBlockBuilder<B extends Block> {
     private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
-    private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<Identifier> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
     private final List<TagKey<Block>> blockTags = new ArrayList<>();
 
@@ -193,7 +193,7 @@ public class RegBlockBuilder<B extends Block> {
      * Adds a same-namespace registry alias for save compatibility or renames.
      */
     public RegBlockBuilder<B> alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
@@ -201,7 +201,7 @@ public class RegBlockBuilder<B extends Block> {
      * Adds a cross-namespace registry alias for save compatibility or mod migrations.
      */
     public RegBlockBuilder<B> alias(String oldNamespace, String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
@@ -229,7 +229,7 @@ public class RegBlockBuilder<B extends Block> {
             BiFunction<BlockState, BlockState, BlockState> converter
     ) {
         this.stateAliases.add(new StateAliasSpec<>(
-                ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath),
+                Identifier.fromNamespaceAndPath(oldNamespace, oldPath),
                 legacyFactory,
                 converter
         ));
@@ -297,8 +297,8 @@ public class RegBlockBuilder<B extends Block> {
         applyRecipeUnchecked(block);
     }
 
-    private void applyAliases(ResourceLocation targetId) {
-        for (ResourceLocation alias : aliases) {
+    private void applyAliases(Identifier targetId) {
+        for (Identifier alias : aliases) {
             registry.addAlias(alias, targetId);
         }
     }
@@ -323,7 +323,7 @@ public class RegBlockBuilder<B extends Block> {
         DatagenBlockLootRegistry.add(compatBlock.getId(), provider -> provider.addTable(compatBlock.get(), provider.noDropTable()));
     }
 
-    private String buildCompatAliasName(ResourceLocation aliasId, int index) {
+    private String buildCompatAliasName(Identifier aliasId, int index) {
         return LegacyCompatIds.blockName(name, aliasId, index);
     }
 
@@ -419,7 +419,7 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     private record StateAliasSpec<L extends Block>(
-            ResourceLocation aliasId,
+            Identifier aliasId,
             Function<BlockBehaviour.Properties, L> factory,
             BiFunction<BlockState, BlockState, BlockState> converter
     ) {}

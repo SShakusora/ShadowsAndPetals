@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-@SuppressWarnings("removal")
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class ModDataGenerator {
     @SubscribeEvent

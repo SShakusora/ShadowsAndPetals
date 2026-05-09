@@ -10,7 +10,7 @@ import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
@@ -26,10 +26,10 @@ import java.util.function.Supplier;
 
 public class BlockRegistry {
     // TODO: Replace these oak placeholder textures with custom textures for each tree type.
-    private static final ResourceLocation OAK_LOG_SIDE_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_log");
-    private static final ResourceLocation OAK_LOG_END_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_log_top");
-    private static final ResourceLocation OAK_LEAVES_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_leaves");
-    private static final ResourceLocation OAK_SAPLING_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_sapling");
+    private static final Identifier OAK_LOG_SIDE_TEXTURE = Identifier.withDefaultNamespace("block/oak_log");
+    private static final Identifier OAK_LOG_END_TEXTURE = Identifier.withDefaultNamespace("block/oak_log_top");
+    private static final Identifier OAK_LEAVES_TEXTURE = Identifier.withDefaultNamespace("block/oak_leaves");
+    private static final Identifier OAK_SAPLING_TEXTURE = Identifier.withDefaultNamespace("block/oak_sapling");
 
     public static final DeferredBlock<RotatedPillarBlock> SAKURA_LOG = treeLog(
             "sakura_log",

@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -22,7 +22,7 @@ public final class CafeChairBlockComponentProvider implements IBlockComponentPro
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ShadowsAndPetals.asResource("jade.cafe_chair_dyeable");
     }
 }

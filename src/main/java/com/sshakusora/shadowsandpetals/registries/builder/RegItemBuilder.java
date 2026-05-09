@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -31,7 +31,7 @@ public class RegItemBuilder<I extends Item> {
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
     private BiConsumer<ModItemModelProvider, DeferredItem<I>> itemModelGenerator;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
-    private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<Identifier> aliases = new ArrayList<>();
 
     public RegItemBuilder(DeferredRegister.Items registry, String name) {
         this.registry = registry;
@@ -114,7 +114,7 @@ public class RegItemBuilder<I extends Item> {
      * Adds a same-namespace registry alias for this item.
      */
     public RegItemBuilder<I> alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
@@ -122,7 +122,7 @@ public class RegItemBuilder<I extends Item> {
      * Adds a cross-namespace registry alias for this item.
      */
     public RegItemBuilder<I> alias(String oldNamespace, String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
@@ -138,7 +138,7 @@ public class RegItemBuilder<I extends Item> {
             deferredItem = registry.registerItem(name, itemFactory, properties);
         }
 
-        for (ResourceLocation alias : aliases) {
+        for (Identifier alias : aliases) {
             registry.addAlias(alias, deferredItem.getId());
         }
         DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), deferredItem.getId().getPath());
@@ -175,7 +175,7 @@ public class RegItemBuilder<I extends Item> {
         private Item.Properties properties = new Item.Properties();
         private final Map<String, String> langNames = new LinkedHashMap<>();
         private final List<CreativeTabType> creativeTabs = new ArrayList<>();
-        private final List<ResourceLocation> aliases = new ArrayList<>();
+        private final List<Identifier> aliases = new ArrayList<>();
 
         public BlockItemBuilder(DeferredRegister.Items registry, String name) {
             this.registry = registry;
@@ -229,12 +229,12 @@ public class RegItemBuilder<I extends Item> {
         }
 
         public BlockItemBuilder alias(String oldPath) {
-            this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+            this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
             return this;
         }
 
         public BlockItemBuilder alias(String oldNamespace, String oldPath) {
-            this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+            this.aliases.add(Identifier.fromNamespaceAndPath(oldNamespace, oldPath));
             return this;
         }
 
@@ -255,7 +255,7 @@ public class RegItemBuilder<I extends Item> {
                 throw new IllegalStateException("BlockItemBuilder requires a block source via .fromBlock() or .fromDeferredBlock()");
             }
 
-            for (ResourceLocation alias : aliases) {
+            for (Identifier alias : aliases) {
                 registry.addAlias(alias, deferredItem.getId());
             }
             DatagenLangRegistry.addFallback("item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), deferredItem.getId().getPath());

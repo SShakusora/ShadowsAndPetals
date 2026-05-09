@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -79,7 +79,7 @@ public final class BlockEntityAliasRegistry {
     }
 
     private static void populateMetadata(CompoundTag tag, BlockPos pos, BlockEntityType<?> type) {
-        ResourceLocation typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
+        Identifier typeId = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(type);
         tag.putString("id", typeId.toString());
         tag.putInt("x", pos.getX());
         tag.putInt("y", pos.getY());
@@ -93,7 +93,7 @@ public final class BlockEntityAliasRegistry {
     public static final class Builder {
         private final DeferredRegister<BlockEntityType<?>> registry;
         private final String name;
-        private ResourceLocation aliasId;
+        private Identifier aliasId;
         private final List<Supplier<? extends Block>> validBlocks = new ArrayList<>();
         private Supplier<BlockEntityType<?>> targetType;
         private LegacyDataConverter converter = (oldTag, state, pos) -> oldTag;
@@ -104,12 +104,12 @@ public final class BlockEntityAliasRegistry {
         }
 
         public Builder alias(String oldPath) {
-            this.aliasId = ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath);
+            this.aliasId = Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath);
             return this;
         }
 
         public Builder alias(String oldNamespace, String oldPath) {
-            this.aliasId = ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath);
+            this.aliasId = Identifier.fromNamespaceAndPath(oldNamespace, oldPath);
             return this;
         }
 

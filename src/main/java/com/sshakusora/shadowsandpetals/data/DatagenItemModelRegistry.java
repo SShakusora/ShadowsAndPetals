@@ -1,17 +1,17 @@
 package com.sshakusora.shadowsandpetals.data;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
 public final class DatagenItemModelRegistry {
-    private static final Map<ResourceLocation, Consumer<ModItemModelProvider>> GENERATORS = new LinkedHashMap<>();
+    private static final Map<Identifier, Consumer<ModItemModelProvider>> GENERATORS = new LinkedHashMap<>();
 
     private DatagenItemModelRegistry() {}
 
-    public static void add(ResourceLocation id, Consumer<ModItemModelProvider> generator) {
+    public static void add(Identifier id, Consumer<ModItemModelProvider> generator) {
         GENERATORS.put(id, generator);
     }
 

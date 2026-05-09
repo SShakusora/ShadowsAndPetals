@@ -125,7 +125,7 @@ public class IngotPileBlock extends SlabBlock {
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        if (!state.is(BlockRegistry.GOLD_INGOT_PILE.get()) || level.getBlockState(pos.above()).isSolidRender(level, pos.above()) || random.nextInt(12) != 0) {
+        if (!state.is(BlockRegistry.GOLD_INGOT_PILE.get()) || level.getBlockState(pos.above()).isSolidRender() || random.nextInt(12) != 0) {
             return;
         }
 

@@ -2,7 +2,7 @@ package com.sshakusora.shadowsandpetals;
 
 import com.mojang.logging.LogUtils;
 import com.sshakusora.shadowsandpetals.registries.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import org.slf4j.Logger;
@@ -21,7 +21,7 @@ public class ShadowsAndPetals {
         CreativeTabRegistry.init();
     }
 
-    public static ResourceLocation asResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier asResource(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 }

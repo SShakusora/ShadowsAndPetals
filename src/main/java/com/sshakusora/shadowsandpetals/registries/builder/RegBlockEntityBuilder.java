@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.legacy.BlockEntityAliasRegistry;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -32,7 +32,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
     private final String name;
     private BiFunction<BlockPos, BlockState, T> factory;
     private final List<Supplier<? extends Block>> validBlocks = new ArrayList<>();
-    private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<Identifier> aliases = new ArrayList<>();
     private final List<BlockEntityAliasSpec> dataAliases = new ArrayList<>();
 
     public RegBlockEntityBuilder(DeferredRegister<BlockEntityType<?>> registry, String name) {
@@ -61,7 +61,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
      * Adds a same-namespace registry alias for the block entity type id.
      */
     public RegBlockEntityBuilder<T> alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
@@ -69,7 +69,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
      * Adds a cross-namespace registry alias for the block entity type id.
      */
     public RegBlockEntityBuilder<T> alias(String oldNamespace, String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
@@ -87,7 +87,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
             Supplier<? extends Block>... legacyBlocks
     ) {
         this.dataAliases.add(new BlockEntityAliasSpec(
-                ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath),
+                Identifier.fromNamespaceAndPath(oldNamespace, oldPath),
                 List.of(legacyBlocks),
                 converter
         ));
@@ -109,7 +109,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
                 BlockEntityType.Builder.of(factory::apply, validBlocks.stream().map(Supplier::get).toArray(Block[]::new)).build(null)
         );
 
-        for (ResourceLocation alias : aliases) {
+        for (Identifier alias : aliases) {
             registry.addAlias(alias, type.getId());
         }
 
@@ -126,12 +126,12 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
         return type;
     }
 
-    private String buildCompatAliasName(ResourceLocation aliasId, int index) {
+    private String buildCompatAliasName(Identifier aliasId, int index) {
         return LegacyCompatIds.blockEntityName(name, aliasId, index);
     }
 
     private record BlockEntityAliasSpec(
-            ResourceLocation aliasId,
+            Identifier aliasId,
             List<Supplier<? extends Block>> legacyBlocks,
             BlockEntityAliasRegistry.LegacyDataConverter converter
     ) {}

@@ -12,6 +12,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
@@ -75,11 +76,11 @@ public class CafeChairBlock extends AbstractSeatBlock {
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (stack.getItem() instanceof DyeItem dyeItem) {
             BlockState dyedState = getDyedState(state, dyeItem.getDyeColor());
             if (dyedState.getBlock() != state.getBlock()) {
-                if (!level.isClientSide) {
+                if (!level.isClientSide()) {
                     level.setBlock(pos, dyedState, Block.UPDATE_ALL);
                     level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 0.45F, 0.95F);
                     HumanoidArm brushArm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();

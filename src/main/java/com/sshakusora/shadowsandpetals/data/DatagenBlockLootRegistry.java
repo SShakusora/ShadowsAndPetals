@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 public final class DatagenBlockLootRegistry {
-    private static final Map<ResourceLocation, Consumer<ModBlockLootProvider>> GENERATORS = new LinkedHashMap<>();
+    private static final Map<Identifier, Consumer<ModBlockLootProvider>> GENERATORS = new LinkedHashMap<>();
 
     private DatagenBlockLootRegistry() {}
 
-    public static void add(ResourceLocation id, Consumer<ModBlockLootProvider> generator) {
+    public static void add(Identifier id, Consumer<ModBlockLootProvider> generator) {
         if (LegacyCompatIds.isLegacyCompatId(id)) {
             return;
         }

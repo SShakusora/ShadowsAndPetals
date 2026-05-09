@@ -63,7 +63,7 @@ public abstract class AbstractSeatBlock extends Block implements SimpleWaterlogg
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    public InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         InteractionResult result = trySit(level, pos, player);
         if (result.consumesAction()) {
             return result == InteractionResult.SUCCESS
@@ -77,7 +77,7 @@ public abstract class AbstractSeatBlock extends Block implements SimpleWaterlogg
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 

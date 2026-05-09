@@ -2,7 +2,7 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.level.block.Block;
@@ -37,7 +37,7 @@ public class RegEntityBuilder<E extends Entity> {
     private float eyeHeight = -1.0f;
     private final Map<String, String> langNames = new LinkedHashMap<>();
     private final List<Block> immuneToBlocks = new ArrayList<>();
-    private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<Identifier> aliases = new ArrayList<>();
 
     public RegEntityBuilder(DeferredRegister<EntityType<?>> registry, String name, MobCategory category) {
         this.registry = registry;
@@ -166,7 +166,7 @@ public class RegEntityBuilder<E extends Entity> {
      * Adds a same-namespace registry alias for this entity type.
      */
     public RegEntityBuilder<E> alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
         return this;
     }
 
@@ -174,7 +174,7 @@ public class RegEntityBuilder<E extends Entity> {
      * Adds a cross-namespace registry alias for this entity type.
      */
     public RegEntityBuilder<E> alias(String oldNamespace, String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        this.aliases.add(Identifier.fromNamespaceAndPath(oldNamespace, oldPath));
         return this;
     }
 
@@ -199,7 +199,7 @@ public class RegEntityBuilder<E extends Entity> {
             return builder.build(name);
         });
 
-        for (ResourceLocation alias : aliases) {
+        for (Identifier alias : aliases) {
             registry.addAlias(alias, deferredHolder.getId());
         }
         DatagenLangRegistry.addFallback("entity." + ShadowsAndPetals.MOD_ID + "." + deferredHolder.getId().getPath(), deferredHolder.getId().getPath());

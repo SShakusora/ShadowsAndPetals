@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
@@ -31,7 +31,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockItem(block, models().getExistingFile(blockTexture(block)));
     }
 
-    public void logBlockWithItem(RotatedPillarBlock block, ResourceLocation sideTexture, ResourceLocation endTexture) {
+    public void logBlockWithItem(RotatedPillarBlock block, Identifier sideTexture, Identifier endTexture) {
         axisBlock(block, sideTexture, endTexture);
         simpleBlockItem(block, models().getExistingFile(sideTexture));
     }
@@ -40,7 +40,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(block, models().cubeAll(name(block), blockTexture(block)));
     }
 
-    public void leavesBlockWithItem(LeavesBlock block, ResourceLocation texture) {
+    public void leavesBlockWithItem(LeavesBlock block, Identifier texture) {
         simpleBlockWithItem(block, models().cubeAll(name(block), texture));
     }
 
@@ -48,7 +48,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(block, models().cubeAll(name(block), blockTexture(block)));
     }
 
-    public void cubeAllBlockWithItem(Block block, ResourceLocation texture) {
+    public void cubeAllBlockWithItem(Block block, Identifier texture) {
         simpleBlockWithItem(block, models().cubeAll(name(block), texture));
     }
 
@@ -58,7 +58,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockItem(block, model);
     }
 
-    public void saplingBlockWithItem(SaplingBlock block, ResourceLocation texture) {
+    public void saplingBlockWithItem(SaplingBlock block, Identifier texture) {
         var model = models().cross(name(block), texture).renderType("cutout");
         simpleBlock(block, model);
         simpleBlockItem(block, model);

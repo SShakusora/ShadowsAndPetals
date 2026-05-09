@@ -24,7 +24,7 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     // Specify the version of NeoForge to use.
@@ -57,8 +57,8 @@ neoForge {
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
-        data {
-            data()
+        clientData {
+            clientData()
 
             // example of overriding the workingDirectory set in configureEach above, uncomment if you want to use it
             // gameDirectory = project.file('run-data')
@@ -100,12 +100,12 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     // JEI
-    compileOnly "mezz.jei:jei-1.21.1-common-api:19.21.0.247"
-    compileOnly "mezz.jei:jei-1.21.1-neoforge-api:19.21.0.247"
-    runtimeOnly "mezz.jei:jei-1.21.1-neoforge:19.21.0.247"
+    compileOnly "mezz.jei:jei-26.1.2-common-api:29.5.0.28"
+    compileOnly "mezz.jei:jei-26.1.2-neoforge-api:29.5.0.28"
+    runtimeOnly "mezz.jei:jei-26.1.2-neoforge:29.5.0.28"
 
     // Jade
-    implementation "maven.modrinth:jade:15.10.5+neoforge"
+    implementation "maven.modrinth:jade:26.0.10+neoforge"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
