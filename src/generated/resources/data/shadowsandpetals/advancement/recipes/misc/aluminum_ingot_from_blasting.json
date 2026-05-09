@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_raw_aluminum": {
+    "has_raw_bauxite": {
       "conditions": {
         "items": [
           {
-            "items": "shadowsandpetals:raw_aluminum"
+            "items": "shadowsandpetals:raw_bauxite"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_raw_aluminum"
+      "has_raw_bauxite"
     ]
   ],
   "rewards": {

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "shadowsandpetals:aluminum_block"
+    }
+  ],
+  "result": {
+    "count": 9,
+    "id": "shadowsandpetals:aluminum_ingot"
+  }
+}

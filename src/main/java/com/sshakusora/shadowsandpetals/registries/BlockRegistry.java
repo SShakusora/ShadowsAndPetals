@@ -108,7 +108,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_ALUMINUM.get()))
+            .blockstate((provider, ore) -> provider.cubeAllBlockWithItem(ore.get(), provider.modLoc("block/bauxite_ore/bauxite_ore")))
+            .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
             .lang("zh_cn", "矾土矿石")
             .register();
 
@@ -122,8 +123,24 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_ALUMINUM.get()))
+            .blockstate((provider, ore) -> provider.cubeAllBlockWithItem(ore.get(), provider.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
+            .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
             .lang("zh_cn", "深层矾土矿石")
+            .register();
+
+    public static final DeferredBlock<Block> ALUMINUM_BLOCK = SAPRegistries
+            .block("aluminum_block")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
+                    .strength(5.0F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
+            .lang("zh_cn", "铝块")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries

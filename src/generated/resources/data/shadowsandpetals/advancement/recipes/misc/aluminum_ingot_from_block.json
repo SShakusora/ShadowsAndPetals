@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_raw_bauxite": {
+    "has_aluminum_block": {
       "conditions": {
         "items": [
           {
-            "items": "shadowsandpetals:raw_bauxite"
+            "items": "shadowsandpetals:aluminum_block"
           }
         ]
       },
@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "shadowsandpetals:aluminum_ingot_from_smelting"
+        "recipe": "shadowsandpetals:aluminum_ingot_from_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -21,12 +21,12 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_raw_bauxite"
+      "has_aluminum_block"
     ]
   ],
   "rewards": {
     "recipes": [
-      "shadowsandpetals:aluminum_ingot_from_smelting"
+      "shadowsandpetals:aluminum_ingot_from_block"
     ]
   }
 }

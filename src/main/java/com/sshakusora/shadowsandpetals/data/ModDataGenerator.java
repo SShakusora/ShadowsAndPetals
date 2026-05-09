@@ -26,6 +26,7 @@ public class ModDataGenerator {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(event.includeClient(), new ModBlockStateProvider(output, existingFileHelper));
+        generator.addProvider(event.includeClient(), new ModItemModelProvider(output, existingFileHelper));
         generator.addProvider(event.includeClient(), new ModLanguageProvider(output, "en_us"));
         generator.addProvider(event.includeClient(), new ModLanguageProvider(output, "zh_cn"));
         generator.addProvider(event.includeServer(), new ModRecipeProvider(output, lookupProvider));

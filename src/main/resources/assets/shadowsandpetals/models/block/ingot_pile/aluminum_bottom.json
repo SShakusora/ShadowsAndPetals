@@ -4,7 +4,7 @@
 	"parent": "shadowsandpetals:block/ingot_pile/ingot_pile_bottom",
 	"texture_size": [32, 32],
 	"textures": {
-		"particle": "shadowsandpetals:block/ingot_pile/aluminum",
+		"particle": "shadowsandpetals:block/aluminum_block",
 		"ingot_pile": "shadowsandpetals:block/ingot_pile/aluminum"
 	}
 }

@@ -44,6 +44,14 @@ public class ModBlockStateProvider extends BlockStateProvider {
         simpleBlockWithItem(block, models().cubeAll(name(block), texture));
     }
 
+    public void cubeAllBlockWithItem(Block block) {
+        simpleBlockWithItem(block, models().cubeAll(name(block), blockTexture(block)));
+    }
+
+    public void cubeAllBlockWithItem(Block block, ResourceLocation texture) {
+        simpleBlockWithItem(block, models().cubeAll(name(block), texture));
+    }
+
     public void saplingBlockWithItem(SaplingBlock block) {
         var model = models().cross(name(block), blockTexture(block)).renderType("cutout");
         simpleBlock(block, model);

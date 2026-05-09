@@ -1,9 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
-import com.sshakusora.shadowsandpetals.data.DatagenRecipeRegistry;
-import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
+import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import net.minecraft.resources.ResourceLocation;
@@ -31,6 +29,7 @@ public class RegItemBuilder<I extends Item> {
     private Function<Item.Properties, I> itemFactory;
     private final Map<String, String> langNames = new LinkedHashMap<>();
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
+    private BiConsumer<ModItemModelProvider, DeferredItem<I>> itemModelGenerator;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<ResourceLocation> aliases = new ArrayList<>();
 
@@ -88,6 +87,14 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
+     * Attaches an item-model datagen callback.
+     */
+    public RegItemBuilder<I> model(BiConsumer<ModItemModelProvider, DeferredItem<I>> generator) {
+        this.itemModelGenerator = generator;
+        return this;
+    }
+
+    /**
      * Adds the registered item to a creative tab.
      */
     public RegItemBuilder<I> creativeTab(CreativeTabType tab) {
@@ -140,6 +147,9 @@ public class RegItemBuilder<I extends Item> {
         }
         if (recipeGenerator != null) {
             DatagenRecipeRegistry.add(deferredItem.getId(), provider -> recipeGenerator.accept(provider, deferredItem));
+        }
+        if (itemModelGenerator != null) {
+            DatagenItemModelRegistry.add(deferredItem.getId(), provider -> itemModelGenerator.accept(provider, deferredItem));
         }
         for (CreativeTabType tab : creativeTabs) {
             CreativeTabContentsRegistry.add(tab, deferredItem);
