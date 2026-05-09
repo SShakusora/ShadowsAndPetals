@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "W": {
-      "item": "minecraft:mangrove_slab"
-    }
+    "W": "minecraft:mangrove_slab"
   },
   "pattern": [
     "WWW",
@@ -12,7 +10,6 @@
     "W W"
   ],
   "result": {
-    "count": 1,
     "id": "shadowsandpetals:mangrove_modular_desk"
   }
 }

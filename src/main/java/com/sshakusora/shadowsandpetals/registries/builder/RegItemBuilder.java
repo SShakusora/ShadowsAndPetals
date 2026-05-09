@@ -4,7 +4,9 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -114,7 +116,7 @@ public class RegItemBuilder<I extends Item> {
      * Adds a same-namespace registry alias for this item.
      */
     public RegItemBuilder<I> alias(String oldPath) {
-        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 
@@ -133,9 +135,9 @@ public class RegItemBuilder<I extends Item> {
     public DeferredItem<I> register() {
         DeferredItem<I> deferredItem;
         if (itemFactory == null) {
-            deferredItem = (DeferredItem<I>) registry.registerSimpleItem(name, properties);
+            deferredItem = (DeferredItem<I>) registry.registerSimpleItem(name, () -> properties);
         } else {
-            deferredItem = registry.registerItem(name, itemFactory, properties);
+            deferredItem = registry.registerItem(name, itemFactory, () -> properties);
         }
 
         for (Identifier alias : aliases) {
@@ -151,6 +153,7 @@ public class RegItemBuilder<I extends Item> {
         if (itemModelGenerator != null) {
             DatagenItemModelRegistry.add(deferredItem.getId(), provider -> itemModelGenerator.accept(provider, deferredItem));
         }
+        DatagenClientItemRegistry.add(deferredItem.getId(), ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath()));
         for (CreativeTabType tab : creativeTabs) {
             CreativeTabContentsRegistry.add(tab, deferredItem);
         }
@@ -161,7 +164,9 @@ public class RegItemBuilder<I extends Item> {
      * Registers a plain {@link Item} using the current properties without extra hooks.
      */
     public DeferredItem<Item> simple() {
-        return registry.registerSimpleItem(name, properties);
+        DeferredItem<Item> deferredItem = registry.registerSimpleItem(name, () -> properties);
+        DatagenClientItemRegistry.add(deferredItem.getId(), ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath()));
+        return deferredItem;
     }
 
     /**
@@ -229,7 +234,7 @@ public class RegItemBuilder<I extends Item> {
         }
 
         public BlockItemBuilder alias(String oldPath) {
-            this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+            this.aliases.add(ShadowsAndPetals.asResource(oldPath));
             return this;
         }
 
@@ -246,11 +251,11 @@ public class RegItemBuilder<I extends Item> {
             if (deferredBlock != null) {
                 final var block = deferredBlock;
                 final var props = properties;
-                deferredItem = registry.register(name, key -> new BlockItem(block.get(), props));
+                deferredItem = registry.register(name, key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
             } else if (blockSupplier != null) {
                 final var supplier = blockSupplier;
                 final var props = properties;
-                deferredItem = registry.register(name, key -> new BlockItem(supplier.get(), props));
+                deferredItem = registry.register(name, key -> new BlockItem(supplier.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
             } else {
                 throw new IllegalStateException("BlockItemBuilder requires a block source via .fromBlock() or .fromDeferredBlock()");
             }
@@ -262,6 +267,7 @@ public class RegItemBuilder<I extends Item> {
             for (Map.Entry<String, String> entry : langNames.entrySet()) {
                 DatagenLangRegistry.add(entry.getKey(), "item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), entry.getValue());
             }
+            DatagenClientItemRegistry.add(deferredItem.getId(), ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath()));
             for (CreativeTabType tab : creativeTabs) {
                 CreativeTabContentsRegistry.add(tab, deferredItem);
             }

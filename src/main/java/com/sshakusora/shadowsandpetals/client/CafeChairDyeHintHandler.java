@@ -3,8 +3,10 @@ package com.sshakusora.shadowsandpetals.client;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
@@ -50,7 +52,12 @@ public final class CafeChairDyeHintHandler {
 
         BlockPos targetPos = hitResult.getBlockPos();
         BlockState state = minecraft.level.getBlockState(targetPos);
-        DyeColor dyeColor = dyeItem.getDyeColor();
+        DyeColor dyeColor = dyeItem.getDefaultInstance().get(DataComponents.DYE);
+        if (dyeColor == null) {
+            clearHoverTarget();
+            tickFadeOut();
+            return;
+        }
         if (!(state.getBlock() instanceof CafeChairBlock) || !CafeChairBlock.canApplyDye(state, dyeColor)) {
             clearHoverTarget();
             tickFadeOut();
@@ -91,7 +98,7 @@ public final class CafeChairDyeHintHandler {
         renderHint(event.getGuiGraphics(), minecraft, alpha);
     }
 
-    private static void renderHint(GuiGraphics guiGraphics, Minecraft minecraft, int alpha) {
+    private static void renderHint(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int alpha) {
         String prefix = I18n.get(CafeChairBlock.DYE_HINT_PREFIX_KEY, displayedTargetState.getBlock().getName().getString());
         String colorName = I18n.get("color.minecraft." + displayedDyeColor.getName());
 
@@ -101,8 +108,8 @@ public final class CafeChairDyeHintHandler {
         int totalWidth = minecraft.font.width(prefix) + minecraft.font.width(colorName);
         int x = (guiGraphics.guiWidth() - totalWidth) / 2;
 
-        guiGraphics.drawString(minecraft.font, prefix, x, y, prefixColor, true);
-        guiGraphics.drawString(minecraft.font, colorName, x + minecraft.font.width(prefix), y, dyeColor, true);
+        guiGraphics.text(minecraft.font, prefix, x, y, prefixColor, true);
+        guiGraphics.text(minecraft.font, colorName, x + minecraft.font.width(prefix), y, dyeColor, true);
     }
 
     private static DyeItem getHeldDye(ItemStack mainHandItem, ItemStack offhandItem) {

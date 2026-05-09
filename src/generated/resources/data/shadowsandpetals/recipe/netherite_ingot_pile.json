@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": {
-      "item": "minecraft:netherite_ingot"
-    }
+    "I": "minecraft:netherite_ingot"
   },
   "pattern": [
     "III",

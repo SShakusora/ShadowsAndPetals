@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "W": {
-      "item": "minecraft:birch_slab"
-    }
+    "W": "minecraft:birch_slab"
   },
   "pattern": [
     "WWW",
@@ -12,7 +10,6 @@
     "W W"
   ],
   "result": {
-    "count": 1,
     "id": "shadowsandpetals:birch_modular_desk"
   }
 }

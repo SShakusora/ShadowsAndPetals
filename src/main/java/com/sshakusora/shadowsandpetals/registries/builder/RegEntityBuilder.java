@@ -2,7 +2,9 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.level.block.Block;
@@ -166,7 +168,7 @@ public class RegEntityBuilder<E extends Entity> {
      * Adds a same-namespace registry alias for this entity type.
      */
     public RegEntityBuilder<E> alias(String oldPath) {
-        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 
@@ -196,7 +198,7 @@ public class RegEntityBuilder<E extends Entity> {
             if (!serialize) builder.noSave();
             if (!immuneToBlocks.isEmpty()) builder.immuneTo(immuneToBlocks.toArray(Block[]::new));
 
-            return builder.build(name);
+            return builder.build(ResourceKey.create(Registries.ENTITY_TYPE, key));
         });
 
         for (Identifier alias : aliases) {

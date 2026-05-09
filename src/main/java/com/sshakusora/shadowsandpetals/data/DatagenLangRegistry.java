@@ -5,6 +5,7 @@ import java.util.Map;
 
 public final class DatagenLangRegistry {
     public static final String DEFAULT_LOCALE = "en_us";
+    public static final String ZH_CN = "zh_cn";
 
     private static final Map<String, Map<String, String>> TRANSLATIONS = new LinkedHashMap<>();
     private static final Map<String, String> FALLBACKS = new LinkedHashMap<>();
@@ -57,7 +58,7 @@ public final class DatagenLangRegistry {
         }
 
         public TranslationKey zh_cn(String value) {
-            add("zh_cn", key, value);
+            add(ZH_CN, key, value);
             return this;
         }
 

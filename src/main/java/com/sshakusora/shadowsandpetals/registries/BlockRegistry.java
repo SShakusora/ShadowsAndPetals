@@ -3,13 +3,11 @@ package com.sshakusora.shadowsandpetals.registries;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
-import com.sshakusora.shadowsandpetals.compat.CompatInfo;
+import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
-import net.minecraft.core.Direction;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
@@ -17,8 +15,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -33,74 +29,62 @@ public class BlockRegistry {
 
     public static final DeferredBlock<RotatedPillarBlock> SAKURA_LOG = treeLog(
             "sakura_log",
-            "block_tree_sakura_log",
             "樱花原木"
     );
     public static final DeferredBlock<SaplingBlock> SAKURA_SAPLING = treeSapling(
             "sakura_sapling",
             SAPTreeGrowers.SAKURA,
-            "block_tree_sakura_nae",
             "樱花树苗"
     );
     public static final DeferredBlock<LeavesBlock> SAKURA_LEAVES = treeLeaves(
             "sakura_leaves",
             SAKURA_SAPLING,
-            "block_tree_sakura_flow",
             "樱花树叶"
     );
 
     public static final DeferredBlock<RotatedPillarBlock> MAPLE_LOG = treeLog(
             "maple_log",
-            "block_tree_kaede_log",
             "枫树原木"
     );
     public static final DeferredBlock<SaplingBlock> MAPLE_SAPLING = treeSapling(
             "maple_sapling",
             SAPTreeGrowers.MAPLE,
-            "block_tree_kaede_nae",
             "枫树树苗"
     );
     public static final DeferredBlock<LeavesBlock> MAPLE_LEAVES = treeLeaves(
             "maple_leaves",
             MAPLE_SAPLING,
-            "block_tree_kaede_leaf",
             "枫树树叶"
     );
 
     public static final DeferredBlock<RotatedPillarBlock> GINKGO_LOG = treeLog(
             "ginkgo_log",
-            "block_tree_ichoh_log",
             "银杏原木"
     );
     public static final DeferredBlock<SaplingBlock> GINKGO_SAPLING = treeSapling(
             "ginkgo_sapling",
             SAPTreeGrowers.GINKGO,
-            "block_tree_ichoh_nae",
             "银杏树苗"
     );
     public static final DeferredBlock<LeavesBlock> GINKGO_LEAVES = treeLeaves(
             "ginkgo_leaves",
             GINKGO_SAPLING,
-            "block_tree_ichoh_leaf",
             "银杏树叶"
     );
 
     public static final DeferredBlock<SaplingBlock> AUTUMN_OAK_SAPLING = treeSapling(
             "autumn_oak_sapling",
             SAPTreeGrowers.AUTUMN_OAK,
-            "block_tree_oakkare_nae",
             "秋橡树树苗"
     );
     public static final DeferredBlock<LeavesBlock> AUTUMN_OAK_LEAVES = treeLeaves(
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
-            "block_tree_oakkare_leaf",
             "秋橡树树叶"
     );
 
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
             .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
-            .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
                     .strength(3.0F, 3.0F)
                     .sound(SoundType.STONE)
@@ -115,7 +99,6 @@ public class BlockRegistry {
 
     public static final DeferredBlock<DropExperienceBlock> DEEPSLATE_BAUXITE_ORE = SAPRegistries
             .block("deepslate_bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
-            .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore_deep")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
                     .strength(4.5F, 3.0F)
                     .sound(SoundType.DEEPSLATE)
@@ -158,8 +141,8 @@ public class BlockRegistry {
             .lang("zh_cn", "铝块")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("aluminum_ingot_pile", IngotPileBlock::new), "block_alumi_block")
+    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = SAPRegistries
+            .block("aluminum_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.METAL)
@@ -174,8 +157,8 @@ public class BlockRegistry {
             .lang("zh_cn", "铝锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("iron_ingot_pile", IngotPileBlock::new), "block_steel_block")
+    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = SAPRegistries
+            .block("iron_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.METAL)
@@ -190,8 +173,8 @@ public class BlockRegistry {
             .lang("zh_cn", "铁锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("copper_ingot_pile", IngotPileBlock::new), "block_copper_block")
+    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = SAPRegistries
+            .block("copper_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
@@ -206,8 +189,8 @@ public class BlockRegistry {
             .lang("zh_cn", "铜锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("gold_ingot_pile", IngotPileBlock::new), "block_gold_block")
+    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = SAPRegistries
+            .block("gold_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.GOLD_BLOCK)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.METAL)
@@ -222,8 +205,8 @@ public class BlockRegistry {
             .lang("zh_cn", "金锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("netherite_ingot_pile", IngotPileBlock::new), "block_netherite_block")
+    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = SAPRegistries
+            .block("netherite_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                     .strength(50.0F, 1200.0F)
                     .sound(SoundType.NETHERITE_BLOCK)
@@ -240,7 +223,6 @@ public class BlockRegistry {
 
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_unitdesk"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -248,7 +230,7 @@ public class BlockRegistry {
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
             .lang("zh_cn", woodType.getZhName() + "书桌")
-            .recipe((provider, desk) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, desk.get())
+            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
                     .define('W', woodType.getSlab())
                     .pattern("WWW")
                     .pattern("W W")
@@ -259,7 +241,6 @@ public class BlockRegistry {
 
     public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_cafetable"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -267,7 +248,7 @@ public class BlockRegistry {
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
             .lang("zh_cn", woodType.getZhName() + "咖啡桌")
-            .recipe((provider, desk) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, desk.get())
+            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
                     .define('W', woodType.getSlab())
                     .define('S', Items.STICK)
                     .pattern("WWW")
@@ -279,17 +260,6 @@ public class BlockRegistry {
 
     public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
-            .stateAliasProperties(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias2(woodType, "block_diningchair"), legacy -> legacy
-                            .property(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)
-                            .property(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
-                            .property(BlockStateProperties.WATERLOGGED, false),
-                    (legacyState, targetState) -> legacyState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER
-                            ? targetState
-                            .setValue(DiningChairBlock.FACING, legacyState.getValue(BlockStateProperties.HORIZONTAL_FACING))
-                            .setValue(DiningChairBlock.WATERLOGGED, legacyState.getValue(BlockStateProperties.WATERLOGGED))
-                            : legacyState.getValue(BlockStateProperties.WATERLOGGED)
-                            ? Blocks.WATER.defaultBlockState()
-                            : Blocks.AIR.defaultBlockState())
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -297,7 +267,7 @@ public class BlockRegistry {
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
             .lang("zh_cn", woodType.getZhName() + "餐椅")
-            .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
+            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
                     .define('W', woodType.getSlab())
                     .define('S', Items.STICK)
                     .pattern("W  ")
@@ -309,7 +279,6 @@ public class BlockRegistry {
 
     public static final DyedBlockList<CafeChairBlock> CAFE_CHAIRS = new DyedBlockList<>(color -> SAPRegistries
             .block(color.getName() + "_cafe_chair", CafeChairBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getDyedBlockAlias(color, "block_cafechair"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -321,7 +290,7 @@ public class BlockRegistry {
                     chair.get(),
                     provider.models().getExistingFile(provider.modLoc("block/cafe_chair/" + color.getName()))
             ))
-            .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
+            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
                     .define('W', WoolUtils.getWool(color))
                     .define('S', Items.STICK)
                     .pattern(" W ")
@@ -333,9 +302,8 @@ public class BlockRegistry {
 
     public static void init() {}
 
-    private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String compatAlias, String zhName) {
+    private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String zhName) {
         return SAPRegistries.block(id, RotatedPillarBlock::new)
-                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)
                         .strength(2.0F)
                         .sound(SoundType.WOOD))
@@ -347,9 +315,8 @@ public class BlockRegistry {
                 .register();
     }
 
-    private static DeferredBlock<LeavesBlock> treeLeaves(String id, Supplier<SaplingBlock> sapling, String compatAlias, String zhName) {
-        return SAPRegistries.block(id, LeavesBlock::new)
-                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
+    private static DeferredBlock<LeavesBlock> treeLeaves(String id, Supplier<SaplingBlock> sapling, String zhName) {
+        return SAPRegistries.<LeavesBlock>block(id, properties -> new SAPLeavesBlock(0.01F, properties))
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
                         .strength(0.2F)
                         .sound(SoundType.GRASS)
@@ -366,9 +333,8 @@ public class BlockRegistry {
                 .register();
     }
 
-    private static DeferredBlock<SaplingBlock> treeSapling(String id, TreeGrower grower, String compatAlias, String zhName) {
+    private static DeferredBlock<SaplingBlock> treeSapling(String id, TreeGrower grower, String zhName) {
         return SAPRegistries.block(id, properties -> new SaplingBlock(grower, properties))
-                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING)
                         .noOcclusion()
                         .randomTicks()

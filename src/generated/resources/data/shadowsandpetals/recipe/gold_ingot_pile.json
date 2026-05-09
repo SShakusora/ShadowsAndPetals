@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": {
-      "item": "minecraft:gold_ingot"
-    }
+    "I": "minecraft:gold_ingot"
   },
   "pattern": [
     "III",

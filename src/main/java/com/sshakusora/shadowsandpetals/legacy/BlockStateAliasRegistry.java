@@ -36,8 +36,8 @@ public final class BlockStateAliasRegistry {
         }
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        int minY = chunk.getMinBuildHeight();
-        int maxY = chunk.getMaxBuildHeight();
+        int minY = chunk.getLevel().getMinY();
+        int maxY = chunk.getLevel().getMaxY();
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
@@ -49,7 +49,7 @@ public final class BlockStateAliasRegistry {
                     BlockState state = chunk.getBlockState(pos);
                     BlockState replacement = getReplacement(state);
                     if (replacement != null && replacement != state) {
-                        chunk.setBlockState(pos, replacement, false);
+                        chunk.setBlockState(pos, replacement, Block.UPDATE_ALL);
                     }
                 }
             }

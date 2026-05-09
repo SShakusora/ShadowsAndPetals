@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "shadowsandpetals:gold_ingot_pile"
-    }
+    "shadowsandpetals:gold_ingot_pile"
   ],
   "result": {
     "count": 4,

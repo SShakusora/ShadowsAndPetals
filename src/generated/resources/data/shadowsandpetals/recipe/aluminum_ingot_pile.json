@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": {
-      "item": "shadowsandpetals:aluminum_ingot"
-    }
+    "I": "shadowsandpetals:aluminum_ingot"
   },
   "pattern": [
     "III",

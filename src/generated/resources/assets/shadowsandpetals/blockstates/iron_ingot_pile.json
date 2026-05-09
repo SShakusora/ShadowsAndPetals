@@ -1,44 +1,23 @@
 {
   "variants": {
-    "axis=x,type=bottom,waterlogged=false": {
+    "axis=x,type=bottom": {
       "model": "shadowsandpetals:block/ingot_pile/iron_bottom"
     },
-    "axis=x,type=bottom,waterlogged=true": {
-      "model": "shadowsandpetals:block/ingot_pile/iron_bottom"
-    },
-    "axis=x,type=double,waterlogged=false": {
+    "axis=x,type=double": {
       "model": "shadowsandpetals:block/ingot_pile/iron_double"
     },
-    "axis=x,type=double,waterlogged=true": {
-      "model": "shadowsandpetals:block/ingot_pile/iron_double"
-    },
-    "axis=x,type=top,waterlogged=false": {
+    "axis=x,type=top": {
       "model": "shadowsandpetals:block/ingot_pile/iron_bottom"
     },
-    "axis=x,type=top,waterlogged=true": {
-      "model": "shadowsandpetals:block/ingot_pile/iron_bottom"
-    },
-    "axis=z,type=bottom,waterlogged=false": {
+    "axis=z,type=bottom": {
       "model": "shadowsandpetals:block/ingot_pile/iron_bottom",
       "y": 90
     },
-    "axis=z,type=bottom,waterlogged=true": {
-      "model": "shadowsandpetals:block/ingot_pile/iron_bottom",
-      "y": 90
-    },
-    "axis=z,type=double,waterlogged=false": {
+    "axis=z,type=double": {
       "model": "shadowsandpetals:block/ingot_pile/iron_double",
       "y": 90
     },
-    "axis=z,type=double,waterlogged=true": {
-      "model": "shadowsandpetals:block/ingot_pile/iron_double",
-      "y": 90
-    },
-    "axis=z,type=top,waterlogged=false": {
-      "model": "shadowsandpetals:block/ingot_pile/iron_bottom",
-      "y": 90
-    },
-    "axis=z,type=top,waterlogged=true": {
+    "axis=z,type=top": {
       "model": "shadowsandpetals:block/ingot_pile/iron_bottom",
       "y": 90
     }

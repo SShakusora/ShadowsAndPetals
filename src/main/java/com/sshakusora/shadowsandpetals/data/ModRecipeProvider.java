@@ -2,12 +2,10 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.InventoryChangeTrigger;
+import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.RecipeBuilder;
-import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.RecipeProvider;
+import net.minecraft.data.recipes.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -18,13 +16,13 @@ import java.util.concurrent.CompletableFuture;
 public class ModRecipeProvider extends RecipeProvider {
     private RecipeOutput recipeOutput;
 
-    public ModRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput recipeOutput, HolderLookup.Provider holderLookup) {
-        this.recipeOutput = recipeOutput;
+    protected void buildRecipes() {
+        this.recipeOutput = this.output;
         try {
             for (var generator : DatagenRecipeRegistry.generators()) {
                 generator.accept(this);
@@ -58,7 +56,23 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     public Identifier id(String path) {
-        return Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, path);
+        return ShadowsAndPetals.asResource(path);
+    }
+
+    public ShapedRecipeBuilder shaped(RecipeCategory category, ItemLike item) {
+        return super.shaped(category, item);
+    }
+
+    public ShapedRecipeBuilder shaped(RecipeCategory category, ItemLike item, int count) {
+        return super.shaped(category, item, count);
+    }
+
+    public ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemLike item) {
+        return super.shapeless(category, item);
+    }
+
+    public ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemLike item, int count) {
+        return super.shapeless(category, item, count);
     }
 
     public void save(RecipeBuilder builder) {
@@ -66,6 +80,22 @@ public class ModRecipeProvider extends RecipeProvider {
     }
 
     public void save(RecipeBuilder builder, Identifier id) {
-        builder.save(output(), id);
+        builder.save(output(), id.toString());
+    }
+
+    public static class Runner extends RecipeProvider.Runner {
+        public Runner(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
+            super(output, registries);
+        }
+
+        @Override
+        public String getName() {
+            return "ShadowsAndPetals Recipes";
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new ModRecipeProvider(registries, output);
+        }
     }
 }

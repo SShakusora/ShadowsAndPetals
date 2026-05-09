@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "I": {
-      "item": "shadowsandpetals:aluminum_ingot"
-    }
+    "I": "shadowsandpetals:aluminum_ingot"
   },
   "pattern": [
     "III",
@@ -12,7 +10,6 @@
     "III"
   ],
   "result": {
-    "count": 1,
     "id": "shadowsandpetals:aluminum_block"
   }
 }

@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "shadowsandpetals:raw_bauxite_block"
-    }
+    "shadowsandpetals:raw_bauxite_block"
   ],
   "result": {
     "count": 9,

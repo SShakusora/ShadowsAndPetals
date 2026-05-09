@@ -134,7 +134,7 @@ public class RegCreativeTabBuilder {
      * Adds a same-namespace registry alias for this creative tab.
      */
     public RegCreativeTabBuilder alias(String oldPath) {
-        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 

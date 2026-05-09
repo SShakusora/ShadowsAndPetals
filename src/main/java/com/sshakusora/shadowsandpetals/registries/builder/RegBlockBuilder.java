@@ -9,7 +9,9 @@ import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -193,7 +195,7 @@ public class RegBlockBuilder<B extends Block> {
      * Adds a same-namespace registry alias for save compatibility or renames.
      */
     public RegBlockBuilder<B> alias(String oldPath) {
-        this.aliases.add(Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 
@@ -271,10 +273,10 @@ public class RegBlockBuilder<B extends Block> {
     public DeferredBlock<B> register() {
         DeferredBlock<B> deferredBlock;
         if (blockFactory == null) {
-            DeferredBlock<Block> simpleBlock = registry.registerSimpleBlock(name, properties);
+            DeferredBlock<Block> simpleBlock = registry.registerSimpleBlock(name, () -> properties);
             deferredBlock = (DeferredBlock<B>) simpleBlock;
         } else {
-            deferredBlock = registry.registerBlock(name, blockFactory, properties);
+            deferredBlock = registry.registerBlock(name, blockFactory, () -> properties);
         }
 
         registerStateAliases(deferredBlock);
@@ -283,6 +285,10 @@ public class RegBlockBuilder<B extends Block> {
 
         if (withItem) {
             registerBlockItem(deferredBlock);
+            DatagenClientItemRegistry.add(
+                    ShadowsAndPetals.asResource(name),
+                    ShadowsAndPetals.asResource("item/" + name)
+            );
         }
 
         registerCreativeTabs(deferredBlock);
@@ -317,7 +323,7 @@ public class RegBlockBuilder<B extends Block> {
 
     private <L extends Block> void registerStateAlias(DeferredBlock<B> targetBlock, StateAliasSpec<L> aliasSpec, int index) {
         String compatName = buildCompatAliasName(aliasSpec.aliasId(), index);
-        DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), properties);
+        DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), () -> properties);
         registry.addAlias(aliasSpec.aliasId(), compatBlock.getId());
         BlockStateAliasRegistry.add(compatBlock, () -> targetBlock.get().defaultBlockState(), aliasSpec.converter());
         DatagenBlockLootRegistry.add(compatBlock.getId(), provider -> provider.addTable(compatBlock.get(), provider.noDropTable()));
@@ -379,7 +385,7 @@ public class RegBlockBuilder<B extends Block> {
             items.register(name, key -> itemFactory.apply(block.get()));
         } else {
             final Item.Properties props = itemProperties;
-            items.register(name, key -> new BlockItem(block.get(), props));
+            items.register(name, key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
         }
     }
 
@@ -401,7 +407,7 @@ public class RegBlockBuilder<B extends Block> {
      * Registers a plain {@link Block} without item, datagen, or alias side effects beyond the block entry itself.
      */
     public DeferredBlock<Block> simple() {
-        DeferredBlock<Block> block = registry.registerSimpleBlock(name, properties);
+        DeferredBlock<Block> block = registry.registerSimpleBlock(name, () -> properties);
         postRegister(block);
         return block;
     }
@@ -410,11 +416,15 @@ public class RegBlockBuilder<B extends Block> {
      * Registers a plain {@link Block} and a default {@link BlockItem} using the current item properties.
      */
     public DeferredBlock<Block> simpleWithItem() {
-        DeferredBlock<Block> block = registry.registerSimpleBlock(name, properties);
+        DeferredBlock<Block> block = registry.registerSimpleBlock(name, () -> properties);
         this.withItem = true;
         postRegister(block);
         final Item.Properties props = itemProperties != null ? itemProperties : new Item.Properties();
-        SAPRegistries.ITEMS.register(name, key -> new BlockItem(block.get(), props));
+        SAPRegistries.ITEMS.register(name, key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
+        DatagenClientItemRegistry.add(
+                ShadowsAndPetals.asResource(name),
+                ShadowsAndPetals.asResource("item/" + name)
+        );
         return block;
     }
 

@@ -104,7 +104,7 @@ public final class BlockEntityAliasRegistry {
         }
 
         public Builder alias(String oldPath) {
-            this.aliasId = Identifier.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath);
+            this.aliasId = ShadowsAndPetals.asResource(oldPath);
             return this;
         }
 
@@ -144,10 +144,10 @@ public final class BlockEntityAliasRegistry {
             final DeferredHolder<BlockEntityType<?>, BlockEntityType<LegacyBlockEntity>>[] legacyTypeRef = new DeferredHolder[1];
 
             DeferredHolder<BlockEntityType<?>, BlockEntityType<LegacyBlockEntity>> legacyType = registry.register(name, key ->
-                    BlockEntityType.Builder.of(
+                    new BlockEntityType<>(
                             (pos, state) -> new LegacyBlockEntity(() -> legacyTypeRef[0].get(), pos, state),
                             validBlocks.stream().map(Supplier::get).toArray(Block[]::new)
-                    ).build(null)
+                    )
             );
             legacyTypeRef[0] = legacyType;
 

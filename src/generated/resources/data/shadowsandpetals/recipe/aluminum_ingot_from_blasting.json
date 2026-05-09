@@ -3,11 +3,8 @@
   "category": "misc",
   "cookingtime": 100,
   "experience": 0.7,
-  "ingredient": {
-    "item": "shadowsandpetals:raw_bauxite"
-  },
+  "ingredient": "shadowsandpetals:raw_bauxite",
   "result": {
-    "count": 1,
     "id": "shadowsandpetals:aluminum_ingot"
   }
 }
