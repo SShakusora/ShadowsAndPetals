@@ -2,7 +2,7 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.neoforge.registries.DeferredHolder;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 public enum CreativeTabType {
     MAIN("main", "Shadows & Petals", "织影落花"),

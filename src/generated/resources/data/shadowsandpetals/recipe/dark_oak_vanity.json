@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "S": "minecraft:dark_oak_slab"
+  },
+  "pattern": [
+    "S  ",
+    "G  ",
+    "SSS"
+  ],
+  "result": {
+    "id": "shadowsandpetals:dark_oak_vanity"
+  }
+}

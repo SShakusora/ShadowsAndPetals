@@ -32,6 +32,7 @@ public class RegItemBuilder<I extends Item> {
     private final Map<String, String> langNames = new LinkedHashMap<>();
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
     private BiConsumer<ModItemModelProvider, DeferredItem<I>> itemModelGenerator;
+    private Function<DeferredItem<I>, Identifier> clientItemModelFactory;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
 
@@ -97,6 +98,21 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
+     * Attaches a client item-model mapping used by {@link ModClientItemProvider}.
+     */
+    public RegItemBuilder<I> clientItem(Function<DeferredItem<I>, Identifier> modelFactory) {
+        this.clientItemModelFactory = modelFactory;
+        return this;
+    }
+
+    /**
+     * Attaches a fixed client item-model mapping used by {@link ModClientItemProvider}.
+     */
+    public RegItemBuilder<I> clientItem(Identifier modelId) {
+        return clientItem(item -> modelId);
+    }
+
+    /**
      * Adds the registered item to a creative tab.
      */
     public RegItemBuilder<I> creativeTab(CreativeTabType tab) {
@@ -153,7 +169,7 @@ public class RegItemBuilder<I extends Item> {
         if (itemModelGenerator != null) {
             DatagenItemModelRegistry.add(deferredItem.getId(), provider -> itemModelGenerator.accept(provider, deferredItem));
         }
-        DatagenClientItemRegistry.add(deferredItem.getId(), ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath()));
+        applyClientItem(deferredItem);
         for (CreativeTabType tab : creativeTabs) {
             CreativeTabContentsRegistry.add(tab, deferredItem);
         }
@@ -169,6 +185,13 @@ public class RegItemBuilder<I extends Item> {
         return deferredItem;
     }
 
+    private void applyClientItem(DeferredItem<I> deferredItem) {
+        Identifier modelId = clientItemModelFactory != null
+                ? clientItemModelFactory.apply(deferredItem)
+                : ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath());
+        DatagenClientItemRegistry.add(deferredItem.getId(), modelId);
+    }
+
     /**
      * Fluent builder for registering a {@link net.minecraft.world.item.BlockItem} separately from the block.
      */
@@ -179,6 +202,7 @@ public class RegItemBuilder<I extends Item> {
         private DeferredBlock<? extends Block> deferredBlock;
         private Item.Properties properties = new Item.Properties();
         private final Map<String, String> langNames = new LinkedHashMap<>();
+        private Function<DeferredItem<BlockItem>, Identifier> clientItemModelFactory;
         private final List<CreativeTabType> creativeTabs = new ArrayList<>();
         private final List<Identifier> aliases = new ArrayList<>();
 
@@ -221,6 +245,21 @@ public class RegItemBuilder<I extends Item> {
         public BlockItemBuilder lang(String locale, String name) {
             this.langNames.put(locale, name);
             return this;
+        }
+
+        /**
+         * Attaches a client item-model mapping used by {@link ModClientItemProvider}.
+         */
+        public BlockItemBuilder clientItem(Function<DeferredItem<BlockItem>, Identifier> modelFactory) {
+            this.clientItemModelFactory = modelFactory;
+            return this;
+        }
+
+        /**
+         * Attaches a fixed client item-model mapping used by {@link ModClientItemProvider}.
+         */
+        public BlockItemBuilder clientItem(Identifier modelId) {
+            return clientItem(item -> modelId);
         }
 
         public BlockItemBuilder creativeTab(CreativeTabType tab) {
@@ -267,7 +306,10 @@ public class RegItemBuilder<I extends Item> {
             for (Map.Entry<String, String> entry : langNames.entrySet()) {
                 DatagenLangRegistry.add(entry.getKey(), "item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), entry.getValue());
             }
-            DatagenClientItemRegistry.add(deferredItem.getId(), ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath()));
+            Identifier modelId = clientItemModelFactory != null
+                    ? clientItemModelFactory.apply(deferredItem)
+                    : ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath());
+            DatagenClientItemRegistry.add(deferredItem.getId(), modelId);
             for (CreativeTabType tab : creativeTabs) {
                 CreativeTabContentsRegistry.add(tab, deferredItem);
             }

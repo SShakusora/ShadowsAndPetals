@@ -3,14 +3,16 @@ package com.sshakusora.shadowsandpetals.data;
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
+import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import java.util.LinkedHashMap;
@@ -156,12 +158,38 @@ public class ModBlockStateProvider implements DataProvider {
         this.models.put(itemModelId(block), parentModel(modLoc("block/ingot_pile/" + metalName + "_bottom")));
     }
 
+    public void vanityBlock(VanityBlock block) {
+        String blockName = name(block);
+        String woodName = blockName.endsWith("_vanity")
+                ? blockName.substring(0, blockName.length() - "_vanity".length())
+                : blockName;
+
+        Identifier lowerModel = modLoc("block/vanity/" + woodName + "_lower");
+        Identifier upperModel = modLoc("block/vanity/" + woodName + "_upper");
+
+        JsonObject variants = new JsonObject();
+        for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+            Identifier model = half == DoubleBlockHalf.LOWER ? lowerModel : upperModel;
+            for (boolean waterlogged : new boolean[]{false, true}) {
+                int i = 0;
+                for (Direction dir : Direction.Plane.HORIZONTAL) {
+                    addVanityVariant(variants, half, waterlogged, dir, model, i * 90);
+                    i++;
+                }
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
     private String name(Block block) {
         return id(block).getPath();
     }
 
     private Identifier id(Block block) {
-        return block.builtInRegistryHolder().key().identifier();
+        return BuiltInRegistries.BLOCK.getKey(block);
     }
 
     private Identifier blockModelId(Block block) {
@@ -187,6 +215,15 @@ public class ModBlockStateProvider implements DataProvider {
             json.addProperty("y", y);
         }
         return json;
+    }
+
+    private static void addVanityVariant(JsonObject variants, DoubleBlockHalf half, boolean waterlogged, Direction facing, Identifier modelId, int y) {
+        variants.add(
+                HorizontalDirectionalBlock.FACING.getName() + "=" + facing.getSerializedName()
+                        + "," + VanityBlock.HALF.getName() + "=" + half.getSerializedName()
+                        + "," + BlockStateProperties.WATERLOGGED.getName() + "=" + waterlogged,
+                rotatedModel(modelId, 0, y)
+        );
     }
 
     private static JsonObject parentModel(Identifier parent) {

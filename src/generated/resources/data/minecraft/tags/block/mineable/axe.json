@@ -2,6 +2,17 @@
   "values": [
     "shadowsandpetals:sakura_log",
     "shadowsandpetals:maple_log",
-    "shadowsandpetals:ginkgo_log"
+    "shadowsandpetals:ginkgo_log",
+    "shadowsandpetals:oak_vanity",
+    "shadowsandpetals:spruce_vanity",
+    "shadowsandpetals:birch_vanity",
+    "shadowsandpetals:jungle_vanity",
+    "shadowsandpetals:acacia_vanity",
+    "shadowsandpetals:dark_oak_vanity",
+    "shadowsandpetals:mangrove_vanity",
+    "shadowsandpetals:cherry_vanity",
+    "shadowsandpetals:bamboo_vanity",
+    "shadowsandpetals:crimson_vanity",
+    "shadowsandpetals:warped_vanity"
   ]
 }

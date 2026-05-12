@@ -1,8 +1,8 @@
-// 26.1.2	2026-05-09T17:31:35.3671655	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-05-12T10:08:36.4676977	Tags for minecraft:block mod id shadowsandpetals
 2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/leaves.json
 c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/logs.json
 c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/logs_that_burn.json
-c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/mineable/axe.json
+739d9ccef80e7a75b472ec700c356afbbc9f15f5 data/minecraft/tags/block/mineable/axe.json
 2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/mineable/hoe.json
 9718f0df91a5f8289760eb3fe4fe4f73447980ef data/minecraft/tags/block/mineable/pickaxe.json
 40be6ad479a78b3441e5dac20024ea90e4f87fe3 data/minecraft/tags/block/needs_iron_tool.json

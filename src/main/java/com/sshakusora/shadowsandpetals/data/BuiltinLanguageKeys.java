@@ -11,6 +11,11 @@ public final class BuiltinLanguageKeys {
             .en_us("%s can be dyed ")
             .zh_cn("%s 可被染色 ");
 
+    public static final DatagenLangRegistry.TranslationKey VANITY_CONTAINER_NAME = DatagenLangRegistry
+            .key("container.shadowsandpetals.vanity")
+            .en_us("Vanity")
+            .zh_cn("梳妆台");
+
     public static final DatagenLangRegistry.TranslationKey JADE_CAFE_CHAIR_DYEABLE_CONFIG = DatagenLangRegistry
             .key("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable")
             .en_us("Show if cafe chairs are dyeable")

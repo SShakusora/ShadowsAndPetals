@@ -48,6 +48,7 @@ public class RegBlockBuilder<B extends Block> {
     private BiConsumer<ModBlockStateProvider, DeferredBlock<B>> blockStateGenerator;
     private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
+    private Function<DeferredBlock<B>, Identifier> clientItemModelFactory;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
@@ -156,6 +157,21 @@ public class RegBlockBuilder<B extends Block> {
     public RegBlockBuilder<B> recipe(BiConsumer<ModRecipeProvider, DeferredBlock<B>> generator) {
         this.recipeGenerator = generator;
         return this;
+    }
+
+    /**
+     * Attaches a client item-model mapping used by {@link ModClientItemProvider}.
+     */
+    public RegBlockBuilder<B> clientItem(Function<DeferredBlock<B>, Identifier> modelFactory) {
+        this.clientItemModelFactory = modelFactory;
+        return this;
+    }
+
+    /**
+     * Attaches a fixed client item-model mapping used by {@link ModClientItemProvider}.
+     */
+    public RegBlockBuilder<B> clientItem(Identifier modelId) {
+        return clientItem(block -> modelId);
     }
 
     /**
@@ -285,10 +301,7 @@ public class RegBlockBuilder<B extends Block> {
 
         if (withItem) {
             registerBlockItem(deferredBlock);
-            DatagenClientItemRegistry.add(
-                    ShadowsAndPetals.asResource(name),
-                    ShadowsAndPetals.asResource("item/" + name)
-            );
+            applyClientItemUnchecked(deferredBlock);
         }
 
         registerCreativeTabs(deferredBlock);
@@ -379,6 +392,15 @@ public class RegBlockBuilder<B extends Block> {
         DatagenRecipeRegistry.add(block.getId(), provider -> recipeGenerator.accept(provider, typedBlock));
     }
 
+    @SuppressWarnings("unchecked")
+    private void applyClientItemUnchecked(DeferredBlock<? extends Block> block) {
+        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        Identifier modelId = clientItemModelFactory != null
+                ? clientItemModelFactory.apply(typedBlock)
+                : ShadowsAndPetals.asResource("item/" + block.getId().getPath());
+        DatagenClientItemRegistry.add(block.getId(), modelId);
+    }
+
     private void registerBlockItem(DeferredBlock<? extends Block> block) {
         DeferredRegister.Items items = SAPRegistries.ITEMS;
         if (itemFactory != null) {
@@ -421,10 +443,7 @@ public class RegBlockBuilder<B extends Block> {
         postRegister(block);
         final Item.Properties props = itemProperties != null ? itemProperties : new Item.Properties();
         SAPRegistries.ITEMS.register(name, key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
-        DatagenClientItemRegistry.add(
-                ShadowsAndPetals.asResource(name),
-                ShadowsAndPetals.asResource("item/" + name)
-        );
+        applyClientItemUnchecked(block);
         return block;
     }
 

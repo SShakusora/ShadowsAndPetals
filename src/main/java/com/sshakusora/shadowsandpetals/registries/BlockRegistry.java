@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.registries;
 
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
@@ -220,6 +221,29 @@ public class BlockRegistry {
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
             .lang("zh_cn", "下界合金锭堆")
             .register();
+
+    public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
+            .block(woodType.getName() + "_vanity", VanityBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
+                    .strength(2.5F, 3.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, vanity) -> provider.vanityBlock(vanity.get()))
+            .clientItem(ShadowsAndPetals.asResource("item/vanity/" + woodType.getName()))
+            .recipe((provider, vanity) -> provider.shaped(RecipeCategory.DECORATIONS, vanity.get())
+                    .define('S', woodType.getSlab())
+                    .define('G', Items.GLASS_PANE)
+                    .pattern("S  ")
+                    .pattern("G  ")
+                    .pattern("SSS")
+                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+                    .save(provider.output()))
+            .lang("zh_cn", woodType.getZhName() + "梳妆台")
+            .register()
+    );
 
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
