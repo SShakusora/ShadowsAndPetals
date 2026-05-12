@@ -1,4 +1,4 @@
-// 26.1.2	2026-05-12T11:30:01.1566528	ShadowsAndPetals Block States
+// 26.1.2	2026-05-12T15:51:40.1472523	ShadowsAndPetals Block States
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
 6ceb0929c2fdf5c397f687894087d0d843142290 assets/shadowsandpetals/blockstates/aluminum_ingot_pile.json
@@ -35,6 +35,7 @@ dce094594cbd588ffb2a09297d16095e19b06a4a assets/shadowsandpetals/blockstates/map
 a8340f284698955be3c132124befeabe3bf8509e assets/shadowsandpetals/blockstates/netherite_ingot_pile.json
 56a3ed4176449e8a5af713aee7fe01e0cf3b1cd8 assets/shadowsandpetals/blockstates/oak_vanity.json
 1b71fce308c31b695c366fc0d32e1cb5e7bec066 assets/shadowsandpetals/blockstates/orange_cafe_chair.json
+93d26f958761c43760dfe478cf0069c87c9eecb3 assets/shadowsandpetals/blockstates/pale_oak_vanity.json
 7d6144c881b6e93f806f3f4e656bb31ee51fad8b assets/shadowsandpetals/blockstates/pink_cafe_chair.json
 4f15844bfacd3772c4ac8066e96a3ee6e08785c1 assets/shadowsandpetals/blockstates/purple_cafe_chair.json
 d814199aa5f8f1ba70698efba9bf79e6b319a401 assets/shadowsandpetals/blockstates/raw_bauxite_block.json

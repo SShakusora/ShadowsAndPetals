@@ -18,16 +18,22 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import org.jspecify.annotations.Nullable;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
 public final class CafeChairDyeHintHandler {
     private static final int HOVER_TICKS_REQUIRED = 50;
     private static final int FADE_IN_TICKS = 8;
 
+    @Nullable
     private static BlockPos hoveredTargetPos;
+    @Nullable
     private static BlockState hoveredTargetState;
+    @Nullable
     private static DyeColor hoveredDyeColor;
+    @Nullable
     private static BlockState displayedTargetState;
+    @Nullable
     private static DyeColor displayedDyeColor;
     private static int hoverTicks;
     private static int displayTicks;
@@ -112,6 +118,7 @@ public final class CafeChairDyeHintHandler {
         guiGraphics.text(minecraft.font, colorName, x + minecraft.font.width(prefix), y, dyeColor, true);
     }
 
+    @Nullable
     private static DyeItem getHeldDye(ItemStack mainHandItem, ItemStack offhandItem) {
         if (mainHandItem.getItem() instanceof DyeItem dyeItem) {
             return dyeItem;

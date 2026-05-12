@@ -25,6 +25,7 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
         DARK_OAK("dark_oak", "深色橡木", Blocks.DARK_OAK_PLANKS, Blocks.DARK_OAK_STAIRS, Blocks.DARK_OAK_SLAB),
         MANGROVE("mangrove", "红树木", Blocks.MANGROVE_PLANKS, Blocks.MANGROVE_STAIRS, Blocks.MANGROVE_SLAB),
         CHERRY("cherry", "樱花木", Blocks.CHERRY_PLANKS, Blocks.CHERRY_STAIRS, Blocks.CHERRY_SLAB),
+        PALE("pale_oak", "苍白橡木", Blocks.PALE_OAK_PLANKS, Blocks.PALE_OAK_STAIRS, Blocks.PALE_OAK_SLAB),
         BAMBOO("bamboo", "竹", Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_STAIRS, Blocks.BAMBOO_SLAB),
         CRIMSON("crimson", "绯红木", Blocks.CRIMSON_PLANKS, Blocks.CRIMSON_STAIRS, Blocks.CRIMSON_SLAB),
         WARPED("warped", "诡异木", Blocks.WARPED_PLANKS, Blocks.WARPED_STAIRS, Blocks.WARPED_SLAB);

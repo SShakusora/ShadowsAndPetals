@@ -8,8 +8,8 @@ public final class BuiltinLanguageKeys {
 
     public static final DatagenLangRegistry.TranslationKey CAFE_CHAIR_DYE_HINT_PREFIX = DatagenLangRegistry
             .key("message.shadowsandpetals.cafe_chair.dye_hint_prefix")
-            .en_us("%s can be dyed ")
-            .zh_cn("%s 可被染色 ");
+            .en_us("%s can be dyed to ")
+            .zh_cn("%s 可被染成 ");
 
     public static final DatagenLangRegistry.TranslationKey VANITY_CONTAINER_NAME = DatagenLangRegistry
             .key("container.shadowsandpetals.vanity")

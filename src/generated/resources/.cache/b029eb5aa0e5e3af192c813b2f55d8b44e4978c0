@@ -1,4 +1,4 @@
-// 26.1.2	2026-05-12T10:31:26.4746384	ShadowsAndPetals Client Items
+// 26.1.2	2026-05-12T15:51:40.1417402	ShadowsAndPetals Client Items
 35c861068f679d837703258c8d10ba89b5f07aef assets/shadowsandpetals/items/acacia_cafe_table.json
 feb5598d96f531d446ca394ad16779141291dfa1 assets/shadowsandpetals/items/acacia_dining_chair.json
 6f381e3a95bf37f17a9da383fa63e97094064032 assets/shadowsandpetals/items/acacia_modular_desk.json
@@ -63,6 +63,10 @@ bf32adfbaa41833edf1f0bdb477d0f41007e6f05 assets/shadowsandpetals/items/netherite
 f315f52b0be6b3886c36bc2b1ceeb22b04f9b54f assets/shadowsandpetals/items/oak_modular_desk.json
 564275fc5dfcba6681a3132a9488deb43b697251 assets/shadowsandpetals/items/oak_vanity.json
 29b2c8d6f2aac1ce95391a0ae5b08f364f7b59ca assets/shadowsandpetals/items/orange_cafe_chair.json
+2a48649ae3d29b543fd36d58b29eb46150416d7f assets/shadowsandpetals/items/pale_oak_cafe_table.json
+7b55de5731fcad80fdbf360e18d1d968ce2c65e6 assets/shadowsandpetals/items/pale_oak_dining_chair.json
+f30124697c8e85f29d3ccb425e8d411b7e1237ff assets/shadowsandpetals/items/pale_oak_modular_desk.json
+058dc73b35b85038de44aeefbc8514752383007c assets/shadowsandpetals/items/pale_oak_vanity.json
 a88333995e6c42331c8edf2439746c5f7e1a8756 assets/shadowsandpetals/items/pink_cafe_chair.json
 96c4e7225b8c9d946ba36f53e34a5ed95d94fcf5 assets/shadowsandpetals/items/purple_cafe_chair.json
 21ed0d76adf7c17be8034186de2cd75cec40d02d assets/shadowsandpetals/items/raw_bauxite.json

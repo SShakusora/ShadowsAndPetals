@@ -62,6 +62,10 @@
   "block.shadowsandpetals.oak_modular_desk": "橡木书桌",
   "block.shadowsandpetals.oak_vanity": "橡木梳妆台",
   "block.shadowsandpetals.orange_cafe_chair": "橙色咖啡椅",
+  "block.shadowsandpetals.pale_oak_cafe_table": "苍白橡木咖啡桌",
+  "block.shadowsandpetals.pale_oak_dining_chair": "苍白橡木餐椅",
+  "block.shadowsandpetals.pale_oak_modular_desk": "苍白橡木书桌",
+  "block.shadowsandpetals.pale_oak_vanity": "苍白橡木梳妆台",
   "block.shadowsandpetals.pink_cafe_chair": "粉红色咖啡椅",
   "block.shadowsandpetals.purple_cafe_chair": "紫色咖啡椅",
   "block.shadowsandpetals.raw_bauxite_block": "粗矾土块",
@@ -146,6 +150,10 @@
   "item.shadowsandpetals.oak_modular_desk": "橡木书桌",
   "item.shadowsandpetals.oak_vanity": "橡木梳妆台",
   "item.shadowsandpetals.orange_cafe_chair": "橙色咖啡椅",
+  "item.shadowsandpetals.pale_oak_cafe_table": "苍白橡木咖啡桌",
+  "item.shadowsandpetals.pale_oak_dining_chair": "苍白橡木餐椅",
+  "item.shadowsandpetals.pale_oak_modular_desk": "苍白橡木书桌",
+  "item.shadowsandpetals.pale_oak_vanity": "苍白橡木梳妆台",
   "item.shadowsandpetals.pink_cafe_chair": "粉红色咖啡椅",
   "item.shadowsandpetals.purple_cafe_chair": "紫色咖啡椅",
   "item.shadowsandpetals.raw_bauxite": "粗矾土",
@@ -167,5 +175,5 @@
   "itemGroup.shadowsandpetals.main": "织影落花",
   "itemGroup.shadowsandpetals.nature": "织影落花：自然",
   "jade.shadowsandpetals.cafe_chair.dyeable": "可染色",
-  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s 可被染色 "
+  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s 可被染成 "
 }

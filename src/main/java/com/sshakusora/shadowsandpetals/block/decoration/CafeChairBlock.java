@@ -37,6 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
@@ -55,6 +56,7 @@ public class CafeChairBlock extends AbstractSeatBlock {
             Block.box(3.0D, 7.25D, 3.0D, 13.0D, 9.25D, 13.0D),
             Block.box(3.5D, 9.25D, 3.5D, 12.5D, 10.25D, 12.5D)
     );
+    @Nullable
     private static Map<Block, DyeColor> colorByBlock;
 
     public CafeChairBlock(BlockBehaviour.Properties properties) {

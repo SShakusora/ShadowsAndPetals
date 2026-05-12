@@ -74,7 +74,7 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
             Block.box(0.5D, 12.5D, 11.5D, 2.5D, 13.5D, 14.5D),
             Block.box(13.5D, 12.5D, 11.5D, 15.5D, 13.5D, 14.5D),
             Block.box(3.75D, 12.0D, 12.5D, 12.25D, 13.0D, 13.5D),
-            Block.box(5.0D, 13.0D, 12.0D, 11.0D, 14.82513D, 14.5D)
+            Block.box(5.0D, 13.0D, 11.5D, 11.0D, 14.82513D, 14.5D)
     );
     private static final Map<Direction, VoxelShape> LOWER_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, VoxelShape> UPPER_SHAPES = new EnumMap<>(Direction.class);
