@@ -37,6 +37,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -77,9 +78,12 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
             Block.box(5.0D, 13.0D, 11.5D, 11.0D, 14.82513D, 14.5D)
     );
     private static final Map<Direction, VoxelShape> LOWER_SHAPES = new EnumMap<>(Direction.class);
+    private static final VoxelShape DRAWER_FRONT_NORTH_CLEARANCE = Block.box(4.0D, 8.75D, 11.25D, 12.0D, 13.0D, 16.0D);
+    private static final Map<Direction, VoxelShape> DRAWER_FRONT_CLEARANCES = new EnumMap<>(Direction.class);
     private static final Map<Direction, VoxelShape> UPPER_SHAPES = new EnumMap<>(Direction.class);
 
     static {
+        DRAWER_FRONT_CLEARANCES.putAll(VoxelShapeUtils.rotateHorizontal(DRAWER_FRONT_NORTH_CLEARANCE));
         LOWER_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(LOWER_NORTH_SHAPE));
         UPPER_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(UPPER_NORTH_SHAPE));
     }
@@ -140,12 +144,12 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return openMenu(state, level, pos, player);
+        return canOpenDrawer(state, level, pos, hitResult) ? openMenu(state, level, pos, player) : InteractionResult.PASS;
     }
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        return openMenu(state, level, pos, player);
+        return canOpenDrawer(state, level, pos, hitResult) ? openMenu(state, level, pos, player) : super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     private InteractionResult openMenu(BlockState state, Level level, BlockPos pos, Player player) {
@@ -160,6 +164,27 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
             player.awardStat(Stats.OPEN_BARREL);
         }
         return InteractionResult.SUCCESS;
+    }
+
+    private boolean canOpenDrawer(BlockState state, Level level, BlockPos pos, BlockHitResult hitResult) {
+        Direction facing = state.getValue(FACING);
+        Direction hitFace = hitResult.getDirection();
+        if (hitFace == facing.getOpposite()) {
+            return false;
+        }
+
+        if (hitFace.getAxis().isVertical() && state.getValue(HALF) != DoubleBlockHalf.LOWER) {
+            return false;
+        }
+
+        BlockPos basePos = getBasePos(state, pos);
+        return !isDrawerBlocked(level, basePos, facing);
+    }
+
+    private static boolean isDrawerBlocked(Level level, BlockPos basePos, Direction facing) {
+        BlockPos frontPos = basePos.relative(facing);
+        VoxelShape collisionShape = level.getBlockState(frontPos).getCollisionShape(level, frontPos);
+        return Shapes.joinIsNotEmpty(collisionShape, DRAWER_FRONT_CLEARANCES.get(facing), BooleanOp.AND);
     }
 
     @Override

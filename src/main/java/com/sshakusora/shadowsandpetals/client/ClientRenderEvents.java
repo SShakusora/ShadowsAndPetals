@@ -20,6 +20,11 @@ public class ClientRenderEvents {
 
     @SubscribeEvent
     public static void registerStandaloneModels(ModelEvent.RegisterStandalone event) {
-        VanityBlockEntityRenderer.registerStandaloneModels(event);
+        BlockModelRegistry.registerStandaloneModels(event);
+    }
+
+    @SubscribeEvent
+    public static void cacheStandaloneModels(ModelEvent.BakingCompleted event) {
+        BlockModelRegistry.cacheBakedModels(event);
     }
 }
