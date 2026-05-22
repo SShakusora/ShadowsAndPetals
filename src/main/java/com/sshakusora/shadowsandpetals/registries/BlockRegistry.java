@@ -19,6 +19,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -630,7 +632,7 @@ public class BlockRegistry {
     }
 
     private static DeferredBlock<FenceGateBlock> treeFenceGate(String id, Supplier<? extends Block> planks, String zhName) {
-        return SAPRegistries.block(id, properties -> new FenceGateBlock(net.minecraft.world.level.block.state.properties.WoodType.OAK, properties))
+        return SAPRegistries.block(id, properties -> new FenceGateBlock(WoodType.OAK, properties))
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_FENCE_GATE)
                         .strength(2.0F, 3.0F)
                         .sound(SoundType.WOOD))
@@ -650,7 +652,7 @@ public class BlockRegistry {
     }
 
     private static DeferredBlock<PressurePlateBlock> treePressurePlate(String id, Supplier<? extends Block> planks, String zhName) {
-        return SAPRegistries.block(id, properties -> new PressurePlateBlock(net.minecraft.world.level.block.state.properties.BlockSetType.OAK, properties))
+        return SAPRegistries.block(id, properties -> new PressurePlateBlock(BlockSetType.OAK, properties))
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PRESSURE_PLATE)
                         .strength(0.5F)
                         .sound(SoundType.WOOD)
@@ -669,7 +671,7 @@ public class BlockRegistry {
     }
 
     private static DeferredBlock<ButtonBlock> treeButton(String id, Supplier<? extends Block> planks, String zhName) {
-        return SAPRegistries.block(id, properties -> new ButtonBlock(net.minecraft.world.level.block.state.properties.BlockSetType.OAK, 30, properties))
+        return SAPRegistries.block(id, properties -> new ButtonBlock(BlockSetType.OAK, 30, properties))
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_BUTTON)
                         .strength(0.5F)
                         .sound(SoundType.WOOD)
