@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=east,half=lower,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower",
+      "y": 90
+    },
+    "facing=east,half=lower,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower",
+      "y": 90
+    },
+    "facing=east,half=upper,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper",
+      "y": 90
+    },
+    "facing=east,half=upper,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper",
+      "y": 90
+    },
+    "facing=north,half=lower,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower"
+    },
+    "facing=north,half=lower,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower"
+    },
+    "facing=north,half=upper,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper"
+    },
+    "facing=north,half=upper,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper"
+    },
+    "facing=south,half=lower,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower",
+      "y": 180
+    },
+    "facing=south,half=lower,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower",
+      "y": 180
+    },
+    "facing=south,half=upper,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper",
+      "y": 180
+    },
+    "facing=south,half=upper,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper",
+      "y": 180
+    },
+    "facing=west,half=lower,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower",
+      "y": 270
+    },
+    "facing=west,half=lower,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_lower",
+      "y": 270
+    },
+    "facing=west,half=upper,waterlogged=false": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper",
+      "y": 270
+    },
+    "facing=west,half=upper,waterlogged=true": {
+      "model": "shadowsandpetals:block/vanity/sakura_upper",
+      "y": 270
+    }
+  }
+}

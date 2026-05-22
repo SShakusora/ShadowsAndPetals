@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "minecraft:glass_pane",
+    "S": "shadowsandpetals:sakura_slab"
+  },
+  "pattern": [
+    "S  ",
+    "G  ",
+    "SSS"
+  ],
+  "result": {
+    "id": "shadowsandpetals:sakura_vanity"
+  }
+}

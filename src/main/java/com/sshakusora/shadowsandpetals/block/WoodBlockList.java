@@ -1,10 +1,12 @@
 package com.sshakusora.shadowsandpetals.block;
 
+import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.WoodType, T> {
 
@@ -26,17 +28,24 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
         MANGROVE("mangrove", "红树木", Blocks.MANGROVE_PLANKS, Blocks.MANGROVE_STAIRS, Blocks.MANGROVE_SLAB),
         CHERRY("cherry", "樱花木", Blocks.CHERRY_PLANKS, Blocks.CHERRY_STAIRS, Blocks.CHERRY_SLAB),
         PALE("pale_oak", "苍白橡木", Blocks.PALE_OAK_PLANKS, Blocks.PALE_OAK_STAIRS, Blocks.PALE_OAK_SLAB),
+        SAKURA("sakura", "樱", BlockRegistry.SAKURA_PLANKS, BlockRegistry.SAKURA_STAIRS, BlockRegistry.SAKURA_SLAB),
+        MAPLE("maple", "枫木", BlockRegistry.MAPLE_PLANKS, BlockRegistry.MAPLE_STAIRS, BlockRegistry.MAPLE_SLAB),
+        GINKGO("ginkgo", "银杏木", BlockRegistry.GINKGO_PLANKS, BlockRegistry.GINKGO_STAIRS, BlockRegistry.GINKGO_SLAB),
         BAMBOO("bamboo", "竹", Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_STAIRS, Blocks.BAMBOO_SLAB),
         CRIMSON("crimson", "绯红木", Blocks.CRIMSON_PLANKS, Blocks.CRIMSON_STAIRS, Blocks.CRIMSON_SLAB),
         WARPED("warped", "诡异木", Blocks.WARPED_PLANKS, Blocks.WARPED_STAIRS, Blocks.WARPED_SLAB);
 
         private final String name;
         private final String zhName;
-        private final Block planks;
-        private final Block stairs;
-        private final Block slab;
+        private final Supplier<? extends Block> planks;
+        private final Supplier<? extends Block> stairs;
+        private final Supplier<? extends Block> slab;
 
         WoodType(String name, String zhName, Block planks, Block stairs, Block slab) {
+            this(name, zhName, () -> planks, () -> stairs, () -> slab);
+        }
+
+        WoodType(String name, String zhName, Supplier<? extends Block> planks, Supplier<? extends Block> stairs, Supplier<? extends Block> slab) {
             this.name = name;
             this.zhName = zhName;
             this.planks = planks;
@@ -53,15 +62,15 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
         }
 
         public Block getPlanks() {
-            return planks;
+            return planks.get();
         }
 
         public Block getStairs() {
-            return stairs;
+            return stairs.get();
         }
 
         public Block getSlab() {
-            return slab;
+            return slab.get();
         }
     }
 }

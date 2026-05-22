@@ -22,10 +22,7 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 
 /**
  * Fluent builder for block registration.
@@ -39,7 +36,7 @@ import java.util.function.Function;
 public class RegBlockBuilder<B extends Block> {
     private final DeferredRegister.Blocks registry;
     private final String name;
-    private BlockBehaviour.Properties properties = BlockBehaviour.Properties.of();
+    private Supplier<BlockBehaviour.Properties> propertiesFactory = BlockBehaviour.Properties::of;
     private Function<BlockBehaviour.Properties, B> blockFactory;
     private boolean withItem;
     private Item.Properties itemProperties;
@@ -62,9 +59,9 @@ public class RegBlockBuilder<B extends Block> {
 
     /**
     * Sets the exact {@link BlockBehaviour.Properties} instance used for registration.
-    */
+     */
     public RegBlockBuilder<B> properties(BlockBehaviour.Properties properties) {
-        this.properties = properties;
+        this.propertiesFactory = () -> properties;
         return this;
     }
 
@@ -72,7 +69,7 @@ public class RegBlockBuilder<B extends Block> {
      * Builds a fresh {@link BlockBehaviour.Properties} via a configurator.
      */
     public RegBlockBuilder<B> properties(Function<BlockBehaviour.Properties, BlockBehaviour.Properties> configurator) {
-        this.properties = configurator.apply(BlockBehaviour.Properties.of());
+        this.propertiesFactory = () -> configurator.apply(BlockBehaviour.Properties.of());
         return this;
     }
 
@@ -298,10 +295,10 @@ public class RegBlockBuilder<B extends Block> {
     public DeferredBlock<B> register() {
         DeferredBlock<B> deferredBlock;
         if (blockFactory == null) {
-            DeferredBlock<Block> simpleBlock = registry.registerSimpleBlock(name, () -> properties);
+            DeferredBlock<Block> simpleBlock = registry.registerSimpleBlock(name, propertiesFactory);
             deferredBlock = (DeferredBlock<B>) simpleBlock;
         } else {
-            deferredBlock = registry.registerBlock(name, blockFactory, () -> properties);
+            deferredBlock = registry.registerBlock(name, blockFactory, propertiesFactory);
         }
 
         registerStateAliases(deferredBlock);
@@ -346,7 +343,7 @@ public class RegBlockBuilder<B extends Block> {
 
     private <L extends Block> void registerStateAlias(DeferredBlock<B> targetBlock, StateAliasSpec<L> aliasSpec, int index) {
         String compatName = buildCompatAliasName(aliasSpec.aliasId(), index);
-        DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), () -> properties);
+        DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), propertiesFactory);
         registry.addAlias(aliasSpec.aliasId(), compatBlock.getId());
         BlockStateAliasRegistry.add(compatBlock, () -> targetBlock.get().defaultBlockState(), aliasSpec.converter());
         DatagenBlockLootRegistry.add(compatBlock.getId(), provider -> provider.addTable(compatBlock.get(), provider.noDropTable()));
@@ -449,7 +446,7 @@ public class RegBlockBuilder<B extends Block> {
      * Registers a plain {@link Block} without item, datagen, or alias side effects beyond the block entry itself.
      */
     public DeferredBlock<Block> simple() {
-        DeferredBlock<Block> block = registry.registerSimpleBlock(name, () -> properties);
+        DeferredBlock<Block> block = registry.registerSimpleBlock(name, propertiesFactory);
         postRegister(block);
         return block;
     }
@@ -458,7 +455,7 @@ public class RegBlockBuilder<B extends Block> {
      * Registers a plain {@link Block} and a default {@link BlockItem} using the current item properties.
      */
     public DeferredBlock<Block> simpleWithItem() {
-        DeferredBlock<Block> block = registry.registerSimpleBlock(name, () -> properties);
+        DeferredBlock<Block> block = registry.registerSimpleBlock(name, propertiesFactory);
         this.withItem = true;
         postRegister(block);
         final Item.Properties props = itemProperties != null ? itemProperties : new Item.Properties();
