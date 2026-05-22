@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "textures": {
+    "bottom": "shadowsandpetals:block/maple_planks",
+    "side": "shadowsandpetals:block/maple_planks",
+    "top": "shadowsandpetals:block/maple_planks"
+  }
+}

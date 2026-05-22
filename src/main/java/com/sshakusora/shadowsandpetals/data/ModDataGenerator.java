@@ -23,6 +23,7 @@ public class ModDataGenerator {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(true, new ModBlockStateProvider(output));
+        generator.addProvider(true, new ModWoodModelProvider(output));
         generator.addProvider(true, new ModItemModelProvider(output));
         generator.addProvider(true, new ModClientItemProvider(output));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.DEFAULT_LOCALE));
@@ -32,6 +33,7 @@ public class ModDataGenerator {
                 new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK)
         ), lookupProvider));
         generator.addProvider(true, new ModBlockTagProvider(output, lookupProvider));
+        generator.addProvider(true, new ModDataMapProvider(output, lookupProvider));
         generator.addProvider(true, new WorldGenProvider(output, lookupProvider));
     }
 }

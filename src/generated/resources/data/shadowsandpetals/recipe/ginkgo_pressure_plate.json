@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "W": "shadowsandpetals:ginkgo_planks"
+  },
+  "pattern": [
+    "WW"
+  ],
+  "result": {
+    "id": "shadowsandpetals:ginkgo_pressure_plate"
+  }
+}

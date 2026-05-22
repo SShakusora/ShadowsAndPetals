@@ -12,9 +12,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.*;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -86,29 +84,6 @@ public class ModBlockStateProvider implements DataProvider {
         this.models.put(itemModelId(block), parentModel(model.id()));
     }
 
-    public void logBlockWithItem(RotatedPillarBlock block) {
-        Identifier sideTexture = modLoc("block/" + name(block));
-        logBlockWithItem(block, sideTexture, sideTexture);
-    }
-
-    public void logBlockWithItem(RotatedPillarBlock block, Identifier sideTexture, Identifier endTexture) {
-        Identifier verticalModel = blockModelId(block);
-        Identifier horizontalModel = modLoc("block/" + name(block) + "_horizontal");
-
-        this.models.put(verticalModel, axisModel(sideTexture, endTexture));
-        this.models.put(horizontalModel, axisHorizontalModel(sideTexture, endTexture));
-
-        JsonObject variants = new JsonObject();
-        variants.add("axis=x", rotatedModel(horizontalModel, 90, 90));
-        variants.add("axis=y", modelRef(verticalModel));
-        variants.add("axis=z", rotatedModel(horizontalModel, 90, 0));
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), parentModel(verticalModel));
-    }
-
     public void leavesBlockWithItem(LeavesBlock block) {
         cubeAllBlockWithItem(block, modLoc("block/" + name(block)));
     }
@@ -127,14 +102,14 @@ public class ModBlockStateProvider implements DataProvider {
         simpleBlockWithItem(block, new ModelRef(modelId));
     }
 
-    public void saplingBlockWithItem(SaplingBlock block) {
-        saplingBlockWithItem(block, modLoc("block/" + name(block)));
+    public void saplingBlock(SaplingBlock block) {
+        saplingBlock(block, modLoc("block/" + name(block)));
     }
 
-    public void saplingBlockWithItem(SaplingBlock block, Identifier texture) {
+    public void saplingBlock(SaplingBlock block, Identifier texture) {
         Identifier modelId = blockModelId(block);
         this.models.put(modelId, crossModel(texture));
-        simpleBlockWithItem(block, new ModelRef(modelId));
+        simpleBlock(block, new ModelRef(modelId));
     }
 
     public void ingotPileBlock(IngotPileBlock block) {
@@ -232,12 +207,19 @@ public class ModBlockStateProvider implements DataProvider {
     }
 
     private static JsonObject rotatedModel(Identifier modelId, int x, int y) {
+        return rotatedModel(modelId, x, y, false);
+    }
+
+    private static JsonObject rotatedModel(Identifier modelId, int x, int y, boolean uvLock) {
         JsonObject json = modelRef(modelId);
         if (x != 0) {
             json.addProperty("x", x);
         }
         if (y != 0) {
             json.addProperty("y", y);
+        }
+        if (uvLock) {
+            json.addProperty("uvlock", true);
         }
         return json;
     }
@@ -326,24 +308,6 @@ public class ModBlockStateProvider implements DataProvider {
         textures.addProperty("cross", texture.toString());
         json.add("textures", textures);
         json.addProperty("render_type", "cutout");
-        return json;
-    }
-
-    private static JsonObject axisModel(Identifier sideTexture, Identifier endTexture) {
-        JsonObject json = parentModel(Identifier.withDefaultNamespace("block/cube_column"));
-        JsonObject textures = new JsonObject();
-        textures.addProperty("side", sideTexture.toString());
-        textures.addProperty("end", endTexture.toString());
-        json.add("textures", textures);
-        return json;
-    }
-
-    private static JsonObject axisHorizontalModel(Identifier sideTexture, Identifier endTexture) {
-        JsonObject json = parentModel(Identifier.withDefaultNamespace("block/cube_column_horizontal"));
-        JsonObject textures = new JsonObject();
-        textures.addProperty("side", sideTexture.toString());
-        textures.addProperty("end", endTexture.toString());
-        json.add("textures", textures);
         return json;
     }
 

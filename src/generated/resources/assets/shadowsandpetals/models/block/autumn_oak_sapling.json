@@ -2,6 +2,6 @@
   "parent": "minecraft:block/cross",
   "render_type": "cutout",
   "textures": {
-    "cross": "minecraft:block/oak_sapling"
+    "cross": "shadowsandpetals:block/autumn_oak_sapling"
   }
 }

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "shadowsandpetals:block/maple_slab"
+    },
+    "type=double": {
+      "model": "shadowsandpetals:block/maple_planks"
+    },
+    "type=top": {
+      "model": "shadowsandpetals:block/maple_slab_top"
+    }
+  }
+}

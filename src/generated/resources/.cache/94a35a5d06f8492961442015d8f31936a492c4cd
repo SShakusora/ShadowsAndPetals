@@ -1,11 +1,23 @@
-// 26.1.2	2026-05-17T14:12:23.214584	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-05-22T10:38:23.6030214	Tags for minecraft:block mod id shadowsandpetals
+853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
+9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/fences.json
+942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/block/fence_gates.json
 2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/leaves.json
-c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/logs.json
-c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/logs_that_burn.json
-6b40297fa8b627d82d2440c388080570ba35f79f data/minecraft/tags/block/mineable/axe.json
+4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs.json
+4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs_that_burn.json
+f4df65045b2ac3184b20a321d68ceefd55968e41 data/minecraft/tags/block/mineable/axe.json
 2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/mineable/hoe.json
 aea0f6929c0c89f8f53c428f6d4d19d86315779f data/minecraft/tags/block/mineable/pickaxe.json
 40be6ad479a78b3441e5dac20024ea90e4f87fe3 data/minecraft/tags/block/needs_iron_tool.json
 cfa7f03e51232129242d9171073ac20193b2bdfc data/minecraft/tags/block/needs_stone_tool.json
 c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/overworld_natural_logs.json
+81f74f2a790ea645cf8a74625f81a58bf4311da5 data/minecraft/tags/block/planks.json
+21ae918c7f6060df9d0283ddc26fad549e75f5b6 data/minecraft/tags/block/pressure_plates.json
 28bb576b511a348a732ea2ceff4c79d1609050cc data/minecraft/tags/block/saplings.json
+6bc11a2d4177a0d9611945df44d13193b6a789ff data/minecraft/tags/block/slabs.json
+9644ee46dbcf0b61308350c014ab90f94fb07807 data/minecraft/tags/block/stairs.json
+853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/wooden_buttons.json
+9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/wooden_fences.json
+21ae918c7f6060df9d0283ddc26fad549e75f5b6 data/minecraft/tags/block/wooden_pressure_plates.json
+6bc11a2d4177a0d9611945df44d13193b6a789ff data/minecraft/tags/block/wooden_slabs.json
+9644ee46dbcf0b61308350c014ab90f94fb07807 data/minecraft/tags/block/wooden_stairs.json

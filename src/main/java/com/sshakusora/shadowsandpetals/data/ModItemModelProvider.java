@@ -2,11 +2,13 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,11 +51,26 @@ public class ModItemModelProvider implements DataProvider {
         this.models.put(modLoc("item/" + name(item)), json);
     }
 
+    public void generatedBlockItem(Block block, Identifier texture) {
+        JsonObject json = new JsonObject();
+        json.addProperty("parent", Identifier.withDefaultNamespace("item/generated").toString());
+
+        JsonObject textures = new JsonObject();
+        textures.addProperty("layer0", texture.toString());
+        json.add("textures", textures);
+
+        this.models.put(modLoc("item/" + name(block)), json);
+    }
+
     public Identifier modLoc(String path) {
         return ShadowsAndPetals.asResource(path);
     }
 
     private String name(Item item) {
-        return item.builtInRegistryHolder().key().identifier().getPath();
+        return BuiltInRegistries.ITEM.getKey(item).getPath();
+    }
+
+    private String name(Block block) {
+        return BuiltInRegistries.BLOCK.getKey(block).getPath();
     }
 }

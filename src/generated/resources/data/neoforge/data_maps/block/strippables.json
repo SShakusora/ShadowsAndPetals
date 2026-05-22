@@ -1,0 +1,22 @@
+{
+  "values": {
+    "shadowsandpetals:ginkgo_log": {
+      "stripped_block": "shadowsandpetals:stripped_ginkgo_log"
+    },
+    "shadowsandpetals:ginkgo_wood": {
+      "stripped_block": "shadowsandpetals:stripped_ginkgo_wood"
+    },
+    "shadowsandpetals:maple_log": {
+      "stripped_block": "shadowsandpetals:stripped_maple_log"
+    },
+    "shadowsandpetals:maple_wood": {
+      "stripped_block": "shadowsandpetals:stripped_maple_wood"
+    },
+    "shadowsandpetals:sakura_log": {
+      "stripped_block": "shadowsandpetals:stripped_sakura_log"
+    },
+    "shadowsandpetals:sakura_wood": {
+      "stripped_block": "shadowsandpetals:stripped_sakura_wood"
+    }
+  }
+}

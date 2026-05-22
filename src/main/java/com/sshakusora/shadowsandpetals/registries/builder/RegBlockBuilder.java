@@ -48,6 +48,7 @@ public class RegBlockBuilder<B extends Block> {
     private BiConsumer<ModBlockStateProvider, DeferredBlock<B>> blockStateGenerator;
     private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
+    private BiConsumer<ModItemModelProvider, DeferredBlock<B>> itemModelGenerator;
     private Function<DeferredBlock<B>, Identifier> clientItemModelFactory;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
@@ -156,6 +157,14 @@ public class RegBlockBuilder<B extends Block> {
      */
     public RegBlockBuilder<B> recipe(BiConsumer<ModRecipeProvider, DeferredBlock<B>> generator) {
         this.recipeGenerator = generator;
+        return this;
+    }
+
+    /**
+     * Attaches an item-model datagen callback for the block item.
+     */
+    public RegBlockBuilder<B> itemModel(BiConsumer<ModItemModelProvider, DeferredBlock<B>> generator) {
+        this.itemModelGenerator = generator;
         return this;
     }
 
@@ -301,6 +310,7 @@ public class RegBlockBuilder<B extends Block> {
 
         if (withItem) {
             registerBlockItem(deferredBlock);
+            applyItemModelUnchecked(deferredBlock);
             applyClientItemUnchecked(deferredBlock);
         }
 
@@ -390,6 +400,16 @@ public class RegBlockBuilder<B extends Block> {
 
         DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
         DatagenRecipeRegistry.add(block.getId(), provider -> recipeGenerator.accept(provider, typedBlock));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applyItemModelUnchecked(DeferredBlock<? extends Block> block) {
+        if (itemModelGenerator == null) {
+            return;
+        }
+
+        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        DatagenItemModelRegistry.add(block.getId(), provider -> itemModelGenerator.accept(provider, typedBlock));
     }
 
     @SuppressWarnings("unchecked")

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "shadowsandpetals:block/sakura_planks",
+    "side": "shadowsandpetals:block/sakura_planks",
+    "top": "shadowsandpetals:block/sakura_planks"
+  }
+}

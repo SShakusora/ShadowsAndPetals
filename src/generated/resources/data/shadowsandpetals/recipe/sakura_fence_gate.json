@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "S": "minecraft:stick",
+    "W": "shadowsandpetals:sakura_planks"
+  },
+  "pattern": [
+    "SWS",
+    "SWS"
+  ],
+  "result": {
+    "id": "shadowsandpetals:sakura_fence_gate"
+  }
+}

@@ -1,7 +1,16 @@
 {
   "values": [
     "shadowsandpetals:sakura_log",
+    "shadowsandpetals:stripped_sakura_log",
+    "shadowsandpetals:sakura_wood",
+    "shadowsandpetals:stripped_sakura_wood",
     "shadowsandpetals:maple_log",
-    "shadowsandpetals:ginkgo_log"
+    "shadowsandpetals:stripped_maple_log",
+    "shadowsandpetals:maple_wood",
+    "shadowsandpetals:stripped_maple_wood",
+    "shadowsandpetals:ginkgo_log",
+    "shadowsandpetals:stripped_ginkgo_log",
+    "shadowsandpetals:ginkgo_wood",
+    "shadowsandpetals:stripped_ginkgo_wood"
   ]
 }

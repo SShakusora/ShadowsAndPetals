@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "W": "shadowsandpetals:sakura_planks"
+  },
+  "pattern": [
+    "WW"
+  ],
+  "result": {
+    "id": "shadowsandpetals:sakura_pressure_plate"
+  }
+}

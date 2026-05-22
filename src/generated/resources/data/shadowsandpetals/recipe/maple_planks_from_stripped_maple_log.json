@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "shadowsandpetals:stripped_maple_log"
+  ],
+  "result": {
+    "count": 4,
+    "id": "shadowsandpetals:maple_planks"
+  }
+}

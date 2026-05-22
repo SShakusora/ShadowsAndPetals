@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "W": "shadowsandpetals:stripped_ginkgo_log"
+  },
+  "pattern": [
+    "WW",
+    "WW"
+  ],
+  "result": {
+    "count": 3,
+    "id": "shadowsandpetals:stripped_ginkgo_wood"
+  }
+}

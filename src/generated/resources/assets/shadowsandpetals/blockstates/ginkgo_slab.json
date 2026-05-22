@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "shadowsandpetals:block/ginkgo_slab"
+    },
+    "type=double": {
+      "model": "shadowsandpetals:block/ginkgo_planks"
+    },
+    "type=top": {
+      "model": "shadowsandpetals:block/ginkgo_slab_top"
+    }
+  }
+}

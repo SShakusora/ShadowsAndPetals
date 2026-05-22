@@ -1,3 +1,6 @@
 {
-  "parent": "shadowsandpetals:block/ginkgo_sapling"
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shadowsandpetals:block/ginkgo_sapling"
+  }
 }
