@@ -1,8 +1,12 @@
 {
   "values": [
     "shadowsandpetals:sakura_leaves",
+    "shadowsandpetals:sakura_hedge",
     "shadowsandpetals:maple_leaves",
+    "shadowsandpetals:maple_hedge",
     "shadowsandpetals:ginkgo_leaves",
-    "shadowsandpetals:autumn_oak_leaves"
+    "shadowsandpetals:ginkgo_hedge",
+    "shadowsandpetals:autumn_oak_leaves",
+    "shadowsandpetals:autumn_oak_hedge"
   ]
 }

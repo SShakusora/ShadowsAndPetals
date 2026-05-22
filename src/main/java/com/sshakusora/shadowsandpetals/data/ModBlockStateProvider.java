@@ -7,17 +7,14 @@ import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
@@ -166,6 +163,28 @@ public class ModBlockStateProvider implements DataProvider {
         simpleBlock(block, new ModelRef(modelId));
     }
 
+    public void hedgeBlockWithItem(HedgeBlock block, Identifier texture) {
+        Identifier coreModel = modLoc("block/" + name(block) + "_post");
+        Identifier sideModel = modLoc("block/" + name(block) + "_side");
+        Identifier inventoryModel = blockModelId(block);
+
+        this.models.put(coreModel, hedgeCoreModel(texture));
+        this.models.put(sideModel, hedgeSideModel(texture));
+        this.models.put(inventoryModel, hedgeStraightModel(texture));
+
+        JsonArray multipart = new JsonArray();
+        multipart.add(multipartPart(null, modelRef(coreModel)));
+        multipart.add(multipartPart(singleCondition(HedgeBlock.NORTH.getName(), "true"), modelRef(sideModel)));
+        multipart.add(multipartPart(singleCondition(HedgeBlock.EAST.getName(), "true"), rotatedModel(sideModel, 0, 90, true)));
+        multipart.add(multipartPart(singleCondition(HedgeBlock.SOUTH.getName(), "true"), rotatedModel(sideModel, 0, 180, true)));
+        multipart.add(multipartPart(singleCondition(HedgeBlock.WEST.getName(), "true"), rotatedModel(sideModel, 0, 270, true)));
+
+        JsonObject root = new JsonObject();
+        root.add("multipart", multipart);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), parentModel(inventoryModel));
+    }
+
     public void ingotPileBlock(IngotPileBlock block) {
         String blockName = name(block);
         String metalName = blockName.endsWith("_ingot_pile")
@@ -278,6 +297,15 @@ public class ModBlockStateProvider implements DataProvider {
         return json;
     }
 
+    private static JsonObject multipartPart(JsonObject when, JsonObject apply) {
+        JsonObject json = new JsonObject();
+        if (when != null) {
+            json.add("when", when);
+        }
+        json.add("apply", apply);
+        return json;
+    }
+
     private static JsonObject singleCondition(String key, String value) {
         JsonObject json = new JsonObject();
         json.addProperty(key, value);
@@ -372,6 +400,42 @@ public class ModBlockStateProvider implements DataProvider {
         textures.addProperty("side", sideTexture.toString());
         textures.addProperty("end", endTexture.toString());
         json.add("textures", textures);
+        return json;
+    }
+
+    private static JsonObject hedgeCoreModel(Identifier texture) {
+        JsonObject json = hedgeBaseModel(texture);
+        JsonArray elements = new JsonArray();
+        elements.add(cuboidAll(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D, "#all"));
+        json.add("elements", elements);
+        return json;
+    }
+
+    private static JsonObject hedgeSideModel(Identifier texture) {
+        JsonObject json = hedgeBaseModel(texture);
+        JsonArray elements = new JsonArray();
+        elements.add(cuboidAll(4.0D, 0.0D, 0.0D, 12.0D, 16.0D, 4.0D, "#all"));
+        json.add("elements", elements);
+        return json;
+    }
+
+    private static JsonObject hedgeStraightModel(Identifier texture) {
+        JsonObject json = hedgeBaseModel(texture);
+        JsonArray elements = new JsonArray();
+        elements.add(cuboidAll(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D, "#all"));
+        elements.add(cuboidAll(4.0D, 0.0D, 0.0D, 12.0D, 16.0D, 4.0D, "#all"));
+        elements.add(cuboidAll(4.0D, 0.0D, 12.0D, 12.0D, 16.0D, 16.0D, "#all"));
+        json.add("elements", elements);
+        return json;
+    }
+
+    private static JsonObject hedgeBaseModel(Identifier texture) {
+        JsonObject json = parentModel(Identifier.withDefaultNamespace("block/block"));
+        JsonObject textures = new JsonObject();
+        textures.addProperty("all", texture.toString());
+        textures.addProperty("particle", texture.toString());
+        json.add("textures", textures);
+        json.addProperty("render_type", "cutout_mipped");
         return json;
     }
 

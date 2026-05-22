@@ -1,0 +1,47 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "shadowsandpetals:block/ginkgo_hedge_post"
+      }
+    },
+    {
+      "apply": {
+        "model": "shadowsandpetals:block/ginkgo_hedge_side"
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "shadowsandpetals:block/ginkgo_hedge_side",
+        "uvlock": true,
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "shadowsandpetals:block/ginkgo_hedge_side",
+        "uvlock": true,
+        "y": 180
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "shadowsandpetals:block/ginkgo_hedge_side",
+        "uvlock": true,
+        "y": 270
+      },
+      "when": {
+        "west": "true"
+      }
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import net.neoforged.neoforge.registries.datamaps.builtin.Strippable;
@@ -23,7 +24,7 @@ public class ModDataMapProvider extends DataMapProvider {
         BlockRegistry.WOOD_SETS.forEach(woodSet -> addStrippables(strippables, woodSet));
     }
 
-    private static void addStrippables(Builder<Strippable, net.minecraft.world.level.block.Block> strippables, WoodSetList.WoodSet woodSet) {
+    private static void addStrippables(Builder<Strippable, Block> strippables, WoodSetList.WoodSet woodSet) {
         strippables.add(woodSet.log().get().builtInRegistryHolder(), new Strippable(woodSet.strippedLog().get()), false);
         strippables.add(woodSet.wood().get().builtInRegistryHolder(), new Strippable(woodSet.strippedWood().get()), false);
         strippables.add(woodSet.post().get().builtInRegistryHolder(), new Strippable(woodSet.strippedPost().get()), false);

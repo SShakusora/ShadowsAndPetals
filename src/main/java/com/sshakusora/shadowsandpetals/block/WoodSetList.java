@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.block;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
@@ -63,7 +64,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             DeferredBlock<PressurePlateBlock> pressurePlate,
             DeferredBlock<ButtonBlock> button,
             DeferredBlock<SaplingBlock> sapling,
-            DeferredBlock<LeavesBlock> leaves
+            DeferredBlock<LeavesBlock> leaves,
+            DeferredBlock<HedgeBlock> hedge
     ) {}
 
     private static WoodSet registerWoodSet(Type type) {
@@ -84,7 +86,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<ButtonBlock> button = treeButton(type.name + "_button", planks, type.woodZhName + "按钮");
         DeferredBlock<SaplingBlock> sapling = treeSapling(type.name + "_sapling", type.grower, type.treeZhName + "树苗");
         DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶");
-        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves);
+        DeferredBlock<HedgeBlock> hedge = treeHedge(type.name + "_hedge", leaves, type.treeZhName + "树篱");
+        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, hedge);
     }
 
     private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String zhName) {
@@ -404,6 +407,30 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .lang("zh_cn", zhName)
                 .blockstate((provider, leaves) -> provider.leavesBlockWithItem(leaves.get(), ShadowsAndPetals.asResource("block/" + id)))
                 .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
+                .register();
+    }
+
+    public static DeferredBlock<HedgeBlock> treeHedge(String id, DeferredBlock<LeavesBlock> leaves, String zhName) {
+        return SAPRegistries.block(id, HedgeBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
+                        .strength(0.2F)
+                        .sound(SoundType.GRASS)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type1) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE)
+                .lang("zh_cn", zhName)
+                .blockstate((provider, hedge) -> provider.hedgeBlockWithItem(hedge.get(), ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())))
+                .loot((provider, hedge) -> provider.dropSelf(hedge.get()))
+                .recipe((provider, hedge) -> provider.shaped(RecipeCategory.DECORATIONS, hedge.get(), 6)
+                        .define('L', leaves.get())
+                        .pattern("LLL")
+                        .pattern("LLL")
+                        .unlockedBy(provider.hasName(leaves.get()), provider.hasItem(leaves.get()))
+                        .save(provider.output()))
                 .register();
     }
 

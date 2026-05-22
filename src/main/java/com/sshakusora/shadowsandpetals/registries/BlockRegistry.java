@@ -4,11 +4,8 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
-import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
@@ -45,6 +42,7 @@ public class BlockRegistry {
     public static final DeferredBlock<ButtonBlock> SAKURA_BUTTON = SAKURA_SET.button();
     public static final DeferredBlock<SaplingBlock> SAKURA_SAPLING = SAKURA_SET.sapling();
     public static final DeferredBlock<LeavesBlock> SAKURA_LEAVES = SAKURA_SET.leaves();
+    public static final DeferredBlock<HedgeBlock> SAKURA_HEDGE = SAKURA_SET.hedge();
 
     public static final DeferredBlock<RotatedPillarBlock> MAPLE_LOG = MAPLE_SET.log();
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MAPLE_LOG = MAPLE_SET.strippedLog();
@@ -63,6 +61,7 @@ public class BlockRegistry {
     public static final DeferredBlock<ButtonBlock> MAPLE_BUTTON = MAPLE_SET.button();
     public static final DeferredBlock<SaplingBlock> MAPLE_SAPLING = MAPLE_SET.sapling();
     public static final DeferredBlock<LeavesBlock> MAPLE_LEAVES = MAPLE_SET.leaves();
+    public static final DeferredBlock<HedgeBlock> MAPLE_HEDGE = MAPLE_SET.hedge();
 
     public static final DeferredBlock<RotatedPillarBlock> GINKGO_LOG = GINKGO_SET.log();
     public static final DeferredBlock<RotatedPillarBlock> STRIPPED_GINKGO_LOG = GINKGO_SET.strippedLog();
@@ -81,6 +80,7 @@ public class BlockRegistry {
     public static final DeferredBlock<ButtonBlock> GINKGO_BUTTON = GINKGO_SET.button();
     public static final DeferredBlock<SaplingBlock> GINKGO_SAPLING = GINKGO_SET.sapling();
     public static final DeferredBlock<LeavesBlock> GINKGO_LEAVES = GINKGO_SET.leaves();
+    public static final DeferredBlock<HedgeBlock> GINKGO_HEDGE = GINKGO_SET.hedge();
 
     public static final DeferredBlock<SaplingBlock> AUTUMN_OAK_SAPLING = WoodSetList.treeSapling(
             "autumn_oak_sapling",
@@ -91,6 +91,11 @@ public class BlockRegistry {
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
             "秋橡树树叶"
+    );
+    public static final DeferredBlock<HedgeBlock> AUTUMN_OAK_HEDGE = WoodSetList.treeHedge(
+            "autumn_oak_hedge",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树篱"
     );
 
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
