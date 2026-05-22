@@ -3,7 +3,10 @@ package com.sshakusora.shadowsandpetals.registries;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
-import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
@@ -222,6 +225,20 @@ public class BlockRegistry {
             .lang("zh_cn", "下界合金锭堆")
             .register();
 
+    public static final DeferredBlock<IroriBlock> IRORI = SAPRegistries
+            .block("irori", IroriBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, irori) -> provider.iroriBlock(irori.get()))
+            .loot((provider, irori) -> provider.dropSelf(irori.get()))
+            .lang("zh_cn", "日式围炉")
+            .register();
+
     public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_vanity", VanityBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
@@ -245,61 +262,61 @@ public class BlockRegistry {
             .register()
     );
 
-    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
-            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD)
-                    .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", woodType.getZhName() + "书桌")
-            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
-                    .define('W', woodType.getSlab())
-                    .pattern("WWW")
-                    .pattern("W W")
-                    .pattern("W W")
-                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
-                    .save(provider.output()))
-            .register());
-
-    public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
-            block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD)
-                    .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", woodType.getZhName() + "咖啡桌")
-            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
-                    .define('W', woodType.getSlab())
-                    .define('S', Items.STICK)
-                    .pattern("WWW")
-                    .pattern(" S ")
-                    .pattern("SSS")
-                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
-                    .save(provider.output()))
-            .register());
-
-    public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
-            .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD)
-                    .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", woodType.getZhName() + "餐椅")
-            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
-                    .define('W', woodType.getSlab())
-                    .define('S', Items.STICK)
-                    .pattern("W  ")
-                    .pattern("WWW")
-                    .pattern("S S")
-                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
-                    .save(provider.output()))
-            .register());
+//    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
+//            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
+//            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+//                    .strength(2.0F, 3.0F)
+//                    .sound(SoundType.WOOD)
+//                    .noOcclusion())
+//            .withItem()
+//            .creativeTab(CreativeTabType.MAIN)
+//            .lang("zh_cn", woodType.getZhName() + "书桌")
+//            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
+//                    .define('W', woodType.getSlab())
+//                    .pattern("WWW")
+//                    .pattern("W W")
+//                    .pattern("W W")
+//                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+//                    .save(provider.output()))
+//            .register());
+//
+//    public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
+//            block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
+//            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+//                    .strength(2.0F, 3.0F)
+//                    .sound(SoundType.WOOD)
+//                    .noOcclusion())
+//            .withItem()
+//            .creativeTab(CreativeTabType.MAIN)
+//            .lang("zh_cn", woodType.getZhName() + "咖啡桌")
+//            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
+//                    .define('W', woodType.getSlab())
+//                    .define('S', Items.STICK)
+//                    .pattern("WWW")
+//                    .pattern(" S ")
+//                    .pattern("SSS")
+//                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+//                    .save(provider.output()))
+//            .register());
+//
+//    public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
+//            .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
+//            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+//                    .strength(2.0F, 3.0F)
+//                    .sound(SoundType.WOOD)
+//                    .noOcclusion())
+//            .withItem()
+//            .creativeTab(CreativeTabType.MAIN)
+//            .lang("zh_cn", woodType.getZhName() + "餐椅")
+//            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
+//                    .define('W', woodType.getSlab())
+//                    .define('S', Items.STICK)
+//                    .pattern("W  ")
+//                    .pattern("WWW")
+//                    .pattern("S S")
+//                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+//                    .save(provider.output()))
+//            .register());
 
     public static final DyedBlockList<CafeChairBlock> CAFE_CHAIRS = new DyedBlockList<>(color -> SAPRegistries
             .block(color.getName() + "_cafe_chair", CafeChairBlock::new)

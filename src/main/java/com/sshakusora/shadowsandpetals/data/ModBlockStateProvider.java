@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.data;
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -184,6 +185,30 @@ public class ModBlockStateProvider implements DataProvider {
         this.blockStates.put(id(block), root);
     }
 
+    public void iroriBlock(IroriBlock block) {
+        Identifier basePath = modLoc("block/irori/block");
+        JsonObject variants = new JsonObject();
+
+        for (boolean shiftPlaced : new boolean[]{false, true}) {
+            for (boolean waterlogged : new boolean[]{false, true}) {
+                for (boolean north : new boolean[]{false, true}) {
+                    for (boolean east : new boolean[]{false, true}) {
+                        for (boolean south : new boolean[]{false, true}) {
+                            for (boolean west : new boolean[]{false, true}) {
+                                addIroriVariant(variants, north, east, south, west, waterlogged, shiftPlaced);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), parentModel(basePath));
+    }
+
     private String name(Block block) {
         return id(block).getPath();
     }
@@ -224,6 +249,61 @@ public class ModBlockStateProvider implements DataProvider {
                         + "," + BlockStateProperties.WATERLOGGED.getName() + "=" + waterlogged,
                 rotatedModel(modelId, 0, y)
         );
+    }
+
+    private void addIroriVariant(JsonObject variants, boolean north, boolean east, boolean south, boolean west, boolean waterlogged, boolean shiftPlaced) {
+        boolean edgeNorth = !north;
+        boolean edgeEast = !east;
+        boolean edgeSouth = !south;
+        boolean edgeWest = !west;
+        int edgeCount = (edgeNorth ? 1 : 0) + (edgeEast ? 1 : 0) + (edgeSouth ? 1 : 0) + (edgeWest ? 1 : 0);
+
+        Identifier modelId = switch (edgeCount) {
+            case 0 -> modLoc("block/irori/center");
+            case 1 -> modLoc("block/irori/single_edge");
+            case 2 -> edgeNorth == edgeSouth || edgeEast == edgeWest
+                    ? modLoc("block/irori/double_edge")
+                    : modLoc("block/irori/corner");
+            case 3 -> modLoc("block/irori/end");
+            case 4 -> modLoc("block/irori/block");
+            default -> throw new IllegalStateException("Unexpected edge count: " + edgeCount);
+        };
+
+        variants.add(
+                IroriBlock.NORTH.getName() + "=" + north
+                        + "," + IroriBlock.EAST.getName() + "=" + east
+                        + "," + IroriBlock.SOUTH.getName() + "=" + south
+                        + "," + IroriBlock.WEST.getName() + "=" + west
+                        + "," + IroriBlock.SHIFT_PLACED.getName() + "=" + shiftPlaced,
+                rotatedModel(modelId, 0, iroriModelRotation(edgeNorth, edgeEast, edgeSouth, edgeWest, edgeCount))
+        );
+    }
+
+    private static int iroriModelRotation(boolean north, boolean east, boolean south, boolean west, int edgeCount) {
+        return switch (edgeCount) {
+            case 0, 4 -> 0;
+            case 1 -> east ? 0 : south ? 90 : west ? 180 : 270;
+            case 2 -> {
+                if (east && west) {
+                    yield 0;
+                }
+                if (north && south) {
+                    yield 90;
+                }
+                if (north && east) {
+                    yield 0;
+                }
+                if (east && south) {
+                    yield 90;
+                }
+                if (south && west) {
+                    yield 180;
+                }
+                yield 270;
+            }
+            case 3 -> !south ? 0 : !west ? 90 : !north ? 180 : 270;
+            default -> throw new IllegalStateException("Unexpected edge count: " + edgeCount);
+        };
     }
 
     private static JsonObject parentModel(Identifier parent) {

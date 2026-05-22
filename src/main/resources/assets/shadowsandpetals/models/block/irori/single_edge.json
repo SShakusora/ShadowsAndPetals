@@ -1,0 +1,50 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"3": "shadowsandpetals:block/irori/base",
+		"5": "shadowsandpetals:block/irori/wood_width_4",
+		"particle": "shadowsandpetals:block/irori/particle"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 10, 16],
+			"faces": {
+				"east": {"uv": [0.25, 4.75, 4.25, 7.25], "texture": "#3"},
+				"up": {"uv": [4.25, 4.25, 0.25, 0.25], "texture": "#3"},
+				"down": {"uv": [8.75, 5.5, 4.75, 9.5], "texture": "#3"}
+			}
+		},
+		{
+			"from": [15, 10, 0],
+			"to": [16, 15, 16],
+			"faces": {
+				"east": {"uv": [4.75, 0.25, 8.75, 1.5], "texture": "#3"},
+				"west": {"uv": [8.75, 0.25, 4.75, 1.5], "texture": "#3"}
+			}
+		},
+		{
+			"from": [12, 15, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"east": {"uv": [0.5, 0.5, 8.5, 1], "texture": "#5"},
+				"west": {"uv": [8.5, 0.5, 0.5, 1], "texture": "#5"},
+				"up": {"uv": [2.5, 10, 0.5, 2], "texture": "#5"},
+				"down": {"uv": [2.5, 2, 0.5, 10], "texture": "#5"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		1,
+		2,
+		{
+			"name": "group",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": []
+		}
+	]
+}

@@ -1,0 +1,80 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"3": "shadowsandpetals:block/irori/base",
+		"5": "shadowsandpetals:block/irori/wood_width_4",
+		"particle": "shadowsandpetals:block/irori/particle"
+	},
+	"elements": [
+		{
+			"from": [15, 10, 1],
+			"to": [16, 15, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 5, 0]},
+			"faces": {
+				"east": {"uv": [4.75, 0.25, 8.5, 1.5], "texture": "#3"},
+				"west": {"uv": [8.5, 0.25, 4.75, 1.5], "texture": "#3"}
+			}
+		},
+		{
+			"from": [12, 15, 0],
+			"to": [16, 16, 16],
+			"faces": {
+				"north": {"uv": [0.5, 9.5, 2.5, 10], "texture": "#5"},
+				"east": {"uv": [0.5, 0.5, 8.5, 1], "texture": "#5"},
+				"west": {"uv": [8.5, 0.5, 0.5, 1], "texture": "#5"},
+				"up": {"uv": [2.5, 10, 0.5, 2], "texture": "#5"},
+				"down": {"uv": [2.5, 2, 0.5, 10], "texture": "#5"}
+			}
+		},
+		{
+			"from": [0, 10, 0],
+			"to": [15, 15, 1],
+			"faces": {
+				"north": {"uv": [5, 0.25, 8.75, 1.5], "texture": "#3"},
+				"south": {"uv": [8.75, 0.25, 5, 1.5], "texture": "#3"}
+			}
+		},
+		{
+			"from": [15, 10, 0],
+			"to": [16, 15, 1],
+			"faces": {
+				"north": {"uv": [4.75, 0.25, 5, 1.5], "texture": "#3"},
+				"east": {"uv": [4.75, 2, 5, 3.25], "texture": "#3"}
+			}
+		},
+		{
+			"from": [0, 15, -12],
+			"to": [4, 16, 0],
+			"rotation": {"x": 0, "y": -90, "z": 0, "origin": [0, 15, 0]},
+			"faces": {
+				"east": {"uv": [2, 0, 8, 0.5], "texture": "#5"},
+				"west": {"uv": [8, 0, 2, 0.5], "texture": "#5"},
+				"up": {"uv": [2, 8, 0, 2], "texture": "#5"},
+				"down": {"uv": [2, 2, 0, 8], "texture": "#5"}
+			}
+		},
+		{
+			"from": [0, 0, 0],
+			"to": [16, 10, 16],
+			"faces": {
+				"north": {"uv": [0.25, 4.75, 4.25, 7.25], "texture": "#3"},
+				"east": {"uv": [0.25, 4.75, 4.25, 7.25], "texture": "#3"},
+				"up": {"uv": [0.25, 0.25, 4.25, 4.25], "texture": "#3"},
+				"down": {"uv": [4.75, 5.5, 8.75, 9.5], "texture": "#3"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		1,
+		{
+			"name": "group",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": [2, 3, 4]
+		},
+		5
+	]
+}

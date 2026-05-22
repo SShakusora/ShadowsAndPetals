@@ -1,4 +1,4 @@
-// 26.1.2	2026-05-12T15:51:40.1472523	ShadowsAndPetals Block States
+// 26.1.2	2026-05-17T14:51:34.5167426	ShadowsAndPetals Block States
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
 6ceb0929c2fdf5c397f687894087d0d843142290 assets/shadowsandpetals/blockstates/aluminum_ingot_pile.json
@@ -23,6 +23,7 @@ cd134c140415136b340b546d36c50f57eacbe788 assets/shadowsandpetals/blockstates/gin
 b7b879beeab7db72155c29635162a6cac63b4d78 assets/shadowsandpetals/blockstates/gray_cafe_chair.json
 6f7e48365802f5bcce274c6881af8066a856dda2 assets/shadowsandpetals/blockstates/green_cafe_chair.json
 fb1b5b04392bea0da84f306e1932a1392fcea05f assets/shadowsandpetals/blockstates/iron_ingot_pile.json
+7eb496ccd192354dadad49fc179cebc587f8776a assets/shadowsandpetals/blockstates/irori.json
 e28f915ccf546cafb78cef3a4ce0abd94cd0aa1f assets/shadowsandpetals/blockstates/jungle_vanity.json
 d33478b5e65989d82f33da0402ed806ec74a0a53 assets/shadowsandpetals/blockstates/light_blue_cafe_chair.json
 5fcf139b4b293dc29b09dddc86ff4f436729f17b assets/shadowsandpetals/blockstates/light_gray_cafe_chair.json
@@ -83,6 +84,7 @@ e124f3b83429c6b932b4d81630238f991531edba assets/shadowsandpetals/models/item/gin
 ec633788ed9001c689034364bd7d6122a1e70593 assets/shadowsandpetals/models/item/gray_cafe_chair.json
 85ade7cdd3b8af76e7503c02f97d9ee6523804a4 assets/shadowsandpetals/models/item/green_cafe_chair.json
 8a7148922328ae3faf2fd7803ec1670c9e757b05 assets/shadowsandpetals/models/item/iron_ingot_pile.json
+0640848388f46ca787e720f30da714270bc7b3b5 assets/shadowsandpetals/models/item/irori.json
 aba96bd01d351d7d9dd14f754fd0e5fb0cda9df1 assets/shadowsandpetals/models/item/light_blue_cafe_chair.json
 7f1441e960bb42eeb578fa8cd1595d3bc1fd8bd2 assets/shadowsandpetals/models/item/light_gray_cafe_chair.json
 acef59c6ac64d54110dc8f087fe8e65dd0f5a9f4 assets/shadowsandpetals/models/item/lime_cafe_chair.json

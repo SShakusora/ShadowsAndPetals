@@ -1,0 +1,120 @@
+{
+  "variants": {
+    "north=false,east=false,south=false,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/block"
+    },
+    "north=false,east=false,south=false,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/block"
+    },
+    "north=false,east=false,south=false,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/end",
+      "y": 90
+    },
+    "north=false,east=false,south=false,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/end",
+      "y": 90
+    },
+    "north=false,east=false,south=true,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/end"
+    },
+    "north=false,east=false,south=true,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/end"
+    },
+    "north=false,east=false,south=true,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/corner"
+    },
+    "north=false,east=false,south=true,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/corner"
+    },
+    "north=false,east=true,south=false,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/end",
+      "y": 270
+    },
+    "north=false,east=true,south=false,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/end",
+      "y": 270
+    },
+    "north=false,east=true,south=false,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/double_edge",
+      "y": 90
+    },
+    "north=false,east=true,south=false,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/double_edge",
+      "y": 90
+    },
+    "north=false,east=true,south=true,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/corner",
+      "y": 270
+    },
+    "north=false,east=true,south=true,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/corner",
+      "y": 270
+    },
+    "north=false,east=true,south=true,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/single_edge",
+      "y": 270
+    },
+    "north=false,east=true,south=true,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/single_edge",
+      "y": 270
+    },
+    "north=true,east=false,south=false,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/end",
+      "y": 180
+    },
+    "north=true,east=false,south=false,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/end",
+      "y": 180
+    },
+    "north=true,east=false,south=false,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/corner",
+      "y": 90
+    },
+    "north=true,east=false,south=false,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/corner",
+      "y": 90
+    },
+    "north=true,east=false,south=true,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/double_edge"
+    },
+    "north=true,east=false,south=true,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/double_edge"
+    },
+    "north=true,east=false,south=true,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/single_edge"
+    },
+    "north=true,east=false,south=true,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/single_edge"
+    },
+    "north=true,east=true,south=false,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/corner",
+      "y": 180
+    },
+    "north=true,east=true,south=false,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/corner",
+      "y": 180
+    },
+    "north=true,east=true,south=false,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/single_edge",
+      "y": 90
+    },
+    "north=true,east=true,south=false,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/single_edge",
+      "y": 90
+    },
+    "north=true,east=true,south=true,west=false,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/single_edge",
+      "y": 180
+    },
+    "north=true,east=true,south=true,west=false,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/single_edge",
+      "y": 180
+    },
+    "north=true,east=true,south=true,west=true,shift_placed=false": {
+      "model": "shadowsandpetals:block/irori/center"
+    },
+    "north=true,east=true,south=true,west=true,shift_placed=true": {
+      "model": "shadowsandpetals:block/irori/center"
+    }
+  }
+}
