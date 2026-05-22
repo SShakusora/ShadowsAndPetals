@@ -5,17 +5,37 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
+import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.WoodType, T> {
+public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.WoodType, DeferredBlock<T>> {
 
     public WoodBlockList(Function<WoodType, DeferredBlock<? extends T>> filler) {
-        super(WoodType.class, filler);
+        super(WoodType.class, type -> cast(filler.apply(type)));
     }
 
     public DeferredBlock<T> get(WoodType type) {
         return getByOrdinal(type.ordinal());
+    }
+
+    public boolean contains(Block block) {
+        for (DeferredBlock<T> entry : this) {
+            if (entry.get() == block) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public DeferredBlock<T>[] toArray() {
+        return (DeferredBlock<T>[]) Arrays.copyOf(values, values.length, DeferredBlock[].class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Block> DeferredBlock<T> cast(DeferredBlock<? extends T> block) {
+        return (DeferredBlock<T>) block;
     }
 
     public enum WoodType {

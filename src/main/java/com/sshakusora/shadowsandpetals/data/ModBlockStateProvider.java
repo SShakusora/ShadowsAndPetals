@@ -1,10 +1,12 @@
 package com.sshakusora.shadowsandpetals.data;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -14,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.LeavesBlock;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -105,6 +108,52 @@ public class ModBlockStateProvider implements DataProvider {
         Identifier modelId = blockModelId(block);
         this.models.put(modelId, cubeAllModel(texture));
         simpleBlockWithItem(block, new ModelRef(modelId));
+    }
+
+    public void axisBlockWithItem(RotatedPillarBlock block, Identifier sideTexture, Identifier endTexture) {
+        Identifier modelId = blockModelId(block);
+        this.models.put(modelId, cubeColumnModel(sideTexture, endTexture));
+
+        JsonObject variants = new JsonObject();
+        variants.add(RotatedPillarBlock.AXIS.getName() + "=x", rotatedModel(modelId, 90, 90));
+        variants.add(RotatedPillarBlock.AXIS.getName() + "=y", modelRef(modelId));
+        variants.add(RotatedPillarBlock.AXIS.getName() + "=z", rotatedModel(modelId, 90, 0));
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), parentModel(modelId));
+    }
+
+    public void woodPostBlockWithItem(WoodPostBlock block, Identifier sideTexture, Identifier endTexture) {
+        Identifier coreModel = blockModelId(block);
+        Identifier lowerLinkModel = modLoc(coreModel.getPath() + "_link");
+        Identifier upperLinkModel = modLoc(coreModel.getPath() + "_link_top");
+
+        this.models.put(coreModel, woodPostCoreModel(sideTexture, endTexture));
+        this.models.put(lowerLinkModel, woodPostLinkModel(sideTexture, endTexture, false));
+        this.models.put(upperLinkModel, woodPostLinkModel(sideTexture, endTexture, true));
+
+        for (WoodPostBlock.ConnectionType type : WoodPostBlock.ConnectionType.values()) {
+            if (!type.isChain()) {
+                continue;
+            }
+
+            Identifier lowerChainModel = chainModelId(type, false);
+            Identifier upperChainModel = chainModelId(type, true);
+            this.models.put(lowerChainModel, woodPostChainModel(false, type.texture()));
+            this.models.put(upperChainModel, woodPostChainModel(true, type.texture()));
+        }
+
+        JsonObject variants = new JsonObject();
+        variants.add("axis=y", rotatedModel(coreModel, 0, 0));
+        variants.add("axis=x", rotatedModel(coreModel, 90, 90));
+        variants.add("axis=z", rotatedModel(coreModel, 90, 0));
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), parentModel(coreModel));
     }
 
     public void saplingBlock(SaplingBlock block) {
@@ -229,6 +278,16 @@ public class ModBlockStateProvider implements DataProvider {
         return json;
     }
 
+    private static JsonObject singleCondition(String key, String value) {
+        JsonObject json = new JsonObject();
+        json.addProperty(key, value);
+        return json;
+    }
+
+    private static Identifier chainModelId(WoodPostBlock.ConnectionType type, boolean upperHalf) {
+        return ShadowsAndPetals.asResource("block/wood_post_" + type.getSerializedName() + (upperHalf ? "_link_top" : "_link"));
+    }
+
     private static void addVanityVariant(JsonObject variants, DoubleBlockHalf half, boolean waterlogged, Direction facing, Identifier modelId, int y) {
         variants.add(
                 HorizontalDirectionalBlock.FACING.getName() + "=" + facing.getSerializedName()
@@ -304,6 +363,184 @@ public class ModBlockStateProvider implements DataProvider {
         JsonObject textures = new JsonObject();
         textures.addProperty("all", texture.toString());
         json.add("textures", textures);
+        return json;
+    }
+
+    private static JsonObject cubeColumnModel(Identifier sideTexture, Identifier endTexture) {
+        JsonObject json = parentModel(Identifier.withDefaultNamespace("block/cube_column"));
+        JsonObject textures = new JsonObject();
+        textures.addProperty("side", sideTexture.toString());
+        textures.addProperty("end", endTexture.toString());
+        json.add("textures", textures);
+        return json;
+    }
+
+    private static JsonObject woodPostCoreModel(Identifier sideTexture, Identifier endTexture) {
+        JsonObject json = new JsonObject();
+        JsonObject textures = new JsonObject();
+        textures.addProperty("particle", sideTexture.toString());
+        textures.addProperty("side", sideTexture.toString());
+        textures.addProperty("end", endTexture.toString());
+        json.add("textures", textures);
+
+        JsonArray elements = new JsonArray();
+        elements.add(cuboid(6.0D, 0.0D, 6.0D, 10.0D, 16.0D, 10.0D, "#side", "#end"));
+        json.add("elements", elements);
+        json.add("display", tallItemDisplay());
+        return json;
+    }
+
+    private static JsonObject woodPostLinkModel(Identifier sideTexture, Identifier endTexture, boolean upperHalf) {
+        JsonObject json = new JsonObject();
+        JsonObject textures = new JsonObject();
+        textures.addProperty("particle", sideTexture.toString());
+        textures.addProperty("side", sideTexture.toString());
+        textures.addProperty("end", endTexture.toString());
+        json.add("textures", textures);
+
+        JsonArray elements = new JsonArray();
+        double fromY = upperHalf ? 10.0D : 0.0D;
+        double toY = upperHalf ? 16.0D : 6.0D;
+        elements.add(cuboid(6.0D, fromY, 6.0D, 10.0D, toY, 10.0D, "#side", "#end"));
+        json.add("elements", elements);
+        return json;
+    }
+
+    private static JsonObject woodPostChainModel(boolean upperHalf, Identifier chainTexture) {
+        JsonObject json = new JsonObject();
+        json.addProperty("parent", Identifier.withDefaultNamespace("block/block").toString());
+        JsonObject textures = new JsonObject();
+        textures.addProperty("all", chainTexture.toString());
+        textures.addProperty("particle", chainTexture.toString());
+        json.add("textures", textures);
+        json.addProperty("render_type", "cutout");
+
+        JsonArray elements = new JsonArray();
+        double fromY = upperHalf ? 10.0D : 0.0D;
+        double toY = upperHalf ? 16.0D : 6.0D;
+        double originY = upperHalf ? 18.0D : 8.0D;
+        elements.add(chainPlane(6.5D, fromY, 8.0D, 9.5D, toY, 8.0D, originY, true));
+        elements.add(chainPlane(8.0D, fromY, 6.5D, 8.0D, toY, 9.5D, originY, false));
+        json.add("elements", elements);
+        return json;
+    }
+
+    private static JsonObject cuboid(double fromX, double fromY, double fromZ, double toX, double toY, double toZ, String sideTexture, String endTexture) {
+        JsonObject json = new JsonObject();
+        json.add("from", vector(fromX, fromY, fromZ));
+        json.add("to", vector(toX, toY, toZ));
+
+        JsonObject faces = new JsonObject();
+        faces.add("down", face(endTexture));
+        faces.add("up", face(endTexture));
+        faces.add("north", face(sideTexture));
+        faces.add("south", face(sideTexture));
+        faces.add("west", face(sideTexture));
+        faces.add("east", face(sideTexture));
+        json.add("faces", faces);
+        return json;
+    }
+
+    private static JsonObject cuboidAll(double fromX, double fromY, double fromZ, double toX, double toY, double toZ, String texture) {
+        JsonObject json = new JsonObject();
+        json.add("from", vector(fromX, fromY, fromZ));
+        json.add("to", vector(toX, toY, toZ));
+
+        JsonObject faces = new JsonObject();
+        faces.add("down", face(texture));
+        faces.add("up", face(texture));
+        faces.add("north", face(texture));
+        faces.add("south", face(texture));
+        faces.add("west", face(texture));
+        faces.add("east", face(texture));
+        json.add("faces", faces);
+        return json;
+    }
+
+    private static JsonObject chainPlane(double fromX, double fromY, double fromZ, double toX, double toY, double toZ, double originY, boolean northSouthFaces) {
+        JsonObject json = new JsonObject();
+        json.add("from", vector(fromX, fromY, fromZ));
+        json.add("to", vector(toX, toY, toZ));
+        json.addProperty("shade", false);
+
+        JsonObject rotation = new JsonObject();
+        rotation.addProperty("angle", 45);
+        rotation.addProperty("axis", "y");
+        rotation.add("origin", vector(8.0D, originY, 8.0D));
+        json.add("rotation", rotation);
+
+        JsonObject faces = new JsonObject();
+        if (northSouthFaces) {
+            faces.add("north", faceWithUv("#all", 0.0D, upperLowerUvMin(fromY), 3.0D, upperLowerUvMax(fromY, toY)));
+            faces.add("south", faceWithUv("#all", 0.0D, upperLowerUvMin(fromY), 3.0D, upperLowerUvMax(fromY, toY)));
+        } else {
+            faces.add("east", faceWithUv("#all", 3.0D, upperLowerUvMin(fromY), 6.0D, upperLowerUvMax(fromY, toY)));
+            faces.add("west", faceWithUv("#all", 3.0D, upperLowerUvMin(fromY), 6.0D, upperLowerUvMax(fromY, toY)));
+        }
+        json.add("faces", faces);
+        return json;
+    }
+
+    private static double upperLowerUvMin(double fromY) {
+        return fromY <= 0.0D ? 10.0D : 0.0D;
+    }
+
+    private static double upperLowerUvMax(double fromY, double toY) {
+        return fromY <= 0.0D ? 10.0D + (toY - fromY) : toY - fromY;
+    }
+
+    private static JsonArray vector(double x, double y, double z) {
+        JsonArray array = new JsonArray();
+        array.add(x);
+        array.add(y);
+        array.add(z);
+        return array;
+    }
+
+    private static JsonArray vector(double a, double b, double c, double d) {
+        JsonArray array = new JsonArray();
+        array.add(a);
+        array.add(b);
+        array.add(c);
+        array.add(d);
+        return array;
+    }
+
+    private static JsonObject face(String texture) {
+        JsonObject json = new JsonObject();
+        json.addProperty("texture", texture);
+        return json;
+    }
+
+    private static JsonObject faceWithUv(String texture, double u1, double v1, double u2, double v2) {
+        JsonObject json = face(texture);
+        json.add("uv", vector(u1, v1, u2, v2));
+        return json;
+    }
+
+    private static JsonObject tallItemDisplay() {
+        JsonObject display = new JsonObject();
+        display.add("thirdperson_righthand", transform(new double[]{75.0D, 45.0D, 0.0D}, new double[]{0.0D, 1.5D, 0.0D}, new double[]{0.375D, 0.375D, 0.375D}));
+        display.add("thirdperson_lefthand", transform(new double[]{75.0D, 45.0D, 0.0D}, new double[]{0.0D, 1.5D, 0.0D}, new double[]{0.375D, 0.375D, 0.375D}));
+        display.add("firstperson_righthand", transform(new double[]{0.0D, 135.0D, 0.0D}, new double[]{0.0D, 1.0D, 0.0D}, new double[]{0.4D, 0.4D, 0.4D}));
+        display.add("firstperson_lefthand", transform(new double[]{0.0D, 135.0D, 0.0D}, new double[]{0.0D, 1.0D, 0.0D}, new double[]{0.4D, 0.4D, 0.4D}));
+        display.add("ground", transform(null, new double[]{0.0D, 3.0D, 0.0D}, new double[]{0.25D, 0.25D, 0.25D}));
+        display.add("gui", transform(new double[]{30.0D, -135.0D, 0.0D}, new double[]{0.0D, 0.0D, 0.0D}, new double[]{0.65D, 0.65D, 0.65D}));
+        display.add("fixed", transform(null, new double[]{0.0D, 0.0D, 0.0D}, new double[]{0.5D, 0.5D, 0.5D}));
+        return display;
+    }
+
+    private static JsonObject transform(double[] rotation, double[] translation, double[] scale) {
+        JsonObject json = new JsonObject();
+        if (rotation != null) {
+            json.add("rotation", vector(rotation[0], rotation[1], rotation[2]));
+        }
+        if (translation != null) {
+            json.add("translation", vector(translation[0], translation[1], translation[2]));
+        }
+        if (scale != null) {
+            json.add("scale", vector(scale[0], scale[1], scale[2]));
+        }
         return json;
     }
 

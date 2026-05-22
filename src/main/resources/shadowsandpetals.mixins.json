@@ -4,6 +4,8 @@
   "package": "com.sshakusora.shadowsandpetals.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CeilingHangingSignBlockMixin",
+    "LanternBlockMixin"
   ],
   "client": [
   ],

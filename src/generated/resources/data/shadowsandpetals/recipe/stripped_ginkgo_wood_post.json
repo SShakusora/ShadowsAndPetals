@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "shadowsandpetals:stripped_ginkgo_wood"
+  },
+  "pattern": [
+    "W",
+    "W",
+    "W"
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:stripped_ginkgo_wood_post"
+  }
+}

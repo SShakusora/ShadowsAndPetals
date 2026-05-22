@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
@@ -19,14 +20,14 @@ public class ModDataMapProvider extends DataMapProvider {
     protected void gather(HolderLookup.Provider provider) {
         var strippables = builder(NeoForgeDataMaps.STRIPPABLES);
 
-        strippables.add(BlockRegistry.SAKURA_LOG.get().builtInRegistryHolder(), new Strippable(BlockRegistry.STRIPPED_SAKURA_LOG.get()), false);
-        strippables.add(BlockRegistry.SAKURA_WOOD.get().builtInRegistryHolder(), new Strippable(BlockRegistry.STRIPPED_SAKURA_WOOD.get()), false);
+        BlockRegistry.WOOD_SETS.forEach(woodSet -> addStrippables(strippables, woodSet));
+    }
 
-        strippables.add(BlockRegistry.MAPLE_LOG.get().builtInRegistryHolder(), new Strippable(BlockRegistry.STRIPPED_MAPLE_LOG.get()), false);
-        strippables.add(BlockRegistry.MAPLE_WOOD.get().builtInRegistryHolder(), new Strippable(BlockRegistry.STRIPPED_MAPLE_WOOD.get()), false);
-
-        strippables.add(BlockRegistry.GINKGO_LOG.get().builtInRegistryHolder(), new Strippable(BlockRegistry.STRIPPED_GINKGO_LOG.get()), false);
-        strippables.add(BlockRegistry.GINKGO_WOOD.get().builtInRegistryHolder(), new Strippable(BlockRegistry.STRIPPED_GINKGO_WOOD.get()), false);
+    private static void addStrippables(Builder<Strippable, net.minecraft.world.level.block.Block> strippables, WoodSetList.WoodSet woodSet) {
+        strippables.add(woodSet.log().get().builtInRegistryHolder(), new Strippable(woodSet.strippedLog().get()), false);
+        strippables.add(woodSet.wood().get().builtInRegistryHolder(), new Strippable(woodSet.strippedWood().get()), false);
+        strippables.add(woodSet.post().get().builtInRegistryHolder(), new Strippable(woodSet.strippedPost().get()), false);
+        strippables.add(woodSet.woodPost().get().builtInRegistryHolder(), new Strippable(woodSet.strippedWoodPost().get()), false);
     }
 
     @Override

@@ -1,0 +1,94 @@
+{
+  "parent": "minecraft:block/block",
+  "elements": [
+    {
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "uv": [
+            0.0,
+            10.0,
+            3.0,
+            16.0
+          ]
+        },
+        "south": {
+          "texture": "#all",
+          "uv": [
+            0.0,
+            10.0,
+            3.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        6.5,
+        0.0,
+        8.0
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8.0,
+          8.0,
+          8.0
+        ]
+      },
+      "shade": false,
+      "to": [
+        9.5,
+        6.0,
+        8.0
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#all",
+          "uv": [
+            3.0,
+            10.0,
+            6.0,
+            16.0
+          ]
+        },
+        "west": {
+          "texture": "#all",
+          "uv": [
+            3.0,
+            10.0,
+            6.0,
+            16.0
+          ]
+        }
+      },
+      "from": [
+        8.0,
+        0.0,
+        6.5
+      ],
+      "rotation": {
+        "angle": 45,
+        "axis": "y",
+        "origin": [
+          8.0,
+          8.0,
+          8.0
+        ]
+      },
+      "shade": false,
+      "to": [
+        8.0,
+        6.0,
+        9.5
+      ]
+    }
+  ],
+  "render_type": "cutout",
+  "textures": {
+    "all": "minecraft:block/copper_chain",
+    "particle": "minecraft:block/copper_chain"
+  }
+}

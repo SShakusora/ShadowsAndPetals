@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -11,44 +12,13 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class ModWoodModelProvider extends ModelProvider {
-    private static final Block[] WOOD_BLOCKS = new Block[]{
-            BlockRegistry.SAKURA_LOG.get(),
-            BlockRegistry.STRIPPED_SAKURA_LOG.get(),
-            BlockRegistry.SAKURA_WOOD.get(),
-            BlockRegistry.STRIPPED_SAKURA_WOOD.get(),
-            BlockRegistry.SAKURA_PLANKS.get(),
-            BlockRegistry.SAKURA_SLAB.get(),
-            BlockRegistry.SAKURA_STAIRS.get(),
-            BlockRegistry.SAKURA_FENCE.get(),
-            BlockRegistry.SAKURA_FENCE_GATE.get(),
-            BlockRegistry.SAKURA_PRESSURE_PLATE.get(),
-            BlockRegistry.SAKURA_BUTTON.get(),
-            BlockRegistry.MAPLE_LOG.get(),
-            BlockRegistry.STRIPPED_MAPLE_LOG.get(),
-            BlockRegistry.MAPLE_WOOD.get(),
-            BlockRegistry.STRIPPED_MAPLE_WOOD.get(),
-            BlockRegistry.MAPLE_PLANKS.get(),
-            BlockRegistry.MAPLE_SLAB.get(),
-            BlockRegistry.MAPLE_STAIRS.get(),
-            BlockRegistry.MAPLE_FENCE.get(),
-            BlockRegistry.MAPLE_FENCE_GATE.get(),
-            BlockRegistry.MAPLE_PRESSURE_PLATE.get(),
-            BlockRegistry.MAPLE_BUTTON.get(),
-            BlockRegistry.GINKGO_LOG.get(),
-            BlockRegistry.STRIPPED_GINKGO_LOG.get(),
-            BlockRegistry.GINKGO_WOOD.get(),
-            BlockRegistry.STRIPPED_GINKGO_WOOD.get(),
-            BlockRegistry.GINKGO_PLANKS.get(),
-            BlockRegistry.GINKGO_SLAB.get(),
-            BlockRegistry.GINKGO_STAIRS.get(),
-            BlockRegistry.GINKGO_FENCE.get(),
-            BlockRegistry.GINKGO_FENCE_GATE.get(),
-            BlockRegistry.GINKGO_PRESSURE_PLATE.get(),
-            BlockRegistry.GINKGO_BUTTON.get()
-    };
+    private static final Block[] WOOD_BLOCKS = BlockRegistry.WOOD_SETS.stream()
+            .flatMap(ModWoodModelProvider::blocksOf)
+            .toArray(Block[]::new);
 
     public ModWoodModelProvider(PackOutput output) {
         super(output, ShadowsAndPetals.MOD_ID);
@@ -66,66 +36,38 @@ public class ModWoodModelProvider extends ModelProvider {
 
     @Override
     protected void registerModels(BlockModelGenerators blockModels, ItemModelGenerators itemModels) {
-        registerWoodSet(
-                blockModels,
-                BlockRegistry.SAKURA_LOG.get(),
-                BlockRegistry.STRIPPED_SAKURA_LOG.get(),
-                BlockRegistry.SAKURA_WOOD.get(),
-                BlockRegistry.STRIPPED_SAKURA_WOOD.get(),
-                BlockRegistry.SAKURA_PLANKS.get(),
-                BlockRegistry.SAKURA_SLAB.get(),
-                BlockRegistry.SAKURA_STAIRS.get(),
-                BlockRegistry.SAKURA_FENCE.get(),
-                BlockRegistry.SAKURA_FENCE_GATE.get(),
-                BlockRegistry.SAKURA_PRESSURE_PLATE.get(),
-                BlockRegistry.SAKURA_BUTTON.get()
-        );
-
-        registerWoodSet(
-                blockModels,
-                BlockRegistry.MAPLE_LOG.get(),
-                BlockRegistry.STRIPPED_MAPLE_LOG.get(),
-                BlockRegistry.MAPLE_WOOD.get(),
-                BlockRegistry.STRIPPED_MAPLE_WOOD.get(),
-                BlockRegistry.MAPLE_PLANKS.get(),
-                BlockRegistry.MAPLE_SLAB.get(),
-                BlockRegistry.MAPLE_STAIRS.get(),
-                BlockRegistry.MAPLE_FENCE.get(),
-                BlockRegistry.MAPLE_FENCE_GATE.get(),
-                BlockRegistry.MAPLE_PRESSURE_PLATE.get(),
-                BlockRegistry.MAPLE_BUTTON.get()
-        );
-
-        registerWoodSet(
-                blockModels,
-                BlockRegistry.GINKGO_LOG.get(),
-                BlockRegistry.STRIPPED_GINKGO_LOG.get(),
-                BlockRegistry.GINKGO_WOOD.get(),
-                BlockRegistry.STRIPPED_GINKGO_WOOD.get(),
-                BlockRegistry.GINKGO_PLANKS.get(),
-                BlockRegistry.GINKGO_SLAB.get(),
-                BlockRegistry.GINKGO_STAIRS.get(),
-                BlockRegistry.GINKGO_FENCE.get(),
-                BlockRegistry.GINKGO_FENCE_GATE.get(),
-                BlockRegistry.GINKGO_PRESSURE_PLATE.get(),
-                BlockRegistry.GINKGO_BUTTON.get()
-        );
+        BlockRegistry.WOOD_SETS.forEach(woodSet -> registerWoodSet(blockModels, woodSet));
     }
 
-    private void registerWoodSet(
-            BlockModelGenerators blockModels,
-            Block log,
-            Block strippedLog,
-            Block wood,
-            Block strippedWood,
-            Block planks,
-            Block slab,
-            Block stairs,
-            Block fence,
-            Block fenceGate,
-            Block pressurePlate,
-            Block button
-    ) {
+    private static Stream<Block> blocksOf(WoodSetList.WoodSet woodSet) {
+        return Arrays.stream(new Block[]{
+                woodSet.log().get(),
+                woodSet.strippedLog().get(),
+                woodSet.wood().get(),
+                woodSet.strippedWood().get(),
+                woodSet.planks().get(),
+                woodSet.slab().get(),
+                woodSet.stairs().get(),
+                woodSet.fence().get(),
+                woodSet.fenceGate().get(),
+                woodSet.pressurePlate().get(),
+                woodSet.button().get()
+        });
+    }
+
+    private void registerWoodSet(BlockModelGenerators blockModels, WoodSetList.WoodSet woodSet) {
+        Block log = woodSet.log().get();
+        Block strippedLog = woodSet.strippedLog().get();
+        Block wood = woodSet.wood().get();
+        Block strippedWood = woodSet.strippedWood().get();
+        Block planks = woodSet.planks().get();
+        Block slab = woodSet.slab().get();
+        Block stairs = woodSet.stairs().get();
+        Block fence = woodSet.fence().get();
+        Block fenceGate = woodSet.fenceGate().get();
+        Block pressurePlate = woodSet.pressurePlate().get();
+        Block button = woodSet.button().get();
+
         blockModels.woodProvider(log).logWithHorizontal(log).wood(wood);
         blockModels.woodProvider(strippedLog).logWithHorizontal(strippedLog).wood(strippedWood);
 

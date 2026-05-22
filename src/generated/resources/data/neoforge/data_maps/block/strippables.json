@@ -3,20 +3,38 @@
     "shadowsandpetals:ginkgo_log": {
       "stripped_block": "shadowsandpetals:stripped_ginkgo_log"
     },
+    "shadowsandpetals:ginkgo_post": {
+      "stripped_block": "shadowsandpetals:stripped_ginkgo_post"
+    },
     "shadowsandpetals:ginkgo_wood": {
       "stripped_block": "shadowsandpetals:stripped_ginkgo_wood"
+    },
+    "shadowsandpetals:ginkgo_wood_post": {
+      "stripped_block": "shadowsandpetals:stripped_ginkgo_wood_post"
     },
     "shadowsandpetals:maple_log": {
       "stripped_block": "shadowsandpetals:stripped_maple_log"
     },
+    "shadowsandpetals:maple_post": {
+      "stripped_block": "shadowsandpetals:stripped_maple_post"
+    },
     "shadowsandpetals:maple_wood": {
       "stripped_block": "shadowsandpetals:stripped_maple_wood"
+    },
+    "shadowsandpetals:maple_wood_post": {
+      "stripped_block": "shadowsandpetals:stripped_maple_wood_post"
     },
     "shadowsandpetals:sakura_log": {
       "stripped_block": "shadowsandpetals:stripped_sakura_log"
     },
+    "shadowsandpetals:sakura_post": {
+      "stripped_block": "shadowsandpetals:stripped_sakura_post"
+    },
     "shadowsandpetals:sakura_wood": {
       "stripped_block": "shadowsandpetals:stripped_sakura_wood"
+    },
+    "shadowsandpetals:sakura_wood_post": {
+      "stripped_block": "shadowsandpetals:stripped_sakura_wood_post"
     }
   }
 }

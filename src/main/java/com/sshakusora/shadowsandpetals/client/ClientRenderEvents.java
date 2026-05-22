@@ -25,6 +25,11 @@ public class ClientRenderEvents {
     }
 
     @SubscribeEvent
+    public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
+        BlockModelRegistry.wrapBlockStateModels(event);
+    }
+
+    @SubscribeEvent
     public static void cacheStandaloneModels(ModelEvent.BakingCompleted event) {
         BlockModelRegistry.cacheBakedModels(event);
     }

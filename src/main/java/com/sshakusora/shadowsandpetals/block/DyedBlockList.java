@@ -4,16 +4,36 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
-public class DyedBlockList<T extends Block> extends BlockList<DyeColor, T> {
+public class DyedBlockList<T extends Block> extends BlockList<DyeColor, DeferredBlock<T>> {
 
     public DyedBlockList(Function<DyeColor, DeferredBlock<? extends T>> filler) {
-        super(DyeColor.class, filler);
+        super(DyeColor.class, color -> cast(filler.apply(color)));
     }
 
     public DeferredBlock<T> get(DyeColor color) {
         return getByOrdinal(color.ordinal());
+    }
+
+    public boolean contains(Block block) {
+        for (DeferredBlock<T> entry : this) {
+            if (entry.get() == block) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @SuppressWarnings("unchecked")
+    public DeferredBlock<T>[] toArray() {
+        return (DeferredBlock<T>[]) Arrays.copyOf(values, values.length, DeferredBlock[].class);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends Block> DeferredBlock<T> cast(DeferredBlock<? extends T> block) {
+        return (DeferredBlock<T>) block;
     }
 
     public static String zhName(DyeColor color) {

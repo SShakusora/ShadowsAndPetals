@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "shadowsandpetals:block/stripped_sakura_wood_post",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "shadowsandpetals:block/stripped_sakura_wood_post"
+    },
+    "axis=z": {
+      "model": "shadowsandpetals:block/stripped_sakura_wood_post",
+      "x": 90
+    }
+  }
+}

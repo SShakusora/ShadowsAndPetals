@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "W": "shadowsandpetals:sakura_wood"
+  },
+  "pattern": [
+    "W",
+    "W",
+    "W"
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:sakura_wood_post"
+  }
+}
