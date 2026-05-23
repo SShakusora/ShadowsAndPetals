@@ -15,6 +15,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,7 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
         poseStack.popPose();
     }
 
-    private static net.minecraft.resources.ResourceLocation drawerModelId(BlockState state) {
+    private static ResourceLocation drawerModelId(BlockState state) {
         return ShadowsAndPetals.asResource("block/vanity/" + woodTypeFor(state).getName() + "_drawer");
     }
 
