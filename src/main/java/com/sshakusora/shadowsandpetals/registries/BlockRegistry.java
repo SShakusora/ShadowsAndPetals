@@ -5,7 +5,6 @@ import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
-import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
@@ -21,66 +20,9 @@ public class BlockRegistry {
 
     public static final WoodSetList WOOD_SETS = new WoodSetList();
 
-    private static final WoodSetList.WoodSet SAKURA_SET = WOOD_SETS.get(WoodSetList.Type.SAKURA);
-    private static final WoodSetList.WoodSet MAPLE_SET = WOOD_SETS.get(WoodSetList.Type.MAPLE);
-    private static final WoodSetList.WoodSet GINKGO_SET = WOOD_SETS.get(WoodSetList.Type.GINKGO);
-
-    public static final DeferredBlock<RotatedPillarBlock> SAKURA_LOG = SAKURA_SET.log();
-    public static final DeferredBlock<RotatedPillarBlock> STRIPPED_SAKURA_LOG = SAKURA_SET.strippedLog();
-    public static final DeferredBlock<RotatedPillarBlock> SAKURA_WOOD = SAKURA_SET.wood();
-    public static final DeferredBlock<RotatedPillarBlock> STRIPPED_SAKURA_WOOD = SAKURA_SET.strippedWood();
-    public static final DeferredBlock<Block> SAKURA_PLANKS = SAKURA_SET.planks();
-    public static final DeferredBlock<WoodPostBlock> SAKURA_POST = SAKURA_SET.post();
-    public static final DeferredBlock<WoodPostBlock> STRIPPED_SAKURA_POST = SAKURA_SET.strippedPost();
-    public static final DeferredBlock<WoodPostBlock> SAKURA_WOOD_POST = SAKURA_SET.woodPost();
-    public static final DeferredBlock<WoodPostBlock> STRIPPED_SAKURA_WOOD_POST = SAKURA_SET.strippedWoodPost();
-    public static final DeferredBlock<SlabBlock> SAKURA_SLAB = SAKURA_SET.slab();
-    public static final DeferredBlock<StairBlock> SAKURA_STAIRS = SAKURA_SET.stairs();
-    public static final DeferredBlock<FenceBlock> SAKURA_FENCE = SAKURA_SET.fence();
-    public static final DeferredBlock<FenceGateBlock> SAKURA_FENCE_GATE = SAKURA_SET.fenceGate();
-    public static final DeferredBlock<PressurePlateBlock> SAKURA_PRESSURE_PLATE = SAKURA_SET.pressurePlate();
-    public static final DeferredBlock<ButtonBlock> SAKURA_BUTTON = SAKURA_SET.button();
-    public static final DeferredBlock<SaplingBlock> SAKURA_SAPLING = SAKURA_SET.sapling();
-    public static final DeferredBlock<LeavesBlock> SAKURA_LEAVES = SAKURA_SET.leaves();
-    public static final DeferredBlock<HedgeBlock> SAKURA_HEDGE = SAKURA_SET.hedge();
-
-    public static final DeferredBlock<RotatedPillarBlock> MAPLE_LOG = MAPLE_SET.log();
-    public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MAPLE_LOG = MAPLE_SET.strippedLog();
-    public static final DeferredBlock<RotatedPillarBlock> MAPLE_WOOD = MAPLE_SET.wood();
-    public static final DeferredBlock<RotatedPillarBlock> STRIPPED_MAPLE_WOOD = MAPLE_SET.strippedWood();
-    public static final DeferredBlock<Block> MAPLE_PLANKS = MAPLE_SET.planks();
-    public static final DeferredBlock<WoodPostBlock> MAPLE_POST = MAPLE_SET.post();
-    public static final DeferredBlock<WoodPostBlock> STRIPPED_MAPLE_POST = MAPLE_SET.strippedPost();
-    public static final DeferredBlock<WoodPostBlock> MAPLE_WOOD_POST = MAPLE_SET.woodPost();
-    public static final DeferredBlock<WoodPostBlock> STRIPPED_MAPLE_WOOD_POST = MAPLE_SET.strippedWoodPost();
-    public static final DeferredBlock<SlabBlock> MAPLE_SLAB = MAPLE_SET.slab();
-    public static final DeferredBlock<StairBlock> MAPLE_STAIRS = MAPLE_SET.stairs();
-    public static final DeferredBlock<FenceBlock> MAPLE_FENCE = MAPLE_SET.fence();
-    public static final DeferredBlock<FenceGateBlock> MAPLE_FENCE_GATE = MAPLE_SET.fenceGate();
-    public static final DeferredBlock<PressurePlateBlock> MAPLE_PRESSURE_PLATE = MAPLE_SET.pressurePlate();
-    public static final DeferredBlock<ButtonBlock> MAPLE_BUTTON = MAPLE_SET.button();
-    public static final DeferredBlock<SaplingBlock> MAPLE_SAPLING = MAPLE_SET.sapling();
-    public static final DeferredBlock<LeavesBlock> MAPLE_LEAVES = MAPLE_SET.leaves();
-    public static final DeferredBlock<HedgeBlock> MAPLE_HEDGE = MAPLE_SET.hedge();
-
-    public static final DeferredBlock<RotatedPillarBlock> GINKGO_LOG = GINKGO_SET.log();
-    public static final DeferredBlock<RotatedPillarBlock> STRIPPED_GINKGO_LOG = GINKGO_SET.strippedLog();
-    public static final DeferredBlock<RotatedPillarBlock> GINKGO_WOOD = GINKGO_SET.wood();
-    public static final DeferredBlock<RotatedPillarBlock> STRIPPED_GINKGO_WOOD = GINKGO_SET.strippedWood();
-    public static final DeferredBlock<Block> GINKGO_PLANKS = GINKGO_SET.planks();
-    public static final DeferredBlock<WoodPostBlock> GINKGO_POST = GINKGO_SET.post();
-    public static final DeferredBlock<WoodPostBlock> STRIPPED_GINKGO_POST = GINKGO_SET.strippedPost();
-    public static final DeferredBlock<WoodPostBlock> GINKGO_WOOD_POST = GINKGO_SET.woodPost();
-    public static final DeferredBlock<WoodPostBlock> STRIPPED_GINKGO_WOOD_POST = GINKGO_SET.strippedWoodPost();
-    public static final DeferredBlock<SlabBlock> GINKGO_SLAB = GINKGO_SET.slab();
-    public static final DeferredBlock<StairBlock> GINKGO_STAIRS = GINKGO_SET.stairs();
-    public static final DeferredBlock<FenceBlock> GINKGO_FENCE = GINKGO_SET.fence();
-    public static final DeferredBlock<FenceGateBlock> GINKGO_FENCE_GATE = GINKGO_SET.fenceGate();
-    public static final DeferredBlock<PressurePlateBlock> GINKGO_PRESSURE_PLATE = GINKGO_SET.pressurePlate();
-    public static final DeferredBlock<ButtonBlock> GINKGO_BUTTON = GINKGO_SET.button();
-    public static final DeferredBlock<SaplingBlock> GINKGO_SAPLING = GINKGO_SET.sapling();
-    public static final DeferredBlock<LeavesBlock> GINKGO_LEAVES = GINKGO_SET.leaves();
-    public static final DeferredBlock<HedgeBlock> GINKGO_HEDGE = GINKGO_SET.hedge();
+    public static final WoodSetList.WoodSet SAKURA_SET = WOOD_SETS.get(WoodSetList.Type.SAKURA);
+    public static final WoodSetList.WoodSet MAPLE_SET = WOOD_SETS.get(WoodSetList.Type.MAPLE);
+    public static final WoodSetList.WoodSet GINKGO_SET = WOOD_SETS.get(WoodSetList.Type.GINKGO);
 
     public static final DeferredBlock<SaplingBlock> AUTUMN_OAK_SAPLING = WoodSetList.treeSapling(
             "autumn_oak_sapling",

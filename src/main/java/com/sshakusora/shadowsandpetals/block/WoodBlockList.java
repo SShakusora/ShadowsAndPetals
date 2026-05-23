@@ -48,9 +48,9 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
         MANGROVE("mangrove", "红树木", Blocks.MANGROVE_PLANKS, Blocks.MANGROVE_STAIRS, Blocks.MANGROVE_SLAB),
         CHERRY("cherry", "樱花木", Blocks.CHERRY_PLANKS, Blocks.CHERRY_STAIRS, Blocks.CHERRY_SLAB),
         PALE("pale_oak", "苍白橡木", Blocks.PALE_OAK_PLANKS, Blocks.PALE_OAK_STAIRS, Blocks.PALE_OAK_SLAB),
-        SAKURA("sakura", "樱", BlockRegistry.SAKURA_PLANKS, BlockRegistry.SAKURA_STAIRS, BlockRegistry.SAKURA_SLAB),
-        MAPLE("maple", "枫木", BlockRegistry.MAPLE_PLANKS, BlockRegistry.MAPLE_STAIRS, BlockRegistry.MAPLE_SLAB),
-        GINKGO("ginkgo", "银杏木", BlockRegistry.GINKGO_PLANKS, BlockRegistry.GINKGO_STAIRS, BlockRegistry.GINKGO_SLAB),
+        SAKURA("sakura", "樱", BlockRegistry.SAKURA_SET),
+        MAPLE("maple", "枫木", BlockRegistry.MAPLE_SET),
+        GINKGO("ginkgo", "银杏木", BlockRegistry.GINKGO_SET),
         BAMBOO("bamboo", "竹", Blocks.BAMBOO_PLANKS, Blocks.BAMBOO_STAIRS, Blocks.BAMBOO_SLAB),
         CRIMSON("crimson", "绯红木", Blocks.CRIMSON_PLANKS, Blocks.CRIMSON_STAIRS, Blocks.CRIMSON_SLAB),
         WARPED("warped", "诡异木", Blocks.WARPED_PLANKS, Blocks.WARPED_STAIRS, Blocks.WARPED_SLAB);
@@ -63,6 +63,10 @@ public class WoodBlockList<T extends Block> extends BlockList<WoodBlockList.Wood
 
         WoodType(String name, String zhName, Block planks, Block stairs, Block slab) {
             this(name, zhName, () -> planks, () -> stairs, () -> slab);
+        }
+
+        WoodType(String name, String zhName , WoodSetList.WoodSet set) {
+            this(name, zhName, set.planks(), set.stairs(), set.slab());
         }
 
         WoodType(String name, String zhName, Supplier<? extends Block> planks, Supplier<? extends Block> stairs, Supplier<? extends Block> slab) {

@@ -85,27 +85,27 @@ public class SAPConfiguredFeatures {
 
         context.register(SAKURA, new ConfiguredFeature<>(
                 Feature.TREE,
-                createStraightTree(BlockRegistry.SAKURA_LOG.get(), BlockRegistry.SAKURA_LEAVES.get(), 4, 2, 0, 2).build()
+                createStraightTree(BlockRegistry.SAKURA_SET.log().get(), BlockRegistry.SAKURA_SET.leaves().get(), 4, 2, 0, 2).build()
         ));
         context.register(FANCY_SAKURA, new ConfiguredFeature<>(
                 Feature.TREE,
-                createFancyTree(BlockRegistry.SAKURA_LOG.get(), BlockRegistry.SAKURA_LEAVES.get()).build()
+                createFancyTree(BlockRegistry.SAKURA_SET.log().get(), BlockRegistry.SAKURA_SET.leaves().get()).build()
         ));
         context.register(MAPLE, new ConfiguredFeature<>(
                 Feature.TREE,
-                createStraightTree(BlockRegistry.MAPLE_LOG.get(), BlockRegistry.MAPLE_LEAVES.get(), 4, 2, 0, 2).ignoreVines().build()
+                createStraightTree(BlockRegistry.MAPLE_SET.log().get(), BlockRegistry.MAPLE_SET.leaves().get(), 4, 2, 0, 2).ignoreVines().build()
         ));
         context.register(FANCY_MAPLE, new ConfiguredFeature<>(
                 Feature.TREE,
-                createFancyTree(BlockRegistry.MAPLE_LOG.get(), BlockRegistry.MAPLE_LEAVES.get()).build()
+                createFancyTree(BlockRegistry.MAPLE_SET.log().get(), BlockRegistry.MAPLE_SET.leaves().get()).build()
         ));
         context.register(GINKGO, new ConfiguredFeature<>(
                 Feature.TREE,
-                createStraightTree(BlockRegistry.GINKGO_LOG.get(), BlockRegistry.GINKGO_LEAVES.get(), 4, 2, 0, 2).ignoreVines().build()
+                createStraightTree(BlockRegistry.GINKGO_SET.log().get(), BlockRegistry.GINKGO_SET.leaves().get(), 4, 2, 0, 2).ignoreVines().build()
         ));
         context.register(FANCY_GINKGO, new ConfiguredFeature<>(
                 Feature.TREE,
-                createFancyTree(BlockRegistry.GINKGO_LOG.get(), BlockRegistry.GINKGO_LEAVES.get()).build()
+                createFancyTree(BlockRegistry.GINKGO_SET.log().get(), BlockRegistry.GINKGO_SET.leaves().get()).build()
         ));
         context.register(AUTUMN_OAK, new ConfiguredFeature<>(
                 Feature.TREE,

@@ -3,11 +3,7 @@ package com.sshakusora.shadowsandpetals.data;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.*;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
@@ -18,6 +14,7 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -164,25 +161,25 @@ public class ModBlockStateProvider implements DataProvider {
     }
 
     public void hedgeBlockWithItem(HedgeBlock block, Identifier texture) {
-        Identifier coreModel = modLoc("block/" + name(block) + "_post");
-        Identifier sideModel = modLoc("block/" + name(block) + "_side");
         Identifier inventoryModel = blockModelId(block);
+        Identifier straightModel = modLoc("block/" + name(block) + "_5");
 
-        this.models.put(coreModel, hedgeCoreModel(texture));
-        this.models.put(sideModel, hedgeSideModel(texture));
-        this.models.put(inventoryModel, hedgeStraightModel(texture));
-
-        JsonArray multipart = new JsonArray();
-        multipart.add(multipartPart(null, modelRef(coreModel)));
-        multipart.add(multipartPart(singleCondition(HedgeBlock.NORTH.getName(), "true"), modelRef(sideModel)));
-        multipart.add(multipartPart(singleCondition(HedgeBlock.EAST.getName(), "true"), rotatedModel(sideModel, 0, 90, true)));
-        multipart.add(multipartPart(singleCondition(HedgeBlock.SOUTH.getName(), "true"), rotatedModel(sideModel, 0, 180, true)));
-        multipart.add(multipartPart(singleCondition(HedgeBlock.WEST.getName(), "true"), rotatedModel(sideModel, 0, 270, true)));
+        JsonObject variants = new JsonObject();
+        for (int mask = 0; mask < 16; mask++) {
+            boolean north = (mask & 1) != 0;
+            boolean east = (mask & 1 << 1) != 0;
+            boolean south = (mask & 1 << 2) != 0;
+            boolean west = (mask & 1 << 3) != 0;
+            Identifier modelId = modLoc("block/" + name(block) + "_" + mask);
+            this.models.put(modelId, hedgeStateModel(texture, north, east, south, west));
+            variants.add(hedgeVariantKey(north, east, south, west, false), modelRef(modelId));
+            variants.add(hedgeVariantKey(north, east, south, west, true), modelRef(modelId));
+        }
 
         JsonObject root = new JsonObject();
-        root.add("multipart", multipart);
+        root.add("variants", variants);
         this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), parentModel(inventoryModel));
+        this.models.put(itemModelId(block), parentModel(straightModel));
     }
 
     public void ingotPileBlock(IngotPileBlock block) {
@@ -297,7 +294,7 @@ public class ModBlockStateProvider implements DataProvider {
         return json;
     }
 
-    private static JsonObject multipartPart(JsonObject when, JsonObject apply) {
+    private static JsonObject multipartPart(@Nullable JsonObject when, JsonObject apply) {
         JsonObject json = new JsonObject();
         if (when != null) {
             json.add("when", when);
@@ -403,30 +400,46 @@ public class ModBlockStateProvider implements DataProvider {
         return json;
     }
 
-    private static JsonObject hedgeCoreModel(Identifier texture) {
+    private static String hedgeVariantKey(boolean north, boolean east, boolean south, boolean west, boolean waterlogged) {
+        return HedgeBlock.NORTH.getName() + "=" + north
+                + "," + HedgeBlock.EAST.getName() + "=" + east
+                + "," + HedgeBlock.SOUTH.getName() + "=" + south
+                + "," + HedgeBlock.WEST.getName() + "=" + west
+                + "," + BlockStateProperties.WATERLOGGED.getName() + "=" + waterlogged;
+    }
+
+    private static JsonObject hedgeStateModel(Identifier texture, boolean north, boolean east, boolean south, boolean west) {
         JsonObject json = hedgeBaseModel(texture);
         JsonArray elements = new JsonArray();
-        elements.add(cuboidAll(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D, "#all"));
+        elements.add(hedgeCoreModel(north, east, south, west));
+        if (north) {
+            elements.add(hedgeArmModel(Direction.NORTH));
+        }
+        if (east) {
+            elements.add(hedgeArmModel(Direction.EAST));
+        }
+        if (south) {
+            elements.add(hedgeArmModel(Direction.SOUTH));
+        }
+        if (west) {
+            elements.add(hedgeArmModel(Direction.WEST));
+        }
         json.add("elements", elements);
         return json;
     }
 
-    private static JsonObject hedgeSideModel(Identifier texture) {
-        JsonObject json = hedgeBaseModel(texture);
-        JsonArray elements = new JsonArray();
-        elements.add(cuboidAll(4.0D, 0.0D, 0.0D, 12.0D, 16.0D, 4.0D, "#all"));
-        json.add("elements", elements);
-        return json;
+    private static JsonObject hedgeCoreModel(boolean north, boolean east, boolean south, boolean west) {
+        return cuboidAllSelective(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D, "#all", true, true, !north, !south, !west, !east, false, false, false, false);
     }
 
-    private static JsonObject hedgeStraightModel(Identifier texture) {
-        JsonObject json = hedgeBaseModel(texture);
-        JsonArray elements = new JsonArray();
-        elements.add(cuboidAll(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D, "#all"));
-        elements.add(cuboidAll(4.0D, 0.0D, 0.0D, 12.0D, 16.0D, 4.0D, "#all"));
-        elements.add(cuboidAll(4.0D, 0.0D, 12.0D, 12.0D, 16.0D, 16.0D, "#all"));
-        json.add("elements", elements);
-        return json;
+    private static JsonObject hedgeArmModel(Direction direction) {
+        return switch (direction) {
+            case NORTH -> cuboidAllSelective(4.0D, 0.0D, 0.0D, 12.0D, 16.0D, 4.0D, "#all", true, true, true, false, true, true, true, false, false, false);
+            case EAST -> cuboidAllSelective(12.0D, 0.0D, 4.0D, 16.0D, 16.0D, 12.0D, "#all", true, true, true, true, false, true, false, false, false, true);
+            case SOUTH -> cuboidAllSelective(4.0D, 0.0D, 12.0D, 12.0D, 16.0D, 16.0D, "#all", true, true, false, true, true, true, false, true, false, false);
+            case WEST -> cuboidAllSelective(0.0D, 0.0D, 4.0D, 4.0D, 16.0D, 12.0D, "#all", true, true, true, true, true, false, false, false, true, false);
+            default -> throw new IllegalArgumentException("Unsupported hedge arm direction: " + direction);
+        };
     }
 
     private static JsonObject hedgeBaseModel(Identifier texture) {
@@ -506,19 +519,47 @@ public class ModBlockStateProvider implements DataProvider {
     }
 
     private static JsonObject cuboidAll(double fromX, double fromY, double fromZ, double toX, double toY, double toZ, String texture) {
+        return cuboidAllSelective(fromX, fromY, fromZ, toX, toY, toZ, texture, true, true, true, true, true, true, false, false, false, false);
+    }
+
+    private static JsonObject cuboidAllSelective(
+            double fromX,
+            double fromY,
+            double fromZ,
+            double toX,
+            double toY,
+            double toZ,
+            String texture,
+            boolean includeDown,
+            boolean includeUp,
+            boolean includeNorth,
+            boolean includeSouth,
+            boolean includeWest,
+            boolean includeEast,
+            boolean cullNorth,
+            boolean cullSouth,
+            boolean cullWest,
+            boolean cullEast
+    ) {
         JsonObject json = new JsonObject();
         json.add("from", vector(fromX, fromY, fromZ));
         json.add("to", vector(toX, toY, toZ));
 
         JsonObject faces = new JsonObject();
-        faces.add("down", face(texture));
-        faces.add("up", face(texture));
-        faces.add("north", face(texture));
-        faces.add("south", face(texture));
-        faces.add("west", face(texture));
-        faces.add("east", face(texture));
+        addFace(faces, "down", texture, includeDown, null);
+        addFace(faces, "up", texture, includeUp, null);
+        addFace(faces, "north", texture, includeNorth, cullNorth ? "north" : null);
+        addFace(faces, "south", texture, includeSouth, cullSouth ? "south" : null);
+        addFace(faces, "west", texture, includeWest, cullWest ? "west" : null);
+        addFace(faces, "east", texture, includeEast, cullEast ? "east" : null);
         json.add("faces", faces);
         return json;
+    }
+
+    private static void addFace(JsonObject faces, String name, String texture, boolean include, @Nullable String cullface) {
+        if (include) {
+            faces.add(name, face(texture, cullface));
+        }
     }
 
     private static JsonObject chainPlane(double fromX, double fromY, double fromZ, double toX, double toY, double toZ, double originY, boolean northSouthFaces) {
@@ -571,8 +612,15 @@ public class ModBlockStateProvider implements DataProvider {
     }
 
     private static JsonObject face(String texture) {
+        return face(texture, null);
+    }
+
+    private static JsonObject face(String texture, @Nullable String cullface) {
         JsonObject json = new JsonObject();
         json.addProperty("texture", texture);
+        if (cullface != null) {
+            json.addProperty("cullface", cullface);
+        }
         return json;
     }
 

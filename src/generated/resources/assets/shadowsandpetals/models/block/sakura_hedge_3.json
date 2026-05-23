@@ -6,12 +6,6 @@
         "down": {
           "texture": "#all"
         },
-        "east": {
-          "texture": "#all"
-        },
-        "north": {
-          "texture": "#all"
-        },
         "south": {
           "texture": "#all"
         },
@@ -42,9 +36,7 @@
           "texture": "#all"
         },
         "north": {
-          "texture": "#all"
-        },
-        "south": {
+          "cullface": "north",
           "texture": "#all"
         },
         "up": {
@@ -71,6 +63,7 @@
           "texture": "#all"
         },
         "east": {
+          "cullface": "east",
           "texture": "#all"
         },
         "north": {
@@ -81,26 +74,23 @@
         },
         "up": {
           "texture": "#all"
-        },
-        "west": {
-          "texture": "#all"
         }
       },
       "from": [
-        4.0,
+        12.0,
         0.0,
-        12.0
+        4.0
       ],
       "to": [
-        12.0,
         16.0,
-        16.0
+        16.0,
+        12.0
       ]
     }
   ],
   "render_type": "cutout_mipped",
   "textures": {
-    "all": "shadowsandpetals:block/maple_leaves",
-    "particle": "shadowsandpetals:block/maple_leaves"
+    "all": "shadowsandpetals:block/sakura_leaves",
+    "particle": "shadowsandpetals:block/sakura_leaves"
   }
 }

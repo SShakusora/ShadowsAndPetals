@@ -1,47 +1,100 @@
 {
-  "multipart": [
-    {
-      "apply": {
-        "model": "shadowsandpetals:block/maple_hedge_post"
-      }
+  "variants": {
+    "north=false,east=false,south=false,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_0"
     },
-    {
-      "apply": {
-        "model": "shadowsandpetals:block/maple_hedge_side"
-      },
-      "when": {
-        "north": "true"
-      }
+    "north=false,east=false,south=false,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_0"
     },
-    {
-      "apply": {
-        "model": "shadowsandpetals:block/maple_hedge_side",
-        "uvlock": true,
-        "y": 90
-      },
-      "when": {
-        "east": "true"
-      }
+    "north=false,east=false,south=false,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_8"
     },
-    {
-      "apply": {
-        "model": "shadowsandpetals:block/maple_hedge_side",
-        "uvlock": true,
-        "y": 180
-      },
-      "when": {
-        "south": "true"
-      }
+    "north=false,east=false,south=false,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_8"
     },
-    {
-      "apply": {
-        "model": "shadowsandpetals:block/maple_hedge_side",
-        "uvlock": true,
-        "y": 270
-      },
-      "when": {
-        "west": "true"
-      }
+    "north=false,east=false,south=true,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_4"
+    },
+    "north=false,east=false,south=true,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_4"
+    },
+    "north=false,east=false,south=true,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_12"
+    },
+    "north=false,east=false,south=true,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_12"
+    },
+    "north=false,east=true,south=false,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_2"
+    },
+    "north=false,east=true,south=false,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_2"
+    },
+    "north=false,east=true,south=false,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_10"
+    },
+    "north=false,east=true,south=false,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_10"
+    },
+    "north=false,east=true,south=true,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_6"
+    },
+    "north=false,east=true,south=true,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_6"
+    },
+    "north=false,east=true,south=true,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_14"
+    },
+    "north=false,east=true,south=true,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_14"
+    },
+    "north=true,east=false,south=false,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_1"
+    },
+    "north=true,east=false,south=false,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_1"
+    },
+    "north=true,east=false,south=false,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_9"
+    },
+    "north=true,east=false,south=false,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_9"
+    },
+    "north=true,east=false,south=true,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_5"
+    },
+    "north=true,east=false,south=true,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_5"
+    },
+    "north=true,east=false,south=true,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_13"
+    },
+    "north=true,east=false,south=true,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_13"
+    },
+    "north=true,east=true,south=false,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_3"
+    },
+    "north=true,east=true,south=false,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_3"
+    },
+    "north=true,east=true,south=false,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_11"
+    },
+    "north=true,east=true,south=false,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_11"
+    },
+    "north=true,east=true,south=true,west=false,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_7"
+    },
+    "north=true,east=true,south=true,west=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_7"
+    },
+    "north=true,east=true,south=true,west=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/maple_hedge_15"
+    },
+    "north=true,east=true,south=true,west=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/maple_hedge_15"
     }
-  ]
+  }
 }

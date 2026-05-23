@@ -1,8 +1,8 @@
 package com.sshakusora.shadowsandpetals.block;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;

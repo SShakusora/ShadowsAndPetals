@@ -10,6 +10,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.FenceGateBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -86,7 +87,7 @@ public class HedgeBlock extends Block implements SimpleWaterloggedBlock {
         }
 
         if (direction.getAxis().isHorizontal()) {
-            return state.setValue(propertyFor(direction), canConnectTo(neighborState));
+            return state.setValue(propertyFor(direction), canConnectTo(level, neighborPos, neighborState, direction.getOpposite()));
         }
 
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
@@ -118,6 +119,15 @@ public class HedgeBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
+    protected boolean skipRendering(BlockState state, BlockState neighborState, Direction direction) {
+        if (direction.getAxis().isHorizontal() && neighborState.getBlock() instanceof HedgeBlock) {
+            return state.getValue(propertyFor(direction)) && neighborState.getValue(propertyFor(direction.getOpposite()));
+        }
+
+        return super.skipRendering(state, neighborState, direction);
+    }
+
+    @Override
     public boolean isFlammable(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return true;
     }
@@ -132,15 +142,26 @@ public class HedgeBlock extends Block implements SimpleWaterloggedBlock {
         return 30;
     }
 
-    private static BlockState updateConnections(BlockState state, BlockGetter level, BlockPos pos) {
+    private BlockState updateConnections(BlockState state, BlockGetter level, BlockPos pos) {
         for (Direction direction : Direction.Plane.HORIZONTAL) {
-            state = state.setValue(propertyFor(direction), canConnectTo(level.getBlockState(pos.relative(direction))));
+            BlockPos neighborPos = pos.relative(direction);
+            state = state.setValue(
+                    propertyFor(direction),
+                    canConnectTo(level, neighborPos, level.getBlockState(neighborPos), direction.getOpposite())
+            );
         }
         return state;
     }
 
-    private static boolean canConnectTo(BlockState neighborState) {
-        return neighborState.getBlock() instanceof HedgeBlock;
+    private boolean connectsTo(BlockState state, boolean faceSolid, Direction direction) {
+        Block block = state.getBlock();
+        boolean sameHedge = block instanceof HedgeBlock;
+        boolean gate = block instanceof FenceGateBlock && FenceGateBlock.connectsToDirection(state, direction);
+        return (!isExceptionForConnection(state) && faceSolid) || sameHedge || gate;
+    }
+
+    private boolean canConnectTo(BlockGetter level, BlockPos neighborPos, BlockState neighborState, Direction direction) {
+        return connectsTo(neighborState, neighborState.isFaceSturdy(level, neighborPos, direction), direction);
     }
 
     private static BooleanProperty propertyFor(Direction direction) {
