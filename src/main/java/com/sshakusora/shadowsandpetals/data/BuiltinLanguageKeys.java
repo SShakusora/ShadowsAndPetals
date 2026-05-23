@@ -16,6 +16,11 @@ public final class BuiltinLanguageKeys {
             .en_us("Show if cafe chairs are dyeable")
             .zh_cn("显示咖啡椅是否可染色");
 
+    public static final DatagenLangRegistry.TranslationKey VANITY_CONTAINER_NAME = DatagenLangRegistry
+            .key("container.shadowsandpetals.vanity")
+            .en_us("Vanity")
+            .zh_cn("梳妆台");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}

@@ -1,7 +1,8 @@
 package com.sshakusora.shadowsandpetals.data;
 
-import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -9,14 +10,21 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static com.sshakusora.shadowsandpetals.ShadowsAndPetals.MOD_ID;
+
 public class ModBlockStateProvider extends BlockStateProvider {
     public ModBlockStateProvider(PackOutput output, ExistingFileHelper existingFileHelper) {
-        super(output, ShadowsAndPetals.MOD_ID, existingFileHelper);
+        super(output, MOD_ID, existingFileHelper);
     }
 
     @Override
@@ -80,6 +88,45 @@ public class ModBlockStateProvider extends BlockStateProvider {
                     .build();
         });
         simpleBlockItem(block, models().getExistingFile(modLoc("block/ingot_pile/" + metalName + "_bottom")));
+    }
+
+    private boolean modelExists(String modelPath) {
+        Path path = Paths.get(
+                "src/main/resources/assets/" +
+                        MOD_ID +
+                        "/models/" +
+                        modelPath +
+                        ".json"
+        );
+
+        return Files.exists(path);
+    }
+
+    public void vanityBlock(VanityBlock block) {
+        String blockName = name(block);
+        String woodName = blockName.endsWith("_vanity")
+                ? blockName.substring(0, blockName.length() - "_vanity".length())
+                : blockName;
+
+        ResourceLocation lowerModel = modelExists("block/vanity/" + woodName + "_lower") ? modLoc("block/vanity/" + woodName + "_lower") : modLoc("block/vanity/oak_lower");
+        ResourceLocation upperModel = modelExists("block/vanity/" + woodName + "_upper") ? modLoc("block/vanity/" + woodName + "_upper") : modLoc("block/vanity/oak_upper");
+        getVariantBuilder(block).forAllStates(state -> {
+            ResourceLocation model = state.getValue(VanityBlock.HALF) == DoubleBlockHalf.LOWER ? lowerModel : upperModel;
+            int rotationY = switch (state.getValue(VanityBlock.FACING)) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            return ConfiguredModel.builder()
+                    .modelFile(models().getExistingFile(model))
+                    .rotationY(rotationY)
+                    .build();
+        });
+        ResourceLocation itemModel = modelExists("item/vanity/" + woodName)
+                ? modLoc("item/vanity/" + woodName)
+                : modLoc("item/vanity/oak");
+        simpleBlockItem(block, models().getExistingFile(itemModel));
     }
 
     private String name(Block block) {

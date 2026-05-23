@@ -238,6 +238,28 @@ public class BlockRegistry {
             .lang("zh_cn", "下界合金锭堆")
             .register();
 
+    public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
+            .block(woodType.getName() + "_vanity", VanityBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
+                    .strength(2.5F, 3.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, vanity) -> provider.vanityBlock(vanity.get()))
+            .recipe((provider, vanity) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, vanity.get())
+                    .define('S', woodType.getSlab())
+                    .define('G', Items.GLASS_PANE)
+                    .pattern("S  ")
+                    .pattern("G  ")
+                    .pattern("SSS")
+                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+                    .save(provider.output()))
+            .lang("zh_cn", woodType.getZhName() + "梳妆台")
+            .register()
+    );
+
     public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
             block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
             .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_unitdesk"))
