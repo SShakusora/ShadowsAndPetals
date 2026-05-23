@@ -14,7 +14,7 @@ public final class VoxelShapeUtils {
         Map<Direction, VoxelShape> shapes = new EnumMap<>(Direction.class);
         VoxelShape currentShape = northShape;
 
-        for (Direction direction : new Direction[]{Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST}) {
+        for (Direction direction : Direction.Plane.HORIZONTAL) {
             shapes.put(direction, currentShape.optimize());
             currentShape = rotateClockwise(currentShape);
         }

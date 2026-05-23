@@ -4,7 +4,6 @@
 	"parent": "shadowsandpetals:item/vanity/vanity",
 	"texture_size": [32, 32],
 	"textures": {
-		"particle": "shadowsandpetals:block/vanity/oak",
 		"vanity": "shadowsandpetals:block/vanity/oak"
 	}
 }

@@ -37,6 +37,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -77,9 +78,12 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
             Block.box(5.0D, 13.0D, 11.5D, 11.0D, 14.82513D, 14.5D)
     );
     private static final Map<Direction, VoxelShape> LOWER_SHAPES = new EnumMap<>(Direction.class);
+    private static final VoxelShape DRAWER_FRONT_NORTH_CLEARANCE = Block.box(4.0D, 8.75D, 11.25D, 12.0D, 13.0D, 16.0D);
+    private static final Map<Direction, VoxelShape> DRAWER_FRONT_CLEARANCES = new EnumMap<>(Direction.class);
     private static final Map<Direction, VoxelShape> UPPER_SHAPES = new EnumMap<>(Direction.class);
 
     static {
+        DRAWER_FRONT_CLEARANCES.putAll(VoxelShapeUtils.rotateHorizontal(DRAWER_FRONT_NORTH_CLEARANCE));
         LOWER_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(LOWER_NORTH_SHAPE));
         UPPER_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(UPPER_NORTH_SHAPE));
     }
@@ -140,15 +144,16 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        return openMenu(state, level, pos, player);
+        return canOpenDrawer(state, level, pos, hitResult) ? openMenu(state, level, pos, player) : InteractionResult.PASS;
     }
 
     @Override
     public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        InteractionResult result = openMenu(state, level, pos, player);
-        return result.consumesAction()
-                ? ItemInteractionResult.sidedSuccess(level.isClientSide)
-                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (canOpenDrawer(state, level, pos, hitResult)) {
+            openMenu(state, level, pos, player);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide);
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     private InteractionResult openMenu(BlockState state, Level level, BlockPos pos, Player player) {
@@ -161,10 +166,29 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
         if (blockEntity instanceof VanityBlockEntity vanityBlockEntity) {
             player.openMenu(vanityBlockEntity);
             player.awardStat(Stats.OPEN_BARREL);
-            return InteractionResult.SUCCESS;
-        } else {
-            return InteractionResult.FAIL;
         }
+        return InteractionResult.SUCCESS;
+    }
+
+    private boolean canOpenDrawer(BlockState state, Level level, BlockPos pos, BlockHitResult hitResult) {
+        Direction facing = state.getValue(FACING);
+        Direction hitFace = hitResult.getDirection();
+        if (hitFace == facing.getOpposite()) {
+            return false;
+        }
+
+        if (hitFace.getAxis().isVertical() && state.getValue(HALF) != DoubleBlockHalf.LOWER) {
+            return false;
+        }
+
+        BlockPos basePos = getBasePos(state, pos);
+        return !isDrawerBlocked(level, basePos, facing);
+    }
+
+    private static boolean isDrawerBlocked(Level level, BlockPos basePos, Direction facing) {
+        BlockPos frontPos = basePos.relative(facing);
+        VoxelShape collisionShape = level.getBlockState(frontPos).getCollisionShape(level, frontPos);
+        return Shapes.joinIsNotEmpty(collisionShape, DRAWER_FRONT_CLEARANCES.get(facing), BooleanOp.AND);
     }
 
     @Override
@@ -202,8 +226,8 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && (player.isCreative())) {
-            preventCreativeDropFromBottomPart(level, pos, state);
+        if (!level.isClientSide() && (player.isCreative() || !player.hasCorrectToolForDrops(state, level, pos))) {
+            DoublePlantBlock.preventDropFromBottomPart(level, pos, state, player);
         }
 
         return super.playerWillDestroy(level, pos, state, player);
@@ -289,21 +313,6 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
         BlockPos basePos = getBasePos(state, pos);
         BlockEntity blockEntity = level.getBlockEntity(basePos);
         return blockEntity != null && blockEntity.triggerEvent(id, param);
-    }
-
-    private static void preventCreativeDropFromBottomPart(Level level, BlockPos pos, BlockState state) {
-        DoubleBlockHalf half = state.getValue(HALF);
-        BlockPos otherPos = half == DoubleBlockHalf.LOWER ? pos.above() : pos.below();
-        BlockState otherState = level.getBlockState(otherPos);
-        if (!otherState.is(state.getBlock()) || otherState.getValue(HALF) == half) {
-            return;
-        }
-
-        BlockState replacement = otherState.getValue(WATERLOGGED)
-                ? Fluids.WATER.defaultFluidState().createLegacyBlock()
-                : Blocks.AIR.defaultBlockState();
-        level.setBlock(otherPos, replacement, Block.UPDATE_SUPPRESS_DROPS | Block.UPDATE_ALL);
-        level.levelEvent(null, 2001, otherPos, Block.getId(otherState));
     }
 
     public static BlockPos getBasePos(BlockState state, BlockPos pos) {

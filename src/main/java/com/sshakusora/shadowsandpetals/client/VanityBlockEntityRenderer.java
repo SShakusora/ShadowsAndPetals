@@ -15,17 +15,12 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-import java.util.WeakHashMap;
-
 public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBlockEntity> {
     private static final float DRAWER_TRAVEL = 7.0F / 16.0F;
-    private final Map<VanityBlockEntity, DrawerAnimationState> animationStates = new WeakHashMap<>();
 
     public VanityBlockEntityRenderer(BlockEntityRendererProvider.Context context) {}
 
@@ -36,16 +31,8 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
             return;
         }
 
-        float progress = Mth.clamp(blockEntity.getDrawerProgress(partialTick), 0.0F, 1.0F);
-        DrawerAnimationState animationState = animationStates.computeIfAbsent(blockEntity, ignored -> new DrawerAnimationState());
-        if (!animationState.initialized) {
-            animationState.initialized = true;
-            animationState.travelScale = randomTravelScale(blockEntity.getBlockPos().asLong(), animationState.openCycle);
-        } else if (animationState.previousProgress <= 0.001F && progress > animationState.previousProgress) {
-            animationState.openCycle++;
-            animationState.travelScale = randomTravelScale(blockEntity.getBlockPos().asLong(), animationState.openCycle);
-        }
-        animationState.previousProgress = progress;
+        float progress = easeOutCubic(blockEntity.getDrawerProgress(partialTick));
+        float travelScale = blockEntity.getDrawerTravelScale();
 
         var modelManager = Minecraft.getInstance().getModelManager();
         BakedModel drawerModel = modelManager.getModel(ModelResourceLocation.standalone(drawerModelId(state)));
@@ -54,7 +41,7 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
         }
 
         Direction facing = state.getValue(VanityBlock.FACING);
-        float translation = easeOutCubic(progress) * DRAWER_TRAVEL * animationState.travelScale;
+        float translation = progress * DRAWER_TRAVEL * travelScale;
 
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.0D, 0.5D);
@@ -94,23 +81,5 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
     private static float easeOutCubic(float progress) {
         float inverse = 1.0F - progress;
         return 1.0F - inverse * inverse * inverse;
-    }
-
-    private static float randomTravelScale(long blockSeed, int openCycle) {
-        long mixed = blockSeed * 31L + openCycle * 0x9E3779B97F4A7C15L;
-        mixed ^= mixed >>> 33;
-        mixed *= 0xff51afd7ed558ccdL;
-        mixed ^= mixed >>> 33;
-        mixed *= 0xc4ceb9fe1a85ec53L;
-        mixed ^= mixed >>> 33;
-        float normalized = (float) ((mixed >>> 40) & 0xFFFFFFL) / 0xFFFFFFL;
-        return 0.94F + normalized * 0.12F;
-    }
-
-    private static class DrawerAnimationState {
-        private float previousProgress;
-        private boolean initialized;
-        private int openCycle;
-        private float travelScale = 1.0F;
     }
 }

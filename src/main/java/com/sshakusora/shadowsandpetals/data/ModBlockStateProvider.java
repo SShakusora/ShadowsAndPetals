@@ -4,6 +4,7 @@ package com.sshakusora.shadowsandpetals.data;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -108,6 +109,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 ? blockName.substring(0, blockName.length() - "_vanity".length())
                 : blockName;
 
+        // TODO: Need To Replace Oak Upper
         ResourceLocation lowerModel = modelExists("block/vanity/" + woodName + "_lower") ? modLoc("block/vanity/" + woodName + "_lower") : modLoc("block/vanity/oak_lower");
         ResourceLocation upperModel = modelExists("block/vanity/" + woodName + "_upper") ? modLoc("block/vanity/" + woodName + "_upper") : modLoc("block/vanity/oak_upper");
         getVariantBuilder(block).forAllStates(state -> {
@@ -130,6 +132,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
     private String name(Block block) {
-        return block.builtInRegistryHolder().key().location().getPath();
+        return BuiltInRegistries.BLOCK.getKey(block).getPath();
     }
 }

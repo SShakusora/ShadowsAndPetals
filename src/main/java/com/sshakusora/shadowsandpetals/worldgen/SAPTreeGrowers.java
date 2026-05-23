@@ -6,7 +6,7 @@ import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
 
 import java.util.Optional;
 
-@SuppressWarnings("all")
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public final class SAPTreeGrowers {
     private SAPTreeGrowers() { }
 
