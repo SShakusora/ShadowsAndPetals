@@ -69,13 +69,14 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
     ) {}
 
     private static WoodSet registerWoodSet(Type type) {
+        String fixZhName = type.woodZhName.endsWith("木") ? type.woodZhName.substring(0, type.woodZhName.length() - 1) : type.woodZhName;
         DeferredBlock<RotatedPillarBlock> log = treeLog(type.name + "_log", type.treeZhName + "原木");
         DeferredBlock<RotatedPillarBlock> strippedLog = strippedTreeLog("stripped_" + type.name + "_log", "去皮" + type.treeZhName + "原木");
         DeferredBlock<RotatedPillarBlock> wood = treeWood(type.name + "_wood", log, type.woodZhName);
         DeferredBlock<RotatedPillarBlock> strippedWood = strippedTreeWood("stripped_" + type.name + "_wood", strippedLog, "去皮" + type.woodZhName);
         DeferredBlock<Block> planks = treePlanks(type.name + "_planks", log, strippedLog, type.woodZhName + "板");
-        DeferredBlock<WoodPostBlock> post = treePost(type.name + "_post", log, (type.woodZhName.endsWith("木") ? type.woodZhName.substring(0, type.woodZhName.length() - 1) : type.woodZhName) + "原木柱");
-        DeferredBlock<WoodPostBlock> strippedPost = treeStrippedPost("stripped_" + type.name + "_post", strippedLog, "去皮" + (type.woodZhName.endsWith("木") ? type.woodZhName.substring(0, type.woodZhName.length() - 1) : type.woodZhName) + "原木柱");
+        DeferredBlock<WoodPostBlock> post = treePost(type.name + "_post", log, fixZhName + "原木柱");
+        DeferredBlock<WoodPostBlock> strippedPost = treeStrippedPost("stripped_" + type.name + "_post", strippedLog, "去皮" + fixZhName + "原木柱");
         DeferredBlock<WoodPostBlock> woodPost = treeWoodPost(type.name + "_wood_post", wood, log, type.woodZhName + "柱");
         DeferredBlock<WoodPostBlock> strippedWoodPost = treeStrippedWoodPost("stripped_" + type.name + "_wood_post", strippedWood, strippedLog, "去皮" + type.woodZhName + "柱");
         DeferredBlock<SlabBlock> slab = treeSlab(type.name + "_slab", planks, type.woodZhName + "台阶");
