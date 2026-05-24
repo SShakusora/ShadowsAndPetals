@@ -19,6 +19,7 @@ public class ShadowsAndPetals {
         BlockRegistry.init();
         BlockEntityRegistry.init();
         EntityRegistry.init();
+        ParticleRegistry.init();
         CreativeTabRegistry.init();
     }
 

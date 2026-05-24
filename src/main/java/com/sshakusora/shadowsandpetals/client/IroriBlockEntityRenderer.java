@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+@Deprecated
 public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockEntity, IroriBlockEntityRenderer.State> {
     private static final int MIN_FIREWOOD_COUNT = 4;
     private static final int FIREWOOD_COUNT_VARIANCE = 4;

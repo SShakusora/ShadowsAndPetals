@@ -5,8 +5,10 @@ import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
+import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
@@ -19,6 +21,8 @@ import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
+import java.util.function.Supplier;
+
 public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet> {
 
     public WoodSetList() {
@@ -30,20 +34,22 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
     }
 
     public enum Type {
-        SAKURA("sakura", "樱花木", "樱花", SAPTreeGrowers.SAKURA),
-        MAPLE("maple", "枫木", "枫树", SAPTreeGrowers.MAPLE),
-        GINKGO("ginkgo", "银杏木", "银杏", SAPTreeGrowers.GINKGO);
+        SAKURA("sakura", "樱花木", "樱花", SAPTreeGrowers.SAKURA, ParticleRegistry.SAKURA),
+        MAPLE("maple", "枫木", "枫树", SAPTreeGrowers.MAPLE, ParticleRegistry.MAPLE),
+        GINKGO("ginkgo", "银杏木", "银杏", SAPTreeGrowers.GINKGO, ParticleRegistry.GINKGO);
 
         private final String name;
         private final String woodZhName;
         private final String treeZhName;
         private final TreeGrower grower;
+        private final Supplier<? extends ParticleOptions> fallingLeafParticleSupplier;
 
-        Type(String name, String woodZhName, String treeZhName, TreeGrower grower) {
+        Type(String name, String woodZhName, String treeZhName, TreeGrower grower, Supplier<? extends ParticleOptions> fallingLeafParticleSupplier) {
             this.name = name;
             this.woodZhName = woodZhName;
             this.treeZhName = treeZhName;
             this.grower = grower;
+            this.fallingLeafParticleSupplier = fallingLeafParticleSupplier;
         }
     }
 
@@ -86,7 +92,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<PressurePlateBlock> pressurePlate = treePressurePlate(type.name + "_pressure_plate", planks, type.woodZhName + "压力板");
         DeferredBlock<ButtonBlock> button = treeButton(type.name + "_button", planks, type.woodZhName + "按钮");
         DeferredBlock<SaplingBlock> sapling = treeSapling(type.name + "_sapling", type.grower, type.treeZhName + "树苗");
-        DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶");
+        DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶", type.fallingLeafParticleSupplier);
         DeferredBlock<HedgeBlock> hedge = treeHedge(type.name + "_hedge", leaves, type.treeZhName + "树篱");
         return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, hedge);
     }
@@ -393,8 +399,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .register();
     }
 
-    public static DeferredBlock<LeavesBlock> treeLeaves(String id, DeferredBlock<SaplingBlock> sapling, String zhName) {
-        return SAPRegistries.<LeavesBlock>block(id, properties -> new SAPLeavesBlock(0.01F, properties))
+    public static DeferredBlock<LeavesBlock> treeLeaves(String id, DeferredBlock<SaplingBlock> sapling, String zhName, Supplier<? extends ParticleOptions> fallingLeafParticleSupplier) {
+        return SAPRegistries.<LeavesBlock>block(id, properties -> new SAPLeavesBlock(0.01F, properties, fallingLeafParticleSupplier))
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
                         .strength(0.2F)
                         .sound(SoundType.GRASS)

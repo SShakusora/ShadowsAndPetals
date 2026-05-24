@@ -8,8 +8,11 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
@@ -32,7 +35,8 @@ public class BlockRegistry {
     public static final DeferredBlock<LeavesBlock> AUTUMN_OAK_LEAVES = WoodSetList.treeLeaves(
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
-            "秋橡树树叶"
+            "秋橡树树叶",
+            () -> ColorParticleOption.create(ParticleTypes.TINTED_LEAVES, ARGB.color(255, 176, 106, 45))
     );
     public static final DeferredBlock<HedgeBlock> AUTUMN_OAK_HEDGE = WoodSetList.treeHedge(
             "autumn_oak_hedge",

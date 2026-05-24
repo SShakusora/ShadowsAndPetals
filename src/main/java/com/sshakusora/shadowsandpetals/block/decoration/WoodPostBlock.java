@@ -24,6 +24,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -225,7 +226,7 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
         WAXED_OXIDIZED_COPPER_CHAIN("waxed_oxidized_copper_chain", Identifier.withDefaultNamespace("block/oxidized_copper_chain")),
         OTHER_POST("other_post");
 
-        private static final Map<String, ConnectionType> BY_BLOCK_PATH = java.util.Arrays.stream(values())
+        private static final Map<String, ConnectionType> BY_BLOCK_PATH = Arrays.stream(values())
                 .filter(ConnectionType::isChain)
                 .collect(Collectors.toUnmodifiableMap(ConnectionType::getSerializedName, Function.identity()));
 

@@ -3,6 +3,8 @@ package com.sshakusora.shadowsandpetals.registries;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.legacy.BlockEntityAliasRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.*;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -18,6 +20,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class SAPRegistries {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(ShadowsAndPetals.MOD_ID);
@@ -25,6 +28,7 @@ public class SAPRegistries {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Registries.ENTITY_TYPE, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ShadowsAndPetals.MOD_ID);
+    public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, ShadowsAndPetals.MOD_ID);
 
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
@@ -32,6 +36,7 @@ public class SAPRegistries {
         CREATIVE_TABS.register(modEventBus);
         ENTITIES.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
+        PARTICLES.register(modEventBus);
     }
 
     // Block helpers
@@ -70,6 +75,20 @@ public class SAPRegistries {
 
     public static RegCreativeTabBuilder creativeTab(String name) {
         return new RegCreativeTabBuilder(CREATIVE_TABS, name);
+    }
+
+    // Particle helpers
+
+    public static RegParticleBuilder<SimpleParticleType> particle(String name) {
+        return new RegParticleBuilder<>(PARTICLES, name).simple();
+    }
+
+    public static RegParticleBuilder<SimpleParticleType> particle(String name, boolean overrideLimiter) {
+        return new RegParticleBuilder<>(PARTICLES, name).simple(overrideLimiter);
+    }
+
+    public static <P extends ParticleType<?>> RegParticleBuilder<P> particleType(String name, Supplier<P> factory) {
+        return new RegParticleBuilder<P>(PARTICLES, name).particle(factory);
     }
 
     // Entity helpers
