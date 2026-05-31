@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
+import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -8,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.ContainerUser;
@@ -28,8 +30,11 @@ import java.util.List;
 
 public class VanityBlockEntity extends RandomizableContainerBlockEntity {
     public static final int CONTAINER_SIZE = 9;
+    private static final String DRAWER_TRAVEL_LIMIT_TAG = "drawer_travel_limit";
     private static final int DRAWER_EVENT_ID = 1;
+    private static final int DRAWER_TRAVEL_LIMIT_EVENT_ID = 2;
     private static final float DRAWER_SPEED = 0.12F;
+    private static final float TRAVEL_LIMIT_EVENT_SCALE = 4096.0F;
     private static final Component DEFAULT_NAME = Component.translatable(BuiltinLanguageKeys.VANITY_CONTAINER_NAME.key());
 
     private NonNullList<ItemStack> items = NonNullList.withSize(CONTAINER_SIZE, ItemStack.EMPTY);
@@ -63,6 +68,7 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
     private float drawerProgressOld;
     private int openCycle;
     private float drawerTravelScale;
+    private float drawerTravelLimit = VanityBlock.MAX_DRAWER_TRAVEL_DISTANCE;
 
     public VanityBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.VANITY.get(), pos, blockState);
@@ -72,10 +78,16 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
     public static void tick(Level level, BlockPos pos, BlockState state, VanityBlockEntity blockEntity) {
         if (level.isClientSide()) {
             blockEntity.drawerProgressOld = blockEntity.drawerProgress;
-            float target = blockEntity.openCount > 0 ? 1.0F : 0.0F;
+            float target = 0.0F;
             if (blockEntity.openCount > 0 && blockEntity.drawerProgressOld <= 0.001F && blockEntity.drawerProgress <= 0.001F) {
                 blockEntity.openCycle++;
                 blockEntity.drawerTravelScale = randomTravelScale(pos.asLong(), blockEntity.openCycle);
+            }
+            if (blockEntity.openCount > 0) {
+                float fullTravelDistance = VanityBlock.BASE_DRAWER_TRAVEL_DISTANCE * blockEntity.drawerTravelScale;
+                if (fullTravelDistance > 0.0F) {
+                    target = Mth.clamp(blockEntity.drawerTravelLimit / fullTravelDistance, 0.0F, 1.0F);
+                }
             }
             if (blockEntity.drawerProgress < target) {
                 blockEntity.drawerProgress = Math.min(target, blockEntity.drawerProgress + DRAWER_SPEED);
@@ -93,6 +105,23 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
         return this.drawerTravelScale;
     }
 
+    public float getDrawerTravelLimit() {
+        return this.drawerTravelLimit;
+    }
+
+    public void updateDrawerTravelLimit(float drawerTravelLimit, boolean syncToClient) {
+        float clampedLimit = clampDrawerTravelLimit(drawerTravelLimit);
+        if (Math.abs(this.drawerTravelLimit - clampedLimit) <= 0.0001F) {
+            return;
+        }
+
+        this.drawerTravelLimit = clampedLimit;
+        this.setChanged();
+        if (syncToClient && this.level != null && !this.level.isClientSide()) {
+            this.level.blockEvent(this.worldPosition, this.getBlockState().getBlock(), DRAWER_TRAVEL_LIMIT_EVENT_ID, packDrawerTravelLimit(clampedLimit));
+        }
+    }
+
     public void recheckOpen() {
         if (!this.remove) {
             this.openersCounter.recheckOpeners(this.getLevel(), this.getBlockPos(), this.getBlockState());
@@ -106,6 +135,7 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
         if (!this.tryLoadLootTable(input)) {
             ContainerHelper.loadAllItems(input, this.items);
         }
+        this.drawerTravelLimit = input.getFloatOr(DRAWER_TRAVEL_LIMIT_TAG, VanityBlock.MAX_DRAWER_TRAVEL_DISTANCE);
     }
 
     @Override
@@ -114,6 +144,7 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
         if (!this.trySaveLootTable(output)) {
             ContainerHelper.saveAllItems(output, this.items);
         }
+        output.putFloat(DRAWER_TRAVEL_LIMIT_TAG, this.drawerTravelLimit);
     }
 
     @Override
@@ -172,6 +203,10 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
             this.openCount = type;
             return true;
         }
+        if (id == DRAWER_TRAVEL_LIMIT_EVENT_ID) {
+            this.drawerTravelLimit = unpackDrawerTravelLimit(type);
+            return true;
+        }
         return super.triggerEvent(id, type);
     }
 
@@ -197,5 +232,17 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
         mixed ^= mixed >>> 33;
         float normalized = (float) ((mixed >>> 40) & 0xFFFFFFL) / 0xFFFFFFL;
         return 0.84F + normalized * 0.32F;
+    }
+
+    private static int packDrawerTravelLimit(float drawerTravelLimit) {
+        return Math.round(clampDrawerTravelLimit(drawerTravelLimit) * TRAVEL_LIMIT_EVENT_SCALE);
+    }
+
+    private static float unpackDrawerTravelLimit(int packedDrawerTravelLimit) {
+        return clampDrawerTravelLimit(packedDrawerTravelLimit / TRAVEL_LIMIT_EVENT_SCALE);
+    }
+
+    private static float clampDrawerTravelLimit(float drawerTravelLimit) {
+        return Mth.clamp(drawerTravelLimit, 0.0F, VanityBlock.MAX_DRAWER_TRAVEL_DISTANCE);
     }
 }

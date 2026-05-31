@@ -2,8 +2,10 @@ package com.sshakusora.shadowsandpetals.worldgen;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
+import com.sshakusora.shadowsandpetals.worldgen.feature.config.PrefabTreeConfiguration;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.ConstantInt;
@@ -84,56 +86,90 @@ public class SAPConfiguredFeatures {
         ));
 
         context.register(SAKURA, new ConfiguredFeature<>(
-                Feature.TREE,
-                createStraightTree(BlockRegistry.SAKURA_SET.log().get(), BlockRegistry.SAKURA_SET.leaves().get(), 4, 2, 0, 2).build()
+                SAPFeatures.PREFAB_TREE.get(),
+                createPrefabTree(
+                        ShadowsAndPetals.asResource("sakura/small_1"),
+                        ShadowsAndPetals.asResource("sakura/small_2"),
+                        ShadowsAndPetals.asResource("sakura/small_3"),
+                        ShadowsAndPetals.asResource("sakura/middle_1"),
+                        ShadowsAndPetals.asResource("sakura/middle_2")
+                )
         ));
         context.register(FANCY_SAKURA, new ConfiguredFeature<>(
-                Feature.TREE,
-                createFancyTree(BlockRegistry.SAKURA_SET.log().get(), BlockRegistry.SAKURA_SET.leaves().get()).build()
+                SAPFeatures.PREFAB_TREE.get(),
+                createPrefabTree(
+                        ShadowsAndPetals.asResource("sakura/large_1"),
+                        ShadowsAndPetals.asResource("sakura/large_2"),
+                        ShadowsAndPetals.asResource("sakura/large_3")
+                )
         ));
         context.register(MAPLE, new ConfiguredFeature<>(
-                Feature.TREE,
-                createStraightTree(BlockRegistry.MAPLE_SET.log().get(), BlockRegistry.MAPLE_SET.leaves().get(), 4, 2, 0, 2).ignoreVines().build()
+                SAPFeatures.PREFAB_TREE.get(),
+                createPrefabTree(
+                        ShadowsAndPetals.asResource("maple/small_1"),
+                        ShadowsAndPetals.asResource("maple/small_2"),
+                        ShadowsAndPetals.asResource("maple/small_3"),
+                        ShadowsAndPetals.asResource("maple/middle_1"),
+                        ShadowsAndPetals.asResource("maple/middle_2"),
+                        ShadowsAndPetals.asResource("maple/middle_3")
+                )
         ));
         context.register(FANCY_MAPLE, new ConfiguredFeature<>(
-                Feature.TREE,
-                createFancyTree(BlockRegistry.MAPLE_SET.log().get(), BlockRegistry.MAPLE_SET.leaves().get()).build()
+                SAPFeatures.PREFAB_TREE.get(),
+                createPrefabTree(
+                        ShadowsAndPetals.asResource("maple/large_1"),
+                        ShadowsAndPetals.asResource("maple/large_2")
+                )
         ));
         context.register(GINKGO, new ConfiguredFeature<>(
-                Feature.TREE,
-                createStraightTree(BlockRegistry.GINKGO_SET.log().get(), BlockRegistry.GINKGO_SET.leaves().get(), 4, 2, 0, 2).ignoreVines().build()
+                SAPFeatures.PREFAB_TREE.get(),
+                createPrefabTree(
+                        ShadowsAndPetals.asResource("ginkgo/small_1"),
+                        ShadowsAndPetals.asResource("ginkgo/small_2"),
+                        ShadowsAndPetals.asResource("ginkgo/small_3"),
+                        ShadowsAndPetals.asResource("ginkgo/middle_1"),
+                        ShadowsAndPetals.asResource("ginkgo/middle_2"),
+                        ShadowsAndPetals.asResource("ginkgo/middle_3")
+                )
         ));
         context.register(FANCY_GINKGO, new ConfiguredFeature<>(
-                Feature.TREE,
-                createFancyTree(BlockRegistry.GINKGO_SET.log().get(), BlockRegistry.GINKGO_SET.leaves().get()).build()
+                SAPFeatures.PREFAB_TREE.get(),
+                createPrefabTree(
+                        ShadowsAndPetals.asResource("ginkgo/large_1"),
+                        ShadowsAndPetals.asResource("ginkgo/large_2")
+                )
         ));
         context.register(AUTUMN_OAK, new ConfiguredFeature<>(
                 Feature.TREE,
-                createStraightTree(Blocks.OAK_LOG, BlockRegistry.AUTUMN_OAK_LEAVES.get(), 4, 2, 0, 2).ignoreVines().build()
+                createAutumnOakTree(BlockRegistry.AUTUMN_OAK_LEAVES.get()).ignoreVines().build()
         ));
         context.register(FANCY_AUTUMN_OAK, new ConfiguredFeature<>(
                 Feature.TREE,
-                createFancyTree(Blocks.OAK_LOG, BlockRegistry.AUTUMN_OAK_LEAVES.get()).build()
+                createFancyAutumnOakTree(BlockRegistry.AUTUMN_OAK_LEAVES.get()).build()
         ));
     }
 
-    private static TreeConfiguration.TreeConfigurationBuilder createStraightTree(Block log, Block leaves, int baseHeight, int heightRandA, int heightRandB, int foliageRadius) {
+    private static TreeConfiguration.TreeConfigurationBuilder createAutumnOakTree(Block leaves) {
         return new TreeConfiguration.TreeConfigurationBuilder(
-                BlockStateProvider.simple(log),
-                new StraightTrunkPlacer(baseHeight, heightRandA, heightRandB),
+                BlockStateProvider.simple(Blocks.OAK_LOG),
+                new StraightTrunkPlacer(4, 2, 0),
                 BlockStateProvider.simple(leaves),
-                new BlobFoliagePlacer(ConstantInt.of(foliageRadius), ConstantInt.of(0), 3),
+                new BlobFoliagePlacer(ConstantInt.of(2), ConstantInt.of(0), 3),
                 new TwoLayersFeatureSize(1, 0, 1)
         );
     }
 
-    private static TreeConfiguration.TreeConfigurationBuilder createFancyTree(Block log, Block leaves) {
+    private static TreeConfiguration.TreeConfigurationBuilder createFancyAutumnOakTree(Block leaves) {
         return new TreeConfiguration.TreeConfigurationBuilder(
-                BlockStateProvider.simple(log),
+                BlockStateProvider.simple(Blocks.OAK_LOG),
                 new FancyTrunkPlacer(3, 11, 0),
                 BlockStateProvider.simple(leaves),
                 new FancyFoliagePlacer(ConstantInt.of(2), ConstantInt.of(4), 4),
                 new TwoLayersFeatureSize(0, 0, 0, OptionalInt.of(4))
         );
+    }
+
+    private static PrefabTreeConfiguration createPrefabTree(Identifier... templates) {
+        return new PrefabTreeConfiguration(List.of(templates), true, true, 1, true);
     }
 }

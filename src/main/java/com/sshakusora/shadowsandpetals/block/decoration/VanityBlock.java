@@ -36,8 +36,8 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -78,12 +78,18 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
             Block.box(5.0D, 13.0D, 11.5D, 11.0D, 14.82513D, 14.5D)
     );
     private static final Map<Direction, VoxelShape> LOWER_SHAPES = new EnumMap<>(Direction.class);
-    private static final VoxelShape DRAWER_FRONT_NORTH_CLEARANCE = Block.box(4.0D, 8.75D, 11.25D, 12.0D, 13.0D, 16.0D);
-    private static final Map<Direction, VoxelShape> DRAWER_FRONT_CLEARANCES = new EnumMap<>(Direction.class);
     private static final Map<Direction, VoxelShape> UPPER_SHAPES = new EnumMap<>(Direction.class);
+    public static final float BASE_DRAWER_TRAVEL_DISTANCE = 7.0F / 16.0F;
+    public static final float MAX_DRAWER_TRAVEL_SCALE = 1.16F;
+    public static final float MAX_DRAWER_TRAVEL_DISTANCE = BASE_DRAWER_TRAVEL_DISTANCE * MAX_DRAWER_TRAVEL_SCALE;
+    private static final double DRAWER_FRONT_MIN_X = 4.0D / 16.0D;
+    private static final double DRAWER_FRONT_MAX_X = 12.0D / 16.0D;
+    private static final double DRAWER_FRONT_MIN_Y = 8.75D / 16.0D;
+    private static final double DRAWER_FRONT_MAX_Y = 13.0D / 16.0D;
+    private static final float DRAWER_FRONT_INSET = 2.25F / 16.0F;
+    private static final float MIN_DRAWER_OPEN_DISTANCE = DRAWER_FRONT_INSET;
 
     static {
-        DRAWER_FRONT_CLEARANCES.putAll(VoxelShapeUtils.rotateHorizontal(DRAWER_FRONT_NORTH_CLEARANCE));
         LOWER_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(LOWER_NORTH_SHAPE));
         UPPER_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(UPPER_NORTH_SHAPE));
     }
@@ -140,6 +146,7 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
                         .setValue(WATERLOGGED, level.getFluidState(pos.above()).getType() == Fluids.WATER),
                 Block.UPDATE_ALL
         );
+        level.scheduleTick(pos, this, 1);
     }
 
     @Override
@@ -157,9 +164,8 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
             return InteractionResult.SUCCESS;
         }
 
-        BlockPos basePos = getBasePos(state, pos);
-        BlockEntity blockEntity = level.getBlockEntity(basePos);
-        if (blockEntity instanceof VanityBlockEntity vanityBlockEntity) {
+        VanityBlockEntity vanityBlockEntity = getVanityBlockEntity(level, state, pos);
+        if (vanityBlockEntity != null) {
             player.openMenu(vanityBlockEntity);
             player.awardStat(Stats.OPEN_BARREL);
         }
@@ -178,13 +184,35 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
         }
 
         BlockPos basePos = getBasePos(state, pos);
-        return !isDrawerBlocked(level, basePos, facing);
+        float drawerTravelLimit = computeDrawerTravelLimit(level, basePos, facing);
+        updateCachedDrawerTravelLimit(level, basePos, drawerTravelLimit);
+        return drawerTravelLimit > MIN_DRAWER_OPEN_DISTANCE;
     }
 
-    private static boolean isDrawerBlocked(Level level, BlockPos basePos, Direction facing) {
+    public static float computeDrawerTravelLimit(Level level, BlockPos basePos, Direction facing) {
         BlockPos frontPos = basePos.relative(facing);
         VoxelShape collisionShape = level.getBlockState(frontPos).getCollisionShape(level, frontPos);
-        return Shapes.joinIsNotEmpty(collisionShape, DRAWER_FRONT_CLEARANCES.get(facing), BooleanOp.AND);
+        if (collisionShape.isEmpty()) {
+            return MAX_DRAWER_TRAVEL_DISTANCE;
+        }
+
+        float[] nearestObstacleDistance = {MAX_DRAWER_TRAVEL_DISTANCE};
+        collisionShape.forAllBoxes((minX, minY, minZ, maxX, maxY, maxZ) -> {
+            AABB obstacleBox = new AABB(
+                    frontPos.getX() + minX,
+                    frontPos.getY() + minY,
+                    frontPos.getZ() + minZ,
+                    frontPos.getX() + maxX,
+                    frontPos.getY() + maxY,
+                    frontPos.getZ() + maxZ
+            );
+            if (overlapsDrawerFrontProjection(basePos, facing, obstacleBox)) {
+                float obstacleDistance = computeObstacleDistanceFromDrawerFront(basePos, facing, obstacleBox);
+                nearestObstacleDistance[0] = Math.min(nearestObstacleDistance[0], obstacleDistance);
+            }
+        });
+
+        return nearestObstacleDistance[0];
     }
 
     @Override
@@ -200,6 +228,10 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
     ) {
         if (state.getValue(WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
+        if (state.getValue(HALF) == DoubleBlockHalf.LOWER && direction == state.getValue(FACING)) {
+            ticks.scheduleTick(pos, this, 1);
         }
 
         DoubleBlockHalf half = state.getValue(HALF);
@@ -282,8 +314,7 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
 
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
-        BlockPos basePos = getBasePos(state, pos);
-        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(basePos));
+        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(getBaseBlockEntity(level, state, pos));
     }
 
     @Override
@@ -294,7 +325,9 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         BlockPos basePos = getBasePos(state, pos);
-        if (level.getBlockEntity(basePos) instanceof VanityBlockEntity vanityBlockEntity) {
+        VanityBlockEntity vanityBlockEntity = getVanityBlockEntity(level, state, pos);
+        if (vanityBlockEntity != null) {
+            vanityBlockEntity.updateDrawerTravelLimit(computeDrawerTravelLimit(level, basePos, state.getValue(FACING)), true);
             vanityBlockEntity.recheckOpen();
         }
     }
@@ -307,12 +340,65 @@ public class VanityBlock extends BaseEntityBlock implements SimpleWaterloggedBlo
     @Override
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         super.triggerEvent(state, level, pos, id, param);
-        BlockPos basePos = getBasePos(state, pos);
-        BlockEntity blockEntity = level.getBlockEntity(basePos);
+        BlockEntity blockEntity = getBaseBlockEntity(level, state, pos);
         return blockEntity != null && blockEntity.triggerEvent(id, param);
     }
 
     public static BlockPos getBasePos(BlockState state, BlockPos pos) {
         return state.getValue(HALF) == DoubleBlockHalf.LOWER ? pos : pos.below();
+    }
+
+    private static @Nullable BlockEntity getBaseBlockEntity(Level level, BlockState state, BlockPos pos) {
+        return level.getBlockEntity(getBasePos(state, pos));
+    }
+
+    private static @Nullable VanityBlockEntity getVanityBlockEntity(Level level, BlockState state, BlockPos pos) {
+        BlockEntity blockEntity = getBaseBlockEntity(level, state, pos);
+        return blockEntity instanceof VanityBlockEntity vanityBlockEntity ? vanityBlockEntity : null;
+    }
+
+    private static void updateCachedDrawerTravelLimit(Level level, BlockPos basePos, float drawerTravelLimit) {
+        if (level.getBlockEntity(basePos) instanceof VanityBlockEntity vanityBlockEntity) {
+            vanityBlockEntity.updateDrawerTravelLimit(drawerTravelLimit, !level.isClientSide());
+        }
+    }
+
+    private static boolean overlapsDrawerFrontProjection(BlockPos basePos, Direction facing, AABB obstacleBox) {
+        double minY = basePos.getY() + DRAWER_FRONT_MIN_Y;
+        double maxY = basePos.getY() + DRAWER_FRONT_MAX_Y;
+        if (!overlaps(minY, maxY, obstacleBox.minY, obstacleBox.maxY)) {
+            return false;
+        }
+
+        return switch (facing.getAxis()) {
+            case Z -> overlaps(basePos.getX() + DRAWER_FRONT_MIN_X, basePos.getX() + DRAWER_FRONT_MAX_X, obstacleBox.minX, obstacleBox.maxX);
+            case X -> overlaps(basePos.getZ() + DRAWER_FRONT_MIN_X, basePos.getZ() + DRAWER_FRONT_MAX_X, obstacleBox.minZ, obstacleBox.maxZ);
+            case Y -> false;
+        };
+    }
+
+    private static float computeObstacleDistanceFromDrawerFront(BlockPos basePos, Direction facing, AABB obstacleBox) {
+        return switch (facing) {
+            case NORTH -> clampTravelDistance((float) ((basePos.getZ() + DRAWER_FRONT_INSET) - obstacleBox.maxZ));
+            case SOUTH -> clampTravelDistance((float) (obstacleBox.minZ - (basePos.getZ() + 1.0D - DRAWER_FRONT_INSET)));
+            case WEST -> clampTravelDistance((float) ((basePos.getX() + DRAWER_FRONT_INSET) - obstacleBox.maxX));
+            case EAST -> clampTravelDistance((float) (obstacleBox.minX - (basePos.getX() + 1.0D - DRAWER_FRONT_INSET)));
+            default -> MAX_DRAWER_TRAVEL_DISTANCE;
+        };
+    }
+
+    private static float clampTravelDistance(float travelDistance) {
+        if (travelDistance <= 0.0F) {
+            return 0.0F;
+        }
+        return Math.min(travelDistance, MAX_DRAWER_TRAVEL_DISTANCE);
+    }
+
+    private static boolean overlaps(double minA, double maxA, double minB, double maxB) {
+        return overlapAmount(minA, maxA, minB, maxB) > 0.0D;
+    }
+
+    private static double overlapAmount(double minA, double maxA, double minB, double maxB) {
+        return Math.min(maxA, maxB) - Math.max(minA, minB);
     }
 }

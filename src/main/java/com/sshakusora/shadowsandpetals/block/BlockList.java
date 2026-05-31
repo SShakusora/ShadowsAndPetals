@@ -30,7 +30,6 @@ public abstract class BlockList<K extends Enum<K>, T> implements Iterable<T> {
         return (T) values[ordinal];
     }
 
-    @SuppressWarnings("unchecked")
     public Object[] toArray() {
         return Arrays.copyOf(values, values.length);
     }

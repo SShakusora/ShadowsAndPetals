@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -27,7 +28,6 @@ import java.util.List;
 public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBlockEntity, VanityBlockEntityRenderer.State> {
     private static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
     private static final RandomSource DRAWER_RANDOM = RandomSource.create(42L);
-    private static final float DRAWER_TRAVEL = 7.0F / 16.0F;
 
     public VanityBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -41,12 +41,14 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
     public void extractRenderState(VanityBlockEntity blockEntity, State state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
-        state.facing = blockEntity.getBlockState().getValue(VanityBlock.FACING);
+        var blockState = blockEntity.getBlockState();
+        state.facing = blockState.getValue(VanityBlock.FACING);
         state.progress = blockEntity.getDrawerProgress(partialTicks);
         state.drawerTravelScale = blockEntity.getDrawerTravelScale();
+        state.drawerTravelLimit = blockEntity.getDrawerTravelLimit();
         state.drawerModelParts.clear();
 
-        BlockStateModel drawerModel = BlockModelRegistry.getVanityDrawerModel(blockEntity.getBlockState().getBlock());
+        BlockStateModel drawerModel = BlockModelRegistry.getVanityDrawerModel(blockState.getBlock());
         if (drawerModel == null) {
             state.drawerHasTranslucency = false;
             return;
@@ -65,7 +67,9 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
         poseStack.translate(-0.5D, 0.0D, -0.5D);
 
         poseStack.pushPose();
-        poseStack.translate(0, 0, -easeOutCubic(state.progress) * DRAWER_TRAVEL * state.drawerTravelScale);
+        float fullTravelDistance = VanityBlock.BASE_DRAWER_TRAVEL_DISTANCE * state.drawerTravelScale;
+        float targetTranslation = easeOutCubic(state.progress) * fullTravelDistance;
+        poseStack.translate(0, 0, -Math.min(targetTranslation, Mth.clamp(state.drawerTravelLimit, 0.0F, fullTravelDistance)));
         submitNodeCollector.submitMultiLayerBlockModel(
                 poseStack,
                 state.drawerModelParts,
@@ -86,6 +90,7 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
         public float progress;
         public boolean drawerHasTranslucency;
         public float drawerTravelScale = 1.0F;
+        public float drawerTravelLimit = VanityBlock.BASE_DRAWER_TRAVEL_DISTANCE;
     }
 
     private static float easeOutCubic(float progress) {

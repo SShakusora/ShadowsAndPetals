@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals;
 
 import com.mojang.logging.LogUtils;
 import com.sshakusora.shadowsandpetals.registries.*;
+import com.sshakusora.shadowsandpetals.worldgen.SAPFeatures;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
@@ -21,6 +22,7 @@ public class ShadowsAndPetals {
         EntityRegistry.init();
         ParticleRegistry.init();
         CreativeTabRegistry.init();
+        SAPFeatures.init();
     }
 
     public static Identifier asResource(String path) {

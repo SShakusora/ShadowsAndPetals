@@ -20,7 +20,6 @@ hs_err_pid*
 # Common working directory
 run
 /reference/
-/AGENTS.md
 run2
 /docs/
 /.omo/
