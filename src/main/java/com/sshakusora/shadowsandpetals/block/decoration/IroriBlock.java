@@ -1,45 +1,32 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
-public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
-    public static final MapCodec<IroriBlock> CODEC = simpleCodec(IroriBlock::new);
+public class IroriBlock extends Block implements SimpleWaterloggedBlock {
+    public static final MapCodec<IroriBlock> CODEC = Block.simpleCodec(IroriBlock::new);
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
@@ -162,37 +149,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
-    }
-
-    @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new IroriBlockEntity(pos, state);
-    }
-
-    @Override
-    protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!stack.is(Items.FLINT_AND_STEEL) || state.getValue(WATERLOGGED)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        }
-
-        if (!(level.getBlockEntity(pos) instanceof IroriBlockEntity iroriBlockEntity) || iroriBlockEntity.isLit()) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        }
-
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-
-        if (!iroriBlockEntity.setRegionLit(true)) {
-            return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-        }
-
-        level.playSound(player, pos, SoundEvents.FLINTANDSTEEL_USE, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
-        level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-        if (!player.getAbilities().instabuild) {
-            stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
-        }
-        return InteractionResult.SUCCESS;
     }
 
     private BlockState updateConnections(BlockState state, BlockGetter level, BlockPos pos) {

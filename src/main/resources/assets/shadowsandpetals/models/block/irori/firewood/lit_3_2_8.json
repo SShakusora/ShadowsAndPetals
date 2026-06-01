@@ -1,8 +1,0 @@
-{
-	"format_version": "1.21.11",
-	"credit": "Made with Blockbench",
-	"parent": "shadowsandpetals:block/irori/firewood/base_3_2_8",
-	"textures": {
-		"3_2_8": "shadowsandpetals:block/irori/firewood/lit_3_2_8"
-	}
-}

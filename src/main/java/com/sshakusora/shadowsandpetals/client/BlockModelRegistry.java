@@ -25,8 +25,6 @@ import java.util.Map;
 public final class BlockModelRegistry {
     private static final Map<WoodBlockList.WoodType, StandaloneModelKey<BlockStateModel>> VANITY_DRAWER_MODEL_KEYS = createVanityDrawerModelKeys();
     private static final Map<WoodBlockList.WoodType, BlockStateModel> VANITY_DRAWER_MODELS = new EnumMap<>(WoodBlockList.WoodType.class);
-    private static final Map<IroriFirewoodModel, StandaloneModelKey<BlockStateModel>> IRORI_FIREWOOD_MODEL_KEYS = createIroriFirewoodModelKeys();
-    private static final Map<IroriFirewoodModel, BlockStateModel> IRORI_FIREWOOD_MODELS = new EnumMap<>(IroriFirewoodModel.class);
     private static final Map<WoodPostChainModelKey, StandaloneModelKey<BlockStateModel>> WOOD_POST_CHAIN_MODEL_KEYS = new HashMap<>();
     private static final Map<WoodPostChainModelKey, BlockStateModel> WOOD_POST_CHAIN_MODELS = new HashMap<>();
     private static final Map<WoodPostLinkModelKey, StandaloneModelKey<BlockStateModel>> WOOD_POST_LINK_MODEL_KEYS = new HashMap<>();
@@ -37,13 +35,11 @@ public final class BlockModelRegistry {
 
     public static void registerStandaloneModels(ModelEvent.RegisterStandalone event) {
         registerVanityModels(event);
-        registerIroriFirewoodModels(event);
         registerWoodPostConnectionModels(event);
     }
 
     public static void cacheBakedModels(ModelEvent.BakingCompleted event) {
         cacheVanityModels(event);
-        cacheIroriFirewoodModels(event);
         cacheWoodPostConnectionModels(event);
     }
 
@@ -66,17 +62,6 @@ public final class BlockModelRegistry {
         return Minecraft.getInstance()
                 .getModelManager()
                 .getStandaloneModel(VANITY_DRAWER_MODEL_KEYS.get(woodType));
-    }
-
-    public static @Nullable BlockStateModel getIroriFirewoodModel(IroriFirewoodModel model) {
-        BlockStateModel cachedModel = IRORI_FIREWOOD_MODELS.get(model);
-        if (cachedModel != null) {
-            return cachedModel;
-        }
-
-        return Minecraft.getInstance()
-                .getModelManager()
-                .getStandaloneModel(IRORI_FIREWOOD_MODEL_KEYS.get(model));
     }
 
     public static @Nullable BlockStateModel getWoodPostConnectionModel(Block block, WoodPostBlock.ConnectionType type, Direction direction) {
@@ -111,15 +96,6 @@ public final class BlockModelRegistry {
             event.register(
                     VANITY_DRAWER_MODEL_KEYS.get(woodType),
                     SimpleUnbakedStandaloneModel.blockStateModel(ShadowsAndPetals.asResource("block/vanity/" + woodType.getName() + "_drawer"))
-            );
-        }
-    }
-
-    private static void registerIroriFirewoodModels(ModelEvent.RegisterStandalone event) {
-        for (IroriFirewoodModel model : IroriFirewoodModel.values()) {
-            event.register(
-                    IRORI_FIREWOOD_MODEL_KEYS.get(model),
-                    SimpleUnbakedStandaloneModel.blockStateModel(ShadowsAndPetals.asResource("block/irori/firewood/" + model.modelName()))
             );
         }
     }
@@ -166,16 +142,6 @@ public final class BlockModelRegistry {
         }
     }
 
-    private static void cacheIroriFirewoodModels(ModelEvent.BakingCompleted event) {
-        IRORI_FIREWOOD_MODELS.clear();
-        for (IroriFirewoodModel model : IroriFirewoodModel.values()) {
-            BlockStateModel bakedModel = event.getModelManager().getStandaloneModel(IRORI_FIREWOOD_MODEL_KEYS.get(model));
-            if (bakedModel != null) {
-                IRORI_FIREWOOD_MODELS.put(model, bakedModel);
-            }
-        }
-    }
-
     private static void cacheWoodPostConnectionModels(ModelEvent.BakingCompleted event) {
         WOOD_POST_CHAIN_MODELS.clear();
         for (Map.Entry<WoodPostChainModelKey, StandaloneModelKey<BlockStateModel>> entry : WOOD_POST_CHAIN_MODEL_KEYS.entrySet()) {
@@ -199,15 +165,6 @@ public final class BlockModelRegistry {
         for (WoodBlockList.WoodType woodType : WoodBlockList.WoodType.values()) {
             Identifier id = ShadowsAndPetals.asResource("vanity_drawer/" + woodType.getName());
             modelKeys.put(woodType, new StandaloneModelKey<>(id::toString));
-        }
-        return modelKeys;
-    }
-
-    private static Map<IroriFirewoodModel, StandaloneModelKey<BlockStateModel>> createIroriFirewoodModelKeys() {
-        Map<IroriFirewoodModel, StandaloneModelKey<BlockStateModel>> modelKeys = new EnumMap<>(IroriFirewoodModel.class);
-        for (IroriFirewoodModel model : IroriFirewoodModel.values()) {
-            Identifier id = ShadowsAndPetals.asResource("irori_firewood/" + model.modelName());
-            modelKeys.put(model, new StandaloneModelKey<>(id::toString));
         }
         return modelKeys;
     }
@@ -276,41 +233,4 @@ public final class BlockModelRegistry {
         }
     }
 
-    public enum IroriFirewoodModel {
-        UNLIT_7(false, 7),
-        UNLIT_8(false, 8),
-        UNLIT_9(false, 9),
-        LIT_7(true, 7),
-        LIT_8(true, 8),
-        LIT_9(true, 9);
-
-        private final boolean lit;
-        private final int length;
-
-        IroriFirewoodModel(boolean lit, int length) {
-            this.lit = lit;
-            this.length = length;
-        }
-
-        public boolean lit() {
-            return this.lit;
-        }
-
-        public int length() {
-            return this.length;
-        }
-
-        public String modelName() {
-            return (this.lit ? "lit" : "unlit") + "_3_2_" + this.length;
-        }
-
-        public static IroriFirewoodModel byLitAndLength(boolean lit, int length) {
-            for (IroriFirewoodModel model : values()) {
-                if (model.lit == lit && model.length == length) {
-                    return model;
-                }
-            }
-            return lit ? LIT_7 : UNLIT_7;
-        }
-    }
 }
