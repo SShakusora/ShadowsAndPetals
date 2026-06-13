@@ -98,6 +98,7 @@
   "block.shadowsandpetals.white_cafe_chair": "White Cafe Chair",
   "block.shadowsandpetals.yellow_cafe_chair": "Yellow Cafe Chair",
   "config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable": "Show if cafe chairs are dyeable",
+  "config.jade.plugin_shadowsandpetals.jade.irori_burn_time": "Show irori burn time",
   "container.shadowsandpetals.vanity": "Vanity",
   "entity.shadowsandpetals.seat": "Seat",
   "item.shadowsandpetals.acacia_vanity": "Acacia Vanity",
@@ -203,5 +204,10 @@
   "itemGroup.shadowsandpetals.main": "Shadows & Petals",
   "itemGroup.shadowsandpetals.nature": "Shadows & Petals: Nature",
   "jade.shadowsandpetals.cafe_chair.dyeable": "Dyeable",
+  "jade.shadowsandpetals.irori.burned_out": "Burned out",
+  "jade.shadowsandpetals.irori.burning": "Burning",
+  "jei.shadowsandpetals.irori.info_1": "A traditional Japanese irori (hearth) that connects with adjacent irori blocks.",
+  "jei.shadowsandpetals.irori.info_2": "Drop burnable items (wood, etc.) into the center, then use Flint and Steel or a Fire Charge to ignite.",
+  "jei.shadowsandpetals.irori.info_3": "Burns fuel over time. Depleted fuel leaves ash, which can be collected as Bone Meal.",
   "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s can be dyed to "
 }

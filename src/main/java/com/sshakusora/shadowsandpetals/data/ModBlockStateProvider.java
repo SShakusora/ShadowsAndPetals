@@ -233,14 +233,12 @@ public class ModBlockStateProvider implements DataProvider {
         Identifier basePath = modLoc("block/irori/block");
         JsonObject variants = new JsonObject();
 
-        for (boolean shiftPlaced : new boolean[]{false, true}) {
-            for (boolean waterlogged : new boolean[]{false, true}) {
-                for (boolean north : new boolean[]{false, true}) {
-                    for (boolean east : new boolean[]{false, true}) {
-                        for (boolean south : new boolean[]{false, true}) {
-                            for (boolean west : new boolean[]{false, true}) {
-                                addIroriVariant(variants, north, east, south, west, waterlogged, shiftPlaced);
-                            }
+        for (boolean waterlogged : new boolean[]{false, true}) {
+            for (boolean north : new boolean[]{false, true}) {
+                for (boolean east : new boolean[]{false, true}) {
+                    for (boolean south : new boolean[]{false, true}) {
+                        for (boolean west : new boolean[]{false, true}) {
+                            addIroriVariant(variants, north, east, south, west, waterlogged);
                         }
                     }
                 }
@@ -321,7 +319,7 @@ public class ModBlockStateProvider implements DataProvider {
         );
     }
 
-    private void addIroriVariant(JsonObject variants, boolean north, boolean east, boolean south, boolean west, boolean waterlogged, boolean shiftPlaced) {
+    private void addIroriVariant(JsonObject variants, boolean north, boolean east, boolean south, boolean west, boolean waterlogged) {
         boolean edgeNorth = !north;
         boolean edgeEast = !east;
         boolean edgeSouth = !south;
@@ -344,7 +342,7 @@ public class ModBlockStateProvider implements DataProvider {
                         + "," + IroriBlock.EAST.getName() + "=" + east
                         + "," + IroriBlock.SOUTH.getName() + "=" + south
                         + "," + IroriBlock.WEST.getName() + "=" + west
-                        + "," + IroriBlock.SHIFT_PLACED.getName() + "=" + shiftPlaced,
+                        + "," + IroriBlock.WATERLOGGED.getName() + "=" + waterlogged,
                 rotatedModel(modelId, 0, iroriModelRotation(edgeNorth, edgeEast, edgeSouth, edgeWest, edgeCount))
         );
     }

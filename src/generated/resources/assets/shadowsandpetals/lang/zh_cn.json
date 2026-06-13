@@ -98,6 +98,7 @@
   "block.shadowsandpetals.white_cafe_chair": "白色咖啡椅",
   "block.shadowsandpetals.yellow_cafe_chair": "黄色咖啡椅",
   "config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable": "显示咖啡椅是否可染色",
+  "config.jade.plugin_shadowsandpetals.jade.irori_burn_time": "显示围炉燃烧时间",
   "container.shadowsandpetals.vanity": "梳妆台",
   "entity.shadowsandpetals.seat": "座位",
   "item.shadowsandpetals.acacia_vanity": "金合欢木梳妆台",
@@ -203,5 +204,10 @@
   "itemGroup.shadowsandpetals.main": "织影落花",
   "itemGroup.shadowsandpetals.nature": "织影落花：自然",
   "jade.shadowsandpetals.cafe_chair.dyeable": "可染色",
+  "jade.shadowsandpetals.irori.burned_out": "已燃尽",
+  "jade.shadowsandpetals.irori.burning": "燃烧中",
+  "jei.shadowsandpetals.irori.info_1": "传统的日式围炉，相邻放置可相互连接。",
+  "jei.shadowsandpetals.irori.info_2": "将可燃物（木头等）丢入中央，再用打火石或火焰弹点燃。",
+  "jei.shadowsandpetals.irori.info_3": "燃料会随着时间燃烧殆尽，留下的灰烬可被收集为骨粉。",
   "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s 可被染成 "
 }

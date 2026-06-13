@@ -1,40 +1,69 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-public class IroriBlock extends Block implements SimpleWaterloggedBlock {
-    public static final MapCodec<IroriBlock> CODEC = Block.simpleCodec(IroriBlock::new);
+public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+    public static final MapCodec<IroriBlock> CODEC = simpleCodec(IroriBlock::new);
     public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
     public static final BooleanProperty EAST = BlockStateProperties.EAST;
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final BooleanProperty SHIFT_PLACED = BooleanProperty.create("shift_placed");
-    private static final int MAX_CONNECTED_SIZE = 5;
+
+    private static final int MAX_CONNECTED_SIZE = 4;
     private static final int MAX_CONNECTED_BLOCKS = MAX_CONNECTED_SIZE * MAX_CONNECTED_SIZE;
+    private static final double STANDALONE_BASIN_MIN = 3.0D / 16.0D;
+    private static final double STANDALONE_BASIN_MAX = 13.0D / 16.0D;
+    private static final double CONNECTED_BASIN_INSET = 4.0D / 16.0D;
+    private static final double BASIN_FLOOR_Y = 10.0D / 16.0D;
+    private static final double ITEM_BASIN_VERTICAL_EPSILON = 1.0D / 16.0D;
 
     private static final VoxelShape BASE_SHAPE = box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D);
     private static final VoxelShape STANDALONE_SHAPE = Shapes.or(
@@ -75,6 +104,7 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
             box(12.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D),
             box(0.0D, 15.0D, 4.0D, 4.0D, 16.0D, 16.0D)
     );
+
     private static final Map<Direction, VoxelShape> SINGLE_EDGE_SHAPES = VoxelShapeUtils.rotateHorizontal(SINGLE_EDGE_NORTH_SHAPE);
     private static final Map<Direction, VoxelShape> DOUBLE_EDGE_SHAPES = VoxelShapeUtils.rotateHorizontal(DOUBLE_EDGE_NORTH_SOUTH_SHAPE);
     private static final Map<Direction, VoxelShape> CORNER_SHAPES = VoxelShapeUtils.rotateHorizontal(CORNER_NORTH_EAST_SHAPE);
@@ -88,21 +118,19 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
                 .setValue(EAST, false)
                 .setValue(SOUTH, false)
                 .setValue(WEST, false)
-                .setValue(WATERLOGGED, false)
-                .setValue(SHIFT_PLACED, false));
+                .setValue(WATERLOGGED, false));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState state = defaultBlockState()
-                .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER)
-                .setValue(SHIFT_PLACED, context.isSecondaryUseActive());
+                .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER);
         return updateConnections(state, context.getLevel(), context.getClickedPos());
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, WATERLOGGED, SHIFT_PLACED);
+        builder.add(NORTH, EAST, SOUTH, WEST, WATERLOGGED);
     }
 
     @Override
@@ -121,7 +149,7 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
         }
 
         if (direction.getAxis().isHorizontal()) {
-            return updateConnections(state.setValue(getConnectionProperty(direction), false), level, pos);
+            return updateConnections(state, level, pos);
         }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
@@ -129,6 +157,21 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        if (state.getValue(WATERLOGGED)) {
+            return 0;
+        }
+
+        AuxiliaryLightManager lightManager = level.getAuxLightManager(pos);
+        return lightManager != null ? lightManager.getLightAt(pos) : 0;
     }
 
     @Override
@@ -151,11 +194,244 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
         return RenderShape.MODEL;
     }
 
+    @Override
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return BlockEntityRegistry.IRORI.get().create(pos, state);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+        return createTickerHelper(type, BlockEntityRegistry.IRORI.get(), IroriBlockEntity::tick);
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide() && level.getBlockEntity(pos) instanceof IroriBlockEntity irori) {
+            irori.dropContentsOnRemoval(pos);
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    protected void entityInside(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Entity entity,
+            InsideBlockEffectApplier effectApplier,
+            boolean isPrecise
+    ) {
+        if (level.isClientSide()
+                || state.getValue(WATERLOGGED)
+                || !(entity instanceof ItemEntity itemEntity)
+                || !isItemInBasin(state, pos, itemEntity)) {
+            return;
+        }
+
+        ItemStack droppedStack = itemEntity.getItem();
+        if (!isFuel(droppedStack, level)) {
+            return;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof IroriBlockEntity irori)) {
+            return;
+        }
+        IroriBlockEntity master = irori.resolveMaster();
+        if (!isValidFuelAcceptor(pos, master, level)) {
+            return;
+        }
+
+        if (tryAddDroppedFuel(droppedStack, master, level, pos)) {
+            if (droppedStack.isEmpty()) {
+                itemEntity.discard();
+            } else {
+                itemEntity.setItem(droppedStack);
+            }
+        }
+    }
+
+    @Override
+    protected InteractionResult useItemOn(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hitResult
+    ) {
+        if (state.getValue(WATERLOGGED) || !isBasinHit(state, pos, hitResult)) {
+            return InteractionResult.PASS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof IroriBlockEntity irori)) {
+            return InteractionResult.PASS;
+        }
+
+        IroriBlockEntity master = irori.resolveMaster();
+        boolean ashModel = master.shouldDropBoneMealAsh();
+        boolean ignitionItem = stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE);
+        if (!ashModel && !ignitionItem) {
+            return InteractionResult.PASS;
+        }
+        if (!isValidFuelAcceptor(pos, master, level)) {
+            return InteractionResult.PASS;
+        }
+
+        if (ashModel) {
+            if (!level.isClientSide()) {
+                master.clearAshAndDropBoneMeal();
+            }
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        }
+
+        if (!master.canIgnite()) {
+            return InteractionResult.PASS;
+        }
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+        if (!master.tryIgnite(level, level.getRandom())) {
+            return InteractionResult.PASS;
+        }
+
+        playIgnitionEffects(level, pos, player, stack, hand);
+        if (!player.isCreative() && stack.is(Items.FIRE_CHARGE)) {
+            stack.shrink(1);
+        }
+        return InteractionResult.SUCCESS;
+    }
+
+    @Override
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (state.getValue(WATERLOGGED) || !isBasinHit(state, pos, hitResult)) {
+            return InteractionResult.PASS;
+        }
+
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof IroriBlockEntity irori)) {
+            return InteractionResult.PASS;
+        }
+
+        IroriBlockEntity master = irori.resolveMaster();
+        if (!master.shouldDropBoneMealAsh()) {
+            return InteractionResult.PASS;
+        }
+        if (!isValidFuelAcceptor(pos, master, level)) {
+            return InteractionResult.PASS;
+        }
+
+        if (!level.isClientSide()) {
+            master.clearAshAndDropBoneMeal();
+        }
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static void playIgnitionEffects(Level level, BlockPos pos, Player player, ItemStack stack, InteractionHand hand) {
+        SoundEvent sound = stack.is(Items.FIRE_CHARGE) ? SoundEvents.FIRECHARGE_USE : SoundEvents.FLINTANDSTEEL_USE;
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
+        level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
+        if (stack.is(Items.FLINT_AND_STEEL)) {
+            stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
+        }
+    }
+
+    private static boolean canAcceptFuel(ItemStack currentFuel, ItemStack heldStack) {
+        return currentFuel.isEmpty()
+                || ItemStack.isSameItemSameComponents(currentFuel, heldStack) && currentFuel.getCount() < currentFuel.getMaxStackSize();
+    }
+
+    private static boolean tryAddDroppedFuel(ItemStack droppedStack, IroriBlockEntity master, Level level, BlockPos soundPos) {
+        if (!isFuel(droppedStack, level)) {
+            return false;
+        }
+
+        ItemStack currentFuel = master.getFuelStack();
+        if (!canAcceptFuel(currentFuel, droppedStack)) {
+            return false;
+        }
+
+        int currentCount = currentFuel.isEmpty() ? 0 : currentFuel.getCount();
+        int maxCount = currentFuel.isEmpty() ? droppedStack.getMaxStackSize() : currentFuel.getMaxStackSize();
+        int insertCount = Math.min(droppedStack.getCount(), maxCount - currentCount);
+        if (insertCount <= 0) {
+            return false;
+        }
+
+        ItemStack updatedFuel = currentFuel.isEmpty() ? droppedStack.copyWithCount(insertCount) : currentFuel.copy();
+        if (!currentFuel.isEmpty()) {
+            updatedFuel.grow(insertCount);
+        }
+
+        master.clearAshAndDropBoneMeal();
+        master.setFuelStack(updatedFuel, level.getRandom());
+        level.playSound(null, soundPos, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 0.9F, 0.95F + level.getRandom().nextFloat() * 0.1F);
+        droppedStack.shrink(insertCount);
+        return true;
+    }
+
+    private static boolean isFuel(ItemStack stack, Level level) {
+        return !stack.isEmpty() && stack.getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0;
+    }
+
+    private static boolean isValidFuelAcceptor(BlockPos pos, IroriBlockEntity master, Level level) {
+        IroriBlockEntity.RectangularComponent component = IroriBlockEntity.computeComponentBounds(level, master.getBlockPos());
+        int centerMinX = component.minX() + (component.width() - 1) / 2;
+        int centerMaxX = component.minX() + component.width() / 2;
+        int centerMinZ = component.minZ() + (component.depth() - 1) / 2;
+        int centerMaxZ = component.minZ() + component.depth() / 2;
+        return pos.getX() >= centerMinX
+                && pos.getX() <= centerMaxX
+                && pos.getZ() >= centerMinZ
+                && pos.getZ() <= centerMaxZ;
+    }
+
+    private static boolean isBasinHit(BlockState state, BlockPos pos, BlockHitResult hitResult) {
+        if (hitResult.getDirection() != Direction.UP) {
+            return false;
+        }
+
+        return isBasinPosition(state, pos, hitResult.getLocation());
+    }
+
+    private static boolean isItemInBasin(BlockState state, BlockPos pos, ItemEntity itemEntity) {
+        double localY = itemEntity.getY() - pos.getY();
+        return localY >= BASIN_FLOOR_Y - ITEM_BASIN_VERTICAL_EPSILON
+                && localY <= 1.0D + itemEntity.getBbHeight()
+                && isBasinPosition(state, pos, itemEntity.position());
+    }
+
+    private static boolean isBasinPosition(BlockState state, BlockPos pos, Vec3 location) {
+        double localX = location.x - pos.getX();
+        double localZ = location.z - pos.getZ();
+
+        double minX = getBasinMin(state.getValue(WEST), state.getValue(EAST), state.getValue(NORTH), state.getValue(SOUTH));
+        double maxX = getBasinMax(state.getValue(WEST), state.getValue(EAST), state.getValue(NORTH), state.getValue(SOUTH));
+        double minZ = getBasinMin(state.getValue(NORTH), state.getValue(SOUTH), state.getValue(WEST), state.getValue(EAST));
+        double maxZ = getBasinMax(state.getValue(NORTH), state.getValue(SOUTH), state.getValue(WEST), state.getValue(EAST));
+        return localX >= minX && localX <= maxX && localZ >= minZ && localZ <= maxZ;
+    }
+
+    private static double getBasinMin(boolean negativeConnected, boolean positiveConnected, boolean sideAConnected, boolean sideBConnected) {
+        if (!negativeConnected && !positiveConnected && !sideAConnected && !sideBConnected) {
+            return STANDALONE_BASIN_MIN;
+        }
+        return negativeConnected ? 0.0D : CONNECTED_BASIN_INSET;
+    }
+
+    private static double getBasinMax(boolean negativeConnected, boolean positiveConnected, boolean sideAConnected, boolean sideBConnected) {
+        if (!negativeConnected && !positiveConnected && !sideAConnected && !sideBConnected) {
+            return STANDALONE_BASIN_MAX;
+        }
+        return positiveConnected ? 1.0D : 1.0D - CONNECTED_BASIN_INSET;
+    }
+
     private BlockState updateConnections(BlockState state, BlockGetter level, BlockPos pos) {
         int candidateMask = 0;
-        boolean shiftPlaced = state.getValue(SHIFT_PLACED);
         for (Direction direction : Direction.Plane.HORIZONTAL) {
-            if (isConnectableIrori(level.getBlockState(pos.relative(direction)), shiftPlaced)) {
+            if (isConnectableIrori(level.getBlockState(pos.relative(direction)))) {
                 candidateMask |= directionMask(direction);
             }
         }
@@ -163,28 +439,37 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
         int bestMask = 0;
         int bestSize = 1;
         int bestConnectionCount = 0;
+        ComponentTraversal bestTraversal = new ComponentTraversal(Set.of(pos.immutable()), true);
+
         for (int connectionMask = candidateMask; connectionMask >= 0; connectionMask = (connectionMask - 1) & candidateMask) {
-            ConnectedComponent component = collectConnectedComponent(level, pos, state, connectionMask);
+            ComponentTraversal traversal = traverseConnectedComponent(level, pos, state, connectionMask);
             int connectionCount = Integer.bitCount(connectionMask);
-            if (component.isValid()
-                    && (component.size() > bestSize || component.size() == bestSize && connectionCount > bestConnectionCount)) {
+            int componentSize = traversal.positions().size();
+            if (traversal.valid()
+                    && (componentSize > bestSize || componentSize == bestSize && connectionCount > bestConnectionCount)) {
                 bestMask = connectionMask;
-                bestSize = component.size();
+                bestSize = componentSize;
                 bestConnectionCount = connectionCount;
+                bestTraversal = traversal;
             }
             if (connectionMask == 0) {
                 break;
             }
         }
 
-        return state
-                .setValue(NORTH, (bestMask & directionMask(Direction.NORTH)) != 0)
-                .setValue(EAST, (bestMask & directionMask(Direction.EAST)) != 0)
-                .setValue(SOUTH, (bestMask & directionMask(Direction.SOUTH)) != 0)
-                .setValue(WEST, (bestMask & directionMask(Direction.WEST)) != 0);
+        BlockState newState = applyConnectionMask(state, bestMask);
+        if (level instanceof Level blockLevel && newState != state) {
+            BlockEntity blockEntity = blockLevel.getBlockEntity(pos);
+            if (blockEntity instanceof IroriBlockEntity irori) {
+                irori.dropContentsAndReset();
+            }
+            IroriBlockEntity.reelectMaster(blockLevel, bestTraversal.positions());
+        }
+
+        return newState;
     }
 
-    private ConnectedComponent collectConnectedComponent(
+    private ComponentTraversal traverseConnectedComponent(
             BlockGetter level,
             BlockPos origin,
             BlockState originState,
@@ -203,28 +488,36 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
 
             for (Direction direction : Direction.Plane.HORIZONTAL) {
                 BlockPos nextPos = currentPos.relative(direction).immutable();
-                if (visited.contains(nextPos) || !isConnectableIrori(stateAt(level, origin, originState, nextPos), originState.getValue(SHIFT_PLACED))) {
+                if (visited.contains(nextPos) || !isConnectableIrori(stateAt(level, origin, originState, nextPos))) {
                     continue;
                 }
                 if (hasConnection(origin, currentPos, currentState, direction, originConnectionMask)) {
                     visited.add(nextPos);
                     if (visited.size() > MAX_CONNECTED_BLOCKS || !bounds.include(nextPos)) {
-                        return ConnectedComponent.invalid(visited.size());
+                        return new ComponentTraversal(visited, false);
                     }
                     queue.add(nextPos);
                 }
             }
         }
 
-        return new ConnectedComponent(visited.size(), bounds.isFilledBy(visited.size()));
+        return new ComponentTraversal(visited, bounds.isFilledBy(visited.size()));
+    }
+
+    private BlockState applyConnectionMask(BlockState state, int connectionMask) {
+        return state
+                .setValue(NORTH, (connectionMask & directionMask(Direction.NORTH)) != 0)
+                .setValue(EAST, (connectionMask & directionMask(Direction.EAST)) != 0)
+                .setValue(SOUTH, (connectionMask & directionMask(Direction.SOUTH)) != 0)
+                .setValue(WEST, (connectionMask & directionMask(Direction.WEST)) != 0);
     }
 
     private BlockState stateAt(BlockGetter level, BlockPos origin, BlockState originState, BlockPos pos) {
         return pos.equals(origin) ? originState : level.getBlockState(pos);
     }
 
-    private boolean isConnectableIrori(BlockState state, boolean shiftPlaced) {
-        return state.is(this) && state.getValue(SHIFT_PLACED) == shiftPlaced;
+    private boolean isConnectableIrori(BlockState state) {
+        return state.is(this);
     }
 
     private static boolean hasConnection(
@@ -362,9 +655,6 @@ public class IroriBlock extends Block implements SimpleWaterloggedBlock {
         }
     }
 
-    private record ConnectedComponent(int size, boolean isValid) {
-        private static ConnectedComponent invalid(int size) {
-            return new ConnectedComponent(size, false);
-        }
+    private record ComponentTraversal(Set<BlockPos> positions, boolean valid) {
     }
 }

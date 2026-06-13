@@ -21,6 +21,36 @@ public final class BuiltinLanguageKeys {
             .en_us("Show if cafe chairs are dyeable")
             .zh_cn("显示咖啡椅是否可染色");
 
+    public static final DatagenLangRegistry.TranslationKey JADE_IRORI_BURN_TIME_CONFIG = DatagenLangRegistry
+            .key("config.jade.plugin_shadowsandpetals.jade.irori_burn_time")
+            .en_us("Show irori burn time")
+            .zh_cn("显示围炉燃烧时间");
+
+    public static final DatagenLangRegistry.TranslationKey JADE_IRORI_BURNING = DatagenLangRegistry
+            .key("jade.shadowsandpetals.irori.burning")
+            .en_us("Burning")
+            .zh_cn("燃烧中");
+
+    public static final DatagenLangRegistry.TranslationKey JADE_IRORI_BURNED_OUT = DatagenLangRegistry
+            .key("jade.shadowsandpetals.irori.burned_out")
+            .en_us("Burned out")
+            .zh_cn("已燃尽");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_IRORI_INFO_1 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.irori.info_1")
+            .en_us("A traditional Japanese irori (hearth) that connects with adjacent irori blocks.")
+            .zh_cn("传统的日式围炉，相邻放置可相互连接。");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_IRORI_INFO_2 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.irori.info_2")
+            .en_us("Drop burnable items (wood, etc.) into the center, then use Flint and Steel or a Fire Charge to ignite.")
+            .zh_cn("将可燃物（木头等）丢入中央，再用打火石或火焰弹点燃。");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_IRORI_INFO_3 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.irori.info_3")
+            .en_us("Burns fuel over time. Depleted fuel leaves ash, which can be collected as Bone Meal.")
+            .zh_cn("燃料会随着时间燃烧殆尽，留下的灰烬可被收集为骨粉。");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}

@@ -4,6 +4,7 @@ import com.mojang.math.Quadrant;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public final class BlockModelRegistry {
+    private static final Map<IroriBlockEntity.FirewoodModel, StandaloneModelKey<BlockStateModel>> IRORI_FIREWOOD_MODEL_KEYS = createIroriFirewoodModelKeys();
+    private static final Map<IroriBlockEntity.FirewoodModel, BlockStateModel> IRORI_FIREWOOD_MODELS = new EnumMap<>(IroriBlockEntity.FirewoodModel.class);
     private static final Map<WoodBlockList.WoodType, StandaloneModelKey<BlockStateModel>> VANITY_DRAWER_MODEL_KEYS = createVanityDrawerModelKeys();
     private static final Map<WoodBlockList.WoodType, BlockStateModel> VANITY_DRAWER_MODELS = new EnumMap<>(WoodBlockList.WoodType.class);
     private static final Map<WoodPostChainModelKey, StandaloneModelKey<BlockStateModel>> WOOD_POST_CHAIN_MODEL_KEYS = new HashMap<>();
@@ -34,11 +37,13 @@ public final class BlockModelRegistry {
     }
 
     public static void registerStandaloneModels(ModelEvent.RegisterStandalone event) {
+        registerIroriFirewoodModels(event);
         registerVanityModels(event);
         registerWoodPostConnectionModels(event);
     }
 
     public static void cacheBakedModels(ModelEvent.BakingCompleted event) {
+        cacheIroriFirewoodModels(event);
         cacheVanityModels(event);
         cacheWoodPostConnectionModels(event);
     }
@@ -62,6 +67,17 @@ public final class BlockModelRegistry {
         return Minecraft.getInstance()
                 .getModelManager()
                 .getStandaloneModel(VANITY_DRAWER_MODEL_KEYS.get(woodType));
+    }
+
+    public static @Nullable BlockStateModel getIroriFirewoodModel(IroriBlockEntity.FirewoodModel firewoodModel) {
+        BlockStateModel cachedModel = IRORI_FIREWOOD_MODELS.get(firewoodModel);
+        if (cachedModel != null) {
+            return cachedModel;
+        }
+
+        return Minecraft.getInstance()
+                .getModelManager()
+                .getStandaloneModel(IRORI_FIREWOOD_MODEL_KEYS.get(firewoodModel));
     }
 
     public static @Nullable BlockStateModel getWoodPostConnectionModel(Block block, WoodPostBlock.ConnectionType type, Direction direction) {
@@ -96,6 +112,15 @@ public final class BlockModelRegistry {
             event.register(
                     VANITY_DRAWER_MODEL_KEYS.get(woodType),
                     SimpleUnbakedStandaloneModel.blockStateModel(ShadowsAndPetals.asResource("block/vanity/" + woodType.getName() + "_drawer"))
+            );
+        }
+    }
+
+    private static void registerIroriFirewoodModels(ModelEvent.RegisterStandalone event) {
+        for (IroriBlockEntity.FirewoodModel firewoodModel : IroriBlockEntity.FirewoodModel.values()) {
+            event.register(
+                    IRORI_FIREWOOD_MODEL_KEYS.get(firewoodModel),
+                    SimpleUnbakedStandaloneModel.blockStateModel(ShadowsAndPetals.asResource("block/irori/firewood/" + firewoodModel.modelName()))
             );
         }
     }
@@ -142,6 +167,16 @@ public final class BlockModelRegistry {
         }
     }
 
+    private static void cacheIroriFirewoodModels(ModelEvent.BakingCompleted event) {
+        IRORI_FIREWOOD_MODELS.clear();
+        for (IroriBlockEntity.FirewoodModel firewoodModel : IroriBlockEntity.FirewoodModel.values()) {
+            BlockStateModel model = event.getModelManager().getStandaloneModel(IRORI_FIREWOOD_MODEL_KEYS.get(firewoodModel));
+            if (model != null) {
+                IRORI_FIREWOOD_MODELS.put(firewoodModel, model);
+            }
+        }
+    }
+
     private static void cacheWoodPostConnectionModels(ModelEvent.BakingCompleted event) {
         WOOD_POST_CHAIN_MODELS.clear();
         for (Map.Entry<WoodPostChainModelKey, StandaloneModelKey<BlockStateModel>> entry : WOOD_POST_CHAIN_MODEL_KEYS.entrySet()) {
@@ -165,6 +200,15 @@ public final class BlockModelRegistry {
         for (WoodBlockList.WoodType woodType : WoodBlockList.WoodType.values()) {
             Identifier id = ShadowsAndPetals.asResource("vanity_drawer/" + woodType.getName());
             modelKeys.put(woodType, new StandaloneModelKey<>(id::toString));
+        }
+        return modelKeys;
+    }
+
+    private static Map<IroriBlockEntity.FirewoodModel, StandaloneModelKey<BlockStateModel>> createIroriFirewoodModelKeys() {
+        Map<IroriBlockEntity.FirewoodModel, StandaloneModelKey<BlockStateModel>> modelKeys = new EnumMap<>(IroriBlockEntity.FirewoodModel.class);
+        for (IroriBlockEntity.FirewoodModel firewoodModel : IroriBlockEntity.FirewoodModel.values()) {
+            Identifier id = ShadowsAndPetals.asResource("irori_firewood/" + firewoodModel.modelName());
+            modelKeys.put(firewoodModel, new StandaloneModelKey<>(id::toString));
         }
         return modelKeys;
     }
