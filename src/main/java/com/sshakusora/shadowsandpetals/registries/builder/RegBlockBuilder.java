@@ -52,6 +52,7 @@ public class RegBlockBuilder<B extends Block> {
     private Function<DeferredBlock<B>, Identifier> ctBaseTextureFactory;
     private Function<DeferredBlock<B>, Identifier> ctConnectedTextureFactory;
     private CTTextureType ctTextureType;
+    private int ctPadding;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
@@ -187,13 +188,14 @@ public class RegBlockBuilder<B extends Block> {
 
     /**
      * Registers connected textures using the default texture names:
-     * {@code block/<id>} and {@code block/<id>_connected}.
+     * {@code block/<id>} and {@code block/<id>_connected_bleed}.
      */
     public RegBlockBuilder<B> connectedTexture(CTTextureType type) {
         return connectedTexture(
                 block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath()),
-                block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath() + "_connected"),
-                type
+                block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath() + "_connected_bleed"),
+                type,
+                1
         );
     }
 
@@ -201,7 +203,14 @@ public class RegBlockBuilder<B extends Block> {
      * Registers connected textures with fixed texture ids.
      */
     public RegBlockBuilder<B> connectedTexture(Identifier baseTexture, Identifier connectedTexture, CTTextureType type) {
-        return connectedTexture(block -> baseTexture, block -> connectedTexture, type);
+        return connectedTexture(block -> baseTexture, block -> connectedTexture, type, 0);
+    }
+
+    /**
+     * Registers connected textures with fixed texture ids and an inner tile padding.
+     */
+    public RegBlockBuilder<B> connectedTexture(Identifier baseTexture, Identifier connectedTexture, CTTextureType type, int padding) {
+        return connectedTexture(block -> baseTexture, block -> connectedTexture, type, padding);
     }
 
     /**
@@ -212,9 +221,22 @@ public class RegBlockBuilder<B extends Block> {
             Function<DeferredBlock<B>, Identifier> connectedTextureFactory,
             CTTextureType type
     ) {
+        return connectedTexture(baseTextureFactory, connectedTextureFactory, type, 0);
+    }
+
+    /**
+     * Registers connected textures with texture ids derived from the registered block and an inner tile padding.
+     */
+    public RegBlockBuilder<B> connectedTexture(
+            Function<DeferredBlock<B>, Identifier> baseTextureFactory,
+            Function<DeferredBlock<B>, Identifier> connectedTextureFactory,
+            CTTextureType type,
+            int padding
+    ) {
         this.ctBaseTextureFactory = Objects.requireNonNull(baseTextureFactory, "baseTextureFactory");
         this.ctConnectedTextureFactory = Objects.requireNonNull(connectedTextureFactory, "connectedTextureFactory");
         this.ctTextureType = Objects.requireNonNull(type, "type");
+        this.ctPadding = Math.max(0, padding);
         return this;
     }
 
@@ -385,7 +407,8 @@ public class RegBlockBuilder<B extends Block> {
                 block.getId(),
                 ctBaseTextureFactory.apply(typedBlock),
                 ctConnectedTextureFactory.apply(typedBlock),
-                ctTextureType);
+                ctTextureType,
+                ctPadding);
     }
 
     private void registerStateAliases(DeferredBlock<B> targetBlock) {

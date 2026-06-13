@@ -26,6 +26,7 @@ public class ModDataGenerator {
         generator.addProvider(true, new ModWoodModelProvider(output));
         generator.addProvider(true, new ModItemModelProvider(output));
         generator.addProvider(true, new ModClientItemProvider(output));
+        generator.addProvider(true, new ModConnectedTextureBleedProvider(output));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.DEFAULT_LOCALE));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.ZH_CN));
         generator.addProvider(true, new ModRecipeProvider.Runner(output, lookupProvider));

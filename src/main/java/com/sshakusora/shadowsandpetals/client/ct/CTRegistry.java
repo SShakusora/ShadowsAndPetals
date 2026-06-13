@@ -27,7 +27,12 @@ public final class CTRegistry {
      */
     public static void register(Identifier blockId, Identifier baseTexture,
                                  Identifier connectedTexture, CTTextureType type) {
-        ENTRIES.put(blockId, new CTEntry(baseTexture, connectedTexture, type));
+        register(blockId, baseTexture, connectedTexture, type, 0);
+    }
+
+    public static void register(Identifier blockId, Identifier baseTexture,
+                                 Identifier connectedTexture, CTTextureType type, int padding) {
+        ENTRIES.put(blockId, new CTEntry(baseTexture, connectedTexture, type, padding));
     }
 
     public static Map<Identifier, CTEntry> entries() {
@@ -37,5 +42,5 @@ public final class CTRegistry {
     /**
      * Holds the texture pair and CT type for a single block.
      */
-    public record CTEntry(Identifier baseTexture, Identifier connectedTexture, CTTextureType type) {}
+    public record CTEntry(Identifier baseTexture, Identifier connectedTexture, CTTextureType type, int padding) {}
 }

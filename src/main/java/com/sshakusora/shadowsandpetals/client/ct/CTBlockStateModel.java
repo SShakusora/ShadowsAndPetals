@@ -36,6 +36,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     private final Identifier baseTextureId;
     private final Identifier connectedTextureId;
     private final CTTextureType type;
+    private final int padding;
 
     // Lazy-resolved sprites and pre-computed UV deltas
     private volatile Sprites sprites;
@@ -45,6 +46,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         this.baseTextureId = entry.baseTexture();
         this.connectedTextureId = entry.connectedTexture();
         this.type = entry.type();
+        this.padding = entry.padding();
     }
 
     @Override
@@ -71,7 +73,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         delegate.collectParts(level, pos, state, random, delegateParts);
 
         for (BlockStateModelPart part : delegateParts) {
-            parts.add(new CTPart(part, ctIndices, sp, type.getSheetSize()));
+            parts.add(new CTPart(part, ctIndices, sp, type.getSheetSize(), padding));
         }
     }
 
@@ -175,13 +177,26 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         private final Map<Direction, Integer> ctIndices;
         private final Sprites sp;
         private final int sheetSize;
+        private final float tileUStride;
+        private final float tileVStride;
+        private final float tileUContentSize;
+        private final float tileVContentSize;
+        private final float tileUPadding;
+        private final float tileVPadding;
 
         CTPart(BlockStateModelPart delegate, Map<Direction, Integer> ctIndices,
-               Sprites sp, int sheetSize) {
+               Sprites sp, int sheetSize, int padding) {
             this.delegate = delegate;
             this.ctIndices = ctIndices;
             this.sp = sp;
             this.sheetSize = sheetSize;
+
+            this.tileUStride = sp.connected.contents().width() / (float) sheetSize;
+            this.tileVStride = sp.connected.contents().height() / (float) sheetSize;
+            this.tileUPadding = Math.min(padding, tileUStride / 2.0F);
+            this.tileVPadding = Math.min(padding, tileVStride / 2.0F);
+            this.tileUContentSize = tileUStride - tileUPadding * 2.0F;
+            this.tileVContentSize = tileVStride - tileVPadding * 2.0F;
         }
 
         @Override
@@ -241,12 +256,14 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
 
         private float getTargetU(float atlasU, int tileX) {
             float localU = getUnInterpolatedU(sp.base, atlasU);
-            return sp.connected.getU((tileX + localU) / sheetSize);
+            float pixelU = tileX * tileUStride + tileUPadding + localU * tileUContentSize;
+            return sp.connected.getU(pixelU / sp.connected.contents().width());
         }
 
         private float getTargetV(float atlasV, int tileY) {
             float localV = getUnInterpolatedV(sp.base, atlasV);
-            return sp.connected.getV((tileY + localV) / sheetSize);
+            float pixelV = tileY * tileVStride + tileVPadding + localV * tileVContentSize;
+            return sp.connected.getV(pixelV / sp.connected.contents().height());
         }
 
         private static float getUnInterpolatedU(TextureAtlasSprite sprite, float atlasU) {
@@ -258,7 +275,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         }
 
         private static float clamp01(float value) {
-            return Math.max(0.0F, Math.min(1.0F, value));
+            return Math.clamp(value, 0.0F, 1.0F);
         }
 
         @Override public boolean useAmbientOcclusion() { return delegate.useAmbientOcclusion(); }
