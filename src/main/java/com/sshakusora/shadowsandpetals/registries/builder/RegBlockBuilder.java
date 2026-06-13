@@ -1,6 +1,8 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
+import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.legacy.BlockStateAliasRegistry;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
@@ -47,6 +49,9 @@ public class RegBlockBuilder<B extends Block> {
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
     private BiConsumer<ModItemModelProvider, DeferredBlock<B>> itemModelGenerator;
     private Function<DeferredBlock<B>, Identifier> clientItemModelFactory;
+    private Function<DeferredBlock<B>, Identifier> ctBaseTextureFactory;
+    private Function<DeferredBlock<B>, Identifier> ctConnectedTextureFactory;
+    private CTTextureType ctTextureType;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
@@ -178,6 +183,39 @@ public class RegBlockBuilder<B extends Block> {
      */
     public RegBlockBuilder<B> clientItem(Identifier modelId) {
         return clientItem(block -> modelId);
+    }
+
+    /**
+     * Registers connected textures using the default texture names:
+     * {@code block/<id>} and {@code block/<id>_connected}.
+     */
+    public RegBlockBuilder<B> connectedTexture(CTTextureType type) {
+        return connectedTexture(
+                block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath()),
+                block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath() + "_connected"),
+                type
+        );
+    }
+
+    /**
+     * Registers connected textures with fixed texture ids.
+     */
+    public RegBlockBuilder<B> connectedTexture(Identifier baseTexture, Identifier connectedTexture, CTTextureType type) {
+        return connectedTexture(block -> baseTexture, block -> connectedTexture, type);
+    }
+
+    /**
+     * Registers connected textures with texture ids derived from the registered block.
+     */
+    public RegBlockBuilder<B> connectedTexture(
+            Function<DeferredBlock<B>, Identifier> baseTextureFactory,
+            Function<DeferredBlock<B>, Identifier> connectedTextureFactory,
+            CTTextureType type
+    ) {
+        this.ctBaseTextureFactory = Objects.requireNonNull(baseTextureFactory, "baseTextureFactory");
+        this.ctConnectedTextureFactory = Objects.requireNonNull(connectedTextureFactory, "connectedTextureFactory");
+        this.ctTextureType = Objects.requireNonNull(type, "type");
+        return this;
     }
 
     /**
@@ -321,6 +359,7 @@ public class RegBlockBuilder<B extends Block> {
         applyBlockStateUnchecked(block);
         applyBlockLootUnchecked(block);
         applyRecipeUnchecked(block);
+        applyConnectedTextureUnchecked(block);
     }
 
     private void applyAliases(Identifier targetId) {
@@ -333,6 +372,20 @@ public class RegBlockBuilder<B extends Block> {
         for (TagKey<Block> tag : blockTags) {
             BlockTagRegistry.add(tag, block);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void applyConnectedTextureUnchecked(DeferredBlock<? extends Block> block) {
+        if (ctTextureType == null) {
+            return;
+        }
+
+        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        CTRegistry.register(
+                block.getId(),
+                ctBaseTextureFactory.apply(typedBlock),
+                ctConnectedTextureFactory.apply(typedBlock),
+                ctTextureType);
     }
 
     private void registerStateAliases(DeferredBlock<B> targetBlock) {

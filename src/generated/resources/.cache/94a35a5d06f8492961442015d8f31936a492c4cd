@@ -1,4 +1,4 @@
-// 26.1.2	2026-05-23T00:21:30.7890339	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-06-13T15:54:29.1827325	Tags for minecraft:block mod id shadowsandpetals
 853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
 9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/fences.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/block/fence_gates.json
@@ -7,9 +7,9 @@
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs_that_burn.json
 a4623e0057ae93161d5b7e467c0ab9e95f771bda data/minecraft/tags/block/mineable/axe.json
 f0da7553ee8bfbcd9e2d75ea0135e479db35f366 data/minecraft/tags/block/mineable/hoe.json
-aea0f6929c0c89f8f53c428f6d4d19d86315779f data/minecraft/tags/block/mineable/pickaxe.json
+d5263eabc4c28fab884055746b1f2782876e6976 data/minecraft/tags/block/mineable/pickaxe.json
 40be6ad479a78b3441e5dac20024ea90e4f87fe3 data/minecraft/tags/block/needs_iron_tool.json
-cfa7f03e51232129242d9171073ac20193b2bdfc data/minecraft/tags/block/needs_stone_tool.json
+12be2911e2d67b1765f7da0579500e659eaea68f data/minecraft/tags/block/needs_stone_tool.json
 c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/overworld_natural_logs.json
 81f74f2a790ea645cf8a74625f81a58bf4311da5 data/minecraft/tags/block/planks.json
 21ae918c7f6060df9d0283ddc26fad549e75f5b6 data/minecraft/tags/block/pressure_plates.json

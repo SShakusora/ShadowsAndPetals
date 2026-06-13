@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:stone_bricks",
+    "G": "minecraft:gravel",
+    "L": "#minecraft:logs"
+  },
+  "pattern": [
+    "LLL",
+    "BGB",
+    "BBB"
+  ],
+  "result": {
+    "id": "shadowsandpetals:irori"
+  }
+}

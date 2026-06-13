@@ -75,6 +75,10 @@ public class ModRecipeProvider extends RecipeProvider {
         return super.shapeless(category, item, count);
     }
 
+    public void stonecutter(RecipeCategory category, ItemLike result, int count, ItemLike ingredient) {
+        stonecutterResultFromBase(category, result, ingredient, count);
+    }
+
     public void save(RecipeBuilder builder) {
         builder.save(output());
     }

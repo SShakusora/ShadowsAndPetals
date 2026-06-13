@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.client;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.EntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
@@ -36,6 +37,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
         BlockModelRegistry.wrapBlockStateModels(event);
+        CTModelRegistry.wrapModels(event);
     }
 
     @SubscribeEvent

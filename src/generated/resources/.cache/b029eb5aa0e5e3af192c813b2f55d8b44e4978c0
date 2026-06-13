@@ -1,4 +1,4 @@
-// 26.1.2	2026-05-23T00:21:30.7702166	ShadowsAndPetals Client Items
+// 26.1.2	2026-06-13T15:54:29.1677332	ShadowsAndPetals Client Items
 bc6db7941b67378c651d38d1f0515d00dfa2eac7 assets/shadowsandpetals/items/acacia_vanity.json
 910bb05eedb1766753a871c9802d055e21118b3b assets/shadowsandpetals/items/aluminum_block.json
 109d601484b114df7f7bab4dc1cbbda77b858a38 assets/shadowsandpetals/items/aluminum_ingot.json
@@ -67,6 +67,7 @@ a88333995e6c42331c8edf2439746c5f7e1a8756 assets/shadowsandpetals/items/pink_cafe
 96c4e7225b8c9d946ba36f53e34a5ed95d94fcf5 assets/shadowsandpetals/items/purple_cafe_chair.json
 21ed0d76adf7c17be8034186de2cd75cec40d02d assets/shadowsandpetals/items/raw_bauxite.json
 c2a979026c7b42ee09dba929ab7432af9337ee32 assets/shadowsandpetals/items/raw_bauxite_block.json
+1e1b4fe5fad29431f1dd4ed74a2d0168d7c106b5 assets/shadowsandpetals/items/raw_concrete.json
 89e3cf56223ba040eb2560862b223c46a54c7d9c assets/shadowsandpetals/items/red_cafe_chair.json
 f76059a9f447a921ebbd6027af3ef884c5b88da7 assets/shadowsandpetals/items/sakura_button.json
 6537f852c157bc23712a45223f2c19aa85aad0fd assets/shadowsandpetals/items/sakura_fence.json

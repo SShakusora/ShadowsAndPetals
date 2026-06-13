@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
@@ -12,11 +13,13 @@ import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 public class BlockRegistry {
@@ -100,6 +103,32 @@ public class BlockRegistry {
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
             .lang("zh_cn", "铝块")
+            .register();
+
+    public static final DeferredBlock<Block> RAW_CONCRETE = SAPRegistries
+            .block("raw_concrete")
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.5F, 6.0F)
+                    .sound(SoundType.STONE)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .connectedTexture(CTTextureType.OMNIDIRECTIONAL)
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 8)
+                        .define('P', ItemTags.PLANKS)
+                        .define('C', Tags.Items.CONCRETE_POWDERS)
+                        .pattern("PPP")
+                        .pattern("PCP")
+                        .pattern("PPP")
+                        .unlockedBy("has_concrete_powder", provider.hasTag(Tags.Items.CONCRETE_POWDERS))
+                        .save(provider.output());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, Blocks.WHITE_CONCRETE);
+            })
+            .lang("zh_cn", "清水混凝土")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = SAPRegistries
@@ -193,6 +222,15 @@ public class BlockRegistry {
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, irori) -> provider.iroriBlock(irori.get()))
             .loot((provider, irori) -> provider.dropSelf(irori.get()))
+            .recipe((provider, irori) -> provider.shaped(RecipeCategory.DECORATIONS, irori.get())
+                    .define('L', ItemTags.LOGS)
+                    .define('B', Items.STONE_BRICKS)
+                    .define('G', Items.GRAVEL)
+                    .pattern("LLL")
+                    .pattern("BGB")
+                    .pattern("BBB")
+                    .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
+                    .save(provider.output()))
             .lang("zh_cn", "日式围炉")
             .register();
 
