@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -279,7 +280,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         }
 
         @Override public boolean useAmbientOcclusion() { return delegate.useAmbientOcclusion(); }
-        @Override public net.minecraft.client.resources.model.sprite.Material.Baked particleMaterial() { return delegate.particleMaterial(); }
+        @Override public Material.Baked particleMaterial() { return delegate.particleMaterial(); }
         @Override public int materialFlags() { return delegate.materialFlags(); }
     }
 

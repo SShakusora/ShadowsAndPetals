@@ -234,6 +234,68 @@ public class BlockRegistry {
             .lang("zh_cn", "日式围炉")
             .register();
 
+    public static final DeferredBlock<BedroomLampBlock> BEDROOM_LAMP = SAPRegistries
+            .block("bedroom_lamp", BedroomLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(BedroomLampBlock.LIT) ? 15 : 0))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, lamp) -> provider.bedroomLampBlock(lamp.get()))
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .clientItem(ShadowsAndPetals.asResource("block/bedroom_lamp/off"))
+            .lang("zh_cn", "卧室台灯")
+            .register();
+
+    public static final DeferredBlock<WallLampBlock> WALL_LAMP = SAPRegistries
+            .block("wall_lamp", WallLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(WallLampBlock.LIT) ? 15 : 0))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, lamp) -> provider.wallLampBlock(lamp.get()))
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .clientItem(ShadowsAndPetals.asResource("block/wall_lamp/off"))
+            .lang("zh_cn", "壁灯")
+            .register();
+
+    public static final DeferredBlock<EmergencyLampBlock> EMERGENCY_LAMP = SAPRegistries
+            .block("emergency_lamp", EmergencyLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(EmergencyLampBlock.LIT) ? 15 : 0))
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, lamp) -> provider.emergencyLampBlock(lamp.get()))
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .clientItem(ShadowsAndPetals.asResource("block/emergency_lamp/off"))
+            .lang("zh_cn", "防爆灯")
+            .register();
+
+    public static final DeferredBlock<DeskLampBlock> DESK_LAMP = SAPRegistries
+            .block("desk_lamp", DeskLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(DeskLampBlock.LIT) ? 15 : 0))
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, lamp) -> provider.deskLampBlock(lamp.get()))
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
+            .lang("zh_cn", "台灯")
+            .register();
+
     public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_vanity", VanityBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())

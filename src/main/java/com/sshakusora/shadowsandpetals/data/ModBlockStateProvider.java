@@ -251,6 +251,83 @@ public class ModBlockStateProvider implements DataProvider {
         this.models.put(itemModelId(block), BlockModelTemplates.parentModel(basePath));
     }
 
+    public void bedroomLampBlock(BedroomLampBlock block) {
+        Identifier onModel = modLoc("block/bedroom_lamp/on");
+        Identifier offModel = modLoc("block/bedroom_lamp/off");
+
+        JsonObject variants = new JsonObject();
+        variants.add(BedroomLampBlock.LIT.getName() + "=true", modelRef(onModel));
+        variants.add(BedroomLampBlock.LIT.getName() + "=false", modelRef(offModel));
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
+    public void wallLampBlock(WallLampBlock block) {
+        Identifier onModel = modLoc("block/wall_lamp/on");
+        Identifier offModel = modLoc("block/wall_lamp/off");
+
+        JsonObject variants = new JsonObject();
+        for (Direction dir : Direction.Plane.HORIZONTAL) {
+            int y = switch (dir) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, 0, y));
+            variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, 0, y));
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
+    public void emergencyLampBlock(EmergencyLampBlock block) {
+        Identifier onModel = modLoc("block/emergency_lamp/on");
+        Identifier offModel = modLoc("block/emergency_lamp/off");
+
+        JsonObject variants = new JsonObject();
+        for (Direction dir : Direction.values()) {
+            int x = dir == Direction.UP ? 0 : dir == Direction.DOWN ? 180 : 90;
+            int y = switch (dir) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, x, y));
+            variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, x, y));
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
+    public void deskLampBlock(DeskLampBlock block) {
+        Identifier onModel = modLoc("block/desk_lamp/on");
+        Identifier offModel = modLoc("block/desk_lamp/off");
+
+        JsonObject variants = new JsonObject();
+        for (Direction dir : Direction.Plane.HORIZONTAL) {
+            int y = switch (dir) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, 0, y));
+            variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, 0, y));
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
     private String name(Block block) {
         return id(block).getPath();
     }

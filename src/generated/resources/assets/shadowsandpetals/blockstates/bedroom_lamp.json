@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "shadowsandpetals:block/bedroom_lamp/off"
+    },
+    "lit=true": {
+      "model": "shadowsandpetals:block/bedroom_lamp/on"
+    }
+  }
+}
