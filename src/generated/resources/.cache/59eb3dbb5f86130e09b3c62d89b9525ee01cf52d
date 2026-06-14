@@ -1,4 +1,4 @@
-// 26.1.2	2026-06-14T01:50:19.3479758	Loot Tables
+// 26.1.2	2026-06-15T01:35:19.0922235	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
 0a94a9b2c72f29e1ba09ce05465f8da88aa3d07b data/shadowsandpetals/loot_table/blocks/aluminum_ingot_pile.json
@@ -70,6 +70,11 @@ d2b8602dec8ce101c04818afb1b1c87182025c04 data/shadowsandpetals/loot_table/blocks
 01494cfa536419b741107ccec926a05d7ee099dc data/shadowsandpetals/loot_table/blocks/raw_bauxite_block.json
 99e7f3ed7f40e0ed19891bec5048d7f9feb7e417 data/shadowsandpetals/loot_table/blocks/raw_concrete.json
 c53958c300e2d20dc52cc427b82989f194c08f66 data/shadowsandpetals/loot_table/blocks/red_cafe_chair.json
+0bdc605256d4ed6e5ab8ef2e13843ece4409a941 data/shadowsandpetals/loot_table/blocks/rockery_1_1_1.json
+a5e0c742347927df99151d026e960ed0b9f6324b data/shadowsandpetals/loot_table/blocks/rockery_1_1_2.json
+eb9252e56b193aeac4ce3f8e6ef28a89b1123aa6 data/shadowsandpetals/loot_table/blocks/rockery_1_2_1.json
+3704795e8296c1449d1bf7fccd4bc6c8929143f6 data/shadowsandpetals/loot_table/blocks/rockery_1_2_2.json
+d1a2bb259124919799f107a1b972877efe74b960 data/shadowsandpetals/loot_table/blocks/rockery_1_3_1.json
 d51ed5e49e7853a6b24d886f195766ce860ef82c data/shadowsandpetals/loot_table/blocks/sakura_button.json
 405fdfede382e2adde2c9a814474c7b6b5815511 data/shadowsandpetals/loot_table/blocks/sakura_fence.json
 8e0b37d9a5c474a364189bcce29d2fce8f7f8cc7 data/shadowsandpetals/loot_table/blocks/sakura_fence_gate.json

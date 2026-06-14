@@ -2,9 +2,11 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
+import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
@@ -397,6 +399,32 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(WoolUtils.getWool(color)), provider.hasItem(WoolUtils.getWool(color)))
                     .save(provider.output()))
             .register());
+
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x1 = registerRockery(1, 1, 1);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x2 = registerRockery(1, 1, 2);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x2x1 = registerRockery(1, 2, 1);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x2x2 = registerRockery(1, 2, 2);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x3x1 = registerRockery(1, 3, 1);
+
+    private static DeferredBlock<RockeryBlock> registerRockery(int w, int h, int d) {
+        RockeryDimensions dims = new RockeryDimensions(w, h, d);
+        return SAPRegistries
+                .block("rockery_" + w + "_" + h + "_" + d,
+                        props -> new RockeryBlock(dims, props))
+                .properties(p -> BlockBehaviour.Properties.of()
+                        .strength(1.5F, 6.0F)
+                        .sound(SoundType.STONE)
+                        .noOcclusion()
+                        .requiresCorrectToolForDrops())
+                .withItem()
+                .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+                .blockstate((provider, block) -> provider.rockeryBlock(block.get(), dims))
+                .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))
+                .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+                .lang("en_us", "rockery")
+                .lang("zh_cn", "假山")
+                .register();
+    }
 
     public static void init() {}
 }

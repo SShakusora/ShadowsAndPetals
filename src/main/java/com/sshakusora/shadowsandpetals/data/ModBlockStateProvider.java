@@ -2,9 +2,12 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelTemplates;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -321,6 +324,27 @@ public class ModBlockStateProvider implements DataProvider {
             };
             variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, 0, y));
             variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, 0, y));
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
+    public void rockeryBlock(RockeryBlock block, RockeryDimensions dims) {
+        JsonObject variants = new JsonObject();
+        for (int part = 0; part <= RockeryBlock.PART.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0); part++) {
+            Vec3i pos = dims.localPos(part < dims.partCount() ? part : 0);
+            Identifier modelId = modLoc(dims.modelDir()
+                    + "/" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ());
+            for (Direction facing : Direction.Plane.HORIZONTAL) {
+                int yRot = (int) facing.toYRot();
+                variants.add(
+                        RockeryBlock.FACING.getName() + "=" + facing.getSerializedName()
+                                + "," + RockeryBlock.PART.getName() + "=" + part,
+                        rotatedModel(modelId, 0, yRot)
+                );
+            }
         }
 
         JsonObject root = new JsonObject();

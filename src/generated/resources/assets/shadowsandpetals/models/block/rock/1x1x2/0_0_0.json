@@ -1,0 +1,356 @@
+{
+  "credit": "Made with Blockbench",
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            3.125,
+            1.3125,
+            1.625,
+            3
+          ]
+        },
+        "east": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            7.3125,
+            4.125,
+            9,
+            4.625
+          ]
+        },
+        "north": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            0,
+            6.875,
+            1.5,
+            7.375
+          ]
+        },
+        "up": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            1.5,
+            3,
+            0,
+            1.3125
+          ]
+        },
+        "west": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6,
+            4.75,
+            7.6875,
+            5.25
+          ]
+        }
+      },
+      "from": [
+        3,
+        0,
+        2.5
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          7,
+          0,
+          1.5
+        ]
+      },
+      "to": [
+        15,
+        4,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.125,
+            1.4375,
+            4.75,
+            2.5
+          ]
+        },
+        "east": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            7.4375,
+            2.625,
+            8.5,
+            3.25
+          ]
+        },
+        "north": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.75,
+            5.875,
+            8.125,
+            6.5
+          ]
+        },
+        "up": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            5.875,
+            5.5,
+            4.5,
+            4.4375
+          ]
+        },
+        "west": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6,
+            3.375,
+            7.0625,
+            4
+          ]
+        }
+      },
+      "from": [
+        4.5,
+        2.5,
+        7.5
+      ],
+      "rotation": {
+        "origin": [
+          14.5,
+          2.5,
+          8.5
+        ],
+        "x": 2.5,
+        "y": 0,
+        "z": -2.5
+      },
+      "to": [
+        15.5,
+        7.5,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.625,
+            6.1875,
+            5.625,
+            8
+          ]
+        },
+        "east": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.8125,
+            0.625,
+            8.625,
+            1.125
+          ]
+        },
+        "north": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            3.125,
+            6.125,
+            4.125,
+            6.625
+          ]
+        },
+        "up": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            5.5,
+            8,
+            4.5,
+            6.1875
+          ]
+        },
+        "west": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.25,
+            1.25,
+            8.0625,
+            1.75
+          ]
+        }
+      },
+      "from": [
+        1.75,
+        1.75,
+        1.5
+      ],
+      "rotation": {
+        "origin": [
+          1.75,
+          2.75,
+          5.5
+        ],
+        "x": -2.5,
+        "y": 0,
+        "z": 2.5
+      },
+      "to": [
+        9.75,
+        5.75,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            2.875,
+            4.8125,
+            1.5,
+            6.125
+          ]
+        },
+        "east": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            1.6875,
+            6.25,
+            3,
+            6.75
+          ]
+        },
+        "north": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.75,
+            7.375,
+            8.125,
+            7.875
+          ]
+        },
+        "up": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            1.375,
+            6.125,
+            0,
+            4.8125
+          ]
+        },
+        "west": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.25,
+            0,
+            7.5625,
+            0.5
+          ]
+        }
+      },
+      "from": [
+        2.75,
+        0.9,
+        5.5
+      ],
+      "rotation": {
+        "angle": -2.5,
+        "axis": "x",
+        "origin": [
+          14.75,
+          -0.1,
+          1.5
+        ]
+      },
+      "to": [
+        13.75,
+        4.9,
+        16
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            4.625,
+            1.5,
+            3.25,
+            2.875
+          ]
+        },
+        "east": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            7.75,
+            1.875,
+            9.125,
+            2.25
+          ]
+        },
+        "north": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            1.5,
+            7.5,
+            2.875,
+            7.875
+          ]
+        },
+        "up": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            4.375,
+            6,
+            3,
+            4.625
+          ]
+        },
+        "west": {
+          "texture": "#rockery1x1x2",
+          "uv": [
+            6.75,
+            5.375,
+            8.125,
+            5.75
+          ]
+        }
+      },
+      "from": [
+        0.5,
+        0.75,
+        5
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          15.5,
+          0.75,
+          3
+        ]
+      },
+      "to": [
+        11.5,
+        3.75,
+        16
+      ]
+    }
+  ],
+  "format_version": "1.21.11",
+  "texture_size": [
+    128,
+    128
+  ],
+  "textures": {
+    "particle": "minecraft:block/stone",
+    "rockery1x1x2": "shadowsandpetals:block/rock/1_1_2"
+  }
+}

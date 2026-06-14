@@ -2,6 +2,7 @@
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
+		"particle": "#1",
 		"1": "shadowsandpetals:block/irori/firewood/lit_3_2_7",
 		"3": "shadowsandpetals:block/irori/firewood/lit_3_2_8",
 		"4": "shadowsandpetals:block/irori/firewood/lit_3_2_9"

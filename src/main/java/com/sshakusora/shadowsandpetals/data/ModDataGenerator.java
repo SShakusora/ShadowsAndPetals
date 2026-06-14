@@ -23,6 +23,7 @@ public class ModDataGenerator {
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
         generator.addProvider(true, new ModBlockStateProvider(output));
+        generator.addProvider(true, new ModRockeryModelProvider(output));
         generator.addProvider(true, new ModWoodModelProvider(output));
         generator.addProvider(true, new ModItemModelProvider(output));
         generator.addProvider(true, new ModClientItemProvider(output));

@@ -1,8 +1,10 @@
 package com.sshakusora.shadowsandpetals.registries;
 
+import com.sshakusora.shadowsandpetals.item.HammerItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -25,6 +27,34 @@ public class ItemRegistry {
                         .save(provider.output(), provider.id("aluminum_ingot_from_blasting").toString());
             })
             .lang("zh_cn", "铝锭")
+            .creativeTab(CreativeTabType.MAIN)
+            .register();
+
+    public static final DeferredItem<Item> CHISEL = SAPRegistries.item("chisel")
+            .recipe((provider, item) -> {
+                provider.shaped(RecipeCategory.TOOLS, item.get())
+                        .define('A', ALUMINUM_INGOT.get())
+                        .pattern("A")
+                        .pattern("A")
+                        .unlockedBy(provider.hasName(ALUMINUM_INGOT.get()), provider.hasItem(ALUMINUM_INGOT.get()))
+                        .save(provider.output());
+            })
+            .lang("zh_cn", "凿子")
+            .creativeTab(CreativeTabType.MAIN)
+            .register();
+
+    public static final DeferredItem<HammerItem> HAMMER = SAPRegistries.item("hammer", HammerItem::new)
+            .recipe((provider, item) -> {
+                provider.shaped(RecipeCategory.TOOLS, item.get())
+                        .define('A', ALUMINUM_INGOT.get())
+                        .define('S', Items.STICK)
+                        .pattern("AAA")
+                        .pattern("ASA")
+                        .pattern(" S ")
+                        .unlockedBy(provider.hasName(ALUMINUM_INGOT.get()), provider.hasItem(ALUMINUM_INGOT.get()))
+                        .save(provider.output());
+            })
+            .lang("zh_cn", "锤子")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 

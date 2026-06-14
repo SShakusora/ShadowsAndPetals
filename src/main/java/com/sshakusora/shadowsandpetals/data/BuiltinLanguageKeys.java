@@ -51,6 +51,16 @@ public final class BuiltinLanguageKeys {
             .en_us("Burns fuel over time. Depleted fuel leaves ash, which can be collected as Bone Meal.")
             .zh_cn("燃料会随着时间燃烧殆尽，留下的灰烬可被收集为骨粉。");
 
+    public static final DatagenLangRegistry.TranslationKey JEI_CHISEL_INFO_1 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.chisel.info_1")
+            .en_us("Place in your off-hand, then right-click Stone with a Hammer to carve rockeries.")
+            .zh_cn("放置在副手，用锤子右击石头可雕刻出假山。");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_HAMMER_INFO_1 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.hammer.info_1")
+            .en_us("Right-click Stone while holding a Chisel in your off-hand to carve rockery blocks.")
+            .zh_cn("副手持凿子时，右击石头可雕刻出假山。");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}
