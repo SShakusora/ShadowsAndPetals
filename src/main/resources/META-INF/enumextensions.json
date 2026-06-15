@@ -1,0 +1,13 @@
+{
+    "entries": [
+        {
+            "enum": "net/minecraft/client/model/HumanoidModel$ArmPose",
+            "name": "SHADOWSANDPETALS_HAMMER_AND_CHISEL",
+            "constructor": "(ZZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
+            "parameters": {
+                "class": "com/sshakusora/shadowsandpetals/client/HammerArmPoseEnumExtensions",
+                "field": "SHADOWSANDPETALS_HAMMER_AND_CHISEL"
+            }
+        }
+    ]
+}

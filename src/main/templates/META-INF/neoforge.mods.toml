@@ -16,6 +16,8 @@ license = "${mod_license}"
 [[mods]] #mandatory
 # The modid of the mod
 modId = "${mod_id}" #mandatory
+# Extensible enum entries used by client-side animation hooks.
+enumExtensions = "META-INF/enumextensions.json"
 # The version number of the mod
 version = "${mod_version}" #mandatory
 # A display name for the mod

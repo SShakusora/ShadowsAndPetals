@@ -9,6 +9,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
+import com.sshakusora.shadowsandpetals.item.HammerItem;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -408,7 +409,7 @@ public class BlockRegistry {
 
     private static DeferredBlock<RockeryBlock> registerRockery(int w, int h, int d) {
         RockeryDimensions dims = new RockeryDimensions(w, h, d);
-        return SAPRegistries
+        DeferredBlock<RockeryBlock> result = SAPRegistries
                 .block("rockery_" + w + "_" + h + "_" + d,
                         props -> new RockeryBlock(dims, props))
                 .properties(p -> BlockBehaviour.Properties.of()
@@ -422,8 +423,11 @@ public class BlockRegistry {
                 .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))
                 .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
                 .lang("en_us", "rockery")
-                .lang("zh_cn", "假山")
+                .lang("zh_cn", "石山")
                 .register();
+
+        HammerItem.registerRockery(result, dims);
+        return result;
     }
 
     public static void init() {}

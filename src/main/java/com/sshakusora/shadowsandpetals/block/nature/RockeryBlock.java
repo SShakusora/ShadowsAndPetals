@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.ExtraCodecs;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -115,8 +116,6 @@ public class RockeryBlock extends Block {
         }
     }
 
-    // ---- Breaking ----
-
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide()) {
@@ -142,13 +141,11 @@ public class RockeryBlock extends Block {
         return state.getValue(PART) == 0 ? List.of(new ItemStack(Blocks.STONE, dimensions.partCount())) : List.of();
     }
 
-    // ---- Neighbor updates ----
-
     @Override
     protected BlockState updateShape(
             BlockState state, LevelReader level, ScheduledTickAccess ticks,
             BlockPos pos, Direction direction, BlockPos neighborPos,
-            BlockState neighborState, net.minecraft.util.RandomSource random) {
+            BlockState neighborState, RandomSource random) {
 
         int part = state.getValue(PART);
         Direction facing = state.getValue(FACING);
@@ -179,8 +176,6 @@ public class RockeryBlock extends Block {
         return level.getBlockState(root).is(this);
     }
 
-    // ---- Shape ----
-
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         return shapeFor(state);
@@ -191,14 +186,10 @@ public class RockeryBlock extends Block {
         return shapeFor(state);
     }
 
-    // ---- BlockState definition ----
-
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, PART);
     }
-
-    // ---- Rotation ----
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
@@ -209,8 +200,6 @@ public class RockeryBlock extends Block {
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
-
-    // ---- Helpers ----
 
     private BlockPos partWorldPos(BlockPos root, int part, Direction facing) {
         Vec3i offset = dimensions.worldOffset(part, facing);
