@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.item.HammerItem;
+import com.sshakusora.shadowsandpetals.item.HarrowItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.item.Item;
@@ -55,6 +56,20 @@ public class ItemRegistry {
                         .save(provider.output());
             })
             .lang("zh_cn", "锤子")
+            .creativeTab(CreativeTabType.MAIN)
+            .register();
+
+    public static final DeferredItem<HarrowItem> HARROW = SAPRegistries.item("harrow", HarrowItem::new)
+            .recipe((provider, item) -> {
+                provider.shaped(RecipeCategory.TOOLS, item.get())
+                        .define('B', Items.BAMBOO)
+                        .pattern("BBB")
+                        .pattern(" B ")
+                        .pattern(" B ")
+                        .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
+                        .save(provider.output());
+            })
+            .lang("zh_cn", "耙子")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 

@@ -331,6 +331,29 @@ public class ModBlockStateProvider implements DataProvider {
         this.blockStates.put(id(block), root);
     }
 
+    public void samonBlock(SamonBlock block) {
+        Identifier straightModel = modLoc("block/samon/straight");
+        Identifier cornerModel = modLoc("block/samon/corner");
+
+        JsonObject variants = new JsonObject();
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            int y = (int) facing.toYRot();
+            for (boolean corner : new boolean[]{false, true}) {
+                Identifier model = corner ? cornerModel : straightModel;
+                variants.add(
+                        SamonBlock.FACING.getName() + "=" + facing.getSerializedName()
+                                + "," + SamonBlock.CORNER.getName() + "=" + corner,
+                        rotatedModel(model, 0, y)
+                );
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(straightModel));
+    }
+
     public void rockeryBlock(RockeryBlock block, RockeryDimensions dims) {
         JsonObject variants = new JsonObject();
         for (int part = 0; part <= RockeryBlock.PART.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0); part++) {

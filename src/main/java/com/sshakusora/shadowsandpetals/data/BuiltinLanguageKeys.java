@@ -54,12 +54,22 @@ public final class BuiltinLanguageKeys {
     public static final DatagenLangRegistry.TranslationKey JEI_CHISEL_INFO_1 = DatagenLangRegistry
             .key("jei.shadowsandpetals.chisel.info_1")
             .en_us("Place in your off-hand, then right-click Stone with a Hammer to carve rockeries.")
-            .zh_cn("放置在副手，用锤子右击石头可雕刻出假山。");
+            .zh_cn("放置在副手，用锤子右击石头可雕刻出石山。");
 
     public static final DatagenLangRegistry.TranslationKey JEI_HAMMER_INFO_1 = DatagenLangRegistry
             .key("jei.shadowsandpetals.hammer.info_1")
             .en_us("Right-click Stone while holding a Chisel in your off-hand to carve rockery blocks.")
-            .zh_cn("副手持凿子时，右击石头可雕刻出假山。");
+            .zh_cn("副手持凿子时，右击石头可雕刻出石山。");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_HARROW_INFO_1 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.harrow.info_1")
+            .en_us("Right-click Gravel to turn it into a Samon block.")
+            .zh_cn("右击沙砾可将其转化为砂纹方块。");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_HARROW_INFO_2 = DatagenLangRegistry
+            .key("jei.shadowsandpetals.harrow.info_2")
+            .en_us("Right-click the top of a Samon block to cycle through its connection patterns.")
+            .zh_cn("右击砂纹方块顶部可切换连接样式。");
 
     private BuiltinLanguageKeys() {}
 

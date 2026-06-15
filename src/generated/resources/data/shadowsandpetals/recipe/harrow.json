@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "B": "minecraft:bamboo"
+  },
+  "pattern": [
+    "BBB",
+    " B ",
+    " B "
+  ],
+  "result": {
+    "id": "shadowsandpetals:harrow"
+  }
+}

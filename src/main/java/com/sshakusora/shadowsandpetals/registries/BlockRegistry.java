@@ -401,6 +401,18 @@ public class BlockRegistry {
                     .save(provider.output()))
             .register());
 
+    public static final DeferredBlock<SamonBlock> SAMON = SAPRegistries
+            .block("samon", SamonBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(0.7F)
+                    .sound(SoundType.STONE))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .blockstate((provider, block) -> provider.samonBlock(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang("zh_cn", "砂纹")
+            .register();
+
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x1 = registerRockery(1, 1, 1);
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x2 = registerRockery(1, 1, 2);
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x2x1 = registerRockery(1, 2, 1);

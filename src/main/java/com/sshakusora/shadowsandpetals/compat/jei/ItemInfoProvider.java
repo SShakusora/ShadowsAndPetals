@@ -37,5 +37,11 @@ public final class ItemInfoProvider implements IModPlugin {
                 ItemRegistry.HAMMER.get(),
                 Component.translatable(BuiltinLanguageKeys.JEI_HAMMER_INFO_1.key())
         );
+
+        registration.addIngredientInfo(
+                ItemRegistry.HARROW.get(),
+                Component.translatable(BuiltinLanguageKeys.JEI_HARROW_INFO_1.key()),
+                Component.translatable(BuiltinLanguageKeys.JEI_HARROW_INFO_2.key())
+        );
     }
 }

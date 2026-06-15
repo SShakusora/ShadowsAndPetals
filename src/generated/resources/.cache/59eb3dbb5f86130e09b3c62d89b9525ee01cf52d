@@ -1,4 +1,4 @@
-// 26.1.2	2026-06-15T01:35:19.0922235	Loot Tables
+// 26.1.2	2026-06-15T11:57:10.78755	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
 0a94a9b2c72f29e1ba09ce05465f8da88aa3d07b data/shadowsandpetals/loot_table/blocks/aluminum_ingot_pile.json
@@ -90,6 +90,7 @@ c683db5f632ffa4c27f4b77a4fb704e65de14210 data/shadowsandpetals/loot_table/blocks
 671c9bbbd2e3a28e795bf0e439458c15f0650722 data/shadowsandpetals/loot_table/blocks/sakura_vanity.json
 5ec56252bb1bf47d40f3890c76d870e980820136 data/shadowsandpetals/loot_table/blocks/sakura_wood.json
 fc762bc05db556105bb50e1501017691d1c17f08 data/shadowsandpetals/loot_table/blocks/sakura_wood_post.json
+5230b8f93d32c14eadd961481d04676fa2a831bc data/shadowsandpetals/loot_table/blocks/samon.json
 a759304f74bb020245542c6f5d2341b191ba2d5f data/shadowsandpetals/loot_table/blocks/spruce_vanity.json
 d970037fb5dd1a9063ad434805b09875157d6d82 data/shadowsandpetals/loot_table/blocks/stripped_ginkgo_log.json
 cb0a99c4edff0261b818f602bc64655c23b8c957 data/shadowsandpetals/loot_table/blocks/stripped_ginkgo_post.json

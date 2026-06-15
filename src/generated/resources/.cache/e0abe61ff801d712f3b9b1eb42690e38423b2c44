@@ -1,4 +1,4 @@
-// 26.1.2	2026-06-14T18:12:03.5785387	ShadowsAndPetals Recipes
+// 26.1.2	2026-06-15T12:40:39.7474603	ShadowsAndPetals Recipes
 0416dcb8e193030bbca062d54129579763bdf3b6 data/minecraft/advancement/recipes/building_blocks/raw_concrete_from_white_concrete_stonecutting.json
 b99f6c6f4ec39241571a2eae6bfcb12c1b340534 data/minecraft/recipe/raw_concrete_from_white_concrete_stonecutting.json
 720297f69222f8456cfb320422cea0870a52a00d data/shadowsandpetals/advancement/recipes/building_blocks/aluminum_block.json
@@ -98,6 +98,7 @@ c3119bbb4e214468377e1cfa0c094aae32aee902 data/shadowsandpetals/advancement/recip
 dccbfcef14eb2685315bf1ac2eb5a04cea7c9180 data/shadowsandpetals/advancement/recipes/redstone/sakura_pressure_plate.json
 2bdb5eb44e9b652c0299870ee77b8da43c1cbc98 data/shadowsandpetals/advancement/recipes/tools/chisel.json
 dfb92c7a99c97cee9dd777ccbd7348fc7285540e data/shadowsandpetals/advancement/recipes/tools/hammer.json
+51513dd9ee05ef34cae7b3a7d235f33a9f66642b data/shadowsandpetals/advancement/recipes/tools/harrow.json
 02ee3c8980a02336fbdbe92434fe0d4b87e02c98 data/shadowsandpetals/recipe/acacia_vanity.json
 8472339d37ea877ed5f4b75cf5eef1ae09ca3919 data/shadowsandpetals/recipe/aluminum_block.json
 2694e97844bb5ccadb1de6fff31f922c41537b49 data/shadowsandpetals/recipe/aluminum_ingot_from_blasting.json
@@ -136,6 +137,7 @@ fcd7e5263e83fc12b7073b9f446d38237e8aa1c2 data/shadowsandpetals/recipe/gold_ingot
 c401397d788b502f9243e3502fe66eae66fd593e data/shadowsandpetals/recipe/gray_cafe_chair.json
 97ae046995ba8c4ef0f05b0baf2439238a934d05 data/shadowsandpetals/recipe/green_cafe_chair.json
 eb471fa1c36d31a118786cf6804716c16fbd6f69 data/shadowsandpetals/recipe/hammer.json
+2dd47fa634510246cf6a8f494941a92cc830136f data/shadowsandpetals/recipe/harrow.json
 c8ceecdcadfde7d9970a09d101e24a24b44ca6f0 data/shadowsandpetals/recipe/iron_ingot_from_pile.json
 ad83dec0d4ae7c1d904ff62588bffd7a2a2ea6a8 data/shadowsandpetals/recipe/iron_ingot_pile.json
 e060644d1bbeb4fe1f5a9f0a3f1c08ed573742c1 data/shadowsandpetals/recipe/irori.json

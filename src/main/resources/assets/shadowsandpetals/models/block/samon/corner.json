@@ -1,0 +1,13 @@
+﻿{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "shadowsandpetals:block/samon/side",
+    "down": "shadowsandpetals:block/samon/side",
+    "up": "shadowsandpetals:block/samon/corner",
+    "north": "shadowsandpetals:block/samon/side",
+    "south": "shadowsandpetals:block/samon/side",
+    "west": "shadowsandpetals:block/samon/side",
+    "east": "shadowsandpetals:block/samon/side"
+  }
+}
+
