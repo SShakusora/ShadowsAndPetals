@@ -12,6 +12,7 @@ public class CreativeTabRegistry {
                 .creativeTab(type.getName())
                 .lang(type.getLangName())
                 .lang("zh_cn", type.getZhCnLangName())
+                .icon(type.getIcon())
                 .addItems(CreativeTabContentsRegistry.generator(type))
                 .register();
         type.bind(holder);
