@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.compat.jade;
 
 import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
+import net.minecraft.world.level.block.Block;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -12,11 +13,13 @@ public final class ShadowsAndPetalsJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(IroriBurnTimeServerDataProvider.INSTANCE, IroriBlock.class);
+        registration.registerBlockDataProvider(RockeryHammerProgressServerDataProvider.INSTANCE, Block.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(CafeChairBlockComponentProvider.INSTANCE, CafeChairBlock.class);
         registration.registerBlockComponent(IroriBurnTimeComponentProvider.INSTANCE, IroriBlock.class);
+        registration.registerBlockComponent(RockeryHammerProgressComponentProvider.INSTANCE, Block.class);
     }
 }

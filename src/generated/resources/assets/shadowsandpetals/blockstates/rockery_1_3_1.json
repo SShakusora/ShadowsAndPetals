@@ -1,962 +1,1922 @@
 {
   "variants": {
-    "facing=east,part=0": {
+    "facing=east,part=0,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=1": {
+    "facing=east,part=0,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=1,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_1_0",
       "y": 270
     },
-    "facing=east,part=10": {
+    "facing=east,part=1,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_1_0",
+      "y": 270
+    },
+    "facing=east,part=10,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=11": {
+    "facing=east,part=10,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=12": {
+    "facing=east,part=11,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=13": {
+    "facing=east,part=11,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=14": {
+    "facing=east,part=12,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=15": {
+    "facing=east,part=12,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=16": {
+    "facing=east,part=13,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=17": {
+    "facing=east,part=13,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=18": {
+    "facing=east,part=14,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=19": {
+    "facing=east,part=14,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=2": {
+    "facing=east,part=15,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=15,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=16,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=16,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=17,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=17,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=18,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=18,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=19,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=19,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=2,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_2_0",
       "y": 270
     },
-    "facing=east,part=20": {
+    "facing=east,part=2,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_2_0",
+      "y": 270
+    },
+    "facing=east,part=20,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=21": {
+    "facing=east,part=20,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=22": {
+    "facing=east,part=21,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=23": {
+    "facing=east,part=21,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=24": {
+    "facing=east,part=22,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=25": {
+    "facing=east,part=22,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=26": {
+    "facing=east,part=23,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=27": {
+    "facing=east,part=23,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=28": {
+    "facing=east,part=24,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=29": {
+    "facing=east,part=24,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=3": {
+    "facing=east,part=25,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=30": {
+    "facing=east,part=25,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=31": {
+    "facing=east,part=26,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=32": {
+    "facing=east,part=26,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=33": {
+    "facing=east,part=27,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=34": {
+    "facing=east,part=27,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=35": {
+    "facing=east,part=28,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=36": {
+    "facing=east,part=28,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=37": {
+    "facing=east,part=29,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=38": {
+    "facing=east,part=29,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=39": {
+    "facing=east,part=3,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=4": {
+    "facing=east,part=3,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=40": {
+    "facing=east,part=30,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=41": {
+    "facing=east,part=30,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=42": {
+    "facing=east,part=31,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=43": {
+    "facing=east,part=31,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=44": {
+    "facing=east,part=32,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=45": {
+    "facing=east,part=32,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=46": {
+    "facing=east,part=33,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=47": {
+    "facing=east,part=33,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=48": {
+    "facing=east,part=34,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=49": {
+    "facing=east,part=34,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=5": {
+    "facing=east,part=35,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=50": {
+    "facing=east,part=35,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=51": {
+    "facing=east,part=36,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=52": {
+    "facing=east,part=36,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=53": {
+    "facing=east,part=37,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=54": {
+    "facing=east,part=37,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=55": {
+    "facing=east,part=38,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=56": {
+    "facing=east,part=38,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=57": {
+    "facing=east,part=39,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=58": {
+    "facing=east,part=39,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=59": {
+    "facing=east,part=4,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=6": {
+    "facing=east,part=4,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=60": {
+    "facing=east,part=40,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=61": {
+    "facing=east,part=40,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=62": {
+    "facing=east,part=41,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=63": {
+    "facing=east,part=41,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=7": {
+    "facing=east,part=42,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=8": {
+    "facing=east,part=42,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=east,part=9": {
+    "facing=east,part=43,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 270
     },
-    "facing=north,part=0": {
+    "facing=east,part=43,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=44,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=44,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=45,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=45,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=46,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=46,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=47,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=47,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=48,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=48,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=49,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=49,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=5,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=5,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=50,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=50,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=51,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=51,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=52,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=52,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=53,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=53,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=54,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=54,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=55,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=55,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=56,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=56,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=57,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=57,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=58,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=58,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=59,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=59,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=6,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=6,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=60,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=60,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=61,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=61,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=62,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=62,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=63,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=63,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=7,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=7,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=8,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=8,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=9,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=east,part=9,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 270
+    },
+    "facing=north,part=0,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=1": {
+    "facing=north,part=0,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=1,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_1_0",
       "y": 180
     },
-    "facing=north,part=10": {
+    "facing=north,part=1,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_1_0",
+      "y": 180
+    },
+    "facing=north,part=10,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=11": {
+    "facing=north,part=10,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=12": {
+    "facing=north,part=11,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=13": {
+    "facing=north,part=11,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=14": {
+    "facing=north,part=12,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=15": {
+    "facing=north,part=12,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=16": {
+    "facing=north,part=13,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=17": {
+    "facing=north,part=13,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=18": {
+    "facing=north,part=14,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=19": {
+    "facing=north,part=14,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=2": {
+    "facing=north,part=15,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=15,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=16,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=16,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=17,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=17,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=18,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=18,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=19,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=19,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=2,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_2_0",
       "y": 180
     },
-    "facing=north,part=20": {
+    "facing=north,part=2,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_2_0",
+      "y": 180
+    },
+    "facing=north,part=20,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=21": {
+    "facing=north,part=20,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=22": {
+    "facing=north,part=21,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=23": {
+    "facing=north,part=21,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=24": {
+    "facing=north,part=22,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=25": {
+    "facing=north,part=22,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=26": {
+    "facing=north,part=23,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=27": {
+    "facing=north,part=23,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=28": {
+    "facing=north,part=24,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=29": {
+    "facing=north,part=24,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=3": {
+    "facing=north,part=25,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=30": {
+    "facing=north,part=25,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=31": {
+    "facing=north,part=26,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=32": {
+    "facing=north,part=26,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=33": {
+    "facing=north,part=27,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=34": {
+    "facing=north,part=27,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=35": {
+    "facing=north,part=28,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=36": {
+    "facing=north,part=28,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=37": {
+    "facing=north,part=29,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=38": {
+    "facing=north,part=29,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=39": {
+    "facing=north,part=3,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=4": {
+    "facing=north,part=3,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=40": {
+    "facing=north,part=30,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=41": {
+    "facing=north,part=30,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=42": {
+    "facing=north,part=31,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=43": {
+    "facing=north,part=31,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=44": {
+    "facing=north,part=32,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=45": {
+    "facing=north,part=32,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=46": {
+    "facing=north,part=33,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=47": {
+    "facing=north,part=33,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=48": {
+    "facing=north,part=34,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=49": {
+    "facing=north,part=34,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=5": {
+    "facing=north,part=35,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=50": {
+    "facing=north,part=35,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=51": {
+    "facing=north,part=36,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=52": {
+    "facing=north,part=36,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=53": {
+    "facing=north,part=37,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=54": {
+    "facing=north,part=37,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=55": {
+    "facing=north,part=38,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=56": {
+    "facing=north,part=38,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=57": {
+    "facing=north,part=39,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=58": {
+    "facing=north,part=39,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=59": {
+    "facing=north,part=4,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=6": {
+    "facing=north,part=4,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=60": {
+    "facing=north,part=40,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=61": {
+    "facing=north,part=40,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=62": {
+    "facing=north,part=41,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=63": {
+    "facing=north,part=41,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=7": {
+    "facing=north,part=42,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=8": {
+    "facing=north,part=42,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=north,part=9": {
+    "facing=north,part=43,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 180
     },
-    "facing=south,part=0": {
+    "facing=north,part=43,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=44,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=44,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=45,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=45,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=46,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=46,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=47,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=47,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=48,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=48,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=49,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=49,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=5,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=5,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=50,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=50,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=51,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=51,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=52,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=52,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=53,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=53,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=54,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=54,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=55,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=55,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=56,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=56,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=57,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=57,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=58,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=58,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=59,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=59,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=6,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=6,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=60,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=60,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=61,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=61,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=62,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=62,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=63,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=63,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=7,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=7,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=8,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=8,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=9,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=north,part=9,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 180
+    },
+    "facing=south,part=0,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=1": {
+    "facing=south,part=0,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=1,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_1_0"
     },
-    "facing=south,part=10": {
+    "facing=south,part=1,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_1_0"
+    },
+    "facing=south,part=10,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=11": {
+    "facing=south,part=10,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=12": {
+    "facing=south,part=11,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=13": {
+    "facing=south,part=11,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=14": {
+    "facing=south,part=12,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=15": {
+    "facing=south,part=12,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=16": {
+    "facing=south,part=13,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=17": {
+    "facing=south,part=13,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=18": {
+    "facing=south,part=14,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=19": {
+    "facing=south,part=14,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=2": {
+    "facing=south,part=15,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=15,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=16,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=16,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=17,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=17,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=18,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=18,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=19,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=19,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=2,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_2_0"
     },
-    "facing=south,part=20": {
+    "facing=south,part=2,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_2_0"
+    },
+    "facing=south,part=20,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=21": {
+    "facing=south,part=20,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=22": {
+    "facing=south,part=21,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=23": {
+    "facing=south,part=21,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=24": {
+    "facing=south,part=22,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=25": {
+    "facing=south,part=22,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=26": {
+    "facing=south,part=23,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=27": {
+    "facing=south,part=23,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=28": {
+    "facing=south,part=24,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=29": {
+    "facing=south,part=24,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=3": {
+    "facing=south,part=25,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=30": {
+    "facing=south,part=25,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=31": {
+    "facing=south,part=26,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=32": {
+    "facing=south,part=26,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=33": {
+    "facing=south,part=27,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=34": {
+    "facing=south,part=27,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=35": {
+    "facing=south,part=28,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=36": {
+    "facing=south,part=28,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=37": {
+    "facing=south,part=29,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=38": {
+    "facing=south,part=29,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=39": {
+    "facing=south,part=3,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=4": {
+    "facing=south,part=3,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=40": {
+    "facing=south,part=30,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=41": {
+    "facing=south,part=30,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=42": {
+    "facing=south,part=31,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=43": {
+    "facing=south,part=31,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=44": {
+    "facing=south,part=32,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=45": {
+    "facing=south,part=32,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=46": {
+    "facing=south,part=33,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=47": {
+    "facing=south,part=33,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=48": {
+    "facing=south,part=34,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=49": {
+    "facing=south,part=34,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=5": {
+    "facing=south,part=35,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=50": {
+    "facing=south,part=35,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=51": {
+    "facing=south,part=36,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=52": {
+    "facing=south,part=36,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=53": {
+    "facing=south,part=37,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=54": {
+    "facing=south,part=37,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=55": {
+    "facing=south,part=38,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=56": {
+    "facing=south,part=38,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=57": {
+    "facing=south,part=39,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=58": {
+    "facing=south,part=39,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=59": {
+    "facing=south,part=4,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=6": {
+    "facing=south,part=4,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=60": {
+    "facing=south,part=40,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=61": {
+    "facing=south,part=40,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=62": {
+    "facing=south,part=41,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=63": {
+    "facing=south,part=41,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=7": {
+    "facing=south,part=42,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=8": {
+    "facing=south,part=42,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=south,part=9": {
+    "facing=south,part=43,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
     },
-    "facing=west,part=0": {
+    "facing=south,part=43,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=44,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=44,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=45,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=45,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=46,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=46,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=47,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=47,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=48,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=48,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=49,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=49,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=5,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=5,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=50,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=50,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=51,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=51,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=52,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=52,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=53,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=53,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=54,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=54,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=55,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=55,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=56,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=56,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=57,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=57,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=58,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=58,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=59,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=59,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=6,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=6,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=60,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=60,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=61,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=61,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=62,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=62,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=63,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=63,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=7,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=7,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=8,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=8,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=9,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=south,part=9,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0"
+    },
+    "facing=west,part=0,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=1": {
+    "facing=west,part=0,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=1,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_1_0",
       "y": 90
     },
-    "facing=west,part=10": {
+    "facing=west,part=1,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_1_0",
+      "y": 90
+    },
+    "facing=west,part=10,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=11": {
+    "facing=west,part=10,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=12": {
+    "facing=west,part=11,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=13": {
+    "facing=west,part=11,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=14": {
+    "facing=west,part=12,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=15": {
+    "facing=west,part=12,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=16": {
+    "facing=west,part=13,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=17": {
+    "facing=west,part=13,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=18": {
+    "facing=west,part=14,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=19": {
+    "facing=west,part=14,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=2": {
+    "facing=west,part=15,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=15,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=16,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=16,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=17,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=17,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=18,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=18,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=19,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=19,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=2,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_2_0",
       "y": 90
     },
-    "facing=west,part=20": {
+    "facing=west,part=2,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_2_0",
+      "y": 90
+    },
+    "facing=west,part=20,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=21": {
+    "facing=west,part=20,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=22": {
+    "facing=west,part=21,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=23": {
+    "facing=west,part=21,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=24": {
+    "facing=west,part=22,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=25": {
+    "facing=west,part=22,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=26": {
+    "facing=west,part=23,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=27": {
+    "facing=west,part=23,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=28": {
+    "facing=west,part=24,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=29": {
+    "facing=west,part=24,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=3": {
+    "facing=west,part=25,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=30": {
+    "facing=west,part=25,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=31": {
+    "facing=west,part=26,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=32": {
+    "facing=west,part=26,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=33": {
+    "facing=west,part=27,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=34": {
+    "facing=west,part=27,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=35": {
+    "facing=west,part=28,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=36": {
+    "facing=west,part=28,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=37": {
+    "facing=west,part=29,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=38": {
+    "facing=west,part=29,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=39": {
+    "facing=west,part=3,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=4": {
+    "facing=west,part=3,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=40": {
+    "facing=west,part=30,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=41": {
+    "facing=west,part=30,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=42": {
+    "facing=west,part=31,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=43": {
+    "facing=west,part=31,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=44": {
+    "facing=west,part=32,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=45": {
+    "facing=west,part=32,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=46": {
+    "facing=west,part=33,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=47": {
+    "facing=west,part=33,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=48": {
+    "facing=west,part=34,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=49": {
+    "facing=west,part=34,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=5": {
+    "facing=west,part=35,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=50": {
+    "facing=west,part=35,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=51": {
+    "facing=west,part=36,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=52": {
+    "facing=west,part=36,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=53": {
+    "facing=west,part=37,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=54": {
+    "facing=west,part=37,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=55": {
+    "facing=west,part=38,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=56": {
+    "facing=west,part=38,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=57": {
+    "facing=west,part=39,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=58": {
+    "facing=west,part=39,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=59": {
+    "facing=west,part=4,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=6": {
+    "facing=west,part=4,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=60": {
+    "facing=west,part=40,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=61": {
+    "facing=west,part=40,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=62": {
+    "facing=west,part=41,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=63": {
+    "facing=west,part=41,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=7": {
+    "facing=west,part=42,waterlogged=false": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=8": {
+    "facing=west,part=42,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     },
-    "facing=west,part=9": {
+    "facing=west,part=43,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=43,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=44,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=44,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=45,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=45,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=46,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=46,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=47,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=47,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=48,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=48,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=49,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=49,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=5,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=5,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=50,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=50,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=51,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=51,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=52,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=52,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=53,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=53,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=54,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=54,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=55,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=55,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=56,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=56,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=57,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=57,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=58,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=58,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=59,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=59,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=6,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=6,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=60,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=60,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=61,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=61,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=62,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=62,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=63,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=63,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=7,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=7,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=8,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=8,waterlogged=true": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=9,waterlogged=false": {
+      "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
+      "y": 90
+    },
+    "facing=west,part=9,waterlogged=true": {
       "model": "shadowsandpetals:block/rock/1x3x1/0_0_0",
       "y": 90
     }

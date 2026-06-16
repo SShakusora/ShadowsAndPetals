@@ -36,6 +36,16 @@ public final class BuiltinLanguageKeys {
             .en_us("Burned out")
             .zh_cn("已燃尽");
 
+    public static final DatagenLangRegistry.TranslationKey JADE_ROCKERY_HAMMERING = DatagenLangRegistry
+            .key("jade.shadowsandpetals.rockery.hammering")
+            .en_us("Hammering...")
+            .zh_cn("锤击中…");
+
+    public static final DatagenLangRegistry.TranslationKey JADE_ROCKERY_HAMMER_CONFIG = DatagenLangRegistry
+            .key("config.jade.plugin_shadowsandpetals.jade.rockery_hammer_progress")
+            .en_us("Show rockery hammering progress")
+            .zh_cn("显示石山锤击进度");
+
     public static final DatagenLangRegistry.TranslationKey JEI_IRORI_INFO_1 = DatagenLangRegistry
             .key("jei.shadowsandpetals.irori.info_1")
             .en_us("A traditional Japanese irori (hearth) that connects with adjacent irori blocks.")

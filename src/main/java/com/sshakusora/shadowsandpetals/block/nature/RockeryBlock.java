@@ -25,8 +25,12 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -47,7 +51,7 @@ import java.util.List;
  * Only part 0 (the block clicked by the player) drops loot; breaking any
  * part destroys the entire rockery.
  */
-public class RockeryBlock extends Block {
+public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
     public static final MapCodec<RockeryBlock> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     ExtraCodecs.NON_NEGATIVE_INT.fieldOf("width").forGetter(b -> b.dimensions.width()),
@@ -59,6 +63,7 @@ public class RockeryBlock extends Block {
 
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty PART = IntegerProperty.create("part", 0, 63);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final int MAX_PARTS = 64;
 
     private final RockeryDimensions dimensions;
@@ -73,7 +78,8 @@ public class RockeryBlock extends Block {
         this.dimensions = dimensions;
         registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(PART, 0));
+                .setValue(PART, 0)
+                .setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -84,6 +90,11 @@ public class RockeryBlock extends Block {
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
@@ -99,7 +110,8 @@ public class RockeryBlock extends Block {
             }
         }
 
-        return defaultBlockState().setValue(FACING, facing).setValue(PART, 0);
+        return defaultBlockState().setValue(FACING, facing).setValue(PART, 0)
+                .setValue(WATERLOGGED, level.getFluidState(origin).getType() == Fluids.WATER);
     }
 
     @Override
@@ -108,9 +120,11 @@ public class RockeryBlock extends Block {
         Direction facing = state.getValue(FACING);
         for (int i = 1; i < dimensions.partCount(); i++) {
             BlockPos partPos = partWorldPos(pos, i, facing);
+            boolean waterlogged = level.getFluidState(partPos).getType() == Fluids.WATER;
             level.setBlock(partPos, defaultBlockState()
                     .setValue(FACING, facing)
-                    .setValue(PART, i), Block.UPDATE_ALL);
+                    .setValue(PART, i)
+                    .setValue(WATERLOGGED, waterlogged), Block.UPDATE_ALL);
         }
     }
 
@@ -145,6 +159,10 @@ public class RockeryBlock extends Block {
             BlockPos pos, Direction direction, BlockPos neighborPos,
             BlockState neighborState, RandomSource random) {
 
+        if (state.getValue(WATERLOGGED)) {
+            ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
         int part = state.getValue(PART);
         Direction facing = state.getValue(FACING);
         BlockPos root = findRoot(level, pos, state);
@@ -159,6 +177,11 @@ public class RockeryBlock extends Block {
         }
 
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return !state.getValue(WATERLOGGED);
     }
 
     @Override
@@ -186,7 +209,7 @@ public class RockeryBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, PART);
+        builder.add(FACING, PART, WATERLOGGED);
     }
 
     @Override

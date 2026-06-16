@@ -15,14 +15,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Client-side animations for the Hammer + Chisel dual-wield action.
- */
 public class HammerClientExtensions implements IClientItemExtensions {
-    private static final float USE_DURATION_TICKS = HammerItem.USE_DURATION;
-    private static final float STRIKE_PERIOD_TICKS = 10.0F;
-    private static final float HAMMER_STRIKE_END_PHASE = 0.16F;
-    private static final float HAMMER_IMPACT_PHASE = HAMMER_STRIKE_END_PHASE;
+    private static final float STRIKE_PERIOD_TICKS = HammerItem.HAMMER_STRIKE_PERIOD_TICKS;
+    private static final float HAMMER_STRIKE_END_PHASE = HammerItem.HAMMER_IMPACT_PHASE;
+    private static final float HAMMER_IMPACT_PHASE = HammerItem.HAMMER_IMPACT_PHASE;
     private static final float THIRD_PERSON_WINDUP_END_PHASE = 0.84F;
     private static final float THIRD_PERSON_STRIKE_END_PHASE = 0.94F;
     private static final float THIRD_PERSON_IMPACT_PHASE = THIRD_PERSON_STRIKE_END_PHASE;
@@ -75,7 +71,8 @@ public class HammerClientExtensions implements IClientItemExtensions {
     private static void applyFirstPersonChiselPose(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, float partialTick) {
         int invert = arm == HumanoidArm.RIGHT ? 1 : -1;
         float useTicks = player.getTicksUsingItem() + partialTick;
-        float progress = useProgress(useTicks);
+        float duration = HammerItem.getEffectiveUseDuration(player.getMainHandItem());
+        float progress = useProgress(useTicks, duration);
         float impact = impactPulse(useTicks);
         float settle = easeOut(progress);
 
@@ -96,7 +93,8 @@ public class HammerClientExtensions implements IClientItemExtensions {
     private static void applyFirstPersonHammerPose(PoseStack poseStack, LocalPlayer player, HumanoidArm arm, float partialTick) {
         int invert = arm == HumanoidArm.RIGHT ? 1 : -1;
         float useTicks = player.getTicksUsingItem() + partialTick;
-        float progress = useProgress(useTicks);
+        float duration = HammerItem.getEffectiveUseDuration(player.getMainHandItem());
+        float progress = useProgress(useTicks, duration);
         float windup = hammerWindup(useTicks);
         float impact = impactPulse(useTicks);
         float settle = easeOut(progress);
@@ -114,8 +112,8 @@ public class HammerClientExtensions implements IClientItemExtensions {
         poseStack.mulPose(Axis.ZP.rotationDegrees(invert * 16.0F));
     }
 
-    private static float useProgress(float useTicks) {
-        return Mth.clamp(useTicks / USE_DURATION_TICKS, 0.0F, 1.0F);
+    private static float useProgress(float useTicks, float duration) {
+        return Mth.clamp(useTicks / Math.max(1.0F, duration), 0.0F, 1.0F);
     }
 
     private static float hammerWindup(float useTicks) {

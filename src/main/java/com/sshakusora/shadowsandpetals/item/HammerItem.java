@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.item;
 
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
@@ -10,7 +11,9 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundBlockDestructionPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -28,21 +31,36 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
+@EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.DEDICATED_SERVER)
 public class HammerItem extends Item {
     public static final int USE_DURATION = 30;
+    private static final int MAX_USE_DURATION = 72000;
+    private static final int BASE_USE_DURATION = 15;
+    private static final int TICKS_PER_PART = 10;
+    private static final int LOOK_REFRESH_INTERVAL_TICKS = 5;
+    public static final float HAMMER_STRIKE_PERIOD_TICKS = 10.0F;
+    public static final float HAMMER_IMPACT_PHASE = 0.16F;
+    private static final int HAMMER_STRIKE_PERIOD_TICKS_INT = Math.round(HAMMER_STRIKE_PERIOD_TICKS);
+    private static final int HAMMER_IMPACT_TICK = Math.round(HAMMER_STRIKE_PERIOD_TICKS * HAMMER_IMPACT_PHASE);
+    private static final Direction[] DIRECTIONS = Direction.values();
     private static final String TARGET_POS_KEY = "hammer_target";
     private static final String ROOT_KEY = "hammer_root";
     private static final String TEMPLATE_KEY = "hammer_template_idx";
     private static final String FACING_KEY = "hammer_facing";
+    private static final String START_TICK_KEY = "hammer_start_tick";
 
     private static final List<RockeryTemplate> ROCKERY_TEMPLATES = new ArrayList<>();
+    private static final Map<BlockPos, Float> HAMMERING_PROGRESS = new HashMap<>();
+    private static final Map<Integer, Integer> LAST_SENT_CRACK_PROGRESS = new HashMap<>();
 
     /**
      * Registers a rockery multi-block for hammer placement.
@@ -58,6 +76,40 @@ public class HammerItem extends Item {
         super(properties);
     }
 
+    public static float getHammeringProgress(BlockPos pos) {
+        return HAMMERING_PROGRESS.getOrDefault(pos, -1.0F);
+    }
+
+    private static void updateHammeringProgress(PlacementData data, float progress) {
+        RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
+        Direction facing = DIRECTIONS[data.facingOrdinal()];
+        for (int part = 0; part < template.dimensions().partCount(); part++) {
+            BlockPos pos = data.root().offset(template.dimensions().worldOffset(part, facing));
+            HAMMERING_PROGRESS.put(pos, progress);
+        }
+    }
+
+    private static void clearHammeringProgress(PlacementData data) {
+        RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
+        Direction facing = DIRECTIONS[data.facingOrdinal()];
+        for (int part = 0; part < template.dimensions().partCount(); part++) {
+            BlockPos pos = data.root().offset(template.dimensions().worldOffset(part, facing));
+            HAMMERING_PROGRESS.remove(pos);
+        }
+    }
+
+    /**
+     * Clean up leaked static map entries when a player disconnects during hammering.
+     * {@code LAST_SENT_CRACK_PROGRESS} is keyed by player ID — remove the leaving player's entry.
+     * {@code HAMMERING_PROGRESS} is keyed by {@link BlockPos} (not per-player), so we clear all
+     * entries; active hammering players will repopulate the map on their next {@code onUseTick}.
+     */
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        LAST_SENT_CRACK_PROGRESS.remove(event.getEntity().getId());
+        HAMMERING_PROGRESS.clear();
+    }
+
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return ItemUseAnimation.NONE;
@@ -65,6 +117,18 @@ public class HammerItem extends Item {
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return MAX_USE_DURATION;
+    }
+
+    public static int getEffectiveUseDuration(ItemStack stack) {
+        var data = stack.get(DataComponents.CUSTOM_DATA);
+        if (data != null && data.contains(TEMPLATE_KEY)) {
+            var tag = data.copyTag();
+            int templateIdx = tag.getInt(TEMPLATE_KEY).orElse(-1);
+            if (templateIdx >= 0 && templateIdx < ROCKERY_TEMPLATES.size()) {
+                return BASE_USE_DURATION + ROCKERY_TEMPLATES.get(templateIdx).dimensions().partCount() * TICKS_PER_PART;
+            }
+        }
         return USE_DURATION;
     }
 
@@ -89,7 +153,7 @@ public class HammerItem extends Item {
         }
 
         int templateIdx = templateIndex(placement);
-        storePlacementData(context.getItemInHand(), clickedPos, templateIdx, placement.root(), placement.facing());
+        storePlacementData(context.getItemInHand(), clickedPos, templateIdx, placement.root(), placement.facing(), level.getGameTime());
 
         // Begin the hammering animation
         player.startUsingItem(context.getHand());
@@ -100,21 +164,39 @@ public class HammerItem extends Item {
     public void onUseTick(Level level, LivingEntity entity, ItemStack stack, int remainingTicks) {
         if (!(entity instanceof Player player)) return;
         if (level.isClientSide()) return;
+        ServerLevel serverLevel = (ServerLevel) level;
+        PlacementData data = readPlacementData(stack);
+        if (data == null) {
+            return;
+        }
         if (!player.getOffhandItem().is(ItemRegistry.CHISEL.get())) {
-            stopHammering(player, stack);
+            cancelHammering(player, stack, serverLevel, data);
             return;
         }
 
-        BlockPos targetPos = refreshPlacementFromLook(player, level, stack);
+        BlockPos targetPos = refreshPlacementFromLook(player, serverLevel, stack, data);
         if (targetPos == null) {
-            stopHammering(player, stack);
+            cancelHammering(player, stack, serverLevel, data);
             return;
         }
 
-        // Play hammering sound and particles periodically
-        int usedTicks = USE_DURATION - remainingTicks;
+        int usedTicks = getUsedTicks(serverLevel, data);
+        if (usedTicks >= getEffectiveUseDuration(data)) {
+            completeHammering(stack, serverLevel, player);
+            player.releaseUsingItem();
+            return;
+        }
+
+        // Update destruction crack overlay on all rockery parts
+        updateCrackProgress(player, data, serverLevel, usedTicks);
+
+        if (isHammerImpactTick(usedTicks)) {
+            serverLevel.playSound(null, targetPos,
+                    SoundEvents.ANVIL_PLACE, SoundSource.PLAYERS,
+                    0.55F, 1.45F + level.getRandom().nextFloat() * 0.25F);
+        }
+
         if (usedTicks > 0 && usedTicks % 6 == 0) {
-            ServerLevel serverLevel = (ServerLevel) level;
             serverLevel.playSound(null, targetPos,
                     SoundEvents.STONE_HIT, SoundSource.PLAYERS,
                     0.7F, 0.8F + level.getRandom().nextFloat() * 0.3F);
@@ -134,10 +216,32 @@ public class HammerItem extends Item {
         if (!(entity instanceof Player)) return stack;
         if (level.isClientSide()) return stack;
 
-        PlacementData data = readPlacementData(stack);
-        clearPlacementData(stack);
+        completeHammering(stack, level, (Player) entity);
+        return stack;
+    }
 
-        if (data == null) return stack;
+    @Override
+    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
+        if (!level.isClientSide() && entity instanceof Player player) {
+            PlacementData data = readPlacementData(stack);
+            if (data != null) {
+                clearHammeringVisuals(player, data, (ServerLevel) level);
+            }
+        }
+        clearPlacementData(stack);
+        return false;
+    }
+
+    private static void completeHammering(ItemStack stack, Level level, Player player) {
+        PlacementData data = readPlacementData(stack);
+        if (data == null) return;
+
+        if (level instanceof ServerLevel serverLevel) {
+            clearHammeringVisuals(player, data, serverLevel);
+        } else {
+            clearHammeringProgress(data);
+        }
+        clearPlacementData(stack);
 
         RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
         Direction facing = Direction.values()[data.facingOrdinal()];
@@ -146,7 +250,7 @@ public class HammerItem extends Item {
         for (int part = 0; part < template.dimensions().partCount(); part++) {
             BlockPos pos = data.root().offset(template.dimensions().worldOffset(part, facing));
             if (!level.getBlockState(pos).is(Blocks.STONE)) {
-                return stack;
+                return;
             }
         }
 
@@ -157,39 +261,134 @@ public class HammerItem extends Item {
         if (level instanceof ServerLevel serverLevel) {
             placement.playEffects(serverLevel, data.clickedPos());
         }
-
-        return stack;
     }
 
-    @Override
-    public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-        clearPlacementData(stack);
-        return false;
-    }
-
-    private static void stopHammering(Player player, ItemStack stack) {
+    private static void cancelHammering(Player player, ItemStack stack, ServerLevel level) {
+        PlacementData data = readPlacementData(stack);
+        if (data != null) {
+            clearHammeringVisuals(player, data, level);
+        }
         clearPlacementData(stack);
         player.releaseUsingItem();
     }
 
-    private static @Nullable BlockPos refreshPlacementFromLook(Player player, Level level, ItemStack stack) {
+    private static void cancelHammering(Player player, ItemStack stack, ServerLevel level, PlacementData data) {
+        clearHammeringVisuals(player, data, level);
+        clearPlacementData(stack);
+        player.releaseUsingItem();
+    }
+
+    private static boolean isHammerImpactTick(int usedTicks) {
+        return usedTicks > 0 && usedTicks % HAMMER_STRIKE_PERIOD_TICKS_INT == HAMMER_IMPACT_TICK;
+    }
+
+    private static int getUsedTicks(ServerLevel level, PlacementData data) {
+        long elapsed = level.getGameTime() - data.startTick() + 1L;
+        if (elapsed <= 0L) {
+            return 1;
+        }
+        return elapsed > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) elapsed;
+    }
+
+    private static void updateCrackProgress(Player player, PlacementData data, ServerLevel level, int usedTicks) {
+        int duration = getEffectiveUseDuration(data);
+        int progress = Math.clamp(usedTicks * 10L / Math.max(1, duration), 0, 9);
+        int playerId = player.getId();
+        Integer lastProgress = LAST_SENT_CRACK_PROGRESS.get(playerId);
+        if (lastProgress != null && lastProgress == progress) {
+            float normalizedProgress = (float) usedTicks / Math.max(1, duration);
+            updateHammeringProgress(data, normalizedProgress);
+            return;
+        }
+        LAST_SENT_CRACK_PROGRESS.put(playerId, progress);
+        RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
+        Direction facing = DIRECTIONS[data.facingOrdinal()];
+        int baseId = playerId;
+        for (int part = 0; part < template.dimensions().partCount(); part++) {
+            BlockPos pos = data.root().offset(template.dimensions().worldOffset(part, facing));
+            // Use unique breaker ID per part: LevelRenderer.destroyingBlocks is keyed by ID only,
+            // so multiple positions for the same ID would overwrite each other.
+            int uniqueId = baseId * 100 + part;
+            sendDestructionPacket(level, uniqueId, pos, progress);
+        }
+
+        // Sync progress to Jade via static map
+        float normalizedProgress = (float) usedTicks / Math.max(1, duration);
+        updateHammeringProgress(data, normalizedProgress);
+    }
+
+    private static int getEffectiveUseDuration(PlacementData data) {
+        if (data.templateIndex() >= 0 && data.templateIndex() < ROCKERY_TEMPLATES.size()) {
+            return BASE_USE_DURATION + ROCKERY_TEMPLATES.get(data.templateIndex()).dimensions().partCount() * TICKS_PER_PART;
+        }
+        return USE_DURATION;
+    }
+
+    private static void clearHammeringVisuals(Player player, PlacementData data, ServerLevel level) {
+        clearCrackProgressForData(player, data, level);
+        clearHammeringProgress(data);
+    }
+
+    private static void clearCrackProgressForData(Player player, PlacementData data, ServerLevel level) {
+        RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
+        Direction facing = DIRECTIONS[data.facingOrdinal()];
+        int baseId = player.getId();
+        LAST_SENT_CRACK_PROGRESS.remove(baseId);
+        for (int part = 0; part < template.dimensions().partCount(); part++) {
+            BlockPos pos = data.root().offset(template.dimensions().worldOffset(part, facing));
+            int uniqueId = baseId * 100 + part;
+            sendDestructionPacket(level, uniqueId, pos, -1);
+        }
+    }
+
+    private static void sendDestructionPacket(ServerLevel level, int breakerId, BlockPos pos, int progress) {
+        var packet = new ClientboundBlockDestructionPacket(breakerId, pos, progress);
+        for (ServerPlayer serverPlayer : level.players()) {
+            double dx = pos.getX() - serverPlayer.getX();
+            double dy = pos.getY() - serverPlayer.getY();
+            double dz = pos.getZ() - serverPlayer.getZ();
+            if (dx * dx + dy * dy + dz * dz < 1024.0D) {
+                serverPlayer.connection.send(packet);
+            }
+        }
+    }
+
+    private static @Nullable BlockPos refreshPlacementFromLook(Player player, ServerLevel level, ItemStack stack, PlacementData data) {
         BlockPos lookedPos = getLookedAtStone(player, level);
         if (lookedPos == null) {
             return null;
         }
 
-        PlacementData data = readPlacementData(stack);
-        if (data != null && data.clickedPos().equals(lookedPos) && placementStillMatches(level, data)) {
+        if (!data.clickedPos().equals(lookedPos)) {
+            clearHammeringVisuals(player, data, level);
+            RockeryPlacement placement = findPlacement(level, lookedPos, player.getDirection().getOpposite());
+            if (placement == null) {
+                clearPlacementData(stack);
+                return null;
+            }
+
+            int templateIdx = templateIndex(placement);
+            storePlacementData(stack, lookedPos, templateIdx, placement.root(), placement.facing(), level.getGameTime());
+            return lookedPos;
+        }
+
+        if (getUsedTicks(level, data) % LOOK_REFRESH_INTERVAL_TICKS != 0) {
+            return lookedPos;
+        }
+
+        if (placementStillMatches(level, data)) {
             return lookedPos;
         }
 
         RockeryPlacement placement = findPlacement(level, lookedPos, player.getDirection().getOpposite());
+        clearHammeringVisuals(player, data, level);
         if (placement == null) {
+            clearPlacementData(stack);
             return null;
         }
 
         int templateIdx = templateIndex(placement);
-        storePlacementData(stack, lookedPos, templateIdx, placement.root(), placement.facing());
+        storePlacementData(stack, lookedPos, templateIdx, placement.root(), placement.facing(), level.getGameTime());
         return lookedPos;
     }
 
@@ -206,12 +405,12 @@ public class HammerItem extends Item {
 
     private static boolean placementStillMatches(Level level, PlacementData data) {
         if (data.templateIndex() < 0 || data.templateIndex() >= ROCKERY_TEMPLATES.size()
-                || data.facingOrdinal() < 0 || data.facingOrdinal() >= Direction.values().length) {
+                || data.facingOrdinal() < 0 || data.facingOrdinal() >= DIRECTIONS.length) {
             return false;
         }
 
         RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
-        Direction facing = Direction.values()[data.facingOrdinal()];
+        Direction facing = DIRECTIONS[data.facingOrdinal()];
         return matches(level, data.root(), template.dimensions(), facing);
     }
 
@@ -268,12 +467,13 @@ public class HammerItem extends Item {
     }
 
     private static void storePlacementData(ItemStack stack, BlockPos clickedPos,
-                                           int templateIdx, BlockPos root, Direction facing) {
+                                           int templateIdx, BlockPos root, Direction facing, long startTick) {
         CompoundTag tag = new CompoundTag();
         tag.putLong(TARGET_POS_KEY, clickedPos.asLong());
         tag.putLong(ROOT_KEY, root.asLong());
         tag.putInt(TEMPLATE_KEY, templateIdx);
         tag.putInt(FACING_KEY, facing.ordinal());
+        tag.putLong(START_TICK_KEY, startTick);
         stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
     }
 
@@ -297,11 +497,12 @@ public class HammerItem extends Item {
                 BlockPos.of(tag.getLong(TARGET_POS_KEY).orElse(0L)),
                 BlockPos.of(tag.getLong(ROOT_KEY).orElse(0L)),
                 tag.getInt(TEMPLATE_KEY).orElse(0),
-                tag.getInt(FACING_KEY).orElse(0)
+                tag.getInt(FACING_KEY).orElse(0),
+                tag.getLong(START_TICK_KEY).orElse(0L)
         );
     }
 
-    private record PlacementData(BlockPos clickedPos, BlockPos root, int templateIndex, int facingOrdinal) {}
+    private record PlacementData(BlockPos clickedPos, BlockPos root, int templateIndex, int facingOrdinal, long startTick) {}
 
     private record RockeryTemplate(DeferredBlock<RockeryBlock> block, RockeryDimensions dimensions) {
         private int partCount() {

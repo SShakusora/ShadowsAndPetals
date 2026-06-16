@@ -362,11 +362,14 @@ public class ModBlockStateProvider implements DataProvider {
                     + "/" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ());
             for (Direction facing : Direction.Plane.HORIZONTAL) {
                 int yRot = (int) facing.toYRot();
-                variants.add(
-                        RockeryBlock.FACING.getName() + "=" + facing.getSerializedName()
-                                + "," + RockeryBlock.PART.getName() + "=" + part,
-                        rotatedModel(modelId, 0, yRot)
-                );
+                for (boolean waterlogged : new boolean[]{false, true}) {
+                    variants.add(
+                            RockeryBlock.FACING.getName() + "=" + facing.getSerializedName()
+                                    + "," + RockeryBlock.PART.getName() + "=" + part
+                                    + "," + RockeryBlock.WATERLOGGED.getName() + "=" + waterlogged,
+                            rotatedModel(modelId, 0, yRot)
+                    );
+                }
             }
         }
 
