@@ -26,6 +26,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import org.jspecify.annotations.Nullable;
 
@@ -34,7 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class HammerItem extends Item {
-    private static final int USE_DURATION = 30;
+    public static final int USE_DURATION = 30;
     private static final String TARGET_POS_KEY = "hammer_target";
     private static final String ROOT_KEY = "hammer_root";
     private static final String TEMPLATE_KEY = "hammer_template_idx";
@@ -99,13 +101,15 @@ public class HammerItem extends Item {
         if (!(entity instanceof Player player)) return;
         if (level.isClientSide()) return;
         if (!player.getOffhandItem().is(ItemRegistry.CHISEL.get())) {
-            player.releaseUsingItem();
+            stopHammering(player, stack);
             return;
         }
 
-        BlockPos targetPos = getTargetPos(stack);
-        if (targetPos == null) return;
-        if (!level.getBlockState(targetPos).is(Blocks.STONE)) return;
+        BlockPos targetPos = refreshPlacementFromLook(player, level, stack);
+        if (targetPos == null) {
+            stopHammering(player, stack);
+            return;
+        }
 
         // Play hammering sound and particles periodically
         int usedTicks = USE_DURATION - remainingTicks;
@@ -127,7 +131,7 @@ public class HammerItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (!(entity instanceof Player player)) return stack;
+        if (!(entity instanceof Player)) return stack;
         if (level.isClientSide()) return stack;
 
         PlacementData data = readPlacementData(stack);
@@ -161,6 +165,54 @@ public class HammerItem extends Item {
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
         clearPlacementData(stack);
         return false;
+    }
+
+    private static void stopHammering(Player player, ItemStack stack) {
+        clearPlacementData(stack);
+        player.releaseUsingItem();
+    }
+
+    private static @Nullable BlockPos refreshPlacementFromLook(Player player, Level level, ItemStack stack) {
+        BlockPos lookedPos = getLookedAtStone(player, level);
+        if (lookedPos == null) {
+            return null;
+        }
+
+        PlacementData data = readPlacementData(stack);
+        if (data != null && data.clickedPos().equals(lookedPos) && placementStillMatches(level, data)) {
+            return lookedPos;
+        }
+
+        RockeryPlacement placement = findPlacement(level, lookedPos, player.getDirection().getOpposite());
+        if (placement == null) {
+            return null;
+        }
+
+        int templateIdx = templateIndex(placement);
+        storePlacementData(stack, lookedPos, templateIdx, placement.root(), placement.facing());
+        return lookedPos;
+    }
+
+    private static @Nullable BlockPos getLookedAtStone(Player player, Level level) {
+        HitResult hitResult = player.pick(player.blockInteractionRange(), 0.0F, false);
+        if (!(hitResult instanceof BlockHitResult blockHitResult)
+                || blockHitResult.getType() != HitResult.Type.BLOCK) {
+            return null;
+        }
+
+        BlockPos pos = blockHitResult.getBlockPos();
+        return level.getBlockState(pos).is(Blocks.STONE) ? pos : null;
+    }
+
+    private static boolean placementStillMatches(Level level, PlacementData data) {
+        if (data.templateIndex() < 0 || data.templateIndex() >= ROCKERY_TEMPLATES.size()
+                || data.facingOrdinal() < 0 || data.facingOrdinal() >= Direction.values().length) {
+            return false;
+        }
+
+        RockeryTemplate template = ROCKERY_TEMPLATES.get(data.templateIndex());
+        Direction facing = Direction.values()[data.facingOrdinal()];
+        return matches(level, data.root(), template.dimensions(), facing);
     }
 
     private static @Nullable RockeryPlacement findPlacement(Level level, BlockPos clickedPos, Direction preferredFacing) {

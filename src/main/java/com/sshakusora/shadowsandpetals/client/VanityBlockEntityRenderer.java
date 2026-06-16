@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import com.sshakusora.shadowsandpetals.blockentity.VanityBlockEntity;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -54,9 +55,13 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
             return;
         }
 
+        var level = blockEntity.getLevel();
+        if (level == null) return;
+        var tintGetter = (BlockAndTintGetter) level;
+
         DRAWER_RANDOM.setSeed(42L);
-        drawerModel.collectParts(DRAWER_RANDOM, state.drawerModelParts);
-        state.drawerHasTranslucency = drawerModel.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT);
+        drawerModel.collectParts(tintGetter, blockEntity.getBlockPos(), blockState, DRAWER_RANDOM, state.drawerModelParts);
+        state.drawerHasTranslucency = drawerModel.hasMaterialFlag(tintGetter, blockEntity.getBlockPos(), blockState, BakedQuad.FLAG_TRANSLUCENT);
     }
 
     @Override

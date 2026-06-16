@@ -86,8 +86,6 @@ public class RockeryBlock extends Block {
         return RenderShape.MODEL;
     }
 
-    // ---- Placement ----
-
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
         Direction facing = ctx.getHorizontalDirection().getOpposite();

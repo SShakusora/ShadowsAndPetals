@@ -49,6 +49,6 @@ public class ClientRenderEvents {
 
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
-        event.registerItem(new HammerClientExtensions(), ItemRegistry.HAMMER.get());
+        event.registerItem(new HammerClientExtensions(), ItemRegistry.HAMMER.get(), ItemRegistry.CHISEL.get());
     }
 }

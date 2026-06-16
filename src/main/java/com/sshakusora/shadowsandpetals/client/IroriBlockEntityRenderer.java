@@ -9,6 +9,7 @@ import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -92,7 +93,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
             return;
         }
 
-        updateCachedFirewoodModel(state, firewoodModel, model);
+        updateCachedFirewoodModel(blockEntity, state, firewoodModel, model);
 
         int burnTime = blockEntity.getBurnTime();
         state.burnTime = burnTime;
@@ -201,16 +202,22 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         state.firewoodTransformComponentSize = componentSize;
     }
 
-    private static void updateCachedFirewoodModel(State state, IroriBlockEntity.FirewoodModel firewoodModel, BlockStateModel model) {
+    private static void updateCachedFirewoodModel(IroriBlockEntity blockEntity, State state, IroriBlockEntity.FirewoodModel firewoodModel, BlockStateModel model) {
         if (state.cachedFirewoodModel == firewoodModel && state.cachedBlockStateModel == model) {
             return;
         }
 
+        var level = blockEntity.getLevel();
+        if (level == null) return;
+        var tintGetter = (BlockAndTintGetter) level;
+        var blockPos = blockEntity.getBlockPos();
+        var blockState = blockEntity.getBlockState();
+
         state.firewoodModelParts.clear();
         // Reset the seed so multipart collection stays deterministic across frames.
         FIREWOOD_RANDOM.setSeed(FIREWOOD_RENDER_SEED);
-        model.collectParts(FIREWOOD_RANDOM, state.firewoodModelParts);
-        state.firewoodHasTranslucency = model.hasMaterialFlag(BakedQuad.FLAG_TRANSLUCENT);
+        model.collectParts(tintGetter, blockPos, blockState, FIREWOOD_RANDOM, state.firewoodModelParts);
+        state.firewoodHasTranslucency = model.hasMaterialFlag(tintGetter, blockPos, blockState, BakedQuad.FLAG_TRANSLUCENT);
         state.cachedFirewoodModel = firewoodModel;
         state.cachedBlockStateModel = model;
     }
