@@ -2,8 +2,11 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -35,6 +38,7 @@ public class RegItemBuilder<I extends Item> {
     private Function<DeferredItem<I>, Identifier> clientItemModelFactory;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
+    private boolean hasTooltipDescription;
 
     public RegItemBuilder(DeferredRegister.Items registry, String name) {
         this.registry = registry;
@@ -78,6 +82,22 @@ public class RegItemBuilder<I extends Item> {
      */
     public RegItemBuilder<I> lang(String locale, String name) {
         this.langNames.put(locale, name);
+        return this;
+    }
+
+    /**
+     * Opts this item into the {@link ItemDescription} tooltip system.
+     * <p>
+     * When set, the item will display a three-state tooltip driven by
+     * localisation keys: a brief hint by default, a summary with behaviours
+     * when Shift is held, and controls when Ctrl is held.
+     * <p>
+     * The actual tooltip text must be registered separately via
+     * {@link com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder}
+     * during data generation.
+     */
+    public RegItemBuilder<I> tooltipDescription() {
+        this.hasTooltipDescription = true;
         return this;
     }
 
@@ -173,6 +193,13 @@ public class RegItemBuilder<I extends Item> {
         for (CreativeTabType tab : creativeTabs) {
             CreativeTabContentsRegistry.add(tab, deferredItem);
         }
+
+        if (hasTooltipDescription) {
+            Identifier itemId = ShadowsAndPetals.asResource(name);
+            TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
+                BuiltInRegistries.ITEM.getValue(itemId)));
+        }
+
         return deferredItem;
     }
 

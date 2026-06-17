@@ -240,5 +240,11 @@
   "jei.shadowsandpetals.irori.info_1": "传统的日式围炉，相邻放置可相互连接。",
   "jei.shadowsandpetals.irori.info_2": "将可燃物（木头等）丢入中央，再用打火石或火焰弹点燃。",
   "jei.shadowsandpetals.irori.info_3": "燃料会随着时间燃烧殆尽，留下的灰烬可被收集为骨粉。",
-  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s 可被染成 "
+  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s 可被染成 ",
+  "tooltip.shadowsandpetals.holdForControls": "按住 [%s] 显示操作",
+  "tooltip.shadowsandpetals.holdForDescription": "按住 [%s] 显示描述",
+  "tooltip.shadowsandpetals.holdKey.ctrl": "Ctrl",
+  "tooltip.shadowsandpetals.holdKey.shift": "Shift",
+  "tooltip.shadowsandpetals.rockery.dimensions_label": "尺寸: ",
+  "tooltip.shadowsandpetals.rockery.holdForPreview": "按住 [%s] 显示预览"
 }

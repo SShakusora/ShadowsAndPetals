@@ -430,6 +430,7 @@ public class BlockRegistry {
                         .noOcclusion()
                         .requiresCorrectToolForDrops())
                 .withItem()
+                .creativeTab(CreativeTabType.NATURE)
                 .tags(BlockTags.MINEABLE_WITH_PICKAXE)
                 .blockstate((provider, block) -> provider.rockeryBlock(block.get(), dims))
                 .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))

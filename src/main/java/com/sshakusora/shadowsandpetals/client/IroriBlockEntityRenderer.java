@@ -36,7 +36,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private static final long FIREWOOD_RENDER_SEED = 42L;
     private static final int FULL_ALPHA = 255;
     private static final double FIREWOOD_Y_OFFSET = 10.0D / 16.0D;
-    private static final double BURNING_OVERLAY_Y_OFFSET = 10.001D / 16.0D;
+    private static final double BURNING_OVERLAY_Y_OFFSET = 10.01D / 16.0D;
     private static final double FIREWOOD_JITTER_MAX = 4.0D / 16.0D;
     private static final double FIREWOOD_APPEAR_FALL_DISTANCE = 5.0D / 16.0D;
     private static final float BREATHING_CYCLE_TICKS = 60.0F;

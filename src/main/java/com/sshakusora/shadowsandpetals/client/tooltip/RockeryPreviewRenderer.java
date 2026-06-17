@@ -1,0 +1,145 @@
+package com.sshakusora.shadowsandpetals.client.tooltip;
+
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.QuadInstance;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Axis;
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
+import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.entity.DisplayRenderer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+
+import java.util.List;
+
+/**
+ * Picture-in-picture renderer that draws a rockery block model preview
+ * into an offscreen texture using the PiP's own buffer source,
+ * then blits it into the tooltip.
+ */
+public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPreviewState> {
+
+    private static final Direction[] DIRECTIONS = Direction.values();
+    private static final long ROTATE_DURATION_NANOS = 1_550_000_000L;
+    private static final long RESET_GAP_NANOS = 1_000_000_000L;
+
+    private final BlockModelResolver blockModelResolver;
+    private final QuadInstance quadInstance = new QuadInstance();
+    private long animationStartNanos = -1L;
+    private long lastRenderNanos = -1L;
+    private RockeryBlock lastBlock;
+    private RockeryDimensions lastDimensions;
+
+    public RockeryPreviewRenderer(MultiBufferSource.BufferSource bufferSource) {
+        super(bufferSource);
+        this.blockModelResolver = new BlockModelResolver(Minecraft.getInstance().getModelManager());
+        this.quadInstance.setLightCoords(15728880);
+        this.quadInstance.setOverlayCoords(OverlayTexture.NO_OVERLAY);
+    }
+
+    @Override
+    public Class<RockeryPreviewState> getRenderStateClass() {
+        return RockeryPreviewState.class;
+    }
+
+    @Override
+    protected String getTextureLabel() {
+        return ShadowsAndPetals.MOD_ID + ":rockery_preview";
+    }
+
+    @Override
+    protected void renderToTexture(RockeryPreviewState state, PoseStack poseStack) {
+        Minecraft minecraft = Minecraft.getInstance();
+        minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.LEVEL);
+
+        RockeryDimensions dims = state.dimensions();
+        float animatedYaw = animatedYaw(state);
+
+        poseStack.mulPose(Axis.XP.rotationDegrees(-30));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-45 + animatedYaw));
+        poseStack.translate(-dims.width() / 2.0F, -dims.height() / 2.0F, -dims.depth() / 2.0F);
+
+        BlockModelRenderState blockModel = new BlockModelRenderState();
+
+        for (int part = 0; part < dims.partCount(); part++) {
+            Vec3i local = dims.localPos(part);
+
+            var partState = state.block().defaultBlockState()
+                .setValue(RockeryBlock.FACING, Direction.SOUTH)
+                .setValue(RockeryBlock.PART, part);
+
+            blockModelResolver.update(blockModel, partState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
+
+            List<BlockStateModelPart> parts = blockModel.modelParts;
+            RenderType renderType = blockModel.renderType;
+
+            if (parts != null && !parts.isEmpty() && renderType != null) {
+                poseStack.pushPose();
+                poseStack.translate(
+                    local.getX(),
+                    local.getY(),
+                    local.getZ()
+                );
+                renderModelParts(parts, renderType, poseStack);
+                poseStack.popPose();
+            }
+        }
+    }
+
+    private void renderModelParts(List<BlockStateModelPart> parts, RenderType renderType, PoseStack poseStack) {
+        VertexConsumer buffer = this.bufferSource.getBuffer(renderType);
+        PoseStack.Pose pose = poseStack.last();
+
+        for (BlockStateModelPart part : parts) {
+            for (Direction direction : DIRECTIONS) {
+                List<BakedQuad> quads = part.getQuads(direction);
+                for (BakedQuad quad : quads) {
+                    buffer.putBakedQuad(pose, quad, quadInstance);
+                }
+            }
+            List<BakedQuad> unculled = part.getQuads(null);
+            for (BakedQuad quad : unculled) {
+                buffer.putBakedQuad(pose, quad, quadInstance);
+            }
+        }
+    }
+
+    @Override
+    protected float getTranslateY(int height, int guiScale) {
+        return height / 2.0F;
+    }
+
+    private float animatedYaw(RockeryPreviewState state) {
+        long now = System.nanoTime();
+        if (shouldResetAnimation(state, now)) {
+            animationStartNanos = now;
+        }
+
+        lastRenderNanos = now;
+        lastBlock = state.block();
+        lastDimensions = state.dimensions();
+
+        long elapsed = Math.max(0L, now - animationStartNanos);
+        return elapsed * 90.0F / ROTATE_DURATION_NANOS;
+    }
+
+    private boolean shouldResetAnimation(RockeryPreviewState state, long now) {
+        return animationStartNanos < 0L
+                || lastRenderNanos < 0L
+                || now - lastRenderNanos > RESET_GAP_NANOS
+                || lastBlock != state.block()
+                || !state.dimensions().equals(lastDimensions);
+    }
+
+}

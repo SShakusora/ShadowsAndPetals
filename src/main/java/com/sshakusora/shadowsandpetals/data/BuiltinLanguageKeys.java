@@ -81,6 +81,36 @@ public final class BuiltinLanguageKeys {
             .en_us("Right-click the top of a Samon block to cycle through its connection patterns.")
             .zh_cn("右击砂纹方块顶部可切换连接样式。");
 
+    public static final DatagenLangRegistry.TranslationKey ROCKERY_DIMENSIONS_LABEL = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.rockery.dimensions_label")
+            .en_us("Dimensions: ")
+            .zh_cn("尺寸: ");
+
+    public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_FOR_DESCRIPTION = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.holdForDescription")
+            .en_us("Hold [%s] for Description")
+            .zh_cn("按住 [%s] 显示描述");
+
+    public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_FOR_CONTROLS = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.holdForControls")
+            .en_us("Hold [%s] for Controls")
+            .zh_cn("按住 [%s] 显示操作");
+
+    public static final DatagenLangRegistry.TranslationKey ROCKERY_HOLD_FOR_PREVIEW = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.rockery.holdForPreview")
+            .en_us("Hold [%s] for Preview")
+            .zh_cn("按住 [%s] 显示预览");
+
+    public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_KEY_SHIFT = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.holdKey.shift")
+            .en_us("Shift")
+            .zh_cn("Shift");
+
+    public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_KEY_CTRL = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.holdKey.ctrl")
+            .en_us("Ctrl")
+            .zh_cn("Ctrl");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}

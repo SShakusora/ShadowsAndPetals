@@ -61,10 +61,10 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
             ).apply(instance, RockeryBlock::new)
     );
 
-    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
-    public static final IntegerProperty PART = IntegerProperty.create("part", 0, 63);
-    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final int MAX_PARTS = 64;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final IntegerProperty PART = IntegerProperty.create("part", 0, MAX_PARTS - 1);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private final RockeryDimensions dimensions;
     private volatile @Nullable VoxelShape[][] shapeCache;
@@ -99,7 +99,7 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
-        Direction facing = ctx.getHorizontalDirection().getOpposite();
+        Direction facing = ctx.getHorizontalDirection().getClockWise();
         BlockPos origin = ctx.getClickedPos();
         Level level = ctx.getLevel();
 
@@ -115,8 +115,7 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void setPlacedBy(Level level, BlockPos pos, BlockState state,
-                            @Nullable LivingEntity placer, ItemStack stack) {
+    public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
         Direction facing = state.getValue(FACING);
         for (int i = 1; i < dimensions.partCount(); i++) {
             BlockPos partPos = partWorldPos(pos, i, facing);
@@ -220,6 +219,10 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
         return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+    }
+
+    public RockeryDimensions dimensions() {
+        return dimensions;
     }
 
     private BlockPos partWorldPos(BlockPos root, int part, Direction facing) {

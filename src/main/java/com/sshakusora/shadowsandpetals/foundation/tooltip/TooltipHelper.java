@@ -1,0 +1,99 @@
+package com.sshakusora.shadowsandpetals.foundation.tooltip;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+
+import java.text.BreakIterator;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Text utility helpers for the tooltip system.
+ * <p>
+ * Primary feature is {@link #cutTextComponent(Component, Style, Style)} which
+ * performs locale-aware word-wrapping at a fixed width and alternates between two
+ * styles on underscore ({@code _}) boundaries for inline highlighting.
+ */
+public final class TooltipHelper {
+    public static final int MAX_WIDTH_PER_LINE = 200;
+
+    private TooltipHelper() {}
+
+    /**
+     * Build the "Hold [Shift] for Description" hint line.
+     */
+    public static MutableComponent holdShift() {
+        return holdKey("shift");
+    }
+
+    /**
+     * Build the "Hold [Ctrl] for Controls" hint line.
+     */
+    public static MutableComponent holdCtrl() {
+        return holdKey("ctrl");
+    }
+
+    private static MutableComponent holdKey(String key) {
+        String template = Component.translatable("tooltip.shadowsandpetals.holdKey." + key).getString();
+        return Component.literal(template).withStyle(ChatFormatting.DARK_GRAY);
+    }
+
+    public static List<Component> cutTextComponent(Component text, Style primary, Style highlight) {
+        return cutTextComponent(text, primary, highlight, 0);
+    }
+
+    public static List<Component> cutTextComponent(Component text, Style primary, Style highlight, int indent) {
+        String s = text.getString();
+        List<String> words = new LinkedList<>();
+        BreakIterator iterator = BreakIterator.getLineInstance(Minecraft.getInstance().getLocale());
+        iterator.setText(s);
+        int start = iterator.first();
+        for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
+            words.add(s.substring(start, end));
+        }
+
+        Font font = Minecraft.getInstance().font;
+        List<String> lines = new LinkedList<>();
+        StringBuilder currentLine = new StringBuilder();
+        int width = 0;
+        for (String word : words) {
+            int newWidth = font.width(word.replace("_", ""));
+            if (width + newWidth > MAX_WIDTH_PER_LINE) {
+                if (width > 0) {
+                    lines.add(currentLine.toString());
+                    currentLine = new StringBuilder();
+                    width = 0;
+                } else {
+                    lines.add(word);
+                    continue;
+                }
+            }
+            currentLine.append(word);
+            width += newWidth;
+        }
+        if (width > 0) {
+            lines.add(currentLine.toString());
+        }
+
+        MutableComponent indentComponent = Component.literal(" ".repeat(indent));
+        indentComponent.withStyle(primary);
+
+        List<Component> formattedLines = new ArrayList<>(lines.size());
+        boolean highlightOn = false;
+        for (String line : lines) {
+            MutableComponent lineComponent = indentComponent.plainCopy();
+            for (String part : line.split("_", -1)) {
+                lineComponent.append(Component.literal(part).withStyle(highlightOn ? highlight : primary));
+                highlightOn = !highlightOn;
+            }
+            formattedLines.add(lineComponent);
+            highlightOn = !highlightOn;
+        }
+        return formattedLines;
+    }
+}

@@ -4,6 +4,8 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.legacy.BlockStateAliasRegistry;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.legacy.LegacyStateBlock;
@@ -11,6 +13,7 @@ import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -57,6 +60,7 @@ public class RegBlockBuilder<B extends Block> {
     private final List<Identifier> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
     private final List<TagKey<Block>> blockTags = new ArrayList<>();
+    private boolean hasTooltipDescription;
 
     public RegBlockBuilder(DeferredRegister.Blocks registry, String name) {
         this.registry = registry;
@@ -136,6 +140,22 @@ public class RegBlockBuilder<B extends Block> {
      */
     public RegBlockBuilder<B> lang(String locale, String name) {
         this.langNames.put(locale, name);
+        return this;
+    }
+
+    /**
+     * Opts this block item into the {@link ItemDescription} tooltip system.
+     * <p>
+     * When set, the block's item will display a three-state tooltip driven by
+     * localisation keys: a brief hint by default, a summary with behaviours
+     * when Shift is held, and controls when Ctrl is held.
+     * <p>
+     * The actual tooltip text must be registered separately via
+     * {@link com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder}
+     * during data generation.
+     */
+    public RegBlockBuilder<B> tooltipDescription() {
+        this.hasTooltipDescription = true;
         return this;
     }
 
@@ -369,6 +389,12 @@ public class RegBlockBuilder<B extends Block> {
             registerBlockItem(deferredBlock);
             applyItemModelUnchecked(deferredBlock);
             applyClientItemUnchecked(deferredBlock);
+        }
+
+        if (hasTooltipDescription && withItem) {
+            Identifier itemId = ShadowsAndPetals.asResource(name);
+            TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
+                BuiltInRegistries.ITEM.getValue(itemId)));
         }
 
         registerCreativeTabs(deferredBlock);

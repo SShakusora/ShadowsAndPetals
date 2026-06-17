@@ -1,19 +1,26 @@
 package com.sshakusora.shadowsandpetals.client;
 
+import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
+import com.sshakusora.shadowsandpetals.client.tooltip.ClientRockeryTooltip;
+import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewRenderer;
+import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
+import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.EntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.world.item.BlockItem;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.EntityRenderersEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
-import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
+import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
 public class ClientRenderEvents {
@@ -50,5 +57,30 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new HammerClientExtensions(), ItemRegistry.HAMMER.get(), ItemRegistry.CHISEL.get());
+    }
+
+    @SubscribeEvent
+    public static void registerPictureInPictureRenderers(RegisterPictureInPictureRenderersEvent event) {
+        event.register(RockeryPreviewState.class, RockeryPreviewRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerClientTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(RockeryTooltipComponent.class, ClientRockeryTooltip::new);
+    }
+
+    @SubscribeEvent
+    public static void onGatherTooltipComponents(RenderTooltipEvent.GatherComponents event) {
+        if (event.getItemStack().getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock() instanceof RockeryBlock rockery) {
+            var component = new RockeryTooltipComponent(rockery, rockery.dimensions());
+            event.getTooltipElements().add(Either.right(component));
+            event.setMaxWidth(Math.max(event.getMaxWidth(), 100));
+        }
+    }
+
+    @SubscribeEvent
+    public static void onItemTooltip(ItemTooltipEvent event) {
+        TooltipModifier.applyIfPresent(event);
     }
 }

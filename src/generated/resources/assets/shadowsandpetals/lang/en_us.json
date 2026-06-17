@@ -240,5 +240,11 @@
   "jei.shadowsandpetals.irori.info_1": "A traditional Japanese irori (hearth) that connects with adjacent irori blocks.",
   "jei.shadowsandpetals.irori.info_2": "Drop burnable items (wood, etc.) into the center, then use Flint and Steel or a Fire Charge to ignite.",
   "jei.shadowsandpetals.irori.info_3": "Burns fuel over time. Depleted fuel leaves ash, which can be collected as Bone Meal.",
-  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s can be dyed to "
+  "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s can be dyed to ",
+  "tooltip.shadowsandpetals.holdForControls": "Hold [%s] for Controls",
+  "tooltip.shadowsandpetals.holdForDescription": "Hold [%s] for Description",
+  "tooltip.shadowsandpetals.holdKey.ctrl": "Ctrl",
+  "tooltip.shadowsandpetals.holdKey.shift": "Shift",
+  "tooltip.shadowsandpetals.rockery.dimensions_label": "Dimensions: ",
+  "tooltip.shadowsandpetals.rockery.holdForPreview": "Hold [%s] for Preview"
 }
