@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:bamboo",
+    "S": "minecraft:cobblestone"
+  },
+  "pattern": [
+    "BBB",
+    "SSS"
+  ],
+  "result": {
+    "id": "shadowsandpetals:shishi_odoshi"
+  }
+}

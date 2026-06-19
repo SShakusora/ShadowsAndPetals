@@ -1,4 +1,4 @@
-// 26.1.2	2026-06-15T11:57:10.793817	ShadowsAndPetals Client Items
+// 26.1.2	2026-06-19T12:48:11.635374	ShadowsAndPetals Client Items
 bc6db7941b67378c651d38d1f0515d00dfa2eac7 assets/shadowsandpetals/items/acacia_vanity.json
 910bb05eedb1766753a871c9802d055e21118b3b assets/shadowsandpetals/items/aluminum_block.json
 109d601484b114df7f7bab4dc1cbbda77b858a38 assets/shadowsandpetals/items/aluminum_ingot.json
@@ -96,6 +96,8 @@ ecf7881d6d79aefc4cc017a618f067a16aad9297 assets/shadowsandpetals/items/sakura_st
 a62ffd03d416a75c67c3871c860645682f9f22f6 assets/shadowsandpetals/items/sakura_wood.json
 bfca780df0f110c3d8d32cc79a995bcdf0bd69d6 assets/shadowsandpetals/items/sakura_wood_post.json
 7c3edb491eab29902cb7b3c28b683544058602d6 assets/shadowsandpetals/items/samon.json
+722e5f29f960fef4da1658fd8ae6fe092cde5053 assets/shadowsandpetals/items/shishi_odoshi.json
+e8be9f44b5048d7594f2f150a16a937ede73e1de assets/shadowsandpetals/items/shishi_odoshi_pipe.json
 ee68180115de5e12dd076dd0c4cb57f91ee87a63 assets/shadowsandpetals/items/spruce_vanity.json
 8070eb9c4f0498447e269ce5a88088cdc3f0fffe assets/shadowsandpetals/items/stripped_ginkgo_log.json
 0b8053db6937cecdf44b7b7a546e60306f2b98f4 assets/shadowsandpetals/items/stripped_ginkgo_post.json

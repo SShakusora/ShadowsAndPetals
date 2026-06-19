@@ -36,6 +36,7 @@ public class ModDataGenerator {
         ), lookupProvider));
         generator.addProvider(true, new ModBlockTagProvider(output, lookupProvider));
         generator.addProvider(true, new ModDataMapProvider(output, lookupProvider));
+        generator.addProvider(true, new ModSoundDefinitionsProvider(output));
         generator.addProvider(true, new WorldGenProvider(output, lookupProvider));
     }
 }

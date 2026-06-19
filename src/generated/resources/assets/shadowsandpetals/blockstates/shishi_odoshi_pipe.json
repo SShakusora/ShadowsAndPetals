@@ -1,0 +1,154 @@
+{
+  "variants": {
+    "facing=east,length=long,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long",
+      "y": 90
+    },
+    "facing=east,length=long,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long",
+      "y": 90
+    },
+    "facing=east,length=normal,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal",
+      "y": 90
+    },
+    "facing=east,length=normal,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal",
+      "y": 90
+    },
+    "facing=east,length=normal_left,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left",
+      "y": 90
+    },
+    "facing=east,length=normal_left,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left",
+      "y": 90
+    },
+    "facing=east,length=normal_right,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right",
+      "y": 90
+    },
+    "facing=east,length=normal_right,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right",
+      "y": 90
+    },
+    "facing=east,length=short,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short",
+      "y": 90
+    },
+    "facing=east,length=short,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short",
+      "y": 90
+    },
+    "facing=north,length=long,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long"
+    },
+    "facing=north,length=long,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long"
+    },
+    "facing=north,length=normal,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal"
+    },
+    "facing=north,length=normal,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal"
+    },
+    "facing=north,length=normal_left,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left"
+    },
+    "facing=north,length=normal_left,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left"
+    },
+    "facing=north,length=normal_right,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right"
+    },
+    "facing=north,length=normal_right,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right"
+    },
+    "facing=north,length=short,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short"
+    },
+    "facing=north,length=short,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short"
+    },
+    "facing=south,length=long,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long",
+      "y": 180
+    },
+    "facing=south,length=long,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long",
+      "y": 180
+    },
+    "facing=south,length=normal,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal",
+      "y": 180
+    },
+    "facing=south,length=normal,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal",
+      "y": 180
+    },
+    "facing=south,length=normal_left,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left",
+      "y": 180
+    },
+    "facing=south,length=normal_left,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left",
+      "y": 180
+    },
+    "facing=south,length=normal_right,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right",
+      "y": 180
+    },
+    "facing=south,length=normal_right,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right",
+      "y": 180
+    },
+    "facing=south,length=short,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short",
+      "y": 180
+    },
+    "facing=south,length=short,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short",
+      "y": 180
+    },
+    "facing=west,length=long,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long",
+      "y": 270
+    },
+    "facing=west,length=long,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/long",
+      "y": 270
+    },
+    "facing=west,length=normal,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal",
+      "y": 270
+    },
+    "facing=west,length=normal,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal",
+      "y": 270
+    },
+    "facing=west,length=normal_left,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left",
+      "y": 270
+    },
+    "facing=west,length=normal_left,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_left",
+      "y": 270
+    },
+    "facing=west,length=normal_right,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right",
+      "y": 270
+    },
+    "facing=west,length=normal_right,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/normal_right",
+      "y": 270
+    },
+    "facing=west,length=short,waterlogged=false": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short",
+      "y": 270
+    },
+    "facing=west,length=short,waterlogged=true": {
+      "model": "shadowsandpetals:block/shishi_odoshi/pipe/short",
+      "y": 270
+    }
+  }
+}

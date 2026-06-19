@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:bamboo"
+  },
+  "pattern": [
+    "B",
+    "B"
+  ],
+  "result": {
+    "id": "shadowsandpetals:shishi_odoshi_pipe"
+  }
+}

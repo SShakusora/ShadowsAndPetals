@@ -32,6 +32,9 @@ public final class BlockModelRegistry {
     private static final Map<WoodPostChainModelKey, BlockStateModel> WOOD_POST_CHAIN_MODELS = new HashMap<>();
     private static final Map<WoodPostLinkModelKey, StandaloneModelKey<BlockStateModel>> WOOD_POST_LINK_MODEL_KEYS = new HashMap<>();
     private static final Map<WoodPostLinkModelKey, BlockStateModel> WOOD_POST_LINK_MODELS = new HashMap<>();
+    private static final StandaloneModelKey<BlockStateModel> SHISHI_ODOSHI_MAIN_KEY = new StandaloneModelKey<>(
+            () -> ShadowsAndPetals.asResource("shishi_odoshi_main").toString());
+    private static BlockStateModel shishiOdoshiMainModel;
 
     private BlockModelRegistry() {
     }
@@ -40,12 +43,14 @@ public final class BlockModelRegistry {
         registerIroriFirewoodModels(event);
         registerVanityModels(event);
         registerWoodPostConnectionModels(event);
+        registerShishiOdoshiModels(event);
     }
 
     public static void cacheBakedModels(ModelEvent.BakingCompleted event) {
         cacheIroriFirewoodModels(event);
         cacheVanityModels(event);
         cacheWoodPostConnectionModels(event);
+        cacheShishiOdoshiModels(event);
     }
 
     public static void wrapBlockStateModels(ModelEvent.ModifyBakingResult event) {
@@ -105,6 +110,24 @@ public final class BlockModelRegistry {
 
         StandaloneModelKey<BlockStateModel> standaloneKey = WOOD_POST_CHAIN_MODEL_KEYS.get(key);
         return standaloneKey == null ? null : Minecraft.getInstance().getModelManager().getStandaloneModel(standaloneKey);
+    }
+
+    private static void registerShishiOdoshiModels(ModelEvent.RegisterStandalone event) {
+        event.register(
+                SHISHI_ODOSHI_MAIN_KEY,
+                SimpleUnbakedStandaloneModel.blockStateModel(ShadowsAndPetals.asResource("block/shishi_odoshi/main"))
+        );
+    }
+
+    private static void cacheShishiOdoshiModels(ModelEvent.BakingCompleted event) {
+        shishiOdoshiMainModel = event.getModelManager().getStandaloneModel(SHISHI_ODOSHI_MAIN_KEY);
+    }
+
+    public static @Nullable BlockStateModel getShishiOdoshiMainModel() {
+        if (shishiOdoshiMainModel != null) {
+            return shishiOdoshiMainModel;
+        }
+        return Minecraft.getInstance().getModelManager().getStandaloneModel(SHISHI_ODOSHI_MAIN_KEY);
     }
 
     private static void registerVanityModels(ModelEvent.RegisterStandalone event) {

@@ -6,6 +6,7 @@ import com.sshakusora.shadowsandpetals.registries.builder.*;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -31,6 +32,7 @@ public class SAPRegistries {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, ShadowsAndPetals.MOD_ID);
+    public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, ShadowsAndPetals.MOD_ID);
 
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
@@ -40,6 +42,7 @@ public class SAPRegistries {
         BLOCK_ENTITIES.register(modEventBus);
         PARTICLES.register(modEventBus);
         FEATURES.register(modEventBus);
+        SOUNDS.register(modEventBus);
     }
 
     // Block helpers
@@ -92,6 +95,12 @@ public class SAPRegistries {
 
     public static <P extends ParticleType<?>> RegParticleBuilder<P> particleType(String name, Supplier<P> factory) {
         return new RegParticleBuilder<P>(PARTICLES, name).particle(factory);
+    }
+
+    // Sound helpers
+
+    public static RegSoundBuilder sound(String name) {
+        return new RegSoundBuilder(SOUNDS, name);
     }
 
     // Entity helpers

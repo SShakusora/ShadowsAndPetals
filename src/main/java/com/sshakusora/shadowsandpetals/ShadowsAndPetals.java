@@ -21,6 +21,7 @@ public class ShadowsAndPetals {
         BlockEntityRegistry.init();
         EntityRegistry.init();
         ParticleRegistry.init();
+        SoundRegistry.init();
         CreativeTabRegistry.init();
         SAPFeatures.init();
     }

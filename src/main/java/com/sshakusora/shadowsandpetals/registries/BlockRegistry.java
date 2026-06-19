@@ -413,6 +413,47 @@ public class BlockRegistry {
             .lang("zh_cn", "砂纹")
             .register();
 
+    public static final DeferredBlock<ShishiOdoshiBlock> SHISHI_ODOSHI = SAPRegistries
+            .block("shishi_odoshi", ShishiOdoshiBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.BAMBOO)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.NATURE)
+            .blockstate((provider, block) -> provider.shishiOdoshiBlock(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                    .define('B', Items.BAMBOO)
+                    .define('S', Items.COBBLESTONE)
+                    .pattern("BBB")
+                    .pattern("SSS")
+                    .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
+                    .save(provider.output()))
+            .lang("zh_cn", "添水")
+            .register();
+
+    public static final DeferredBlock<ShishiOdoshiPipeBlock> SHISHI_ODOSHI_PIPE = SAPRegistries
+            .block("shishi_odoshi_pipe", ShishiOdoshiPipeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(1.0F, 1.5F)
+                    .sound(SoundType.BAMBOO)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.NATURE)
+            .blockstate((provider, block) -> provider.shishiOdoshiPipeBlock(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                    .define('B', Items.BAMBOO)
+                    .pattern("B")
+                    .pattern("B")
+                    .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
+                    .save(provider.output()))
+            .lang("zh_cn", "添水竹管")
+            .register();
+
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x1 = registerRockery(1, 1, 1);
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x2 = registerRockery(1, 1, 2);
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x2x1 = registerRockery(1, 2, 1);

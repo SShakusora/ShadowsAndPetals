@@ -354,6 +354,59 @@ public class ModBlockStateProvider implements DataProvider {
         this.models.put(itemModelId(block), BlockModelTemplates.parentModel(straightModel));
     }
 
+    public void shishiOdoshiBlock(ShishiOdoshiBlock block) {
+        Identifier blockModel = modLoc("block/shishi_odoshi/block");
+
+        JsonObject variants = new JsonObject();
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            int y = switch (facing) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            for (boolean waterlogged : new boolean[]{false, true}) {
+                variants.add(
+                        ShishiOdoshiBlock.FACING.getName() + "=" + facing.getSerializedName()
+                                + "," + ShishiOdoshiBlock.WATERLOGGED.getName() + "=" + waterlogged,
+                        rotatedModel(blockModel, 0, y)
+                );
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
+    public void shishiOdoshiPipeBlock(ShishiOdoshiPipeBlock block) {
+        JsonObject variants = new JsonObject();
+        for (Direction facing : Direction.Plane.HORIZONTAL) {
+            int y = switch (facing) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            for (ShishiOdoshiPipeBlock.PipeLength length : ShishiOdoshiPipeBlock.PipeLength.values()) {
+                Identifier modelId = modLoc("block/shishi_odoshi/pipe/" + length.getSerializedName());
+                for (boolean waterlogged : new boolean[]{false, true}) {
+                    variants.add(
+                            ShishiOdoshiPipeBlock.FACING.getName() + "=" + facing.getSerializedName()
+                                    + "," + ShishiOdoshiPipeBlock.LENGTH.getName() + "=" + length.getSerializedName()
+                                    + "," + ShishiOdoshiPipeBlock.WATERLOGGED.getName() + "=" + waterlogged,
+                            rotatedModel(modelId, 0, y)
+                    );
+                }
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(modLoc("block/shishi_odoshi/pipe/long")));
+    }
+
     public void rockeryBlock(RockeryBlock block, RockeryDimensions dims) {
         JsonObject variants = new JsonObject();
         for (int part = 0; part <= RockeryBlock.PART.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0); part++) {
