@@ -5,8 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiBlock;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiBlockEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -19,12 +17,9 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
@@ -38,8 +33,6 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
     private static final float MAIN_PIVOT_X = 8.0F / 16.0F;
     private static final float MAIN_PIVOT_Y = 9.0F / 16.0F;
     private static final float MAIN_PIVOT_Z = 9.0F / 16.0F;
-    // The center of the inner floor's outer lip after main.json's baked 27.5-degree rotation.
-    // Water leaves this edge rather than the geometric center of the opening cavity.
     private static final float MAIN_OUTLET_X = 8.0F;
     private static final float MAIN_OUTLET_Y = 10.881578F;
     private static final float MAIN_OUTLET_Z = 3.259766F;
@@ -48,13 +41,10 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
     private static final float POUR_BOTTOM_Y = 3.02F / 16.0F;
     private static final float POUR_HALF_WIDTH = 0.48F / 16.0F;
     private static final float POUR_STRIP_LENGTH = 3.5F / 16.0F;
+    private static final float POUR_FACE_OFFSET = 0.01F / 16.0F;
     private static final float TUBE_EXIT_DURATION = ShishiOdoshiBlockEntity.TIPPING_DURATION - ShishiOdoshiBlockEntity.POUR_START_TICK;
     private static final float FLOW_UV_SCALE = 0.5F;
     private static final float FLOW_U_CENTER = 0.5F;
-    private static final int WATER_ALPHA = 208;
-    private static final Identifier WATER_FLOW_TEXTURE = Identifier.withDefaultNamespace("block/water_flow");
-    private static @Nullable TextureAtlasSprite flowingWaterSprite;
-
     public ShishiOdoshiBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
@@ -88,8 +78,11 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         }
 
         var tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        int waterRgb = BiomeColors.getAverageWaterColor(tintGetter, blockEntity.getBlockPos());
-        state.waterColor = ARGB.color(WATER_ALPHA, waterRgb);
+        var fluidRenderInfo = ShishiOdoshiFluidRenderInfo.create(
+                blockEntity.getFluid(), tintGetter, blockEntity.getBlockPos()
+        );
+        state.fluidSprite = fluidRenderInfo == null ? null : fluidRenderInfo.sprite();
+        state.waterColor = fluidRenderInfo == null ? 0xD0FFFFFF : fluidRenderInfo.color();
         updatePourPath(state);
 
         if (state.cachedMainModel != mainModel) {
@@ -128,7 +121,11 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         poseStack.popPose();
 
         if (state.pourProgress >= 0.0F && state.pourProgress < 1.0F) {
-            TextureAtlasSprite sprite = getFlowingWaterSprite();
+            TextureAtlasSprite sprite = state.fluidSprite;
+            if (sprite == null) {
+                poseStack.popPose();
+                return;
+            }
             submitNodeCollector.submitCustomGeometry(
                     poseStack,
                     Sheets.translucentBlockSheet(),
@@ -139,8 +136,6 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
     }
 
     private static void updatePourPath(State state) {
-        // Once the strip has completely left the tube, its release point stays in
-        // world space instead of following the tube during the fast return motion.
         float elapsedTicks = Math.max(0.0F, state.pourProgress) * ShishiOdoshiBlockEntity.POUR_DURATION;
         float pathAngle = elapsedTicks > TUBE_EXIT_DURATION
                 ? ShishiOdoshiBlockEntity.MAX_TIP_ANGLE
@@ -208,7 +203,8 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
                     minU, maxU,
                     (tubeStart - tailDistance) * FLOW_UV_SCALE,
                     (tubeEnd - tailDistance) * FLOW_UV_SCALE,
-                    state.waterColor, state.lightCoords
+                    state.waterColor, state.lightCoords,
+                    true
             );
         }
 
@@ -222,7 +218,8 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
                     minU, maxU,
                     (fallingStart - tailDistance) * FLOW_UV_SCALE,
                     (fallingEnd - tailDistance) * FLOW_UV_SCALE,
-                    state.waterColor, state.lightCoords
+                    state.waterColor, state.lightCoords,
+                    true
             );
         }
     }
@@ -242,7 +239,8 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
             float startV,
             float endV,
             int color,
-            int lightCoords
+            int lightCoords,
+            boolean doubleSided
     ) {
         float deltaY = endY - startY;
         float deltaZ = endZ - startZ;
@@ -250,15 +248,25 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         float normalY = -deltaZ * inverseLength;
         float normalZ = deltaY * inverseLength;
 
-        addWaterVertex(buffer, pose, sprite, minX, startY, startZ, color, minU, startV, lightCoords, normalY, normalZ);
-        addWaterVertex(buffer, pose, sprite, minX, endY, endZ, color, minU, endV, lightCoords, normalY, normalZ);
-        addWaterVertex(buffer, pose, sprite, maxX, endY, endZ, color, maxU, endV, lightCoords, normalY, normalZ);
-        addWaterVertex(buffer, pose, sprite, maxX, startY, startZ, color, maxU, startV, lightCoords, normalY, normalZ);
+        float frontOffsetY = -normalY * POUR_FACE_OFFSET;
+        float frontOffsetZ = -normalZ * POUR_FACE_OFFSET;
 
-        addWaterVertex(buffer, pose, sprite, maxX, startY, startZ, color, maxU, startV, lightCoords, -normalY, -normalZ);
-        addWaterVertex(buffer, pose, sprite, maxX, endY, endZ, color, maxU, endV, lightCoords, -normalY, -normalZ);
-        addWaterVertex(buffer, pose, sprite, minX, endY, endZ, color, minU, endV, lightCoords, -normalY, -normalZ);
-        addWaterVertex(buffer, pose, sprite, minX, startY, startZ, color, minU, startV, lightCoords, -normalY, -normalZ);
+        addWaterVertex(buffer, pose, sprite, minX, startY + frontOffsetY, startZ + frontOffsetZ, color, minU, startV, lightCoords, -normalY, -normalZ);
+        addWaterVertex(buffer, pose, sprite, minX, endY + frontOffsetY, endZ + frontOffsetZ, color, minU, endV, lightCoords, -normalY, -normalZ);
+        addWaterVertex(buffer, pose, sprite, maxX, endY + frontOffsetY, endZ + frontOffsetZ, color, maxU, endV, lightCoords, -normalY, -normalZ);
+        addWaterVertex(buffer, pose, sprite, maxX, startY + frontOffsetY, startZ + frontOffsetZ, color, maxU, startV, lightCoords, -normalY, -normalZ);
+
+        if (!doubleSided) {
+            return;
+        }
+
+        float backOffsetY = normalY * POUR_FACE_OFFSET;
+        float backOffsetZ = normalZ * POUR_FACE_OFFSET;
+
+        addWaterVertex(buffer, pose, sprite, maxX, startY + backOffsetY, startZ + backOffsetZ, color, maxU, startV, lightCoords, normalY, normalZ);
+        addWaterVertex(buffer, pose, sprite, maxX, endY + backOffsetY, endZ + backOffsetZ, color, maxU, endV, lightCoords, normalY, normalZ);
+        addWaterVertex(buffer, pose, sprite, minX, endY + backOffsetY, endZ + backOffsetZ, color, minU, endV, lightCoords, normalY, normalZ);
+        addWaterVertex(buffer, pose, sprite, minX, startY + backOffsetY, startZ + backOffsetZ, color, minU, startV, lightCoords, normalY, normalZ);
     }
 
     private static void addWaterVertex(
@@ -274,16 +282,6 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
                 .setNormal(pose, 0.0F, normalY, normalZ);
     }
 
-    private static TextureAtlasSprite getFlowingWaterSprite() {
-        if (flowingWaterSprite == null) {
-            TextureAtlas atlas = (TextureAtlas) Minecraft.getInstance()
-                    .getTextureManager()
-                    .getTexture(TextureAtlas.LOCATION_BLOCKS);
-            flowingWaterSprite = atlas.getSprite(WATER_FLOW_TEXTURE);
-        }
-        return flowingWaterSprite;
-    }
-
     public static class State extends BlockEntityRenderState {
         public final List<BlockStateModelPart> mainModelParts = new ArrayList<>();
         public Direction facing = Direction.NORTH;
@@ -295,6 +293,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         public float outletY;
         public float outletZ;
         public int waterColor;
+        public @Nullable TextureAtlasSprite fluidSprite;
         public boolean mainHasTranslucency;
         private @Nullable BlockStateModel cachedMainModel;
     }

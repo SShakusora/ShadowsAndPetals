@@ -3,11 +3,10 @@ package com.sshakusora.shadowsandpetals.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import com.sshakusora.shadowsandpetals.api.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiPipeBlock;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiPipeBlockEntity;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -17,23 +16,18 @@ import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<ShishiOdoshiPipeBlockEntity, ShishiOdoshiPipeBlockEntityRenderer.State> {
-    private static final Identifier WATER_FLOW_TEXTURE = Identifier.withDefaultNamespace("block/water_flow");
     private static final float WATER_SURFACE_Y = 1.02F / 16.0F;
     private static final float STREAM_Y_TOP = WATER_SURFACE_Y;
-    // main.json's opening center after its baked 27.5-degree element rotation.
     private static final float MAIN_OPENING_Y = 10.863334F;
     private static final float MAIN_OPENING_Z = 4.377651F;
     private static final float MAIN_PIVOT_Y = 9.0F;
@@ -44,18 +38,19 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
     private static final float INNER_STREAM_HALF_WIDTH = 0.48F / 16.0F;
     private static final float FALLING_STREAM_HALF_WIDTH = 0.48F / 16.0F;
     private static final float STREAM_FADE_LENGTH = 2.0F / 16.0F;
-    // Vanilla FluidRenderer maps one block to half of the 32x32 flowing-water sprite.
     private static final float FLOW_UV_SCALE = 0.5F;
     private static final float FLOW_U_CENTER = 0.5F;
-    private static final int WATER_ALPHA = 208;
-    private static @Nullable TextureAtlasSprite flowingWaterSprite;
-
     public ShishiOdoshiPipeBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
     public State createRenderState() {
         return new State();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(ShishiOdoshiPipeBlockEntity blockEntity) {
+        return new AABB(blockEntity.getBlockPos()).expandTowards(0.0D, -1.0D, 0.0D);
     }
 
     @Override
@@ -72,7 +67,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         state.facing = blockState.getValue(ShishiOdoshiPipeBlock.FACING);
         state.length = blockState.getValue(ShishiOdoshiPipeBlock.LENGTH);
         state.shouldRenderWater = false;
-        state.waterColor = ARGB.color(WATER_ALPHA, 63, 118, 228);
+        state.fluidSprite = null;
         state.streamBottomY = DEFAULT_STREAM_Y_BOTTOM;
 
         if (blockEntity.getLevel() == null) {
@@ -84,17 +79,19 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         }
 
         BlockPos sourcePos = blockEntity.getBlockPos().relative(state.facing.getOpposite());
-        BlockState sourceState = blockEntity.getLevel().getBlockState(sourcePos);
-        if (!sourceState.hasProperty(BlockStateProperties.WATERLOGGED)
-                || !sourceState.getValue(BlockStateProperties.WATERLOGGED)) {
+        var fluid = ShishiOdoshiFluidRegistry.findSourceFluid(blockEntity.getLevel(), sourcePos);
+        if (fluid == null) {
             return;
         }
 
-        state.shouldRenderWater = true;
-        state.waterColor = ARGB.color(
-                WATER_ALPHA,
-                BiomeColors.getAverageWaterColor((BlockAndTintGetter) blockEntity.getLevel(), sourcePos)
+        var renderInfo = ShishiOdoshiFluidRenderInfo.create(
+                fluid, (BlockAndTintGetter) blockEntity.getLevel(), sourcePos
         );
+        if (renderInfo != null) {
+            state.shouldRenderWater = true;
+            state.fluidSprite = renderInfo.sprite();
+            state.waterColor = renderInfo.color();
+        }
     }
 
     @Override
@@ -103,7 +100,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             return;
         }
 
-        TextureAtlasSprite sprite = getFlowingWaterSprite();
+        TextureAtlasSprite sprite = state.fluidSprite;
         if (sprite == null) {
             return;
         }
@@ -115,7 +112,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.0D, 0.5D);
         // The unrotated model is the north-facing blockstate variant.
-        poseStack.mulPose(Axis.YP.rotationDegrees(state.facing.toYRot() + 180.0F));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-state.facing.toYRot() + 180.0F));
         poseStack.translate(-0.5D, 0.0D, -0.5D);
 
         submitNodeCollector.submitCustomGeometry(
@@ -246,18 +243,6 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
                 .setNormal(pose, normalX, normalY, normalZ);
     }
 
-    private static @Nullable TextureAtlasSprite getFlowingWaterSprite() {
-        if (flowingWaterSprite != null) {
-            return flowingWaterSprite;
-        }
-
-        TextureAtlas atlas = (TextureAtlas) Minecraft.getInstance()
-                .getTextureManager()
-                .getTexture(TextureAtlas.LOCATION_BLOCKS);
-        flowingWaterSprite = atlas.getSprite(WATER_FLOW_TEXTURE);
-        return flowingWaterSprite;
-    }
-
     private static float getAnimatedOpeningY(float tipAngle) {
         float radians = tipAngle * Mth.DEG_TO_RAD;
         float relativeY = MAIN_OPENING_Y - MAIN_PIVOT_Y;
@@ -273,6 +258,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         public ShishiOdoshiPipeBlock.PipeLength length = ShishiOdoshiPipeBlock.PipeLength.NORMAL;
         public boolean shouldRenderWater;
         public int waterColor;
+        public @Nullable TextureAtlasSprite fluidSprite;
         public float streamBottomY = DEFAULT_STREAM_Y_BOTTOM;
     }
 

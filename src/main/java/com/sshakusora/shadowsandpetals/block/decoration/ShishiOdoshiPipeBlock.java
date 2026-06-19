@@ -56,7 +56,11 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
     protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
         Direction facing = state.getValue(FACING);
         BlockPos sourcePos = pos.relative(facing.getOpposite());
-        return level.getBlockState(sourcePos).isFaceSturdy(level, sourcePos, facing, SupportType.FULL);
+        BlockState sourceState = level.getBlockState(sourcePos);
+        if (sourceState.isFaceSturdy(level, sourcePos, facing, SupportType.FULL)) {
+            return true;
+        }
+        return sourceState.getBlock() instanceof AbstractCauldronBlock;
     }
 
     @Override

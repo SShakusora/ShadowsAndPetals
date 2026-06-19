@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
+import com.sshakusora.shadowsandpetals.api.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiPipeBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
@@ -7,10 +8,12 @@ import com.sshakusora.shadowsandpetals.registries.SoundRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -18,7 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -29,9 +32,12 @@ import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 public class ShishiOdoshiBlockEntity extends BlockEntity {
-    private static final String WATER_AMOUNT_KEY = "WaterAmount";
+    private static final String FLUID_AMOUNT_KEY = "WaterAmount";
+    private static final String FLUID_KEY = "Fluid";
     private static final String ANIMATION_PHASE_KEY = "AnimationPhase";
-    private static final String ANIMATION_TICK_KEY = "AnimationTick";
+    private static final String ANIMATION_TICK_KEY = "AnimationTickMilli";
+    private static final String LEGACY_ANIMATION_TICK_KEY = "AnimationTick";
+    private static final String POUR_TICK_KEY = "PourTickMilli";
 
     public static final int WATER_CAPACITY = 100;
     public static final int TIPPING_DURATION = 24;
@@ -43,9 +49,11 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     public static final float MAX_TIP_ANGLE = -34.5F;
     public static final float MAX_BOUNCE_ANGLE = -6.0F;
 
-    private int waterAmount;
+    private int fluidAmount;
+    private Fluid fluid = Fluids.WATER;
     private AnimationPhase animationPhase = AnimationPhase.FILLING;
-    private int animationTick;
+    private float animationTick;
+    private float pourTick = -1.0F;
     private boolean clientSplashSpawned;
 
     public ShishiOdoshiBlockEntity(BlockPos pos, BlockState blockState) {
@@ -54,7 +62,15 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
 
     /** Exposes the current water amount (0–{@link #WATER_CAPACITY}) for capability providers. */
     public int getWaterAmount() {
-        return waterAmount;
+        return fluidAmount;
+    }
+
+    public int getFluidAmount() {
+        return fluidAmount;
+    }
+
+    public Fluid getFluid() {
+        return fluid;
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, ShishiOdoshiBlockEntity blockEntity) {
@@ -65,13 +81,20 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         }
 
         if (blockEntity.animationPhase == AnimationPhase.FILLING) {
-            if (hasFlowingPipe(level, pos.above())) {
-                blockEntity.waterAmount++;
-                if (blockEntity.waterAmount > 0 && blockEntity.waterAmount % 30 == 0) {
+            Fluid flowingFluid = getFlowingPipeFluid(level, pos.above());
+            if (flowingFluid != null) {
+                if (blockEntity.fluidAmount > 0 && blockEntity.fluid != flowingFluid) {
+                    blockEntity.fluidAmount = 0;
+                }
+                blockEntity.fluid = flowingFluid;
+                blockEntity.fluidAmount++;
+                if (blockEntity.fluid == Fluids.WATER
+                        && blockEntity.fluidAmount > 0
+                        && blockEntity.fluidAmount % 30 == 0) {
                     level.playSound(null, pos, SoundEvents.WATER_AMBIENT, SoundSource.BLOCKS, 0.12F, 0.9F + level.getRandom().nextFloat() * 0.2F);
                 }
-                if (blockEntity.waterAmount >= WATER_CAPACITY) {
-                    blockEntity.waterAmount = WATER_CAPACITY;
+                if (blockEntity.fluidAmount >= WATER_CAPACITY) {
+                    blockEntity.fluidAmount = WATER_CAPACITY;
                     blockEntity.animationPhase = AnimationPhase.TIPPING;
                     blockEntity.animationTick = 0;
                     blockEntity.setChanged();
@@ -98,7 +121,9 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
             return;
         }
 
-        animationTick++;
+        float previousAnimationTick = animationTick;
+        animationTick += getAnimationSpeed();
+        tickPouringStream(previousAnimationTick);
         int duration = getPhaseDuration(animationPhase);
         if (animationTick < duration) {
             return;
@@ -111,7 +136,8 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
             animationPhase = AnimationPhase.BOUNCING;
         } else {
             animationPhase = AnimationPhase.FILLING;
-            waterAmount = 0;
+            fluidAmount = 0;
+            pourTick = -1.0F;
         }
         setChanged();
         if (syncTransitions) {
@@ -119,16 +145,14 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         }
     }
 
-    private static boolean hasFlowingPipe(Level level, BlockPos pipePos) {
+    private static @Nullable Fluid getFlowingPipeFluid(Level level, BlockPos pipePos) {
         BlockState pipeState = level.getBlockState(pipePos);
         if (!(pipeState.getBlock() instanceof ShishiOdoshiPipeBlock)) {
-            return false;
+            return null;
         }
 
         BlockPos sourcePos = pipePos.relative(pipeState.getValue(ShishiOdoshiPipeBlock.FACING).getOpposite());
-        BlockState sourceState = level.getBlockState(sourcePos);
-        return sourceState.hasProperty(BlockStateProperties.WATERLOGGED)
-                && sourceState.getValue(BlockStateProperties.WATERLOGGED);
+        return ShishiOdoshiFluidRegistry.findSourceFluid(level, sourcePos);
     }
 
     public float getTipAngle(float partialTick) {
@@ -137,7 +161,11 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         }
 
         int duration = getPhaseDuration(animationPhase);
-        float progress = Mth.clamp((animationTick + partialTick) / duration, 0.0F, 1.0F);
+        float progress = Mth.clamp(
+                (animationTick + partialTick * getAnimationSpeed()) / duration,
+                0.0F,
+                1.0F
+        );
         if (animationPhase == AnimationPhase.TIPPING) {
             return MAX_TIP_ANGLE * progress * progress;
         }
@@ -148,16 +176,32 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     }
 
     public float getPourProgress(float partialTick) {
-        float elapsed = switch (animationPhase) {
-            case FILLING -> -1.0F;
-            case TIPPING -> animationTick + partialTick - POUR_START_TICK;
-            case RETURNING -> TIPPING_DURATION - POUR_START_TICK + animationTick + partialTick;
-            case BOUNCING -> TIPPING_DURATION - POUR_START_TICK + RETURNING_DURATION + animationTick + partialTick;
-        };
-        return elapsed < 0.0F ? -1.0F : Mth.clamp(elapsed / POUR_DURATION, 0.0F, 1.0F);
+        if (pourTick < 0.0F) {
+            return -1.0F;
+        }
+        float elapsed = pourTick;
+        if (elapsed < POUR_DURATION) {
+            elapsed += partialTick * ShishiOdoshiFluidRegistry.getAnimationSpeed(fluid);
+        }
+        return Mth.clamp(elapsed / POUR_DURATION, 0.0F, 1.0F);
+    }
+
+    private void tickPouringStream(float previousAnimationTick) {
+        float flowSpeed = ShishiOdoshiFluidRegistry.getAnimationSpeed(fluid);
+        if (animationPhase == AnimationPhase.TIPPING
+                && previousAnimationTick < POUR_START_TICK
+                && animationTick >= POUR_START_TICK) {
+            pourTick = animationTick - POUR_START_TICK;
+        } else if (pourTick >= 0.0F && pourTick < POUR_DURATION) {
+            pourTick += flowSpeed;
+        }
     }
 
     private void tickClientEffects(Level level, BlockPos pos, BlockState state) {
+        if (fluid != Fluids.WATER) {
+            clientSplashSpawned = false;
+            return;
+        }
         float pourProgress = getPourProgress(0.0F);
         if (pourProgress < 0.0F) {
             clientSplashSpawned = false;
@@ -190,25 +234,44 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        if (waterAmount > 0) {
-            output.putInt(WATER_AMOUNT_KEY, waterAmount);
+        if (fluidAmount > 0) {
+            output.putInt(FLUID_AMOUNT_KEY, fluidAmount);
+            output.putString(FLUID_KEY, BuiltInRegistries.FLUID.getKey(fluid).toString());
         }
         if (animationPhase != AnimationPhase.FILLING) {
             output.putInt(ANIMATION_PHASE_KEY, animationPhase.ordinal());
-            output.putInt(ANIMATION_TICK_KEY, animationTick);
+            output.putInt(ANIMATION_TICK_KEY, Math.round(animationTick * 1000.0F));
+        }
+        if (pourTick >= 0.0F) {
+            output.putInt(POUR_TICK_KEY, Math.round(pourTick * 1000.0F));
         }
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        waterAmount = Mth.clamp(input.getInt(WATER_AMOUNT_KEY).orElse(0), 0, WATER_CAPACITY);
+        fluidAmount = Mth.clamp(input.getInt(FLUID_AMOUNT_KEY).orElse(0), 0, WATER_CAPACITY);
+        fluid = input.getString(FLUID_KEY)
+                .map(Identifier::tryParse)
+                .map(BuiltInRegistries.FLUID::getValue)
+                .filter(value -> value != Fluids.EMPTY)
+                .orElse(Fluids.WATER);
         int phaseOrdinal = input.getInt(ANIMATION_PHASE_KEY).orElse(AnimationPhase.FILLING.ordinal());
         animationPhase = phaseOrdinal >= 0 && phaseOrdinal < AnimationPhase.values().length
                 ? AnimationPhase.values()[phaseOrdinal]
                 : AnimationPhase.FILLING;
         int duration = getPhaseDuration(animationPhase);
-        animationTick = Mth.clamp(input.getInt(ANIMATION_TICK_KEY).orElse(0), 0, duration - 1);
+        float savedAnimationTick = input.getInt(ANIMATION_TICK_KEY)
+                .map(value -> value / 1000.0F)
+                .orElseGet(() -> input.getInt(LEGACY_ANIMATION_TICK_KEY).orElse(0).floatValue());
+        animationTick = Mth.clamp(
+                savedAnimationTick,
+                0.0F,
+                duration - 0.001F
+        );
+        pourTick = input.getInt(POUR_TICK_KEY)
+                .map(value -> value / 1000.0F)
+                .orElseGet(this::getLegacyPourTick);
     }
 
     private static int getPhaseDuration(AnimationPhase phase) {
@@ -217,6 +280,21 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
             case TIPPING -> TIPPING_DURATION;
             case RETURNING -> RETURNING_DURATION;
             case BOUNCING -> BOUNCING_DURATION;
+        };
+    }
+
+    private float getAnimationSpeed() {
+        return animationPhase == AnimationPhase.TIPPING
+                ? ShishiOdoshiFluidRegistry.getAnimationSpeed(fluid)
+                : 1.0F;
+    }
+
+    private float getLegacyPourTick() {
+        return switch (animationPhase) {
+            case FILLING -> -1.0F;
+            case TIPPING -> animationTick < POUR_START_TICK ? -1.0F : animationTick - POUR_START_TICK;
+            case RETURNING -> TIPPING_DURATION - POUR_START_TICK + animationTick;
+            case BOUNCING -> TIPPING_DURATION - POUR_START_TICK + RETURNING_DURATION + animationTick;
         };
     }
 
@@ -245,8 +323,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     }
 
     public static class FluidHandler implements ResourceHandler<FluidResource> {
-        private static final int SCALE = 10;
-        private static final int CAPACITY_MB = WATER_CAPACITY * SCALE;
+        private static final int CAPACITY_MB = WATER_CAPACITY;
 
         private final ShishiOdoshiBlockEntity blockEntity;
 
@@ -264,13 +341,13 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
             if (index != 0 || blockEntity.getWaterAmount() <= 0) {
                 return FluidResource.EMPTY;
             }
-            return FluidResource.of(Fluids.WATER);
+            return FluidResource.of(blockEntity.getFluid());
         }
 
         @Override
         public long getAmountAsLong(int index) {
             if (index != 0) return 0;
-            return (long) blockEntity.getWaterAmount() * SCALE;
+            return (long) blockEntity.getWaterAmount();
         }
 
         @Override
@@ -281,7 +358,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
 
         @Override
         public boolean isValid(int index, FluidResource resource) {
-            return index == 0 && resource.is(Fluids.WATER);
+            return index == 0 && resource.is(blockEntity.getFluid());
         }
 
         @Override
