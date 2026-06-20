@@ -40,6 +40,9 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
     private static final float STREAM_FADE_LENGTH = 2.0F / 16.0F;
     private static final float FLOW_UV_SCALE = 0.5F;
     private static final float FLOW_U_CENTER = 0.5F;
+    private final ShishiOdoshiFluidRenderInfo.Cache<ShishiOdoshiPipeBlockEntity> fluidRenderInfoCache =
+            new ShishiOdoshiFluidRenderInfo.Cache<>();
+
     public ShishiOdoshiPipeBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
@@ -84,7 +87,8 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             return;
         }
 
-        var renderInfo = ShishiOdoshiFluidRenderInfo.create(
+        var renderInfo = fluidRenderInfoCache.get(
+                blockEntity,
                 fluid, (BlockAndTintGetter) blockEntity.getLevel(), sourcePos
         );
         if (renderInfo != null) {

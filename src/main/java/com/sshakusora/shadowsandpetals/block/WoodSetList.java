@@ -4,6 +4,8 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabOrder;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
 import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
@@ -104,7 +106,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN, BlockTags.OVERWORLD_NATURAL_LOGS)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LOGS)
                 .lang("zh_cn", zhName)
                 .register();
     }
@@ -116,7 +118,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STRIPPED_LOGS)
                 .lang("zh_cn", zhName)
                 .register();
     }
@@ -128,7 +130,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_WOOD)
                 .lang("zh_cn", zhName)
                 .recipe((provider, wood) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, wood.get(), 3)
                         .define('W', sourceBlock.get())
@@ -146,7 +148,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STRIPPED_WOOD)
                 .lang("zh_cn", zhName)
                 .recipe((provider, wood) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, wood.get(), 3)
                         .define('W', sourceBlock.get())
@@ -164,7 +166,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.PLANKS)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_PLANKS)
                 .lang("zh_cn", zhName)
                 .loot((provider, block) -> provider.dropSelf(block.get()))
                 .recipe((provider, block) -> {
@@ -188,7 +190,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .noOcclusion())
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .tooltipDescription(WoodSetList::woodPostTooltip)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, post) -> provider.woodPostBlockWithItem(
                         post.get(),
@@ -214,7 +217,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .noOcclusion())
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .tooltipDescription(WoodSetList::woodPostTooltip)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STRIPPED_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, post) -> provider.woodPostBlockWithItem(
                         post.get(),
@@ -240,7 +244,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .noOcclusion())
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .tooltipDescription(WoodSetList::woodPostTooltip)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_WOOD_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, post) -> provider.woodPostBlockWithItem(
                         post.get(),
@@ -266,7 +271,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .noOcclusion())
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .tooltipDescription(WoodSetList::woodPostTooltip)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STRIPPED_WOOD_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, post) -> provider.woodPostBlockWithItem(
                         post.get(),
@@ -284,6 +290,21 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .register();
     }
 
+    private static void woodPostTooltip(TooltipLangBuilder tooltip) {
+        tooltip.summary(
+                        "A slender wooden _post_ that adapts to nearby fittings.",
+                        "可适应周围连接件的细长木制_柱体_。")
+                .behaviour(
+                        "When placed:", "放置时:",
+                        "Align along the _axis_ of the clicked face.", "沿点击面的_轴向_排列。")
+                .behaviour(
+                        "When joined with aligned Posts or Chains:", "与同轴木柱或锁链相连时:",
+                        "Automatically form _connected supports_.", "自动形成_连续支撑结构_。")
+                .behaviour(
+                        "When a Lantern or Hanging Sign is hung below:", "下方悬挂灯笼或悬挂式告示牌时:",
+                        "Extend a matching _chain connection_.", "延伸出对应的_锁链连接_。");
+    }
+
     private static DeferredBlock<SlabBlock> treeSlab(String id, DeferredBlock<Block> planks, String zhName) {
         return SAPRegistries.block(id, SlabBlock::new)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SLAB)
@@ -291,7 +312,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.SLABS, BlockTags.WOODEN_SLABS)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_SLABS)
                 .lang("zh_cn", zhName)
                 .loot((provider, slab) -> provider.dropSlab(slab.get()))
                 .recipe((provider, slab) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, slab.get(), 6)
@@ -309,7 +330,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.STAIRS, BlockTags.WOODEN_STAIRS)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STAIRS)
                 .lang("zh_cn", zhName)
                 .loot((provider, stairs) -> provider.dropSelf(stairs.get()))
                 .recipe((provider, stairs) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, stairs.get(), 4)
@@ -329,7 +350,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.FENCES, BlockTags.WOODEN_FENCES)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_FENCES)
                 .lang("zh_cn", zhName)
                 .loot((provider, fence) -> provider.dropSelf(fence.get()))
                 .recipe((provider, fence) -> provider.shaped(RecipeCategory.DECORATIONS, fence.get(), 3)
@@ -349,7 +370,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .sound(SoundType.WOOD))
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.FENCE_GATES)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_FENCE_GATES)
                 .lang("zh_cn", zhName)
                 .loot((provider, gate) -> provider.dropSelf(gate.get()))
                 .recipe((provider, gate) -> provider.shaped(RecipeCategory.REDSTONE, gate.get())
@@ -370,7 +391,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .noCollision())
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.WOODEN_PRESSURE_PLATES, BlockTags.PRESSURE_PLATES)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_PRESSURE_PLATES)
                 .lang("zh_cn", zhName)
                 .loot((provider, plate) -> provider.dropSelf(plate.get()))
                 .recipe((provider, plate) -> provider.shaped(RecipeCategory.REDSTONE, plate.get())
@@ -389,7 +410,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .noCollision())
                 .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.BUTTONS, BlockTags.WOODEN_BUTTONS)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_BUTTONS)
                 .lang("zh_cn", zhName)
                 .loot((provider, button) -> provider.dropSelf(button.get()))
                 .recipe((provider, button) -> provider.shapeless(RecipeCategory.REDSTONE, button.get())
@@ -410,7 +431,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .isViewBlocking((state, getter, pos) -> false))
                 .tags(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, leaves) -> provider.leavesBlockWithItem(leaves.get(), ShadowsAndPetals.asResource("block/" + id)))
                 .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
@@ -428,7 +449,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .isViewBlocking((state, getter, pos) -> false))
                 .tags(BlockTags.MINEABLE_WITH_HOE)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_HEDGES)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, hedge) -> provider.hedgeBlockWithItem(hedge.get(), ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())))
                 .loot((provider, hedge) -> provider.dropSelf(hedge.get()))
@@ -451,7 +472,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .pushReaction(PushReaction.DESTROY))
                 .tags(BlockTags.SAPLINGS)
                 .withItem()
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_SAPLINGS)
                 .lang("zh_cn", zhName)
                 .blockstate((provider, sapling) -> provider.saplingBlock(sapling.get(), ShadowsAndPetals.asResource("block/" + id)))
                 .itemModel((provider, sapling) -> provider.generatedBlockItem(sapling.get(), ShadowsAndPetals.asResource("block/" + id)))

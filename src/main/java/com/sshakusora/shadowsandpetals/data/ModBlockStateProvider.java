@@ -107,6 +107,22 @@ public class ModBlockStateProvider implements DataProvider {
         simpleBlockWithItem(block, new ModelRef(modelId));
     }
 
+    public void horizontalFacingCubeAllBlockWithItem(Block block, Identifier texture) {
+        Identifier modelId = blockModelId(block);
+        this.models.put(modelId, BlockModelTemplates.cubeAllModel(texture));
+
+        JsonObject variants = new JsonObject();
+        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=north", modelRef(modelId));
+        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=east", rotatedModel(modelId, 0, 90));
+        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=south", rotatedModel(modelId, 0, 180));
+        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=west", rotatedModel(modelId, 0, 270));
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(modelId));
+    }
+
     public void axisBlockWithItem(RotatedPillarBlock block, Identifier sideTexture, Identifier endTexture) {
         Identifier modelId = blockModelId(block);
         this.models.put(modelId, BlockModelTemplates.cubeColumnModel(sideTexture, endTexture));

@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.tooltip;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -36,16 +37,17 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
         if (!Minecraft.getInstance().hasShiftDown()) {
             return font.lineHeight + PADDING;
         }
-        return PREVIEW_SIZE + PADDING * 2 + 10;
+        return font.lineHeight * 2 + PREVIEW_SIZE + PADDING * 2;
     }
 
     @Override
     public int getWidth(Font font) {
+        int hintWidth = font.width(hintText(Minecraft.getInstance().hasShiftDown()));
         if (!Minecraft.getInstance().hasShiftDown()) {
-            return font.width(hintText()) + PADDING * 2;
+            return hintWidth + PADDING * 2;
         }
         int textWidth = font.width(dimensionLabel());
-        return Math.max(PREVIEW_SIZE, textWidth) + PADDING * 2;
+        return Math.max(hintWidth, Math.max(PREVIEW_SIZE, textWidth)) + PADDING * 2;
     }
 
     @Override
@@ -55,7 +57,7 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
         }
 
         int previewX = x + (w - PREVIEW_SIZE) / 2;
-        int previewY = y + PADDING;
+        int previewY = y + font.lineHeight + PADDING;
 
         var scissor = graphics.peekScissorStack();
 
@@ -66,22 +68,21 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
 
         Component label = dimensionLabel();
         int labelX = x + w / 2 - font.width(label) / 2;
-        int labelY = y + PREVIEW_SIZE + PADDING;
+        int labelY = previewY + PREVIEW_SIZE + PADDING;
         graphics.text(font, label, labelX, labelY, 0xFFFFFFFF);
     }
 
     @Override
     public void extractText(GuiGraphicsExtractor graphics, Font font, int x, int y) {
-        if (!Minecraft.getInstance().hasShiftDown()) {
-            Component hint = hintText();
-            graphics.text(font, hint, x, y, 0xFF_AAAAAA);
-        }
+        boolean active = Minecraft.getInstance().hasShiftDown();
+        graphics.text(font, hintText(active), x, y, 0xFF_AAAAAA);
     }
 
-    private Component hintText() {
-        String shiftKey = Component.translatable(BuiltinLanguageKeys.TOOLTIP_HOLD_KEY_SHIFT.key()).getString();
-        String template = Component.translatable(BuiltinLanguageKeys.ROCKERY_HOLD_FOR_PREVIEW.key()).getString();
-        return Component.literal(String.format(template, shiftKey)).withStyle(ChatFormatting.DARK_GRAY);
+    private Component hintText(boolean active) {
+        return TooltipHelper.buildHint(
+                BuiltinLanguageKeys.ROCKERY_HOLD_FOR_PREVIEW.key(),
+                Component.translatable(BuiltinLanguageKeys.TOOLTIP_HOLD_KEY_SHIFT.key()),
+                active);
     }
 
     private MutableComponent dimensionLabel() {

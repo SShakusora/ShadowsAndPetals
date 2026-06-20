@@ -3,6 +3,8 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
@@ -10,17 +12,18 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * Fluent builder for item registration.
@@ -39,6 +42,9 @@ public class RegItemBuilder<I extends Item> {
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
     private boolean hasTooltipDescription;
+    private Consumer<TooltipLangBuilder> tooltipDescriptionGenerator;
+    private BiFunction<I, ItemStack, @Nullable TooltipComponent> tooltipComponentFactory;
+    private int tooltipComponentMinimumWidth;
 
     public RegItemBuilder(DeferredRegister.Items registry, String name) {
         this.registry = registry;
@@ -98,6 +104,37 @@ public class RegItemBuilder<I extends Item> {
      */
     public RegItemBuilder<I> tooltipDescription() {
         this.hasTooltipDescription = true;
+        return this;
+    }
+
+    /**
+     * Opts this item into the tooltip system and registers its localised text.
+     * The translation-key prefix is derived automatically from the item id.
+     */
+    public RegItemBuilder<I> tooltipDescription(Consumer<TooltipLangBuilder> generator) {
+        this.hasTooltipDescription = true;
+        this.tooltipDescriptionGenerator = Objects.requireNonNull(generator);
+        return this;
+    }
+
+    /**
+     * Registers a custom component for this item's tooltip.
+     */
+    public RegItemBuilder<I> tooltipComponent(
+            BiFunction<I, ItemStack, @Nullable TooltipComponent> factory
+    ) {
+        return tooltipComponent(factory, 0);
+    }
+
+    /**
+     * Registers a custom component and minimum tooltip width for this item.
+     */
+    public RegItemBuilder<I> tooltipComponent(
+            BiFunction<I, ItemStack, @Nullable TooltipComponent> factory,
+            int minimumWidth
+    ) {
+        this.tooltipComponentFactory = Objects.requireNonNull(factory);
+        this.tooltipComponentMinimumWidth = Math.max(0, minimumWidth);
         return this;
     }
 
@@ -198,9 +235,27 @@ public class RegItemBuilder<I extends Item> {
             Identifier itemId = ShadowsAndPetals.asResource(name);
             TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
                 BuiltInRegistries.ITEM.getValue(itemId)));
+            registerTooltipDescription();
+        }
+
+        if (tooltipComponentFactory != null) {
+            TooltipComponentRegistry.register(
+                    ShadowsAndPetals.asResource(name),
+                    stack -> tooltipComponentFactory.apply(deferredItem.get(), stack),
+                    tooltipComponentMinimumWidth);
         }
 
         return deferredItem;
+    }
+
+    private void registerTooltipDescription() {
+        if (tooltipDescriptionGenerator == null) {
+            return;
+        }
+        TooltipLangBuilder tooltip = TooltipLangBuilder.of(
+                "item." + ShadowsAndPetals.MOD_ID + "." + name + ".tooltip");
+        tooltipDescriptionGenerator.accept(tooltip);
+        tooltip.register();
     }
 
     /**

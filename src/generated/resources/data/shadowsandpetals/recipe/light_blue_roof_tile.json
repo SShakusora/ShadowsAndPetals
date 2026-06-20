@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "D": "#c:dyes/light_blue",
+    "S": "minecraft:stone_bricks"
+  },
+  "pattern": [
+    "SSS",
+    "SDS",
+    "SSS"
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:light_blue_roof_tile"
+  }
+}

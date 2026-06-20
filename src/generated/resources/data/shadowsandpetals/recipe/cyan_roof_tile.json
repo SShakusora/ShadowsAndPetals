@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "D": "#c:dyes/cyan",
+    "S": "minecraft:stone_bricks"
+  },
+  "pattern": [
+    "SSS",
+    "SDS",
+    "SSS"
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:cyan_roof_tile"
+  }
+}

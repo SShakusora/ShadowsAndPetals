@@ -32,7 +32,8 @@ public class HarrowItem extends Item {
         // Right-click gravel -> convert to samon
         if (state.is(Blocks.GRAVEL)) {
             if (!level.isClientSide()) {
-                level.setBlock(pos, BlockRegistry.SAMON.get().defaultBlockState(), 3);
+                SamonBlock samon = BlockRegistry.SAMON.get();
+                level.setBlock(pos, samon.getStateForConnections(level, pos), 3);
                 level.playSound(null, pos, SoundEvents.GRAVEL_BREAK,
                         SoundSource.BLOCKS, 1.0F, 1.0F);
                 ((ServerLevel) level).sendParticles(

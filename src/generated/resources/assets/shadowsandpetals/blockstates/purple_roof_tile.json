@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "shadowsandpetals:block/purple_roof_tile",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "shadowsandpetals:block/purple_roof_tile"
+    },
+    "facing=south": {
+      "model": "shadowsandpetals:block/purple_roof_tile",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "shadowsandpetals:block/purple_roof_tile",
+      "y": 270
+    }
+  }
+}

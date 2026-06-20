@@ -13,6 +13,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 final class ShishiOdoshiFluidRenderInfo {
     private static final int STREAM_ALPHA = 208;
 
@@ -33,4 +36,26 @@ final class ShishiOdoshiFluidRenderInfo {
     }
 
     record Info(TextureAtlasSprite sprite, int color) {}
+
+    static final class Cache<K> {
+        private final Map<K, CachedInfo> entries = new WeakHashMap<>();
+
+        @Nullable Info get(K owner, Fluid fluid, BlockAndTintGetter level, BlockPos pos) {
+            long packedPos = pos.asLong();
+            CachedInfo cached = entries.get(owner);
+            if (cached != null && cached.fluid() == fluid && cached.packedPos() == packedPos) {
+                return cached.info();
+            }
+
+            Info info = create(fluid, level, pos);
+            if (info == null) {
+                entries.remove(owner);
+                return null;
+            }
+            entries.put(owner, new CachedInfo(fluid, packedPos, info));
+            return info;
+        }
+    }
+
+    private record CachedInfo(Fluid fluid, long packedPos, Info info) {}
 }

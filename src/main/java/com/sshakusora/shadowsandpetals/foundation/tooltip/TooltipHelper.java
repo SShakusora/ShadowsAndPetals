@@ -43,6 +43,22 @@ public final class TooltipHelper {
         return Component.literal(template).withStyle(ChatFormatting.DARK_GRAY);
     }
 
+    /**
+     * Builds a hold-key hint using the shared tooltip colour scheme: dark-gray
+     * surrounding text and a gray (or white when active) key name.
+     */
+    public static MutableComponent buildHint(String templateKey, MutableComponent keyName, boolean active) {
+        String template = Component.translatable(templateKey).getString();
+        String[] parts = template.split("%s", -1);
+        MutableComponent result = Component.empty();
+        result.append(Component.literal(parts[0]).withStyle(ChatFormatting.DARK_GRAY));
+        result.append(keyName.plainCopy().withStyle(active ? ChatFormatting.WHITE : ChatFormatting.GRAY));
+        if (parts.length > 1) {
+            result.append(Component.literal(parts[1]).withStyle(ChatFormatting.DARK_GRAY));
+        }
+        return result;
+    }
+
     public static List<Component> cutTextComponent(Component text, Style primary, Style highlight) {
         return cutTextComponent(text, primary, highlight, 0);
     }

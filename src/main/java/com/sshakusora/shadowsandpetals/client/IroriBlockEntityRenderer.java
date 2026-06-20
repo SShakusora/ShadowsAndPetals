@@ -30,7 +30,9 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockEntity, IroriBlockEntityRenderer.State> {
     private static final long FIREWOOD_RENDER_SEED = 42L;
@@ -45,7 +47,11 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private static final float BURNING_QUAD_MIN = 0;
     private static final float BURNING_QUAD_MAX = 1.0F;
     private static final Direction[] DIRECTIONS = Direction.values();
-    private static final RandomSource FIREWOOD_RANDOM = RandomSource.create(FIREWOOD_RENDER_SEED);
+    private final RandomSource firewoodRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
+    private final RandomSource transformRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
+    private final Map<IroriBlockEntity.FirewoodModel, CachedFirewoodModel> firewoodModelCache =
+            new EnumMap<>(IroriBlockEntity.FirewoodModel.class);
+    private @Nullable TextureAtlasSprite burningSprite;
 
     public IroriBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -68,13 +74,13 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         resetFrameState(state);
 
         if (!blockEntity.shouldRenderFirewood()) {
-            clearCachedFirewoodModel(state);
+            clearFirewoodModel(state);
             return;
         }
 
         IroriBlockEntity.FirewoodModel firewoodModel = blockEntity.getFirewoodModel();
         if (firewoodModel == null) {
-            clearCachedFirewoodModel(state);
+            clearFirewoodModel(state);
             return;
         }
 
@@ -89,16 +95,16 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
         BlockStateModel model = BlockModelRegistry.getIroriFirewoodModel(firewoodModel);
         if (model == null) {
-            clearCachedFirewoodModel(state);
+            clearFirewoodModel(state);
             return;
         }
 
-        updateCachedFirewoodModel(blockEntity, state, firewoodModel, model);
+        applyCachedFirewoodModel(blockEntity, state, firewoodModel, model);
 
         int burnTime = blockEntity.getBurnTime();
         state.burnTime = burnTime;
         if (burnTime > 0 && blockEntity.getLevel() != null) {
-            ensureBurningSprite(state);
+            state.burningSprite = ensureBurningSprite();
             float smoothTime = blockEntity.getLevel().getGameTime() + partialTicks;
             float breathPhase = (smoothTime % BREATHING_CYCLE_TICKS) / BREATHING_CYCLE_TICKS;
             float breathFactor = (float) ((Math.sin(breathPhase * Math.PI * 2.0) + 1.0) / 2.0);
@@ -183,14 +189,9 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         state.firewoodAlpha = FULL_ALPHA;
     }
 
-    private static void updateFirewoodTransform(IroriBlockEntity blockEntity, State state) {
+    private void updateFirewoodTransform(IroriBlockEntity blockEntity, State state) {
         long blockPosSeed = blockEntity.getBlockPos().asLong();
-        int componentSize = blockEntity.getComponentSize();
-        if (state.firewoodTransformSeed == blockPosSeed && state.firewoodTransformComponentSize == componentSize) {
-            return;
-        }
-
-        RandomSource transformRandom = RandomSource.create(blockPosSeed ^ FIREWOOD_RENDER_SEED);
+        transformRandom.setSeed(blockPosSeed ^ FIREWOOD_RENDER_SEED);
         state.firewoodRotationY = transformRandom.nextFloat() * 360.0F;
         state.firewoodJitterX = 0.0D;
         state.firewoodJitterZ = 0.0D;
@@ -198,48 +199,50 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
             state.firewoodJitterX = (transformRandom.nextDouble() * 2.0D - 1.0D) * FIREWOOD_JITTER_MAX;
             state.firewoodJitterZ = (transformRandom.nextDouble() * 2.0D - 1.0D) * FIREWOOD_JITTER_MAX;
         }
-        state.firewoodTransformSeed = blockPosSeed;
-        state.firewoodTransformComponentSize = componentSize;
     }
 
-    private static void updateCachedFirewoodModel(IroriBlockEntity blockEntity, State state, IroriBlockEntity.FirewoodModel firewoodModel, BlockStateModel model) {
-        if (state.cachedFirewoodModel == firewoodModel && state.cachedBlockStateModel == model) {
-            return;
-        }
-
+    private void applyCachedFirewoodModel(IroriBlockEntity blockEntity, State state,
+                                          IroriBlockEntity.FirewoodModel firewoodModel, BlockStateModel model) {
         var level = blockEntity.getLevel();
         if (level == null) return;
         var tintGetter = (BlockAndTintGetter) level;
         var blockPos = blockEntity.getBlockPos();
         var blockState = blockEntity.getBlockState();
 
-        state.firewoodModelParts.clear();
-        // Reset the seed so multipart collection stays deterministic across frames.
-        FIREWOOD_RANDOM.setSeed(FIREWOOD_RENDER_SEED);
-        model.collectParts(tintGetter, blockPos, blockState, FIREWOOD_RANDOM, state.firewoodModelParts);
-        state.firewoodHasTranslucency = model.hasMaterialFlag(tintGetter, blockPos, blockState, BakedQuad.FLAG_TRANSLUCENT);
-        state.cachedFirewoodModel = firewoodModel;
-        state.cachedBlockStateModel = model;
+        CachedFirewoodModel cached = firewoodModelCache.get(firewoodModel);
+        if (cached == null || cached.model() != model) {
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            firewoodRandom.setSeed(FIREWOOD_RENDER_SEED);
+            model.collectParts(tintGetter, blockPos, blockState, firewoodRandom, parts);
+            cached = new CachedFirewoodModel(
+                    model,
+                    List.copyOf(parts),
+                    model.hasMaterialFlag(tintGetter, blockPos, blockState, BakedQuad.FLAG_TRANSLUCENT)
+            );
+            firewoodModelCache.put(firewoodModel, cached);
+        }
+
+        state.firewoodModelParts = cached.parts();
+        state.firewoodHasTranslucency = cached.hasTranslucency();
     }
 
-    private static void clearCachedFirewoodModel(State state) {
-        state.firewoodModelParts.clear();
+    private static void clearFirewoodModel(State state) {
+        state.firewoodModelParts = List.of();
         state.firewoodHasTranslucency = false;
-        state.cachedFirewoodModel = null;
-        state.cachedBlockStateModel = null;
     }
 
-    private static void ensureBurningSprite(State state) {
-        if (state.burningSprite != null) {
-            return;
+    private TextureAtlasSprite ensureBurningSprite() {
+        if (burningSprite != null) {
+            return burningSprite;
         }
 
         TextureAtlas blocksAtlas = (TextureAtlas) Minecraft.getInstance()
                 .getTextureManager()
                 .getTexture(TextureAtlas.LOCATION_BLOCKS);
-        state.burningSprite = blocksAtlas.getSprite(
+        burningSprite = blocksAtlas.getSprite(
                 ShadowsAndPetals.asResource("block/irori/firewood/burning")
         );
+        return burningSprite;
     }
 
     private static void renderFirewoodWithAlpha(
@@ -268,7 +271,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     }
 
     public static class State extends BlockEntityRenderState {
-        public final List<BlockStateModelPart> firewoodModelParts = new ArrayList<>();
+        public List<BlockStateModelPart> firewoodModelParts = List.of();
         public boolean firewoodHasTranslucency;
         public double firewoodOffsetX;
         public double firewoodOffsetZ;
@@ -280,9 +283,11 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         public int burnTime;
         public int burningBreathLight;
         public @Nullable TextureAtlasSprite burningSprite;
-        private long firewoodTransformSeed = Long.MIN_VALUE;
-        private int firewoodTransformComponentSize = -1;
-        private IroriBlockEntity.FirewoodModel cachedFirewoodModel;
-        private @Nullable BlockStateModel cachedBlockStateModel;
     }
+
+    private record CachedFirewoodModel(
+            BlockStateModel model,
+            List<BlockStateModelPart> parts,
+            boolean hasTranslucency
+    ) {}
 }

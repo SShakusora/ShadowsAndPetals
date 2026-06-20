@@ -5,26 +5,28 @@ import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.*;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.legacy.BlockStateAliasRegistry;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.legacy.LegacyStateBlock;
-import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
-import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
-import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
-import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
+import com.sshakusora.shadowsandpetals.registries.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.*;
@@ -57,10 +59,14 @@ public class RegBlockBuilder<B extends Block> {
     private CTTextureType ctTextureType;
     private int ctPadding;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
+    private final Map<CreativeTabType, CreativeTabOrder> creativeTabOrders = new EnumMap<>(CreativeTabType.class);
     private final List<Identifier> aliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
     private final List<TagKey<Block>> blockTags = new ArrayList<>();
     private boolean hasTooltipDescription;
+    private Consumer<TooltipLangBuilder> tooltipDescriptionGenerator;
+    private BiFunction<B, ItemStack, @Nullable TooltipComponent> tooltipComponentFactory;
+    private int tooltipComponentMinimumWidth;
 
     public RegBlockBuilder(DeferredRegister.Blocks registry, String name) {
         this.registry = registry;
@@ -156,6 +162,38 @@ public class RegBlockBuilder<B extends Block> {
      */
     public RegBlockBuilder<B> tooltipDescription() {
         this.hasTooltipDescription = true;
+        return this;
+    }
+
+    /**
+     * Opts this block item into the tooltip system and registers its localised text.
+     * The translation-key prefix uses the item namespace because the tooltip is
+     * displayed for the block's {@link BlockItem}.
+     */
+    public RegBlockBuilder<B> tooltipDescription(Consumer<TooltipLangBuilder> generator) {
+        this.hasTooltipDescription = true;
+        this.tooltipDescriptionGenerator = Objects.requireNonNull(generator);
+        return this;
+    }
+
+    /**
+     * Registers a custom component for this block item's tooltip.
+     */
+    public RegBlockBuilder<B> tooltipComponent(
+            BiFunction<B, ItemStack, @Nullable TooltipComponent> factory
+    ) {
+        return tooltipComponent(factory, 0);
+    }
+
+    /**
+     * Registers a custom component and minimum tooltip width for this block item.
+     */
+    public RegBlockBuilder<B> tooltipComponent(
+            BiFunction<B, ItemStack, @Nullable TooltipComponent> factory,
+            int minimumWidth
+    ) {
+        this.tooltipComponentFactory = Objects.requireNonNull(factory);
+        this.tooltipComponentMinimumWidth = Math.max(0, minimumWidth);
         return this;
     }
 
@@ -265,6 +303,15 @@ public class RegBlockBuilder<B extends Block> {
      */
     public RegBlockBuilder<B> creativeTab(CreativeTabType tab) {
         this.creativeTabs.add(tab);
+        return this;
+    }
+
+    /**
+     * Adds the registered block item to a creative tab in an explicit sort group.
+     */
+    public RegBlockBuilder<B> creativeTab(CreativeTabType tab, CreativeTabOrder order) {
+        this.creativeTabs.add(tab);
+        this.creativeTabOrders.put(tab, order);
         return this;
     }
 
@@ -395,10 +442,31 @@ public class RegBlockBuilder<B extends Block> {
             Identifier itemId = ShadowsAndPetals.asResource(name);
             TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
                 BuiltInRegistries.ITEM.getValue(itemId)));
+            registerTooltipDescription();
+        }
+
+        if (tooltipComponentFactory != null) {
+            if (!withItem) {
+                throw new IllegalStateException("Block '" + name + "' cannot have an item tooltip component without an item");
+            }
+            TooltipComponentRegistry.register(
+                    ShadowsAndPetals.asResource(name),
+                    stack -> tooltipComponentFactory.apply(deferredBlock.get(), stack),
+                    tooltipComponentMinimumWidth);
         }
 
         registerCreativeTabs(deferredBlock);
         return deferredBlock;
+    }
+
+    private void registerTooltipDescription() {
+        if (tooltipDescriptionGenerator == null) {
+            return;
+        }
+        TooltipLangBuilder tooltip = TooltipLangBuilder.of(
+                "item." + ShadowsAndPetals.MOD_ID + "." + name + ".tooltip");
+        tooltipDescriptionGenerator.accept(tooltip);
+        tooltip.register();
     }
 
     private void postRegister(DeferredBlock<? extends Block> block) {
@@ -540,7 +608,8 @@ public class RegBlockBuilder<B extends Block> {
         }
 
         for (CreativeTabType tab : creativeTabs) {
-            CreativeTabContentsRegistry.add(tab, block::get);
+            CreativeTabContentsRegistry.add(tab, block::get,
+                    creativeTabOrders.getOrDefault(tab, CreativeTabOrder.DEFAULT));
         }
     }
 

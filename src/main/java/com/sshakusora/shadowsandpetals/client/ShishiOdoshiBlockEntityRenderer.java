@@ -45,6 +45,12 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
     private static final float TUBE_EXIT_DURATION = ShishiOdoshiBlockEntity.TIPPING_DURATION - ShishiOdoshiBlockEntity.POUR_START_TICK;
     private static final float FLOW_UV_SCALE = 0.5F;
     private static final float FLOW_U_CENTER = 0.5F;
+    private @Nullable BlockStateModel cachedMainModel;
+    private List<BlockStateModelPart> cachedMainModelParts = List.of();
+    private boolean cachedMainHasTranslucency;
+    private final ShishiOdoshiFluidRenderInfo.Cache<ShishiOdoshiBlockEntity> fluidRenderInfoCache =
+            new ShishiOdoshiFluidRenderInfo.Cache<>();
+
     public ShishiOdoshiBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
@@ -65,33 +71,34 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         state.tipAngle = blockEntity.getTipAngle(partialTicks);
         state.pourProgress = blockEntity.getPourProgress(partialTicks);
         if (blockEntity.getLevel() == null) {
-            state.cachedMainModel = null;
-            state.mainModelParts.clear();
             return;
         }
 
         BlockStateModel mainModel = BlockModelRegistry.getShishiOdoshiMainModel();
         if (mainModel == null) {
-            state.cachedMainModel = null;
-            state.mainModelParts.clear();
             return;
         }
 
         var tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        var fluidRenderInfo = ShishiOdoshiFluidRenderInfo.create(
+        var fluidRenderInfo = fluidRenderInfoCache.get(
+                blockEntity,
                 blockEntity.getFluid(), tintGetter, blockEntity.getBlockPos()
         );
         state.fluidSprite = fluidRenderInfo == null ? null : fluidRenderInfo.sprite();
         state.waterColor = fluidRenderInfo == null ? 0xD0FFFFFF : fluidRenderInfo.color();
         updatePourPath(state);
 
-        if (state.cachedMainModel != mainModel) {
-            state.mainModelParts.clear();
+        if (cachedMainModel != mainModel) {
+            List<BlockStateModelPart> parts = new ArrayList<>();
             PART_COLLECT_RANDOM.setSeed(42L);
-            mainModel.collectParts(tintGetter, blockEntity.getBlockPos(), blockState, PART_COLLECT_RANDOM, state.mainModelParts);
-            state.mainHasTranslucency = mainModel.hasMaterialFlag(tintGetter, blockEntity.getBlockPos(), blockState, BakedQuad.FLAG_TRANSLUCENT);
-            state.cachedMainModel = mainModel;
+            mainModel.collectParts(tintGetter, blockEntity.getBlockPos(), blockState, PART_COLLECT_RANDOM, parts);
+            cachedMainModelParts = List.copyOf(parts);
+            cachedMainHasTranslucency = mainModel.hasMaterialFlag(
+                    tintGetter, blockEntity.getBlockPos(), blockState, BakedQuad.FLAG_TRANSLUCENT);
+            cachedMainModel = mainModel;
         }
+        state.mainModelParts = cachedMainModelParts;
+        state.mainHasTranslucency = cachedMainHasTranslucency;
     }
 
     @Override
@@ -283,7 +290,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
     }
 
     public static class State extends BlockEntityRenderState {
-        public final List<BlockStateModelPart> mainModelParts = new ArrayList<>();
+        public List<BlockStateModelPart> mainModelParts = List.of();
         public Direction facing = Direction.NORTH;
         public float tipAngle;
         public float pourProgress = -1.0F;
@@ -295,6 +302,5 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         public int waterColor;
         public @Nullable TextureAtlasSprite fluidSprite;
         public boolean mainHasTranslucency;
-        private @Nullable BlockStateModel cachedMainModel;
     }
 }

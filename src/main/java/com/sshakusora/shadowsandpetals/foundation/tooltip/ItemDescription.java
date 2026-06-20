@@ -1,13 +1,9 @@
 package com.sshakusora.shadowsandpetals.foundation.tooltip;
 
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.CommonComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.*;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import org.jetbrains.annotations.Nullable;
@@ -16,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static net.minecraft.ChatFormatting.*;
+import static net.minecraft.ChatFormatting.GRAY;
 
 /**
  * Three-state item tooltip description driven by localisation keys.
@@ -35,8 +31,8 @@ import static net.minecraft.ChatFormatting.*;
  */
 public record ItemDescription(List<Component> baseline, List<Component> onShift, List<Component> onCtrl) {
 
-    private static final Style PRIMARY = Style.EMPTY.applyFormat(ChatFormatting.GRAY);
-    private static final Style HIGHLIGHT = Style.EMPTY.applyFormat(ChatFormatting.WHITE);
+    private static final Style PRIMARY = Style.EMPTY.withColor(TextColor.parseColor("#61C3C7").getOrThrow());
+    private static final Style HIGHLIGHT = Style.EMPTY.withColor(TextColor.parseColor("#B8FFE0").getOrThrow());
 
     /**
      * Resolve the correct line set for the current keyboard state.
@@ -141,12 +137,12 @@ public record ItemDescription(List<Component> baseline, List<Component> onShift,
                     boolean isCtrl = target == ctrl;
 
                     if (hasDesc) {
-                        target.addFirst(buildHint(
+                        target.addFirst(TooltipHelper.buildHint(
                                 BuiltinLanguageKeys.TOOLTIP_HOLD_FOR_DESCRIPTION.key(),
                                 keyShiftText, isShift));
                     }
                     if (hasCtrl) {
-                        target.addFirst(buildHint(
+                        target.addFirst(TooltipHelper.buildHint(
                                 BuiltinLanguageKeys.TOOLTIP_HOLD_FOR_CONTROLS.key(),
                                 keyCtrlText, isCtrl));
                     }
@@ -172,17 +168,6 @@ public record ItemDescription(List<Component> baseline, List<Component> onShift,
             return new ItemDescription(List.copyOf(base), List.copyOf(shift), List.copyOf(ctrl));
         }
 
-        private static MutableComponent buildHint(String templateKey, MutableComponent keyName, boolean active) {
-            String template = Component.translatable(templateKey).getString();
-            String[] parts = template.split("%s", -1);
-            MutableComponent result = Component.empty();
-            result.append(Component.literal(parts[0]).withStyle(DARK_GRAY));
-            result.append(keyName.plainCopy().withStyle(active ? WHITE : GRAY));
-            if (parts.length > 1) {
-                result.append(Component.literal(parts[1]).withStyle(DARK_GRAY));
-            }
-            return result;
-        }
     }
 
     /**

@@ -8,6 +8,7 @@ import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
+import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.item.HammerItem;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
@@ -116,6 +117,13 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "An unfinished architectural block with _connected textures_.",
+                            "具有_连接纹理_的素面建筑方块。")
+                    .behaviour(
+                            "When placed beside itself:", "与同类方块相邻放置时:",
+                            "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
             .loot((provider, block) -> provider.dropSelf(block.get()))
@@ -222,6 +230,22 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A modular _hearth_ that burns fuel and leaves useful ash.",
+                            "能够燃烧燃料并留下有用灰烬的组合式_围炉_。")
+                    .behaviour(
+                            "When fuel burns out:", "燃料耗尽时:",
+                            "Leave behind ash that can be collected as _Bone Meal_.", "留下可收集为_骨粉_的灰烬。")
+                    .action(
+                            "Drop Fuel into the Basin:", "将燃料丢入炉膛:",
+                            "_Load_ the hearth with fuel.", "为围炉_添加_燃料。")
+                    .action(
+                            "Use Flint and Steel or a Fire Charge:", "使用打火石或火焰弹:",
+                            "_Ignite_ the loaded fuel.", "_点燃_已添加的燃料。")
+                    .action(
+                            "Right-click the Ash:", "右键点击灰烬:",
+                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, irori) -> provider.iroriBlock(irori.get()))
             .loot((provider, irori) -> provider.dropSelf(irori.get()))
@@ -246,6 +270,13 @@ public class BlockRegistry {
                     .lightLevel(state -> state.getValue(BedroomLampBlock.LIT) ? 15 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A warm decorative _bedside lamp_.",
+                            "散发温暖光线的装饰性_卧室台灯_。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, lamp) -> provider.bedroomLampBlock(lamp.get()))
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
@@ -262,6 +293,13 @@ public class BlockRegistry {
                     .lightLevel(state -> state.getValue(WallLampBlock.LIT) ? 15 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A compact lamp mounted on a _sturdy wall_.",
+                            "安装在_坚固墙面_上的小型灯具。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, lamp) -> provider.wallLampBlock(lamp.get()))
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
@@ -277,6 +315,13 @@ public class BlockRegistry {
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(EmergencyLampBlock.LIT) ? 15 : 0))
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A rugged lamp that attaches to _any sturdy face_.",
+                            "可安装在_任意坚固表面_上的耐用防爆灯。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, lamp) -> provider.emergencyLampBlock(lamp.get()))
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
@@ -292,12 +337,46 @@ public class BlockRegistry {
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(DeskLampBlock.LIT) ? 15 : 0))
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A focused lamp for a _sturdy tabletop_.",
+                            "放置在_坚固台面_上的聚光台灯。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, lamp) -> provider.deskLampBlock(lamp.get()))
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
             .lang("zh_cn", "台灯")
             .register();
+
+    public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile", RoofTileBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICKS)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, block) -> provider.horizontalFacingCubeAllBlockWithItem(
+                    block.get(),
+                    provider.modLoc("block/roof_tile/" + color.getName())
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 8)
+                        .define('S', Items.STONE_BRICKS)
+                        .define('D', color.getTag())
+                        .pattern("SSS")
+                        .pattern("SDS")
+                        .pattern("SSS")
+                        .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
+                        .save(provider.output());
+            })
+            .lang("zh_cn", DyedBlockList.zhName(color) + "瓦")
+            .register());
 
     public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_vanity", VanityBlock::new)
@@ -307,6 +386,14 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary("A decorative _vanity_ with a _usable drawer_.", "带有_抽屉_的装饰性梳妆台。")
+                    .behaviour(
+                            "When the drawer is right-clicked:", "右键点击抽屉时:",
+                            "Open its _9-slot storage_ space.", "打开其_9 格储物空间_。")
+                    .behaviour(
+                            "When the front is obstructed:", "前方被阻挡时:",
+                            "The drawer _cannot open_.", "抽屉_无法打开_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, vanity) -> provider.vanityBlock(vanity.get()))
             .clientItem(ShadowsAndPetals.asResource("item/vanity/" + woodType.getName()))
@@ -319,8 +406,7 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
                     .save(provider.output()))
             .lang("zh_cn", woodType.getZhName() + "梳妆台")
-            .register()
-    );
+            .register());
 
 //    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
 //            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
@@ -385,6 +471,17 @@ public class BlockRegistry {
                     .sound(SoundType.WOOD)
                     .noOcclusion())
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary("A soft seat that can be _recolored_.", "一把可以_重新染色_的柔软座椅。")
+                    .behaviour(
+                            "When right-clicked;", "右键点击时:",
+                            "_Sit_ on the chair.", "_坐_在椅子上。")
+                    .behaviour(
+                            "When landed on:", "落在上面时:",
+                            "_Cushion_ the fall and bounce upward.", "_缓冲_坠落并向上弹起。")
+                    .action(
+                            "Right-click with Dye:", "手持染料右键点击:",
+                            "_Recolor_ the chair.", "为椅子_重新染色_。"))
             .creativeTab(CreativeTabType.MAIN)
             .lang("zh_cn", DyedBlockList.zhName(color) + "咖啡椅")
             .blockstate((provider, chair) -> provider.simpleBlockWithItem(
@@ -421,6 +518,13 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A bamboo water feature that fills, tips, and _knocks_.",
+                            "蓄水后倾倒并发出_敲击声_的竹制添水。")
+                    .behaviour(
+                            "When supplied by a Pipe above:", "由上方竹管供液时:",
+                            "Fill gradually, then tip and _strike_ in a repeating cycle.", "逐渐蓄满，随后倾倒并循环_敲击_。"))
             .creativeTab(CreativeTabType.NATURE)
             .blockstate((provider, block) -> provider.shishiOdoshiBlock(block.get()))
             .loot((provider, block) -> provider.dropSelf(block.get()))
@@ -442,6 +546,13 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A bamboo _spout_ that supplies a Shishi-Odoshi.",
+                            "为添水供液的竹制_出水管_。")
+                    .behaviour(
+                            "When attached to a compatible fluid source:", "连接兼容的流体源时:",
+                            "Feed fluid into a _Shishi-Odoshi directly below_.", "向_正下方的添水_持续供液。"))
             .creativeTab(CreativeTabType.NATURE)
             .blockstate((provider, block) -> provider.shishiOdoshiPipeBlock(block.get()))
             .loot((provider, block) -> provider.dropSelf(block.get()))
@@ -471,6 +582,9 @@ public class BlockRegistry {
                         .noOcclusion()
                         .requiresCorrectToolForDrops())
                 .withItem()
+                .tooltipComponent(
+                        (rockery, stack) -> new RockeryTooltipComponent(rockery, dims),
+                        100)
                 .creativeTab(CreativeTabType.NATURE)
                 .tags(BlockTags.MINEABLE_WITH_PICKAXE)
                 .blockstate((provider, block) -> provider.rockeryBlock(block.get(), dims))

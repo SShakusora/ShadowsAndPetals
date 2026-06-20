@@ -2,19 +2,18 @@ package com.sshakusora.shadowsandpetals.client;
 
 import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.tooltip.ClientRockeryTooltip;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewRenderer;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
+import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.EntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
 import net.minecraft.client.renderer.entity.NoopRenderer;
-import net.minecraft.world.item.BlockItem;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -73,11 +72,9 @@ public class ClientRenderEvents {
 
     @SubscribeEvent
     public static void onGatherTooltipComponents(RenderTooltipEvent.GatherComponents event) {
-        if (event.getItemStack().getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() instanceof RockeryBlock rockery) {
-            var component = new RockeryTooltipComponent(rockery, rockery.dimensions());
-            event.getTooltipElements().add(Either.right(component));
-            event.setMaxWidth(Math.max(event.getMaxWidth(), 100));
+        for (TooltipComponentRegistry.Entry entry : TooltipComponentRegistry.gather(event.getItemStack())) {
+            event.getTooltipElements().add(Either.right(entry.component()));
+            event.setMaxWidth(Math.max(event.getMaxWidth(), entry.minimumWidth()));
         }
     }
 

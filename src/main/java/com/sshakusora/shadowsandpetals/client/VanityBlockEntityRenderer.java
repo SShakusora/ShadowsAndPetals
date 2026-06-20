@@ -20,15 +20,19 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBlockEntity, VanityBlockEntityRenderer.State> {
     private static final BlockDisplayContext BLOCK_DISPLAY_CONTEXT = BlockDisplayContext.create();
     private static final RandomSource DRAWER_RANDOM = RandomSource.create(42L);
+    private final Map<DrawerModelCacheKey, CachedDrawerModel> drawerModelCache = new HashMap<>();
 
     public VanityBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -47,10 +51,10 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
         state.progress = blockEntity.getDrawerProgress(partialTicks);
         state.drawerTravelScale = blockEntity.getDrawerTravelScale();
         state.drawerTravelLimit = blockEntity.getDrawerTravelLimit();
-        state.drawerModelParts.clear();
 
         BlockStateModel drawerModel = BlockModelRegistry.getVanityDrawerModel(blockState.getBlock());
         if (drawerModel == null) {
+            state.drawerModelParts = List.of();
             state.drawerHasTranslucency = false;
             return;
         }
@@ -59,9 +63,21 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
         if (level == null) return;
         var tintGetter = (BlockAndTintGetter) level;
 
-        DRAWER_RANDOM.setSeed(42L);
-        drawerModel.collectParts(tintGetter, blockEntity.getBlockPos(), blockState, DRAWER_RANDOM, state.drawerModelParts);
-        state.drawerHasTranslucency = drawerModel.hasMaterialFlag(tintGetter, blockEntity.getBlockPos(), blockState, BakedQuad.FLAG_TRANSLUCENT);
+        DrawerModelCacheKey cacheKey = new DrawerModelCacheKey(drawerModel, blockState);
+        CachedDrawerModel cached = drawerModelCache.get(cacheKey);
+        if (cached == null) {
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            DRAWER_RANDOM.setSeed(42L);
+            drawerModel.collectParts(tintGetter, blockEntity.getBlockPos(), blockState, DRAWER_RANDOM, parts);
+            cached = new CachedDrawerModel(
+                    List.copyOf(parts),
+                    drawerModel.hasMaterialFlag(
+                            tintGetter, blockEntity.getBlockPos(), blockState, BakedQuad.FLAG_TRANSLUCENT)
+            );
+            drawerModelCache.put(cacheKey, cached);
+        }
+        state.drawerModelParts = cached.parts();
+        state.drawerHasTranslucency = cached.hasTranslucency();
     }
 
     @Override
@@ -90,12 +106,18 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
     }
 
     public static class State extends BlockEntityRenderState {
-        public final List<BlockStateModelPart> drawerModelParts = new ArrayList<>();
+        public List<BlockStateModelPart> drawerModelParts = List.of();
         public Direction facing = Direction.NORTH;
         public float progress;
         public boolean drawerHasTranslucency;
         public float drawerTravelScale = 1.0F;
         public float drawerTravelLimit = VanityBlock.BASE_DRAWER_TRAVEL_DISTANCE;
+    }
+
+    private record DrawerModelCacheKey(BlockStateModel model, BlockState blockState) {
+    }
+
+    private record CachedDrawerModel(List<BlockStateModelPart> parts, boolean hasTranslucency) {
     }
 
     private static float easeOutCubic(float progress) {
