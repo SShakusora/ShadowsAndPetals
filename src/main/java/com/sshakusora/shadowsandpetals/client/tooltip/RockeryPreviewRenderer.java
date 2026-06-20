@@ -11,15 +11,23 @@ import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.render.pip.PictureInPictureRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.ShapeRenderer;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.renderer.entity.DisplayRenderer;
+import net.minecraft.client.renderer.rendertype.LayeringTransform;
+import net.minecraft.client.renderer.rendertype.OutputTarget;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.Shapes;
 
 import java.util.List;
 
@@ -33,6 +41,13 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
     private static final Direction[] DIRECTIONS = Direction.values();
     private static final long ROTATE_DURATION_NANOS = 1_550_000_000L;
     private static final long RESET_GAP_NANOS = 1_000_000_000L;
+    private static final RenderType SELECTION_OUTLINE = RenderType.create(
+            "rockery_selection_outline",
+            RenderSetup.builder(RenderPipelines.LINES_DEPTH_BIAS)
+                    .setLayeringTransform(LayeringTransform.VIEW_OFFSET_Z_LAYERING)
+                    .setOutputTarget(OutputTarget.ITEM_ENTITY_TARGET)
+                    .createRenderSetup()
+    );
 
     private final BlockModelResolver blockModelResolver;
     private final QuadInstance quadInstance = new QuadInstance();
@@ -64,10 +79,10 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
         minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.LEVEL);
 
         RockeryDimensions dims = state.dimensions();
-        float animatedYaw = animatedYaw(state);
+        float yaw = state.yawDegrees() + (state.animate() ? animatedYaw(state) : 0.0F);
 
         poseStack.mulPose(Axis.XP.rotationDegrees(-30));
-        poseStack.mulPose(Axis.YP.rotationDegrees(-45 + animatedYaw));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-45 + yaw));
         poseStack.translate(-dims.width() / 2.0F, -dims.height() / 2.0F, -dims.depth() / 2.0F);
 
         BlockModelRenderState blockModel = new BlockModelRenderState();
@@ -75,9 +90,11 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
         for (int part = 0; part < dims.partCount(); part++) {
             Vec3i local = dims.localPos(part);
 
-            var partState = state.block().defaultBlockState()
-                .setValue(RockeryBlock.FACING, Direction.SOUTH)
-                .setValue(RockeryBlock.PART, part);
+            BlockState partState = state.content() == RockeryPreviewState.Content.STONE_STRUCTURE
+                    ? Blocks.STONE.defaultBlockState()
+                    : state.block().defaultBlockState()
+                            .setValue(RockeryBlock.FACING, Direction.SOUTH)
+                            .setValue(RockeryBlock.PART, part);
 
             blockModelResolver.update(blockModel, partState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
 
@@ -94,6 +111,20 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
                 renderModelParts(parts, renderType, poseStack);
                 poseStack.popPose();
             }
+        }
+
+        if (state.content() == RockeryPreviewState.Content.STONE_STRUCTURE
+                && state.selectedPart() >= 0
+                && state.selectedPart() < dims.partCount()) {
+            Vec3i selected = dims.localPos(state.selectedPart());
+            VertexConsumer lines = this.bufferSource.getBuffer(SELECTION_OUTLINE);
+            poseStack.pushPose();
+            poseStack.translate(selected.getX() + 0.5F, selected.getY() + 0.5F, selected.getZ() + 0.5F);
+            poseStack.scale(1.035F, 1.035F, 1.035F);
+            poseStack.translate(-0.5F, -0.5F, -0.5F);
+            ShapeRenderer.renderShape(poseStack, lines, Shapes.block(), 0.0, 0.0, 0.0,
+                    0xFFFFFFFF, 8.0F);
+            poseStack.popPose();
         }
     }
 

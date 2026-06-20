@@ -46,7 +46,7 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
         if (!Minecraft.getInstance().hasShiftDown()) {
             return hintWidth + PADDING * 2;
         }
-        int textWidth = font.width(dimensionLabel());
+        int textWidth = font.width(RockeryPreviewText.dimensionLabel(dimensions));
         return Math.max(hintWidth, Math.max(PREVIEW_SIZE, textWidth)) + PADDING * 2;
     }
 
@@ -66,7 +66,7 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
                 previewX, previewY, PREVIEW_SIZE, PREVIEW_SIZE, scissor)
         );
 
-        Component label = dimensionLabel();
+        Component label = RockeryPreviewText.dimensionLabel(dimensions);
         int labelX = x + w / 2 - font.width(label) / 2;
         int labelY = previewY + PREVIEW_SIZE + PADDING;
         graphics.text(font, label, labelX, labelY, 0xFFFFFFFF);
@@ -85,13 +85,20 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
                 active);
     }
 
-    private MutableComponent dimensionLabel() {
-        return Component.empty()
-                .append(Component.translatable(BuiltinLanguageKeys.ROCKERY_DIMENSIONS_LABEL.key()).withStyle(ChatFormatting.GRAY))
-                .append(Component.literal(Integer.toString(dimensions.width())).withStyle(ChatFormatting.RED))
-                .append(Component.literal("×").withStyle(ChatFormatting.DARK_GRAY))
-                .append(Component.literal(Integer.toString(dimensions.height())).withStyle(ChatFormatting.GREEN))
-                .append(Component.literal("×").withStyle(ChatFormatting.DARK_GRAY))
-                .append(Component.literal(Integer.toString(dimensions.depth())).withStyle(ChatFormatting.BLUE));
+    public static final class RockeryPreviewText {
+        private RockeryPreviewText() {
+        }
+
+        public static MutableComponent dimensionLabel(RockeryDimensions dimensions) {
+            return Component.empty()
+                    .append(Component.translatable(BuiltinLanguageKeys.ROCKERY_DIMENSIONS_LABEL.key())
+                            .withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal(Integer.toString(dimensions.width())).withStyle(ChatFormatting.RED))
+                    .append(Component.literal("×").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(Component.literal(Integer.toString(dimensions.height())).withStyle(ChatFormatting.GREEN))
+                    .append(Component.literal("×").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(Component.literal(Integer.toString(dimensions.depth())).withStyle(ChatFormatting.BLUE));
+        }
     }
+
 }

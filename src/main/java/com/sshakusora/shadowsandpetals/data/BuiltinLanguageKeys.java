@@ -51,6 +51,16 @@ public final class BuiltinLanguageKeys {
             .en_us("Dimensions: ")
             .zh_cn("尺寸: ");
 
+    public static final DatagenLangRegistry.TranslationKey JEI_ROCKERY_HAMMERING_TIME = DatagenLangRegistry
+            .key("jei.shadowsandpetals.rockery_carving.hammering_time")
+            .en_us("Time: %s s")
+            .zh_cn("敲打时间：%s 秒");
+
+    public static final DatagenLangRegistry.TranslationKey JEI_ROCKERY_CARVING_TITLE = DatagenLangRegistry
+            .key("jei.shadowsandpetals.rockery_carving")
+            .en_us("Rockery Carving")
+            .zh_cn("石山雕刻");
+
     public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_FOR_DESCRIPTION = DatagenLangRegistry
             .key("tooltip.shadowsandpetals.holdForDescription")
             .en_us("Hold [%s] for Description")

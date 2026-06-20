@@ -581,6 +581,8 @@
   "jade.shadowsandpetals.irori.burned_out": "已燃尽",
   "jade.shadowsandpetals.irori.burning": "燃烧中",
   "jade.shadowsandpetals.rockery.hammering": "锤击中…",
+  "jei.shadowsandpetals.rockery_carving": "石山雕刻",
+  "jei.shadowsandpetals.rockery_carving.hammering_time": "敲打时间：%s 秒",
   "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s 可被染成 ",
   "subtitles.shadowsandpetals.shishi_odoshi": "添水：敲击",
   "tooltip.shadowsandpetals.holdForControls": "按住 [%s] 显示操作",

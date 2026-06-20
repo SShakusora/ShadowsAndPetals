@@ -72,6 +72,10 @@ public class HammerItem extends Item {
         ROCKERY_TEMPLATES.sort(Comparator.comparingInt(RockeryTemplate::partCount).reversed());
     }
 
+    public static List<RockeryTemplate> rockeryTemplates() {
+        return List.copyOf(ROCKERY_TEMPLATES);
+    }
+
     public HammerItem(Properties properties) {
         super(properties);
     }
@@ -126,10 +130,14 @@ public class HammerItem extends Item {
             var tag = data.copyTag();
             int templateIdx = tag.getInt(TEMPLATE_KEY).orElse(-1);
             if (templateIdx >= 0 && templateIdx < ROCKERY_TEMPLATES.size()) {
-                return BASE_USE_DURATION + ROCKERY_TEMPLATES.get(templateIdx).dimensions().partCount() * TICKS_PER_PART;
+                return getEffectiveUseDuration(ROCKERY_TEMPLATES.get(templateIdx).dimensions());
             }
         }
         return USE_DURATION;
+    }
+
+    public static int getEffectiveUseDuration(RockeryDimensions dimensions) {
+        return BASE_USE_DURATION + dimensions.partCount() * TICKS_PER_PART;
     }
 
     @Override
@@ -319,7 +327,7 @@ public class HammerItem extends Item {
 
     private static int getEffectiveUseDuration(PlacementData data) {
         if (data.templateIndex() >= 0 && data.templateIndex() < ROCKERY_TEMPLATES.size()) {
-            return BASE_USE_DURATION + ROCKERY_TEMPLATES.get(data.templateIndex()).dimensions().partCount() * TICKS_PER_PART;
+            return getEffectiveUseDuration(ROCKERY_TEMPLATES.get(data.templateIndex()).dimensions());
         }
         return USE_DURATION;
     }
@@ -504,7 +512,7 @@ public class HammerItem extends Item {
 
     private record PlacementData(BlockPos clickedPos, BlockPos root, int templateIndex, int facingOrdinal, long startTick) {}
 
-    private record RockeryTemplate(DeferredBlock<RockeryBlock> block, RockeryDimensions dimensions) {
+    public record RockeryTemplate(DeferredBlock<RockeryBlock> block, RockeryDimensions dimensions) {
         private int partCount() {
             return dimensions.partCount();
         }

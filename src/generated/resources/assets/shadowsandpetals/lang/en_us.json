@@ -581,6 +581,8 @@
   "jade.shadowsandpetals.irori.burned_out": "Burned out",
   "jade.shadowsandpetals.irori.burning": "Burning",
   "jade.shadowsandpetals.rockery.hammering": "Hammering...",
+  "jei.shadowsandpetals.rockery_carving": "Rockery Carving",
+  "jei.shadowsandpetals.rockery_carving.hammering_time": "Time: %s s",
   "message.shadowsandpetals.cafe_chair.dye_hint_prefix": "%s can be dyed to ",
   "subtitles.shadowsandpetals.shishi_odoshi": "Shishi-odoshi clacks",
   "tooltip.shadowsandpetals.holdForControls": "Hold [%s] for Controls",
