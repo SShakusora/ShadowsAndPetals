@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client;
 import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
+import com.sshakusora.shadowsandpetals.client.screen.IroriScreen;
 import com.sshakusora.shadowsandpetals.client.tooltip.ClientRockeryTooltip;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewRenderer;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
@@ -11,6 +12,7 @@ import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegist
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.EntityRegistry;
+import com.sshakusora.shadowsandpetals.registries.MenuRegistry;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
 import net.minecraft.client.renderer.entity.NoopRenderer;
@@ -28,6 +30,11 @@ public class ClientRenderEvents {
         event.registerSpriteSet(ParticleRegistry.GINKGO.get(), FallingLeafParticle.GinkgoProvider::new);
         event.registerSpriteSet(ParticleRegistry.MAPLE.get(), FallingLeafParticle.MapleProvider::new);
         event.registerSpriteSet(ParticleRegistry.SAKURA.get(), FallingLeafParticle.SakuraProvider::new);
+    }
+
+    @SubscribeEvent
+    public static void registerMenuScreens(RegisterMenuScreensEvent event) {
+        event.register(MenuRegistry.IRORI.get(), IroriScreen::new);
     }
 
     @SubscribeEvent

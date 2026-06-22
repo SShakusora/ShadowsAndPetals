@@ -261,6 +261,9 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             InteractionHand hand,
             BlockHitResult hitResult
     ) {
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
         if (state.getValue(WATERLOGGED) || !isBasinHit(state, pos, hitResult)) {
             return InteractionResult.PASS;
         }
@@ -306,6 +309,9 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        if (player.isSecondaryUseActive()) {
+            return openMasterMenu(level, pos, player);
+        }
         if (state.getValue(WATERLOGGED) || !isBasinHit(state, pos, hitResult)) {
             return InteractionResult.PASS;
         }
@@ -327,6 +333,18 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             master.clearAshAndDropBoneMeal();
         }
         return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static InteractionResult openMasterMenu(Level level, BlockPos pos, Player player) {
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+        if (level.getBlockEntity(pos) instanceof IroriBlockEntity irori) {
+            IroriBlockEntity master = irori.resolveMaster();
+            player.openMenu(master, master.getBlockPos());
+            return InteractionResult.SUCCESS_SERVER;
+        }
+        return InteractionResult.PASS;
     }
 
     private static void playIgnitionEffects(Level level, BlockPos pos, Player player, ItemStack stack, InteractionHand hand) {

@@ -129,6 +129,7 @@
   "config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable": "Show if cafe chairs are dyeable",
   "config.jade.plugin_shadowsandpetals.jade.irori_burn_time": "Show irori burn time",
   "config.jade.plugin_shadowsandpetals.jade.rockery_hammer_progress": "Show rockery hammering progress",
+  "container.shadowsandpetals.irori": "Irori",
   "container.shadowsandpetals.vanity": "Vanity",
   "entity.shadowsandpetals.seat": "Seat",
   "item.shadowsandpetals.acacia_vanity": "Acacia Vanity",

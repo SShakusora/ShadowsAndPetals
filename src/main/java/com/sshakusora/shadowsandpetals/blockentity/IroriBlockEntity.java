@@ -1,7 +1,14 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
+import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
+import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -36,7 +43,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.*;
 
-public class IroriBlockEntity extends BlockEntity implements Container {
+public class IroriBlockEntity extends BlockEntity implements Container, MenuProvider {
     private static final String MASTER_POS_KEY = "MasterPos";
     private static final String FIREWOOD_MODEL_KEY = "FirewoodModel";
     private static final String FUEL_STACK_KEY = "FuelStack";
@@ -73,6 +80,49 @@ public class IroriBlockEntity extends BlockEntity implements Container {
     private @Nullable FirewoodModel previousFirewoodEffectModel;
     private float firewoodAppearProgress = 1.0F;
     private float firewoodAppearProgressOld = 1.0F;
+
+    private final ContainerData dataAccess = new ContainerData() {
+        @Override
+        public int get(int index) {
+            IroriBlockEntity master = getMaster();
+            return switch (index) {
+                case 0 -> master.burnTime;
+                case 1 -> master.burnTimeTotal;
+                default -> 0;
+            };
+        }
+
+        @Override
+        public void set(int index, int value) {
+            IroriBlockEntity master = getMaster();
+            switch (index) {
+                case 0 -> master.burnTime = value;
+                case 1 -> master.burnTimeTotal = value;
+                default -> {
+                }
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    };
+
+    public ContainerData getDataAccess() {
+        return dataAccess;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable(BuiltinLanguageKeys.IRORI_CONTAINER_NAME.key());
+    }
+
+    @Override
+    public AbstractContainerMenu createMenu(int id, Inventory playerInv, Player player) {
+        IroriBlockEntity master = resolveMaster();
+        return new IroriMenu(id, playerInv, master, master.getDataAccess());
+    }
 
     public IroriBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.IRORI.get(), pos, blockState);
@@ -741,6 +791,14 @@ public class IroriBlockEntity extends BlockEntity implements Container {
 
         master.items.set(0, ItemStack.EMPTY);
         master.afterFuelChanged(master.getLevelRandom());
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack stack) {
+        if (slot != 0 || stack.isEmpty() || level == null) {
+            return false;
+        }
+        return stack.getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0;
     }
 
     private void setStoredFuelStack(ItemStack stack) {

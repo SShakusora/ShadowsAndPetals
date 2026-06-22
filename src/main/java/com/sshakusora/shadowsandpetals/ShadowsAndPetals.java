@@ -19,6 +19,7 @@ public class ShadowsAndPetals {
         ItemRegistry.init();
         BlockRegistry.init();
         BlockEntityRegistry.init();
+        MenuRegistry.init();
         EntityRegistry.init();
         ParticleRegistry.init();
         SoundRegistry.init();

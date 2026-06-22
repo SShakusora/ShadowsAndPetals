@@ -86,6 +86,11 @@ public final class BuiltinLanguageKeys {
             .en_us("Ctrl")
             .zh_cn("Ctrl");
 
+    public static final DatagenLangRegistry.TranslationKey IRORI_CONTAINER_NAME = DatagenLangRegistry
+            .key("container.shadowsandpetals.irori")
+            .en_us("Irori")
+            .zh_cn("日式围炉");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}

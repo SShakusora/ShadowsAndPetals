@@ -129,6 +129,7 @@
   "config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable": "显示咖啡椅是否可染色",
   "config.jade.plugin_shadowsandpetals.jade.irori_burn_time": "显示围炉燃烧时间",
   "config.jade.plugin_shadowsandpetals.jade.rockery_hammer_progress": "显示石山锤击进度",
+  "container.shadowsandpetals.irori": "围炉",
   "container.shadowsandpetals.vanity": "梳妆台",
   "entity.shadowsandpetals.seat": "座位",
   "item.shadowsandpetals.acacia_vanity": "金合欢木梳妆台",
