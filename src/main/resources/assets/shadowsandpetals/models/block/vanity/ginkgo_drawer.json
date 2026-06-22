@@ -1,0 +1,9 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "shadowsandpetals:block/vanity/vanity_drawer",
+	"texture_size": [32, 32],
+	"textures": {
+		"vanity": "shadowsandpetals:block/vanity/ginkgo"
+	}
+}
