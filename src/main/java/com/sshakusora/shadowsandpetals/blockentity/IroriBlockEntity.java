@@ -762,7 +762,9 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         if (!normalized.isEmpty() && normalized.getCount() > maxStackSize) {
             normalized.setCount(maxStackSize);
         }
-        if (ItemStack.matches(master.getStoredFuelStack(), normalized)) {
+        ItemStack current = master.getStoredFuelStack();
+        if (ItemStack.isSameItemSameComponents(current, normalized)
+                && current.getCount() == normalized.getCount()) {
             return;
         }
 
@@ -900,6 +902,11 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         burnCycle = 0;
         ashState = false;
         invalidateRenderOffsetCache();
+    }
+
+    public void onFuelSlotChanged() {
+        IroriBlockEntity master = resolveMaster();
+        master.afterFuelChanged(master.getLevelRandom());
     }
 
     private void afterFuelChanged(RandomSource random) {

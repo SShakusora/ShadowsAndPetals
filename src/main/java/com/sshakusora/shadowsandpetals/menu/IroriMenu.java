@@ -51,6 +51,14 @@ public class IroriMenu extends AbstractContainerMenu {
             public boolean mayPlace(ItemStack stack) {
                 return container.canPlaceItem(FUEL_SLOT, stack);
             }
+
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                if (container instanceof IroriBlockEntity be) {
+                    be.onFuelSlotChanged();
+                }
+            }
         });
         this.addStandardInventorySlots(playerInv, 8, 84);
         this.addDataSlots(data);
