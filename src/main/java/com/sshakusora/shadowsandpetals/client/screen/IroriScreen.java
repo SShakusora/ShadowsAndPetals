@@ -12,9 +12,12 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class IroriScreen extends AbstractContainerScreen<IroriMenu> {
     private static final Identifier TEXTURE = ShadowsAndPetals.asResource("textures/gui/irori.png");
-    private static final Identifier LIT_PROGRESS_SPRITE = Identifier.withDefaultNamespace("container/furnace/lit_progress");
-    private static final int FLAME_X = 80;
-    private static final int FLAME_Y = 36;
+    private static final int FLAME_X = 62;
+    private static final int FLAME_Y = 5;
+    private static final int FLAME_U = 176;
+    private static final int FLAME_V = 0;
+    private static final int FLAME_WIDTH = 54;
+    private static final int FLAME_HEIGHT = 45;
 
     public IroriScreen(IroriMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -23,7 +26,7 @@ public class IroriScreen extends AbstractContainerScreen<IroriMenu> {
     @Override
     protected void init() {
         super.init();
-        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+        this.titleLabelY = -999;
     }
 
     @Override
@@ -33,18 +36,18 @@ public class IroriScreen extends AbstractContainerScreen<IroriMenu> {
         int yo = this.topPos;
         graphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, xo, yo, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
         if (this.menu.isLit()) {
-            int litProgressHeight = Mth.ceil(this.menu.getLitProgress() * 13.0F) + 1;
-            graphics.blitSprite(
+            int litProgressHeight = Mth.ceil(this.menu.getLitProgress() * (FLAME_HEIGHT - 1)) + 1;
+            graphics.blit(
                     RenderPipelines.GUI_TEXTURED,
-                    LIT_PROGRESS_SPRITE,
-                    14,
-                    14,
-                    0,
-                    14 - litProgressHeight,
+                    TEXTURE,
                     xo + FLAME_X,
-                    yo + FLAME_Y + 14 - litProgressHeight,
-                    14,
-                    litProgressHeight
+                    yo + FLAME_Y + FLAME_HEIGHT - litProgressHeight,
+                    (float) FLAME_U,
+                    (float) (FLAME_V + FLAME_HEIGHT - litProgressHeight),
+                    FLAME_WIDTH,
+                    litProgressHeight,
+                    256,
+                    256
             );
         }
     }

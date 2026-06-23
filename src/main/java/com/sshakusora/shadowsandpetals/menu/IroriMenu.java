@@ -17,8 +17,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class IroriMenu extends AbstractContainerMenu {
-    public static final int FUEL_SLOT_X = 80;
-    public static final int FUEL_SLOT_Y = 53;
+    public static final int FUEL_SLOT_X = 82;
+    public static final int FUEL_SLOT_Y = 30;
 
     private static final int FUEL_SLOT = 0;
     private static final int CONTAINER_SLOT_COUNT = 1;
