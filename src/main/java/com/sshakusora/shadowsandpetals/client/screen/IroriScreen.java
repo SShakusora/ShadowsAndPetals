@@ -10,6 +10,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 
+// TODO: 添加放置燃烧后的骨粉槽位
 public class IroriScreen extends AbstractContainerScreen<IroriMenu> {
     private static final Identifier TEXTURE = ShadowsAndPetals.asResource("textures/gui/irori.png");
     private static final int FLAME_X = 62;
