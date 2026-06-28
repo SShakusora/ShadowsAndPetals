@@ -43,6 +43,7 @@ public class RegItemBuilder<I extends Item> {
     private final List<Identifier> aliases = new ArrayList<>();
     private boolean hasTooltipDescription;
     private Consumer<TooltipLangBuilder> tooltipDescriptionGenerator;
+    private TooltipModifier tooltipModifier;
     private BiFunction<I, ItemStack, @Nullable TooltipComponent> tooltipComponentFactory;
     private int tooltipComponentMinimumWidth;
 
@@ -114,6 +115,14 @@ public class RegItemBuilder<I extends Item> {
     public RegItemBuilder<I> tooltipDescription(Consumer<TooltipLangBuilder> generator) {
         this.hasTooltipDescription = true;
         this.tooltipDescriptionGenerator = Objects.requireNonNull(generator);
+        return this;
+    }
+
+    /**
+     * Adds a dynamic modifier to this item's foundation tooltip pipeline.
+     */
+    public RegItemBuilder<I> tooltipModifier(TooltipModifier modifier) {
+        this.tooltipModifier = Objects.requireNonNull(modifier);
         return this;
     }
 
@@ -229,6 +238,10 @@ public class RegItemBuilder<I extends Item> {
         applyClientItem(deferredItem);
         for (CreativeTabType tab : creativeTabs) {
             CreativeTabContentsRegistry.add(tab, deferredItem);
+        }
+
+        if (tooltipModifier != null) {
+            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
         }
 
         if (hasTooltipDescription) {

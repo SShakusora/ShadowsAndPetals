@@ -1,9 +1,6 @@
 package com.sshakusora.shadowsandpetals.registries;
 
-import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
-import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiBlockEntity;
-import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiPipeBlockEntity;
-import com.sshakusora.shadowsandpetals.blockentity.VanityBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
@@ -30,6 +27,12 @@ public class BlockEntityRegistry {
             .<ShishiOdoshiPipeBlockEntity>blockEntity("shishi_odoshi_pipe")
             .factory(ShishiOdoshiPipeBlockEntity::new)
             .validBlocks(BlockRegistry.SHISHI_ODOSHI_PIPE)
+            .register();
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WindChimeBlockEntity>> WIND_CHIME = SAPRegistries
+            .<WindChimeBlockEntity>blockEntity("wind_chime")
+            .factory(WindChimeBlockEntity::new)
+            .validBlocks(BlockRegistry.WIND_CHIME)
             .register();
 
     public static void init() {}

@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.client.ct;
 
 import net.minecraft.resources.Identifier;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,7 +37,7 @@ public final class CTRegistry {
     }
 
     public static Map<Identifier, CTEntry> entries() {
-        return ENTRIES;
+        return Collections.unmodifiableMap(ENTRIES);
     }
 
     /**

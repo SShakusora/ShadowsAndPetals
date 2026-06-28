@@ -76,6 +76,21 @@ public final class BuiltinLanguageKeys {
             .en_us("Hold [%s] for Preview")
             .zh_cn("按住 [%s] 显示预览");
 
+    public static final DatagenLangRegistry.TranslationKey WIND_CHIME_RIBBON_COLOR = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wind_chime.ribbon_color")
+            .en_us("Ribbon: %s")
+            .zh_cn("悬绳：%s");
+
+    public static final DatagenLangRegistry.TranslationKey WIND_CHIME_COLORS = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wind_chime.colors")
+            .en_us("Current colors:")
+            .zh_cn("当前颜色：");
+
+    public static final DatagenLangRegistry.TranslationKey WIND_CHIME_VANE_COLOR = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wind_chime.vane_color")
+            .en_us("Vane: %s")
+            .zh_cn("短册：%s");
+
     public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_KEY_SHIFT = DatagenLangRegistry
             .key("tooltip.shadowsandpetals.holdKey.shift")
             .en_us("Shift")

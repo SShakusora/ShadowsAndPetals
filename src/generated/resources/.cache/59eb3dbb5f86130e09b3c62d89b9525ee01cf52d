@@ -1,4 +1,4 @@
-// 26.1.2	2026-06-20T12:15:27.0507116	Loot Tables
+// 26.1.2	2026-06-20T19:37:34.4723253	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
 0a94a9b2c72f29e1ba09ce05465f8da88aa3d07b data/shadowsandpetals/loot_table/blocks/aluminum_ingot_pile.json
@@ -124,5 +124,6 @@ d1fd8185a6d473bc614f00e3660c25783218882f data/shadowsandpetals/loot_table/blocks
 5177539783ac871557bf1f92d18b5f0c4a02aa93 data/shadowsandpetals/loot_table/blocks/warped_vanity.json
 26d0efee81810da18e93e833ed6d32148ffe4df4 data/shadowsandpetals/loot_table/blocks/white_cafe_chair.json
 29a190dae4886c196187b29bd0e4a7516c262a34 data/shadowsandpetals/loot_table/blocks/white_roof_tile.json
+c800ea1b5649259699bdbaa7e89839c0cdaa3070 data/shadowsandpetals/loot_table/blocks/wind_chime.json
 cc05601cf77cc3222b38e238a2b74b08512bfc82 data/shadowsandpetals/loot_table/blocks/yellow_cafe_chair.json
 7e83836f675cb3ee56dcd83242417434ec0c7294 data/shadowsandpetals/loot_table/blocks/yellow_roof_tile.json

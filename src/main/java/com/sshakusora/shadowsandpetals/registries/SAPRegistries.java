@@ -13,6 +13,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -33,6 +34,7 @@ public class SAPRegistries {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(Registries.PARTICLE_TYPE, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(Registries.FEATURE, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(Registries.SOUND_EVENT, ShadowsAndPetals.MOD_ID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, ShadowsAndPetals.MOD_ID);
 
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
@@ -43,6 +45,7 @@ public class SAPRegistries {
         PARTICLES.register(modEventBus);
         FEATURES.register(modEventBus);
         SOUNDS.register(modEventBus);
+        RECIPE_SERIALIZERS.register(modEventBus);
     }
 
     // Block helpers

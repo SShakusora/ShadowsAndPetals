@@ -65,10 +65,6 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         return fluidAmount;
     }
 
-    public int getFluidAmount() {
-        return fluidAmount;
-    }
-
     public Fluid getFluid() {
         return fluid;
     }

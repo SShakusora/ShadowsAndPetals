@@ -3,6 +3,10 @@ package com.sshakusora.shadowsandpetals.client;
 import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
+import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
+import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
+import com.sshakusora.shadowsandpetals.client.renderer.*;
 import com.sshakusora.shadowsandpetals.client.tooltip.ClientRockeryTooltip;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewRenderer;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
@@ -37,11 +41,17 @@ public class ClientRenderEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI.get(), ShishiOdoshiBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
     public static void registerStandaloneModels(ModelEvent.RegisterStandalone event) {
         BlockModelRegistry.registerStandaloneModels(event);
+    }
+
+    @SubscribeEvent
+    public static void registerItemModels(RegisterItemModelsEvent event) {
+        WindChimeItemModel.register(event);
     }
 
     @SubscribeEvent

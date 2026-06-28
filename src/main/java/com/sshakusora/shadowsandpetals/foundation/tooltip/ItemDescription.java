@@ -3,7 +3,9 @@ package com.sshakusora.shadowsandpetals.foundation.tooltip;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
-import net.minecraft.network.chat.*;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +32,6 @@ import static net.minecraft.ChatFormatting.GRAY;
  * ({@code _highlighted_}) are rendered in the highlight style.
  */
 public record ItemDescription(List<Component> baseline, List<Component> onShift, List<Component> onCtrl) {
-
-    private static final Style PRIMARY = Style.EMPTY.withColor(TextColor.parseColor("#61C3C7").getOrThrow());
-    private static final Style HIGHLIGHT = Style.EMPTY.withColor(TextColor.parseColor("#B8FFE0").getOrThrow());
 
     /**
      * Resolve the correct line set for the current keyboard state.
@@ -109,19 +108,22 @@ public record ItemDescription(List<Component> baseline, List<Component> onShift,
             List<Component> ctrl = new ArrayList<>();
 
             for (String s : summaries) {
-                shift.addAll(TooltipHelper.cutTextComponent(Component.literal(s), PRIMARY, HIGHLIGHT));
+                shift.addAll(TooltipHelper.cutTextComponent(
+                        Component.literal(s), TooltipHelper.PRIMARY_STYLE, TooltipHelper.HIGHLIGHT_STYLE));
             }
             if (!behaviours.isEmpty()) {
                 shift.add(CommonComponents.EMPTY);
             }
             for (String[] pair : behaviours) {
                 shift.add(Component.literal(pair[0]).withStyle(GRAY));
-                shift.addAll(TooltipHelper.cutTextComponent(Component.literal(pair[1]), PRIMARY, HIGHLIGHT, 1));
+                shift.addAll(TooltipHelper.cutTextComponent(
+                        Component.literal(pair[1]), TooltipHelper.PRIMARY_STYLE, TooltipHelper.HIGHLIGHT_STYLE, 1));
             }
 
             for (String[] pair : actions) {
                 ctrl.add(Component.literal(pair[0]).withStyle(GRAY));
-                ctrl.addAll(TooltipHelper.cutTextComponent(Component.literal(pair[1]), PRIMARY, HIGHLIGHT, 1));
+                ctrl.addAll(TooltipHelper.cutTextComponent(
+                        Component.literal(pair[1]), TooltipHelper.PRIMARY_STYLE, TooltipHelper.HIGHLIGHT_STYLE, 1));
             }
 
             boolean hasDesc = !shift.isEmpty();

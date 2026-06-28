@@ -19,7 +19,7 @@ No tests exist — no `src/test/` directory, no gametest files.
 
 ## Architecture
 
-- **Entrypoint**: `ShadowsAndPetals.java` — `@Mod(ShadowsAndPetals.MOD_ID)` class. Calls `SAPRegistries.register(modEventBus)` then 7 `*Registry.init()` + `SAPFeatures.init()` in order: `ItemRegistry`, `BlockRegistry`, `BlockEntityRegistry`, `EntityRegistry`, `ParticleRegistry`, `SoundRegistry`, `CreativeTabRegistry`, then `SAPFeatures.init()`. Provides `ShadowsAndPetals.asResource(String path)` convenience method.
+- **Entrypoint**: `ShadowsAndPetals.java` — `@Mod(ShadowsAndPetals.MOD_ID)` class. Calls `SAPRegistries.register(modEventBus)` then 8 `*Registry.init()` + `SAPFeatures.init()` in order: `ItemRegistry`, `BlockRegistry`, `BlockEntityRegistry`, `EntityRegistry`, `ParticleRegistry`, `SoundRegistry`, `RecipeSerializerRegistry`, `CreativeTabRegistry`, then `SAPFeatures.init()`. Provides `ShadowsAndPetals.asResource(String path)` convenience method.
 - **Registration pattern**: All blocks/items/entities/tabs/particles/features/sounds use `DeferredRegister` via `SAPRegistries`, wrapped in fluent builder classes under `registries/builder/`:
   - `RegBlockBuilder` — blocks + block items + datagen wiring + CT (connected textures) + legacy aliases
   - `RegItemBuilder` — items + model + recipe + lang. Also contains nested `BlockItemBuilder` for block-item-only registration.
@@ -33,7 +33,7 @@ No tests exist — no `src/test/` directory, no gametest files.
 - **`init()` methods** on registries are empty — side effects happen during static initialization (builder chains at field declaration time).
 - **Multi-variant blocks**: `DyedBlockList<T>` (16 `DyeColor`s) and `WoodBlockList<T>` (15 wood types — 9 vanilla + 3 custom + 2 nether + bamboo) generate families from a single builder template lambda.
 - **`WoodSetList`**: Groups plank/stair/slab/log blocks for custom wood types (sakura, maple, ginkgo). Used as supplier for `WoodBlockList.WoodType`. Each `WoodSetList.WoodSet` record carries 18 block fields: log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, hedge.
-- **`SAPRegistries`**: Houses all `DeferredRegister` instances (`BLOCKS`, `ITEMS`, `CREATIVE_TABS`, `ENTITIES`, `BLOCK_ENTITIES`, `PARTICLES`, `FEATURES`, `SOUNDS`) plus factory methods for builder chains. Uses NeoForge's `DeferredRegister.createBlocks()`/`createItems()` shorthand.
+- **`SAPRegistries`**: Houses all `DeferredRegister` instances (`BLOCKS`, `ITEMS`, `CREATIVE_TABS`, `ENTITIES`, `BLOCK_ENTITIES`, `PARTICLES`, `FEATURES`, `SOUNDS`, `RECIPE_SERIALIZERS`) plus factory methods for builder chains. Uses NeoForge's `DeferredRegister.createBlocks()`/`createItems()` shorthand.
 - **`BlockList<TEnum, TValue>`**: Generic array-backed lookup. `DyedBlockList`, `WoodBlockList`, and `WoodSetList` all extend it. Use `getByOrdinal()` for index-based access or named accessors.
 
 ## Package Overview
@@ -50,6 +50,7 @@ No tests exist — no `src/test/` directory, no gametest files.
 | `data/` | All datagen providers and registries. Model helpers in `data/model/`. |
 | `entity/` | SeatEntity — invisible chair-sitting entity, non-summonable, 0.01×0.01 dimensions, NoopRenderer |
 | `item/` | HammerItem, HarrowItem |
+| `item/chime/` | WindChimeDyeRecipe, WindChimeColors, WindChimeTooltipModifier |
 | `legacy/` | Chinjufumod migration: BlockStateAliasRegistry, BlockEntityAliasRegistry, LegacyStateBlock, LegacyBlockEntity, LegacyCompatIds |
 | `mixin/` | Two server-side mixins only |
 | `registries/builder/` | 7 fluent builder classes |
@@ -108,6 +109,12 @@ Items registered in `ItemRegistry`:
 - `HammerItem` — custom tool for rockery shaping. Has custom use animation via `HammerClientExtensions` and `HammerArmPoseEnumExtensions` (META-INF/enumextensions.json).
 - `HarrowItem` — another custom tool item.
 - `RAW_BAUXITE` / `ALUMINUM_INGOT` / `CHISEL` — standard items (registry entries, no separate class files).
+- Wind chime items with dyeing recipe — see `item/chime/` (WindChimeDyeRecipe, WindChimeColors, WindChimeTooltipModifier).
+
+## Recipe Serializers
+
+- `RecipeSerializerRegistry` — registers `WIND_CHIME_DYEING` via `SAPRegistries.RECIPE_SERIALIZERS`. Single `DeferredHolder` with static init; no builder class.
+- `WindChimeDyeRecipe` in `item/chime/` — custom recipe serializer for dyeing wind chimes (in-world crafting).
 
 ## Client
 
@@ -206,11 +213,12 @@ Add to `ItemRegistry` using `SAPRegistries.item("id")` builder chain: `.model(..
 ## Notes
 
 - `generateModMetadata` task expands `gradle.properties` into the TOML template. Wired to run on IDE sync (`neoForge.ideSyncTask`).
+- `.codegraph/` contains the code intelligence knowledge graph index (gitignored). Use codegraph tools for fast structural queries.
 - No gametest files exist; `runGameTestServer` will crash unless gametests are added.
 - No test infrastructure at all — no `src/test/`, no unit tests, no gametests.
 - No `README` exists; this file is the primary agent reference.
 - No `opencode.json` or `.opencode/` directory exists.
-- `.gitignore` excludes: `build/`, `run/`, `run2/`, `.idea/`, `.gradle/`, `docs/`, `.omo/`, `reference/`.
+- `.gitignore` excludes: `build/`, `run/`, `run2/`, `.idea/`, `.gradle/`, `docs/`, `.omo/`, `reference/`, `.codegraph/`.
 - `org.jspecify.annotations.Nullable` is used (e.g. `CreativeTabType`) for nullability annotations.
 - Two maven repos: `maven.blamejared.com` (JEI) and `api.modrinth.com` (Jade).
 - The `block/agriculture/` package exists but is empty — only contains `package-info.java`.

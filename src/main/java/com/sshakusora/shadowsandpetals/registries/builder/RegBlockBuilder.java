@@ -54,6 +54,7 @@ public class RegBlockBuilder<B extends Block> {
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
     private BiConsumer<ModItemModelProvider, DeferredBlock<B>> itemModelGenerator;
     private Function<DeferredBlock<B>, Identifier> clientItemModelFactory;
+    private Function<DeferredBlock<B>, Identifier> customClientItemTypeFactory;
     private Function<DeferredBlock<B>, Identifier> ctBaseTextureFactory;
     private Function<DeferredBlock<B>, Identifier> ctConnectedTextureFactory;
     private CTTextureType ctTextureType;
@@ -65,6 +66,7 @@ public class RegBlockBuilder<B extends Block> {
     private final List<TagKey<Block>> blockTags = new ArrayList<>();
     private boolean hasTooltipDescription;
     private Consumer<TooltipLangBuilder> tooltipDescriptionGenerator;
+    private TooltipModifier tooltipModifier;
     private BiFunction<B, ItemStack, @Nullable TooltipComponent> tooltipComponentFactory;
     private int tooltipComponentMinimumWidth;
 
@@ -177,6 +179,14 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     /**
+     * Adds a dynamic modifier to this block item's foundation tooltip pipeline.
+     */
+    public RegBlockBuilder<B> tooltipModifier(TooltipModifier modifier) {
+        this.tooltipModifier = Objects.requireNonNull(modifier);
+        return this;
+    }
+
+    /**
      * Registers a custom component for this block item's tooltip.
      */
     public RegBlockBuilder<B> tooltipComponent(
@@ -242,6 +252,24 @@ public class RegBlockBuilder<B extends Block> {
      */
     public RegBlockBuilder<B> clientItem(Identifier modelId) {
         return clientItem(block -> modelId);
+    }
+
+    /**
+     * Attaches a custom client item model type used by {@link ModClientItemProvider}.
+     * <p>
+     * Use this for special item models whose JSON entry only needs a {@code type}
+     * property instead of the vanilla {@code minecraft:model + model} pair.
+     */
+    public RegBlockBuilder<B> customClientItem(Function<DeferredBlock<B>, Identifier> modelTypeFactory) {
+        this.customClientItemTypeFactory = modelTypeFactory;
+        return this;
+    }
+
+    /**
+     * Attaches a fixed custom client item model type used by {@link ModClientItemProvider}.
+     */
+    public RegBlockBuilder<B> customClientItem(Identifier modelType) {
+        return customClientItem(block -> modelType);
     }
 
     /**
@@ -438,6 +466,13 @@ public class RegBlockBuilder<B extends Block> {
             applyClientItemUnchecked(deferredBlock);
         }
 
+        if (tooltipModifier != null) {
+            if (!withItem) {
+                throw new IllegalStateException("Block '" + name + "' cannot have an item tooltip modifier without an item");
+            }
+            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
+        }
+
         if (hasTooltipDescription && withItem) {
             Identifier itemId = ShadowsAndPetals.asResource(name);
             TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
@@ -582,6 +617,11 @@ public class RegBlockBuilder<B extends Block> {
     @SuppressWarnings("unchecked")
     private void applyClientItemUnchecked(DeferredBlock<? extends Block> block) {
         DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
+        if (customClientItemTypeFactory != null) {
+            DatagenClientItemRegistry.addCustomModel(block.getId(), customClientItemTypeFactory.apply(typedBlock));
+            return;
+        }
+
         Identifier modelId = clientItemModelFactory != null
                 ? clientItemModelFactory.apply(typedBlock)
                 : ShadowsAndPetals.asResource("item/" + block.getId().getPath());

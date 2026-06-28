@@ -4,5 +4,11 @@
       "shadowsandpetals:shishi_odoshi"
     ],
     "subtitle": "subtitles.shadowsandpetals.shishi_odoshi"
+  },
+  "wind_chime": {
+    "sounds": [
+      "shadowsandpetals:wind_chime"
+    ],
+    "subtitle": "subtitles.shadowsandpetals.wind_chime"
   }
 }

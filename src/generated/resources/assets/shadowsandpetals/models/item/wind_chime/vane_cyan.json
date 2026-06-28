@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:item/wind_chime_vane",
+  "textures": {
+    "particle": "shadowsandpetals:block/wind_chime/vane/cyan",
+    "windchime0": "shadowsandpetals:block/wind_chime/vane/cyan"
+  }
+}

@@ -27,9 +27,10 @@ public class ModClientItemProvider implements DataProvider {
         Map<Identifier, JsonObject> result = new LinkedHashMap<>();
         for (var entry : DatagenClientItemRegistry.entries().entrySet()) {
             JsonObject model = new JsonObject();
-            model.addProperty("type", "minecraft:model");
-            model.addProperty("model", entry.getValue().toString());
-
+            model.addProperty("type", entry.getValue().type().toString());
+            if (entry.getValue().modelId() != null) {
+                model.addProperty("model", entry.getValue().modelId().toString());
+            }
             JsonObject root = new JsonObject();
             root.add("model", model);
 

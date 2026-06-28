@@ -9,6 +9,7 @@ import net.minecraft.data.recipes.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +46,10 @@ public class ModRecipeProvider extends RecipeProvider {
 
     public Criterion<InventoryChangeTrigger.TriggerInstance> hasTag(TagKey<Item> tag) {
         return has(tag);
+    }
+
+    public Ingredient ingredient(TagKey<Item> tag) {
+        return Ingredient.of(items.getOrThrow(tag));
     }
 
     public String hasName(ItemLike item) {
