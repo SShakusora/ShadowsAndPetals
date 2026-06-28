@@ -35,5 +35,11 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.WIND_CHIME)
             .register();
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CopperTeapotBlockEntity>> COPPER_TEAPOT = SAPRegistries
+            .<CopperTeapotBlockEntity>blockEntity("copper_teapot")
+            .factory(CopperTeapotBlockEntity::new)
+            .validBlocks(BlockRegistry.COPPER_TEAPOT)
+            .register();
+
     public static void init() {}
 }

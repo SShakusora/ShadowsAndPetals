@@ -28,6 +28,8 @@ import java.util.Map;
 public final class BlockModelRegistry {
     private static final Map<IroriBlockEntity.FirewoodModel, StandaloneModelKey<BlockStateModel>> IRORI_FIREWOOD_MODEL_KEYS = createIroriFirewoodModelKeys();
     private static final Map<IroriBlockEntity.FirewoodModel, BlockStateModel> IRORI_FIREWOOD_MODELS = new EnumMap<>(IroriBlockEntity.FirewoodModel.class);
+    private static final Map<IroriBlockEntity.GrillModel, StandaloneModelKey<BlockStateModel>> IRORI_GRILL_MODEL_KEYS = createIroriGrillModelKeys();
+    private static final Map<IroriBlockEntity.GrillModel, BlockStateModel> IRORI_GRILL_MODELS = new EnumMap<>(IroriBlockEntity.GrillModel.class);
     private static final Map<WoodBlockList.WoodType, StandaloneModelKey<BlockStateModel>> VANITY_DRAWER_MODEL_KEYS = createVanityDrawerModelKeys();
     private static final Map<WoodBlockList.WoodType, BlockStateModel> VANITY_DRAWER_MODELS = new EnumMap<>(WoodBlockList.WoodType.class);
     private static final Map<WoodPostChainModelKey, StandaloneModelKey<BlockStateModel>> WOOD_POST_CHAIN_MODEL_KEYS = new HashMap<>();
@@ -43,6 +45,9 @@ public final class BlockModelRegistry {
     private static final Map<DyeColor, BlockStateModel> WIND_CHIME_BODY_MODELS = new EnumMap<>(DyeColor.class);
     private static final Map<DyeColor, BlockStateModel> WIND_CHIME_MAIN_RIBBON_MODELS = new EnumMap<>(DyeColor.class);
     private static final Map<DyeColor, BlockStateModel> WIND_CHIME_VANE_MODELS = new EnumMap<>(DyeColor.class);
+    private static final StandaloneModelKey<BlockStateModel> COPPER_TEAPOT_LID_KEY = new StandaloneModelKey<>(
+            () -> ShadowsAndPetals.asResource("copper_teapot_lid").toString());
+    private static BlockStateModel copperTeapotLidModel;
 
     private BlockModelRegistry() {
     }
@@ -53,6 +58,7 @@ public final class BlockModelRegistry {
         registerWoodPostConnectionModels(event);
         registerShishiOdoshiModels(event);
         registerWindChimeModels(event);
+        registerCopperTeapotModels(event);
     }
 
     public static void cacheBakedModels(ModelEvent.BakingCompleted event) {
@@ -61,6 +67,7 @@ public final class BlockModelRegistry {
         cacheWoodPostConnectionModels(event);
         cacheShishiOdoshiModels(event);
         cacheWindChimeModels(event);
+        cacheCopperTeapotModels(event);
     }
 
     public static void wrapBlockStateModels(ModelEvent.ModifyBakingResult event) {
@@ -93,6 +100,17 @@ public final class BlockModelRegistry {
         return Minecraft.getInstance()
                 .getModelManager()
                 .getStandaloneModel(IRORI_FIREWOOD_MODEL_KEYS.get(firewoodModel));
+    }
+
+    public static @Nullable BlockStateModel getIroriGrillModel(IroriBlockEntity.GrillModel grillModel) {
+        BlockStateModel cachedModel = IRORI_GRILL_MODELS.get(grillModel);
+        if (cachedModel != null) {
+            return cachedModel;
+        }
+
+        return Minecraft.getInstance()
+                .getModelManager()
+                .getStandaloneModel(IRORI_GRILL_MODEL_KEYS.get(grillModel));
     }
 
     public static @Nullable BlockStateModel getWoodPostConnectionModel(Block block, WoodPostBlock.ConnectionType type, Direction direction) {
@@ -164,6 +182,25 @@ public final class BlockModelRegistry {
         return Minecraft.getInstance().getModelManager().getStandaloneModel(WIND_CHIME_VANE_KEYS.get(vane));
     }
 
+    public static @Nullable BlockStateModel getCopperTeapotLidModel() {
+        if (copperTeapotLidModel != null) {
+            return copperTeapotLidModel;
+        }
+        return Minecraft.getInstance().getModelManager().getStandaloneModel(COPPER_TEAPOT_LID_KEY);
+    }
+
+    private static void registerCopperTeapotModels(ModelEvent.RegisterStandalone event) {
+        event.register(
+                COPPER_TEAPOT_LID_KEY,
+                SimpleUnbakedStandaloneModel.blockStateModel(
+                        ShadowsAndPetals.asResource("block/teapot/copper/lid"))
+        );
+    }
+
+    private static void cacheCopperTeapotModels(ModelEvent.BakingCompleted event) {
+        copperTeapotLidModel = event.getModelManager().getStandaloneModel(COPPER_TEAPOT_LID_KEY);
+    }
+
     private static void registerWindChimeModels(ModelEvent.RegisterStandalone event) {
         for (DyeColor ribbon : DyeColor.values()) {
             event.register(
@@ -227,6 +264,13 @@ public final class BlockModelRegistry {
                     SimpleUnbakedStandaloneModel.blockStateModel(ShadowsAndPetals.asResource("block/irori/firewood/" + firewoodModel.modelName()))
             );
         }
+        for (IroriBlockEntity.GrillModel grillModel : IroriBlockEntity.GrillModel.values()) {
+            event.register(
+                    IRORI_GRILL_MODEL_KEYS.get(grillModel),
+                    SimpleUnbakedStandaloneModel.blockStateModel(
+                            ShadowsAndPetals.asResource("block/grill/" + grillModel.modelName()))
+            );
+        }
     }
 
     private static void registerWoodPostConnectionModels(ModelEvent.RegisterStandalone event) {
@@ -279,6 +323,13 @@ public final class BlockModelRegistry {
                 IRORI_FIREWOOD_MODELS.put(firewoodModel, model);
             }
         }
+        IRORI_GRILL_MODELS.clear();
+        for (IroriBlockEntity.GrillModel grillModel : IroriBlockEntity.GrillModel.values()) {
+            BlockStateModel model = event.getModelManager().getStandaloneModel(IRORI_GRILL_MODEL_KEYS.get(grillModel));
+            if (model != null) {
+                IRORI_GRILL_MODELS.put(grillModel, model);
+            }
+        }
     }
 
     private static void cacheWoodPostConnectionModels(ModelEvent.BakingCompleted event) {
@@ -313,6 +364,16 @@ public final class BlockModelRegistry {
         for (IroriBlockEntity.FirewoodModel firewoodModel : IroriBlockEntity.FirewoodModel.values()) {
             Identifier id = ShadowsAndPetals.asResource("irori_firewood/" + firewoodModel.modelName());
             modelKeys.put(firewoodModel, new StandaloneModelKey<>(id::toString));
+        }
+        return modelKeys;
+    }
+
+    private static Map<IroriBlockEntity.GrillModel, StandaloneModelKey<BlockStateModel>> createIroriGrillModelKeys() {
+        Map<IroriBlockEntity.GrillModel, StandaloneModelKey<BlockStateModel>> modelKeys =
+                new EnumMap<>(IroriBlockEntity.GrillModel.class);
+        for (IroriBlockEntity.GrillModel grillModel : IroriBlockEntity.GrillModel.values()) {
+            Identifier id = ShadowsAndPetals.asResource("irori_grill/" + grillModel.modelName());
+            modelKeys.put(grillModel, new StandaloneModelKey<>(id::toString));
         }
         return modelKeys;
     }

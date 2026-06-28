@@ -27,6 +27,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -52,6 +53,8 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private final RandomSource transformRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
     private final Map<IroriBlockEntity.FirewoodModel, CachedFirewoodModel> firewoodModelCache =
             new EnumMap<>(IroriBlockEntity.FirewoodModel.class);
+    private final Map<IroriBlockEntity.GrillModel, CachedGrillModel> grillModelCache =
+            new EnumMap<>(IroriBlockEntity.GrillModel.class);
     private @Nullable TextureAtlasSprite burningSprite;
 
     public IroriBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -73,6 +76,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
         resetFrameState(state);
+        updateGrillRenderState(blockEntity, state);
 
         if (!blockEntity.shouldRenderFirewood()) {
             clearFirewoodModel(state);
@@ -120,6 +124,8 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        renderGrill(state, poseStack, submitNodeCollector);
+
         if (state.burnTime > 0 && state.burningSprite != null && state.burningBreathLight > 0) {
             poseStack.pushPose();
             poseStack.translate(
@@ -184,10 +190,109 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     }
 
     private static void resetFrameState(State state) {
+        state.grillModelParts = List.of();
+        state.grillHasTranslucency = false;
+        state.grillOffsetX = 0.0D;
+        state.grillOffsetZ = 0.0D;
+        state.grillRotated = false;
         state.firewoodOffsetX = 0.0D;
         state.firewoodOffsetZ = 0.0D;
         state.firewoodAppearProgress = 1.0F;
         state.firewoodAlpha = FULL_ALPHA;
+        state.burnTime = 0;
+        state.burningBreathLight = 0;
+        state.burningSprite = null;
+    }
+
+    private void updateGrillRenderState(IroriBlockEntity blockEntity, State state) {
+        IroriBlockEntity.GrillRenderInfo grillInfo = blockEntity.getGrillRenderInfo();
+        if (grillInfo == null || blockEntity.getLevel() == null) {
+            return;
+        }
+
+        BlockStateModel model = BlockModelRegistry.getIroriGrillModel(grillInfo.model());
+        if (model == null) {
+            return;
+        }
+
+        BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
+        CachedGrillModel cached = grillModelCache.get(grillInfo.model());
+        if (cached == null || cached.model() != model) {
+            List<BlockStateModelPart> parts = new ArrayList<>();
+            firewoodRandom.setSeed(FIREWOOD_RENDER_SEED);
+            model.collectParts(
+                    tintGetter,
+                    blockEntity.getBlockPos(),
+                    blockEntity.getBlockState(),
+                    firewoodRandom,
+                    parts
+            );
+            cached = new CachedGrillModel(
+                    model,
+                    List.copyOf(parts),
+                    model.hasMaterialFlag(
+                            tintGetter,
+                            blockEntity.getBlockPos(),
+                            blockEntity.getBlockState(),
+                            BakedQuad.FLAG_TRANSLUCENT
+                    )
+            );
+            grillModelCache.put(grillInfo.model(), cached);
+        }
+
+        state.grillModelParts = cached.parts();
+        state.grillHasTranslucency = cached.hasTranslucency();
+        state.grillOffsetX = grillInfo.offsetX();
+        state.grillOffsetZ = grillInfo.offsetZ();
+        state.grillRotated = grillInfo.rotated();
+    }
+
+    private static void renderGrill(
+            State state,
+            PoseStack poseStack,
+            SubmitNodeCollector submitNodeCollector
+    ) {
+        if (state.grillModelParts.isEmpty()) {
+            return;
+        }
+
+        poseStack.pushPose();
+        poseStack.translate(state.grillOffsetX, 10.0 / 16.0D, state.grillOffsetZ);
+        if (state.grillRotated) {
+            poseStack.translate(0.5D, 0.0D, 0.5D);
+            poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+            poseStack.translate(-0.5D, 0.0D, -0.5D);
+        }
+        submitNodeCollector.submitMultiLayerBlockModel(
+                poseStack,
+                state.grillModelParts,
+                state.grillHasTranslucency,
+                BlockModelRenderState.EMPTY_TINTS,
+                state.lightCoords,
+                OverlayTexture.NO_OVERLAY,
+                0
+        );
+        poseStack.popPose();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(IroriBlockEntity blockEntity) {
+        if (blockEntity.getLevel() == null || blockEntity.getMaster() != blockEntity) {
+            return new AABB(blockEntity.getBlockPos());
+        }
+
+        IroriBlockEntity.RectangularComponent component = IroriBlockEntity.computeComponentBounds(
+                blockEntity.getLevel(),
+                blockEntity.getBlockPos()
+        );
+        return new AABB(
+                component.minX(),
+                blockEntity.getBlockPos().getY(),
+                component.minZ(),
+                component.maxX() + 1.0D,
+                blockEntity.getBlockPos().getY() + 2.0D,
+                component.maxZ() + 1.0D
+        );
     }
 
     private void updateFirewoodTransform(IroriBlockEntity blockEntity, State state) {
@@ -272,6 +377,11 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     }
 
     public static class State extends BlockEntityRenderState {
+        public List<BlockStateModelPart> grillModelParts = List.of();
+        public boolean grillHasTranslucency;
+        public double grillOffsetX;
+        public double grillOffsetZ;
+        public boolean grillRotated;
         public List<BlockStateModelPart> firewoodModelParts = List.of();
         public boolean firewoodHasTranslucency;
         public double firewoodOffsetX;
@@ -287,6 +397,12 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     }
 
     private record CachedFirewoodModel(
+            BlockStateModel model,
+            List<BlockStateModelPart> parts,
+            boolean hasTranslucency
+    ) {}
+
+    private record CachedGrillModel(
             BlockStateModel model,
             List<BlockStateModelPart> parts,
             boolean hasTranslucency

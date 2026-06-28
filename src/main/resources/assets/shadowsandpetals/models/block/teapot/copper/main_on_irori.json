@@ -1,0 +1,6 @@
+{
+  "parent": "shadowsandpetals:block/teapot/copper/main",
+  "transform": {
+    "translation": [0.0, 0.3125, 0.0]
+  }
+}

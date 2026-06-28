@@ -17,5 +17,10 @@ public class SAPCapabilities {
                 BlockEntityRegistry.SHISHI_ODOSHI.get(),
                 (blockEntity, side) -> new ShishiOdoshiBlockEntity.FluidHandler(blockEntity)
         );
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                BlockEntityRegistry.COPPER_TEAPOT.get(),
+                (blockEntity, side) -> blockEntity.getFluidTank()
+        );
     }
 }

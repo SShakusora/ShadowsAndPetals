@@ -168,6 +168,40 @@ public class BlockRegistry {
             .lang("zh_cn", "风铃")
             .register();
 
+    public static final DeferredBlock<CopperTeapotBlock> COPPER_TEAPOT = SAPRegistries
+            .block("copper_teapot", CopperTeapotBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, SAPBlockTags.SUPPORTS_IRORI_GRILL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A _decorative copper teapot_ that can hold fluids.",
+                            "可盛装液体的_铜制装饰茶壶_。")
+                    .behaviour(
+                            "Right-click to open:", "右键打开：",
+                            "Open the teapot screen.", "打开茶壶界面。")
+                    .behaviour(
+                            "When placed on an irori:", "放置在围炉上时：",
+                            "Adjusts _height_.", "自动调整_高度_。"))
+            .blockstate((provider, block) -> provider.copperTeapotBlock(block.get()))
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                        .define('C', Items.COPPER_INGOT)
+                        .pattern("C C")
+                        .pattern("C C")
+                        .pattern(" C ")
+                        .unlockedBy("has_copper_ingot", provider.hasItem(Items.COPPER_INGOT))
+                        .save(provider.output());
+            })
+            .clientItem(ShadowsAndPetals.asResource("item/teapot/copper"))
+            .lang("zh_cn", "铜茶壶")
+            .register();
+
     public static final DeferredBlock<Block> RAW_CONCRETE = SAPRegistries
             .block("raw_concrete")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)

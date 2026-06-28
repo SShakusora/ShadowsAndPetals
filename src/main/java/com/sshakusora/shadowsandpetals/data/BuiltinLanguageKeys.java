@@ -16,6 +16,11 @@ public final class BuiltinLanguageKeys {
             .en_us("Vanity")
             .zh_cn("梳妆台");
 
+    public static final DatagenLangRegistry.TranslationKey COPPER_TEAPOT_CONTAINER_NAME = DatagenLangRegistry
+            .key("container.shadowsandpetals.copper_teapot")
+            .en_us("Copper Teapot")
+            .zh_cn("铜茶壶");
+
     public static final DatagenLangRegistry.TranslationKey JADE_CAFE_CHAIR_DYEABLE_CONFIG = DatagenLangRegistry
             .key("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable")
             .en_us("Show if cafe chairs are dyeable")

@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import com.sshakusora.shadowsandpetals.blockentity.VanityBlockEntity;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
+import com.sshakusora.shadowsandpetals.util.MathUtils;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
@@ -90,7 +91,7 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
 
         poseStack.pushPose();
         float fullTravelDistance = VanityBlock.BASE_DRAWER_TRAVEL_DISTANCE * state.drawerTravelScale;
-        float targetTranslation = easeOutCubic(state.progress) * fullTravelDistance;
+        float targetTranslation = MathUtils.easeOutCubic(state.progress) * fullTravelDistance;
         poseStack.translate(0, 0, -Math.min(targetTranslation, Mth.clamp(state.drawerTravelLimit, 0.0F, fullTravelDistance)));
         submitNodeCollector.submitMultiLayerBlockModel(
                 poseStack,
@@ -121,8 +122,4 @@ public class VanityBlockEntityRenderer implements BlockEntityRenderer<VanityBloc
     private record CachedDrawerModel(List<BlockStateModelPart> parts, boolean hasTranslucency) {
     }
 
-    private static float easeOutCubic(float progress) {
-        float inverse = 1.0F - progress;
-        return 1.0F - inverse * inverse * inverse;
-    }
 }

@@ -272,6 +272,35 @@ public class ModBlockStateProvider implements DataProvider {
         this.models.put(itemModelId(block), BlockModelTemplates.parentModel(basePath));
     }
 
+    public void copperTeapotBlock(CopperTeapotBlock block) {
+        Identifier mainModel = modLoc("block/teapot/copper/main");
+        Identifier onIroriModel = modLoc("block/teapot/copper/main_on_irori");
+
+        JsonObject variants = new JsonObject();
+        for (Direction dir : Direction.Plane.HORIZONTAL) {
+            int y = switch (dir) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            for (boolean onIrori : new boolean[]{false, true}) {
+                for (boolean waterlogged : new boolean[]{false, true}) {
+                    variants.add(
+                            CopperTeapotBlock.FACING.getName() + "=" + dir.getSerializedName()
+                                    + "," + CopperTeapotBlock.ON_IRORI.getName() + "=" + onIrori
+                                    + "," + CopperTeapotBlock.WATERLOGGED.getName() + "=" + waterlogged,
+                            rotatedModel(onIrori ? onIroriModel : mainModel, 0, y)
+                    );
+                }
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
     public void bedroomLampBlock(BedroomLampBlock block) {
         Identifier onModel = modLoc("block/bedroom_lamp/on");
         Identifier offModel = modLoc("block/bedroom_lamp/off");

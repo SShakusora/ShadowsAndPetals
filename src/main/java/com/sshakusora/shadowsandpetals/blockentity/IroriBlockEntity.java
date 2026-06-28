@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.blockentity;
 
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
+import com.sshakusora.shadowsandpetals.registries.SAPBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -266,6 +267,47 @@ public class IroriBlockEntity extends BlockEntity implements Container {
     public int getComponentSize() {
         getFirewoodRenderOffset();
         return cachedComponentWidth * cachedComponentDepth;
+    }
+
+    public @Nullable GrillRenderInfo getGrillRenderInfo() {
+        if (level == null || getMaster() != this) {
+            return null;
+        }
+
+        FirewoodRenderOffset renderOffset = getFirewoodRenderOffset();
+        boolean widthEven = cachedComponentWidth % 2 == 0;
+        boolean depthEven = cachedComponentDepth % 2 == 0;
+        int centerWidth = widthEven ? 2 : 1;
+        int centerDepth = depthEven ? 2 : 1;
+
+        boolean hasSupportedBlock = false;
+        for (int x = 0; x < centerWidth && !hasSupportedBlock; x++) {
+            for (int z = 0; z < centerDepth; z++) {
+                if (level.getBlockState(worldPosition.offset(x, 1, z)).is(SAPBlockTags.SUPPORTS_IRORI_GRILL)) {
+                    hasSupportedBlock = true;
+                    break;
+                }
+            }
+        }
+        if (!hasSupportedBlock) {
+            return null;
+        }
+
+        GrillModel model;
+        if (widthEven && depthEven) {
+            model = GrillModel.TWO_BY_TWO;
+        } else if (widthEven || depthEven) {
+            model = GrillModel.ONE_BY_TWO;
+        } else {
+            model = GrillModel.ONE_BY_ONE;
+        }
+
+        return new GrillRenderInfo(
+                model,
+                renderOffset.x(),
+                renderOffset.z(),
+                widthEven && !depthEven
+        );
     }
 
     public boolean isComponentWideAndDeep() {
@@ -1103,6 +1145,25 @@ public class IroriBlockEntity extends BlockEntity implements Container {
     }
 
     public record FirewoodRenderOffset(double x, double z) {
+    }
+
+    public record GrillRenderInfo(GrillModel model, double offsetX, double offsetZ, boolean rotated) {
+    }
+
+    public enum GrillModel {
+        ONE_BY_ONE("1_1"),
+        ONE_BY_TWO("1_2"),
+        TWO_BY_TWO("2_2");
+
+        private final String modelName;
+
+        GrillModel(String modelName) {
+            this.modelName = modelName;
+        }
+
+        public String modelName() {
+            return modelName;
+        }
     }
 
     public record RectangularComponent(int minX, int maxX, int minZ, int maxZ) {
