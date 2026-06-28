@@ -6,6 +6,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID)
 public class SAPCapabilities {
@@ -17,6 +18,11 @@ public class SAPCapabilities {
                 BlockEntityRegistry.SHISHI_ODOSHI.get(),
                 (blockEntity, side) -> new ShishiOdoshiBlockEntity.FluidHandler(blockEntity)
         );
+
+        event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                BlockEntityRegistry.IRORI.get(),
+                (blockEntity, side) -> VanillaContainerWrapper.of(blockEntity)
         event.registerBlockEntity(
                 Capabilities.Fluid.BLOCK,
                 BlockEntityRegistry.COPPER_TEAPOT.get(),
