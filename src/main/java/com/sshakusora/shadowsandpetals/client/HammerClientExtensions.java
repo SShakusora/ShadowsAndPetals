@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.item.HammerItem;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
+import com.sshakusora.shadowsandpetals.util.MathUtils;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
@@ -136,11 +137,11 @@ public class HammerClientExtensions implements IClientItemExtensions {
         float phase = strikePhase(useTicks);
         if (phase < riseEndPhase) {
             float rise = phase / riseEndPhase;
-            return fastRise ? easeOutCubic(rise) : rise;
+            return fastRise ? MathUtils.easeOutCubic(rise) : rise;
         }
         if (phase < fallEndPhase) {
             float fall = (phase - riseEndPhase) / (fallEndPhase - riseEndPhase);
-            return 1.0F - (fastRise ? fall : easeOutCubic(fall));
+            return 1.0F - (fastRise ? fall : MathUtils.easeOutCubic(fall));
         }
         return 0.0F;
     }
@@ -159,12 +160,6 @@ public class HammerClientExtensions implements IClientItemExtensions {
     private static float easeOut(float value) {
         value = Mth.clamp(value, 0.0F, 1.0F);
         return 1.0F - (1.0F - value) * (1.0F - value);
-    }
-
-    private static float easeOutCubic(float value) {
-        value = Mth.clamp(value, 0.0F, 1.0F);
-        float inverse = 1.0F - value;
-        return 1.0F - inverse * inverse * inverse;
     }
 
     static void applyThirdPersonHammerPose(HumanoidModel<?> model, HumanoidRenderState state, HumanoidArm arm) {

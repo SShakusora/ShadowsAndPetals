@@ -11,11 +11,15 @@ import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.item.HammerItem;
+import com.sshakusora.shadowsandpetals.item.chime.WindChimeDyeRecipe;
+import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ARGB;
@@ -107,6 +111,95 @@ public class BlockRegistry {
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
             .lang("zh_cn", "铝块")
+            .register();
+
+    public static final DeferredBlock<WindChimeBlock> WIND_CHIME = SAPRegistries
+            .block("wind_chime", WindChimeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(1.0F)
+                    .sound(SoundType.GLASS)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A delicate ornament with independently dyeable _ribbon_ and _vane_.",
+                            "悬绳与短册可_分别染色_的精巧饰物。")
+                    .behaviour(
+                            "When crafted with dye:", "与染料合成时：",
+                            "Change the _ribbon_ or _vane_ color.", "改变_悬绳_或_短册_颜色。")
+                    .action(
+                            "Right-click", "右键点击",
+                            "_Ring_ the wind chime.", "_敲响_风铃。"))
+            .tooltipModifier(new WindChimeTooltipModifier())
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, block) -> provider.windChimeBlock(block.get()))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, windChime) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, windChime.get())
+                        .define('S', Items.STRING)
+                        .define('G', Items.GLASS_PANE)
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('P', Items.PAPER)
+                        .pattern(" S ")
+                        .pattern("GAG")
+                        .pattern(" P ")
+                        .unlockedBy(provider.hasName(Items.AMETHYST_SHARD), provider.hasItem(Items.AMETHYST_SHARD))
+                        .save(provider.output());
+
+                provider.output().accept(
+                        ResourceKey.create(Registries.RECIPE, provider.id("wind_chime_ribbon_dyeing")),
+                        new WindChimeDyeRecipe(WindChimeDyeRecipe.Target.RIBBON),
+                        null
+                );
+                provider.output().accept(
+                        ResourceKey.create(Registries.RECIPE, provider.id("wind_chime_vane_dyeing")),
+                        new WindChimeDyeRecipe(WindChimeDyeRecipe.Target.VANE),
+                        null
+                );
+                provider.output().accept(
+                        ResourceKey.create(Registries.RECIPE, provider.id("wind_chime_dual_dyeing")),
+                        new WindChimeDyeRecipe(WindChimeDyeRecipe.Target.BOTH),
+                        null
+                );
+            })
+            .itemModel((provider, block) -> provider.windChimeItemModels())
+            .customClientItem(ShadowsAndPetals.asResource("wind_chime"))
+            .lang("zh_cn", "风铃")
+            .register();
+
+    public static final DeferredBlock<CopperTeapotBlock> COPPER_TEAPOT = SAPRegistries
+            .block("copper_teapot", CopperTeapotBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, SAPBlockTags.SUPPORTS_IRORI_GRILL)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A _decorative copper teapot_ that can hold fluids.",
+                            "可盛装液体的_铜制装饰茶壶_。")
+                    .behaviour(
+                            "Right-click to open:", "右键打开：",
+                            "Open the teapot screen.", "打开茶壶界面。")
+                    .behaviour(
+                            "When placed on an irori:", "放置在围炉上时：",
+                            "Adjusts _height_.", "自动调整_高度_。"))
+            .blockstate((provider, block) -> provider.copperTeapotBlock(block.get()))
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                        .define('C', Items.COPPER_INGOT)
+                        .pattern("C C")
+                        .pattern("C C")
+                        .pattern(" C ")
+                        .unlockedBy("has_copper_ingot", provider.hasItem(Items.COPPER_INGOT))
+                        .save(provider.output());
+            })
+            .clientItem(ShadowsAndPetals.asResource("item/teapot/copper"))
+            .lang("zh_cn", "铜茶壶")
             .register();
 
     public static final DeferredBlock<Block> RAW_CONCRETE = SAPRegistries

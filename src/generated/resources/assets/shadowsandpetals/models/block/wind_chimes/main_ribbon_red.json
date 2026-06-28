@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/wind_chimes/main_ribbon",
+  "textures": {
+    "2": "shadowsandpetals:block/wind_chime/ribbon/red",
+    "particle": "shadowsandpetals:block/wind_chime/ribbon/red"
+  }
+}

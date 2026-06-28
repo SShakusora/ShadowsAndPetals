@@ -6,6 +6,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ import java.util.List;
  */
 public final class TooltipHelper {
     public static final int MAX_WIDTH_PER_LINE = 200;
+    public static final Style PRIMARY_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#61C3C7").getOrThrow());
+    public static final Style HIGHLIGHT_STYLE = Style.EMPTY.withColor(TextColor.parseColor("#B8FFE0").getOrThrow());
 
     private TooltipHelper() {}
 

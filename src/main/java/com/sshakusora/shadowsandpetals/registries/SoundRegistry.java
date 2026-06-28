@@ -9,5 +9,10 @@ public class SoundRegistry {
             .subtitle("Shishi-odoshi clacks", "添水：敲击")
             .register();
 
+    public static final DeferredHolder<SoundEvent, SoundEvent> WIND_CHIME = SAPRegistries
+            .sound("wind_chime")
+            .subtitle("Wind chime rings", "风铃：铃响")
+            .register();
+
     public static void init() {}
 }

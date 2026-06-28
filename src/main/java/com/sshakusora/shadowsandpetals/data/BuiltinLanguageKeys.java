@@ -16,6 +16,11 @@ public final class BuiltinLanguageKeys {
             .en_us("Vanity")
             .zh_cn("梳妆台");
 
+    public static final DatagenLangRegistry.TranslationKey COPPER_TEAPOT_CONTAINER_NAME = DatagenLangRegistry
+            .key("container.shadowsandpetals.copper_teapot")
+            .en_us("Copper Teapot")
+            .zh_cn("铜茶壶");
+
     public static final DatagenLangRegistry.TranslationKey JADE_CAFE_CHAIR_DYEABLE_CONFIG = DatagenLangRegistry
             .key("config.jade.plugin_shadowsandpetals.jade.cafe_chair_dyeable")
             .en_us("Show if cafe chairs are dyeable")
@@ -75,6 +80,21 @@ public final class BuiltinLanguageKeys {
             .key("tooltip.shadowsandpetals.rockery.holdForPreview")
             .en_us("Hold [%s] for Preview")
             .zh_cn("按住 [%s] 显示预览");
+
+    public static final DatagenLangRegistry.TranslationKey WIND_CHIME_RIBBON_COLOR = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wind_chime.ribbon_color")
+            .en_us("Ribbon: %s")
+            .zh_cn("悬绳：%s");
+
+    public static final DatagenLangRegistry.TranslationKey WIND_CHIME_COLORS = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wind_chime.colors")
+            .en_us("Current colors:")
+            .zh_cn("当前颜色：");
+
+    public static final DatagenLangRegistry.TranslationKey WIND_CHIME_VANE_COLOR = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wind_chime.vane_color")
+            .en_us("Vane: %s")
+            .zh_cn("短册：%s");
 
     public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_KEY_SHIFT = DatagenLangRegistry
             .key("tooltip.shadowsandpetals.holdKey.shift")

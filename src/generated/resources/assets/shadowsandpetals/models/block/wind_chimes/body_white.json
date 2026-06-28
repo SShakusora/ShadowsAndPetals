@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/wind_chimes/block",
+  "textures": {
+    "2": "shadowsandpetals:block/wind_chime/ribbon/white",
+    "particle": "minecraft:block/glass"
+  }
+}

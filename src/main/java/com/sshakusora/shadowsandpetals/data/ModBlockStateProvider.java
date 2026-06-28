@@ -6,6 +6,7 @@ import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelTemplates;
+import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,6 +14,7 @@ import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
@@ -270,6 +272,35 @@ public class ModBlockStateProvider implements DataProvider {
         this.models.put(itemModelId(block), BlockModelTemplates.parentModel(basePath));
     }
 
+    public void copperTeapotBlock(CopperTeapotBlock block) {
+        Identifier mainModel = modLoc("block/teapot/copper/main");
+        Identifier onIroriModel = modLoc("block/teapot/copper/main_on_irori");
+
+        JsonObject variants = new JsonObject();
+        for (Direction dir : Direction.Plane.HORIZONTAL) {
+            int y = switch (dir) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            for (boolean onIrori : new boolean[]{false, true}) {
+                for (boolean waterlogged : new boolean[]{false, true}) {
+                    variants.add(
+                            CopperTeapotBlock.FACING.getName() + "=" + dir.getSerializedName()
+                                    + "," + CopperTeapotBlock.ON_IRORI.getName() + "=" + onIrori
+                                    + "," + CopperTeapotBlock.WATERLOGGED.getName() + "=" + waterlogged,
+                            rotatedModel(onIrori ? onIroriModel : mainModel, 0, y)
+                    );
+                }
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
+    }
+
     public void bedroomLampBlock(BedroomLampBlock block) {
         Identifier onModel = modLoc("block/bedroom_lamp/on");
         Identifier offModel = modLoc("block/bedroom_lamp/off");
@@ -395,6 +426,35 @@ public class ModBlockStateProvider implements DataProvider {
         this.blockStates.put(id(block), root);
     }
 
+    public void windChimeBlock(WindChimeBlock block) {
+        simpleBlock(block, new ModelRef(WindChimeColors.blockBodyModelId(WindChimeColors.DEFAULT_COLOR)));
+        for (DyeColor ribbon : DyeColor.values()) {
+            this.models.put(
+                    WindChimeColors.blockBodyModelId(ribbon),
+                    parentModelWithWindChimeBodyTexture(
+                            modLoc("block/wind_chimes/block"),
+                            ribbon
+                    )
+            );
+            this.models.put(
+                    WindChimeColors.blockMainRibbonModelId(ribbon),
+                    parentModelWithWindChimeRibbonTexture(
+                            modLoc("block/wind_chimes/main_ribbon"),
+                            ribbon
+                    )
+            );
+        }
+        for (DyeColor vane : DyeColor.values()) {
+            this.models.put(
+                    WindChimeColors.blockVaneModelId(vane),
+                    parentModelWithWindChimeVaneTexture(
+                            modLoc("block/wind_chimes/vane"),
+                            vane
+                    )
+            );
+        }
+    }
+
     public void shishiOdoshiPipeBlock(ShishiOdoshiPipeBlock block) {
         JsonObject variants = new JsonObject();
         for (Direction facing : Direction.Plane.HORIZONTAL) {
@@ -493,6 +553,33 @@ public class ModBlockStateProvider implements DataProvider {
             json.add("when", when);
         }
         json.add("apply", apply);
+        return json;
+    }
+
+    private static JsonObject parentModelWithWindChimeRibbonTexture(Identifier parent, DyeColor ribbon) {
+        JsonObject json = BlockModelTemplates.parentModel(parent);
+        JsonObject textures = new JsonObject();
+        textures.addProperty("2", ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName()).toString());
+        textures.addProperty("particle", ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName()).toString());
+        json.add("textures", textures);
+        return json;
+    }
+
+    private static JsonObject parentModelWithWindChimeBodyTexture(Identifier parent, DyeColor ribbon) {
+        JsonObject json = BlockModelTemplates.parentModel(parent);
+        JsonObject textures = new JsonObject();
+        textures.addProperty("2", ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName()).toString());
+        textures.addProperty("particle", Identifier.withDefaultNamespace("block/glass").toString());
+        json.add("textures", textures);
+        return json;
+    }
+
+    private static JsonObject parentModelWithWindChimeVaneTexture(Identifier parent, DyeColor vane) {
+        JsonObject json = BlockModelTemplates.parentModel(parent);
+        JsonObject textures = new JsonObject();
+        textures.addProperty("particle", ShadowsAndPetals.asResource("block/wind_chime/vane/" + vane.getName()).toString());
+        textures.addProperty("windchime0", ShadowsAndPetals.asResource("block/wind_chime/vane/" + vane.getName()).toString());
+        json.add("textures", textures);
         return json;
     }
 

@@ -23,6 +23,10 @@ public class SAPCapabilities {
                 Capabilities.Item.BLOCK,
                 BlockEntityRegistry.IRORI.get(),
                 (blockEntity, side) -> VanillaContainerWrapper.of(blockEntity)
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                BlockEntityRegistry.COPPER_TEAPOT.get(),
+                (blockEntity, side) -> blockEntity.getFluidTank()
         );
     }
 }
