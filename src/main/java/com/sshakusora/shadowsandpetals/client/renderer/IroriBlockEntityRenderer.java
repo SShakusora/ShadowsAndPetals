@@ -41,7 +41,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private static final int FULL_ALPHA = 255;
     private static final double FIREWOOD_Y_OFFSET = 10.0D / 16.0D;
     private static final double BURNING_OVERLAY_Y_OFFSET = 10.01D / 16.0D;
-    private static final double FIREWOOD_JITTER_MAX = 4.0D / 16.0D;
     private static final double FIREWOOD_APPEAR_FALL_DISTANCE = 5.0D / 16.0D;
     private static final float BREATHING_CYCLE_TICKS = 60.0F;
     private static final int BREATHING_LIGHT_MIN = 5;
@@ -298,13 +297,19 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private void updateFirewoodTransform(IroriBlockEntity blockEntity, State state) {
         long blockPosSeed = blockEntity.getBlockPos().asLong();
         transformRandom.setSeed(blockPosSeed ^ FIREWOOD_RENDER_SEED);
-        state.firewoodRotationY = transformRandom.nextFloat() * 360.0F;
+        IroriBlockEntity.GrillLayoutInfo grillLayout = blockEntity.getGrillLayoutInfo();
+        if (grillLayout == null) {
+            state.firewoodRotationY = 0.0F;
+        } else if (grillLayout.model() == IroriBlockEntity.GrillModel.ONE_BY_ONE) {
+            state.firewoodRotationY = 45.0F + transformRandom.nextInt(4) * 90.0F;
+        } else {
+            state.firewoodRotationY = transformRandom.nextInt(16) * 22.5F;
+            if (grillLayout.rotated()) {
+                state.firewoodRotationY += 90.0F;
+            }
+        }
         state.firewoodJitterX = 0.0D;
         state.firewoodJitterZ = 0.0D;
-        if (blockEntity.isComponentWideAndDeep()) {
-            state.firewoodJitterX = (transformRandom.nextDouble() * 2.0D - 1.0D) * FIREWOOD_JITTER_MAX;
-            state.firewoodJitterZ = (transformRandom.nextDouble() * 2.0D - 1.0D) * FIREWOOD_JITTER_MAX;
-        }
     }
 
     private void applyCachedFirewoodModel(IroriBlockEntity blockEntity, State state,

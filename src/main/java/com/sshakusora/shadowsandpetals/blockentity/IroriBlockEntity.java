@@ -4,11 +4,6 @@ import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import com.sshakusora.shadowsandpetals.registries.SAPBlockTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,6 +12,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -26,8 +22,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
@@ -319,7 +319,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return cachedComponentWidth * cachedComponentDepth;
     }
 
-    public @Nullable GrillRenderInfo getGrillRenderInfo() {
+    public @Nullable GrillLayoutInfo getGrillLayoutInfo() {
         if (level == null || getMaster() != this) {
             return null;
         }
@@ -327,21 +327,6 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         FirewoodRenderOffset renderOffset = getFirewoodRenderOffset();
         boolean widthEven = cachedComponentWidth % 2 == 0;
         boolean depthEven = cachedComponentDepth % 2 == 0;
-        int centerWidth = widthEven ? 2 : 1;
-        int centerDepth = depthEven ? 2 : 1;
-
-        boolean hasSupportedBlock = false;
-        for (int x = 0; x < centerWidth && !hasSupportedBlock; x++) {
-            for (int z = 0; z < centerDepth; z++) {
-                if (level.getBlockState(worldPosition.offset(x, 1, z)).is(SAPBlockTags.SUPPORTS_IRORI_GRILL)) {
-                    hasSupportedBlock = true;
-                    break;
-                }
-            }
-        }
-        if (!hasSupportedBlock) {
-            return null;
-        }
 
         GrillModel model;
         if (widthEven && depthEven) {
@@ -352,12 +337,36 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             model = GrillModel.ONE_BY_ONE;
         }
 
-        return new GrillRenderInfo(
+        return new GrillLayoutInfo(
                 model,
                 renderOffset.x(),
                 renderOffset.z(),
-                widthEven && !depthEven
+                widthEven && !depthEven,
+                widthEven ? 2 : 1,
+                depthEven ? 2 : 1
         );
+    }
+
+    public @Nullable GrillRenderInfo getGrillRenderInfo() {
+        GrillLayoutInfo layout = getGrillLayoutInfo();
+        Level level = this.level;
+        if (layout == null || level == null) {
+            return null;
+        }
+
+        for (int x = 0; x < layout.centerWidth(); x++) {
+            for (int z = 0; z < layout.centerDepth(); z++) {
+                if (level.getBlockState(worldPosition.offset(x, 1, z)).is(SAPBlockTags.SUPPORTS_IRORI_GRILL)) {
+                    return new GrillRenderInfo(
+                            layout.model(),
+                            layout.offsetX(),
+                            layout.offsetZ(),
+                            layout.rotated()
+                    );
+                }
+            }
+        }
+        return null;
     }
 
     public boolean isComponentWideAndDeep() {
@@ -1213,6 +1222,16 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     }
 
     public record GrillRenderInfo(GrillModel model, double offsetX, double offsetZ, boolean rotated) {
+    }
+
+    public record GrillLayoutInfo(
+            GrillModel model,
+            double offsetX,
+            double offsetZ,
+            boolean rotated,
+            int centerWidth,
+            int centerDepth
+    ) {
     }
 
     public enum GrillModel {
