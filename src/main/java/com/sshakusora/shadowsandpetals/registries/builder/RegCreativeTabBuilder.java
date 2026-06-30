@@ -31,6 +31,8 @@ public class RegCreativeTabBuilder {
     private final List<Consumer<CreativeModeTab.Output>> simpleDisplayGenerators = new ArrayList<>();
     private CreativeModeTab.DisplayItemsGenerator fullGenerator;
     private final List<Identifier> aliases = new ArrayList<>();
+    private final List<Identifier> tabsBefore = new ArrayList<>();
+    private final List<Identifier> tabsAfter = new ArrayList<>();
 
     public RegCreativeTabBuilder(DeferredRegister<CreativeModeTab> registry, String name) {
         this.registry = registry;
@@ -131,6 +133,22 @@ public class RegCreativeTabBuilder {
     }
 
     /**
+     * Places this tab after the supplied tabs.
+     */
+    public RegCreativeTabBuilder withTabsBefore(Identifier... tabs) {
+        this.tabsBefore.addAll(List.of(tabs));
+        return this;
+    }
+
+    /**
+     * Places this tab before the supplied tabs.
+     */
+    public RegCreativeTabBuilder withTabsAfter(Identifier... tabs) {
+        this.tabsAfter.addAll(List.of(tabs));
+        return this;
+    }
+
+    /**
      * Adds a same-namespace registry alias for this creative tab.
      */
     public RegCreativeTabBuilder alias(String oldPath) {
@@ -155,6 +173,8 @@ public class RegCreativeTabBuilder {
                 return CreativeModeTab.builder()
                         .title(title)
                         .icon(() -> new ItemStack(iconSupplier.get()))
+                        .withTabsBefore(tabsBefore.toArray(Identifier[]::new))
+                        .withTabsAfter(tabsAfter.toArray(Identifier[]::new))
                         .displayItems(fullGenerator)
                         .build();
             }
@@ -165,6 +185,8 @@ public class RegCreativeTabBuilder {
             return CreativeModeTab.builder()
                     .title(title)
                     .icon(() -> new ItemStack(iconSupplier.get()))
+                    .withTabsBefore(tabsBefore.toArray(Identifier[]::new))
+                    .withTabsAfter(tabsAfter.toArray(Identifier[]::new))
                     .displayItems((params, output) -> {
                         for (ItemStack stack : localItems) {
                             if (!stack.isEmpty() && stack.getItem().isEnabled(params.enabledFeatures())) {

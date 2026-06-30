@@ -1,4 +1,4 @@
-// 26.1.2	2026-06-28T19:05:38.4500952	ShadowsAndPetals Client Items
+// 26.1.2	2026-06-30T09:26:15.213469	ShadowsAndPetals Client Items
 bc6db7941b67378c651d38d1f0515d00dfa2eac7 assets/shadowsandpetals/items/acacia_vanity.json
 910bb05eedb1766753a871c9802d055e21118b3b assets/shadowsandpetals/items/aluminum_block.json
 109d601484b114df7f7bab4dc1cbbda77b858a38 assets/shadowsandpetals/items/aluminum_ingot.json
@@ -78,8 +78,10 @@ dbcb4c42e8c7c8035a2ce516f535e00b1900e395 assets/shadowsandpetals/items/maple_woo
 e934096a55b16447391ef2651e5c4386341a55b0 assets/shadowsandpetals/items/maple_wood_post.json
 bf32adfbaa41833edf1f0bdb477d0f41007e6f05 assets/shadowsandpetals/items/netherite_ingot_pile.json
 564275fc5dfcba6681a3132a9488deb43b697251 assets/shadowsandpetals/items/oak_vanity.json
+19583365fceb54fd75b8eac19843de8e65eb6c78 assets/shadowsandpetals/items/orange.json
 29b2c8d6f2aac1ce95391a0ae5b08f364f7b59ca assets/shadowsandpetals/items/orange_cafe_chair.json
 3a51a0a54ca6fa2cdf48d6c77a026199d9d6caa5 assets/shadowsandpetals/items/orange_roof_tile.json
+2516e0e7ed28820972ec8c181c41ba82703e03ae assets/shadowsandpetals/items/orange_seed.json
 058dc73b35b85038de44aeefbc8514752383007c assets/shadowsandpetals/items/pale_oak_vanity.json
 a88333995e6c42331c8edf2439746c5f7e1a8756 assets/shadowsandpetals/items/pink_cafe_chair.json
 da6e07aaf3d55dcc5aca809b688af3034ff4e3d5 assets/shadowsandpetals/items/pink_roof_tile.json

@@ -10,7 +10,9 @@ import java.util.function.Supplier;
 public enum CreativeTabType {
     MAIN("main", "Shadows & Petals", "织影落花", () -> ItemRegistry.HAMMER.get()),
     NATURE("nature", "Shadows & Petals: Nature", "织影落花：自然",
-            () -> BlockRegistry.MAPLE_SET.sapling());
+            () -> BlockRegistry.MAPLE_SET.sapling()),
+    AGRICULTURE("agriculture", "Shadows & Petals: Agriculture", "织影落花：农业",
+            () -> ItemRegistry.ORANGE_SEED.get());
 
     private final String name;
     @Nullable

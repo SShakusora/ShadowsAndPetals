@@ -4,6 +4,8 @@ import com.sshakusora.shadowsandpetals.item.HammerItem;
 import com.sshakusora.shadowsandpetals.item.HarrowItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
+import net.minecraft.world.food.FoodProperties;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -11,6 +13,25 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 public class ItemRegistry {
+    public static final DeferredItem<BlockItem> ORANGE_SEED = SAPRegistries.item(
+                    "orange_seed",
+                    properties -> new BlockItem(BlockRegistry.ORANGE_TREE.get(), properties)
+            )
+            .model((provider, item) -> provider.generatedItem(item.get()))
+            .lang("zh_cn", "蜜柑种子")
+            .creativeTab(CreativeTabType.AGRICULTURE)
+            .register();
+
+    public static final DeferredItem<Item> ORANGE = SAPRegistries.item("orange")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(4)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model((provider, item) -> provider.generatedItem(item.get()))
+            .lang("zh_cn", "蜜柑")
+            .creativeTab(CreativeTabType.AGRICULTURE)
+            .register();
+
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
             .model((provider, item) -> provider.generatedItem(item.get()))
             .lang("zh_cn", "粗矾土")

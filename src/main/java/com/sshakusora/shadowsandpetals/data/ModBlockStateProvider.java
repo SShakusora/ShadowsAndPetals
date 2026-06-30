@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.data;
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
+import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelTemplates;
@@ -179,6 +180,36 @@ public class ModBlockStateProvider implements DataProvider {
         Identifier modelId = blockModelId(block);
         this.models.put(modelId, BlockModelTemplates.crossModel(texture));
         simpleBlock(block, new ModelRef(modelId));
+    }
+
+    public void orangeTreeBlock(OrangeTreeBlock block) {
+        JsonObject variants = new JsonObject();
+        for (int age : OrangeTreeBlock.AGE.getPossibleValues()) {
+            for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
+                String modelName = age < OrangeTreeBlock.DOUBLE_HEIGHT_AGE
+                        ? "tree_" + age
+                        : "tree_" + age + "_" + half.getSerializedName();
+                Identifier modelId = modLoc("block/orange/" + modelName);
+                for (Direction facing : Direction.Plane.HORIZONTAL) {
+                    int y = switch (facing) {
+                        case EAST -> 90;
+                        case SOUTH -> 180;
+                        case WEST -> 270;
+                        default -> 0;
+                    };
+                    variants.add(
+                            OrangeTreeBlock.AGE.getName() + "=" + age
+                                    + "," + OrangeTreeBlock.FACING.getName() + "=" + facing.getSerializedName()
+                                    + "," + OrangeTreeBlock.HALF.getName() + "=" + half.getSerializedName(),
+                            rotatedModel(modelId, 0, y)
+                    );
+                }
+            }
+        }
+
+        JsonObject root = new JsonObject();
+        root.add("variants", variants);
+        this.blockStates.put(id(block), root);
     }
 
     public void hedgeBlockWithItem(HedgeBlock block, Identifier texture) {

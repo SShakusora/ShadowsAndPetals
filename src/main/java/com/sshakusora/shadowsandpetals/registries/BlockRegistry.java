@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
+import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
@@ -27,6 +28,11 @@ import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -656,6 +662,25 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
                     .save(provider.output()))
             .lang("zh_cn", "添水竹管")
+            .register();
+
+    public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
+            .block("orange_tree", OrangeTreeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH)
+                    .randomTicks()
+                    .instabreak()
+                    .sound(SoundType.GRASS)
+                    .noOcclusion()
+                    .offsetType(BlockBehaviour.OffsetType.XZ)
+                    .pushReaction(PushReaction.DESTROY))
+            .blockstate((provider, tree) -> provider.orangeTreeBlock(tree.get()))
+            .loot((provider, tree) -> provider.addTable(
+                    tree.get(),
+                    LootTable.lootTable().withPool(LootPool.lootPool()
+                            .setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(ItemRegistry.ORANGE_SEED.get())))
+            ))
+            .lang("zh_cn", "蜜柑树")
             .register();
 
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x1 = registerRockery(1, 1, 1);
