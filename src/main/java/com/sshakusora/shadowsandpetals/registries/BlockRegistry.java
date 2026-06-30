@@ -125,7 +125,7 @@ public class BlockRegistry {
                     .strength(1.0F)
                     .sound(SoundType.GLASS)
                     .noOcclusion())
-            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.WOOD_POST_HANGING_CONNECTIONS)
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
@@ -181,7 +181,7 @@ public class BlockRegistry {
                     .sound(SoundType.COPPER)
                     .noOcclusion()
                     .requiresCorrectToolForDrops())
-            .tags(BlockTags.MINEABLE_WITH_PICKAXE, SAPBlockTags.SUPPORTS_IRORI_GRILL)
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.SUPPORTS_IRORI_GRILL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
             .tooltipDescription(tooltip -> tooltip

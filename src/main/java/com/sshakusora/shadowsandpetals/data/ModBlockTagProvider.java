@@ -26,5 +26,12 @@ public class ModBlockTagProvider extends BlockTagsProvider {
                 appender.add(block.get());
             }
         }
+
+        for (Map.Entry<TagKey<Block>, List<TagKey<Block>>> entry : BlockTagRegistry.getAllIncludedTags().entrySet()) {
+            var appender = tag(entry.getKey());
+            for (TagKey<Block> includedTag : entry.getValue()) {
+                appender.addTag(includedTag);
+            }
+        }
     }
 }

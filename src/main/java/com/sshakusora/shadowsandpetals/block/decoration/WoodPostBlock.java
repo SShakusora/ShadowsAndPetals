@@ -1,17 +1,21 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -40,6 +44,7 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
     private static final double INNER_MIN = 6.0D;
     private static final double INNER_MAX = 10.0D;
     private static final VoxelShape CORE_SHAPE = Block.box(INNER_MIN, INNER_MIN, INNER_MIN, INNER_MAX, INNER_MAX, INNER_MAX);
+    private static final VoxelShape HANGING_SUPPORT_SHAPE = Block.column(2.0D, 0.0D, 1.0D);
     private static final VoxelShape[] ARM_SHAPES = new VoxelShape[]{
             Block.box(INNER_MIN, 0.0D, INNER_MIN, INNER_MAX, INNER_MAX, INNER_MAX),
             Block.box(INNER_MIN, INNER_MIN, INNER_MIN, INNER_MAX, 16.0D, INNER_MAX),
@@ -115,6 +120,11 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
         return cachedShape(state, level, pos);
     }
 
+    @Override
+    protected VoxelShape getBlockSupportShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return Shapes.or(super.getBlockSupportShape(state, level, pos), HANGING_SUPPORT_SHAPE);
+    }
+
     private static VoxelShape cachedShape(BlockState state, BlockGetter level, BlockPos pos) {
         int index = state.getValue(AXIS).ordinal() * 64 + connectionMask(connections(level, pos, state), state.getValue(AXIS));
         VoxelShape shape = SHAPES[index];
@@ -147,18 +157,6 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
         return axis == direction.getAxis() || connections.get(direction).isSolid();
     }
 
-    public static boolean canSupportHanging(BlockState state, LevelReader level, BlockPos pos, boolean original) {
-        if (original) {
-            return true;
-        }
-
-        if (state.hasProperty(LanternBlock.HANGING) && !state.getValue(LanternBlock.HANGING)) {
-            return false;
-        }
-
-        return level.getBlockState(pos.above()).getBlock() instanceof WoodPostBlock;
-    }
-
     public static Connections connections(BlockGetter level, BlockPos pos, BlockState state) {
         return new Connections(
                 resolveConnection(level, pos, Direction.DOWN),
@@ -173,17 +171,12 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
     public static ConnectionType resolveConnection(BlockGetter level, BlockPos pos, Direction direction) {
         BlockState neighbor = level.getBlockState(pos.relative(direction));
 
-        if (neighbor.getBlock() instanceof ChainBlock && neighbor.getValue(BlockStateProperties.AXIS) == direction.getAxis()) {
-            return ConnectionType.fromBlock(neighbor.getBlock());
+        if (isAlignedChain(neighbor, direction)) {
+            return ConnectionType.fromChainBlock(neighbor.getBlock());
         }
 
-        if (direction == Direction.DOWN) {
-            if (neighbor.getBlock() instanceof LanternBlock && neighbor.hasProperty(LanternBlock.HANGING) && neighbor.getValue(LanternBlock.HANGING)) {
-                return ConnectionType.fromLanternBlock(neighbor.getBlock());
-            }
-            if (neighbor.getBlock() instanceof CeilingHangingSignBlock) {
-                return ConnectionType.IRON_CHAIN;
-            }
+        if (direction == Direction.DOWN && isHangingConnection(neighbor)) {
+            return ConnectionType.fromHangingBlock(neighbor.getBlock());
         }
 
         if (neighbor.getBlock() instanceof WoodPostBlock && neighbor.getValue(AXIS) == direction.getAxis()) {
@@ -191,6 +184,18 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
         }
 
         return ConnectionType.NONE;
+    }
+
+    private static boolean isAlignedChain(BlockState state, Direction direction) {
+        return state.is(BlockTags.CHAINS)
+                && state.hasProperty(BlockStateProperties.AXIS)
+                && state.getValue(BlockStateProperties.AXIS) == direction.getAxis();
+    }
+
+    private static boolean isHangingConnection(BlockState state) {
+        return state.is(BlockTagRegistry.WOOD_POST_HANGING_CONNECTIONS)
+                && (!state.hasProperty(BlockStateProperties.HANGING)
+                || state.getValue(BlockStateProperties.HANGING));
     }
 
     public record Connections(
@@ -259,16 +264,19 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
             return texture;
         }
 
-        public static ConnectionType fromBlock(Block block) {
+        public static ConnectionType fromChainBlock(Block block) {
             String path = BuiltInRegistries.BLOCK.getKey(block).getPath();
             return BY_BLOCK_PATH.getOrDefault(path, IRON_CHAIN);
         }
 
-        public static ConnectionType fromLanternBlock(Block block) {
+        public static ConnectionType fromHangingBlock(Block block) {
             String path = BuiltInRegistries.BLOCK.getKey(block).getPath();
-            if (path.endsWith("_lantern")) {
-                String chainPath = path.substring(0, path.length() - "_lantern".length()) + "_chain";
-                return BY_BLOCK_PATH.getOrDefault(chainPath, IRON_CHAIN);
+            for (Map.Entry<String, ConnectionType> entry : BY_BLOCK_PATH.entrySet()) {
+                String chainPath = entry.getKey();
+                String materialPrefix = chainPath.substring(0, chainPath.length() - "_chain".length());
+                if (path.startsWith(materialPrefix + "_")) {
+                    return entry.getValue();
+                }
             }
             return IRON_CHAIN;
         }

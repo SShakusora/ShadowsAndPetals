@@ -301,7 +301,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         "When joined with aligned Posts or Chains:", "与同轴木柱或锁链相连时:",
                         "Automatically form _connected supports_.", "自动形成_连续支撑结构_。")
                 .behaviour(
-                        "When a Lantern or Hanging Sign is hung below:", "下方悬挂灯笼或悬挂式告示牌时:",
+                        "When a compatible fitting is hung below:", "下方悬挂兼容连接件时:",
                         "Extend a matching _chain connection_.", "延伸出对应的_锁链连接_。");
     }
 

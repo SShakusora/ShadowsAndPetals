@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
-import com.sshakusora.shadowsandpetals.registries.SAPBlockTags;
+import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -356,7 +356,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
         for (int x = 0; x < layout.centerWidth(); x++) {
             for (int z = 0; z < layout.centerDepth(); z++) {
-                if (level.getBlockState(worldPosition.offset(x, 1, z)).is(SAPBlockTags.SUPPORTS_IRORI_GRILL)) {
+                if (level.getBlockState(worldPosition.offset(x, 1, z)).is(BlockTagRegistry.SUPPORTS_IRORI_GRILL)) {
                     return new GrillRenderInfo(
                             layout.model(),
                             layout.offsetX(),

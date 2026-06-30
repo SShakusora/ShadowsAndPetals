@@ -52,7 +52,6 @@ No tests exist — no `src/test/` directory, no gametest files.
 | `item/` | HammerItem, HarrowItem |
 | `item/chime/` | WindChimeDyeRecipe, WindChimeColors, WindChimeTooltipModifier |
 | `legacy/` | Chinjufumod migration: BlockStateAliasRegistry, BlockEntityAliasRegistry, LegacyStateBlock, LegacyBlockEntity, LegacyCompatIds |
-| `mixin/` | Two server-side mixins only |
 | `registries/builder/` | 7 fluent builder classes |
 | `util/` | VoxelShapeUtils, WoolUtils |
 | `worldgen/` | SAPFeatures (DeferredRegister), SAPConfiguredFeatures, SAPPlacedFeatures, SAPBiomeModifiers, SAPTreeGrowers (standalone), feature/PrefabTreeFeature, feature/config/PrefabTreeConfiguration |
@@ -131,13 +130,9 @@ Items registered in `ItemRegistry`:
 
 ## Mixins
 
-Two server-side mixins in `mixin/` package:
-- `CeilingHangingSignBlockMixin`
-- `LanternBlockMixin`
-
-Both use `@ModifyReturnValue` to delegate `canSurvive` checks through `WoodPostBlock.canSupportHanging()`. Use MixinExtras (`com.llamalad7.mixinextras`).
-Config: `shadowsandpetals.mixins.json`, `compatibilityLevel = "JAVA_21"`, `requireAnnotations = true`.
-The `client` array is empty — no client-side mixins.
+There are no active mixins. Wood posts expose their hanging support semantics through
+`WoodPostBlock.getBlockSupportShape()` using the vanilla center-support API.
+The empty `shadowsandpetals.mixins.json` config remains registered for future mixins.
 
 ## Access Transformers
 
@@ -159,6 +154,7 @@ The `.add()` line in `build.gradle` is commented out because moddev auto-detects
 - `ModDataGenerator.gatherData()` wires 14 providers via `@EventBusSubscriber` (hooked to `GatherDataEvent.Client`):
   `ModBlockStateProvider`, `ModRockeryModelProvider`, `ModWoodModelProvider`, `ModItemModelProvider`, `ModClientItemProvider`, `ModConnectedTextureBleedProvider`, `ModLanguageProvider` (en_us + zh_cn), `ModRecipeProvider`, `LootTableProvider` (via `ModBlockLootProvider`), `ModBlockTagProvider`, `ModDataMapProvider`, `ModSoundDefinitionsProvider`, `WorldGenProvider`
 - Builders self-register datagen: `.blockstate()`, `.recipe()`, `.loot()`, `.lang()` on builders auto-wire to datagen registries
+- Block tags and their keys live in `BlockTagRegistry`; use `.tags(...)` for blocks and `BlockTagRegistry.include(...)` for nested tag references. Default nested relationships are declared inside `BlockTagRegistry`.
 - **Never touch provider classes directly** — content flows from builders only
 - `DatagenRecipeFactory` provides common recipe helpers (`storageBlock`, `ingotPile`) with pack/unpack patterns
 - Language: two `ModLanguageProvider` instances (default English and `zh_cn`). English names are auto-generated from block/item ids.
@@ -191,7 +187,7 @@ Add to `ItemRegistry` using `SAPRegistries.item("id")` builder chain: `.model(..
 | `build.gradle` | Build config, dependencies, run profiles |
 | `gradle.properties` | Mod metadata, version pins |
 | `src/main/templates/META-INF/neoforge.mods.toml` | Mod metadata template (property expansion) |
-| `src/main/resources/shadowsandpetals.mixins.json` | Mixin config |
+| `src/main/resources/shadowsandpetals.mixins.json` | Empty Mixin config reserved for future mixins |
 | `src/main/resources/META-INF/accesstransformer.cfg` | Access transformers (5 entries) |
 | `src/main/resources/META-INF/enumextensions.json` | Enum extension for hammer arm pose |
 | `src/main/resources/assets/shadowsandpetals/models/` | Manual model JSONs (cafe_chair, ingot_pile, irori, vanity) |
