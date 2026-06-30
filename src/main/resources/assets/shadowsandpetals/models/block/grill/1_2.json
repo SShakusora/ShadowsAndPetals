@@ -2,7 +2,8 @@
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"3": "shadowsandpetals:block/grill"
+		"3": "shadowsandpetals:block/grill",
+		"particle": "shadowsandpetals:block/grill"
 	},
 	"elements": [
 		{

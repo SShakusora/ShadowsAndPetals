@@ -26,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Map;
 
@@ -59,10 +60,13 @@ public class WallLampBlock extends HorizontalDirectionalBlock {
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        BlockState clickState = defaultBlockState().setValue(FACING, context.getClickedFace());
-        if (clickState.canSurvive(context.getLevel(), context.getClickedPos())) {
-            return clickState;
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        Direction clickedFace = context.getClickedFace();
+        if (clickedFace.getAxis().isHorizontal()) {
+            BlockState clickState = defaultBlockState().setValue(FACING, clickedFace);
+            if (clickState.canSurvive(context.getLevel(), context.getClickedPos())) {
+                return clickState;
+            }
         }
 
         BlockState facingState = defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
