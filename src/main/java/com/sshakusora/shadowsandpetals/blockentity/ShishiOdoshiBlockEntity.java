@@ -55,6 +55,8 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     private float animationTick;
     private float pourTick = -1.0F;
     private boolean clientSplashSpawned;
+    private @Nullable BlockPos cachedPipePos;
+    private long nextPipeCheckTick = Long.MIN_VALUE;
 
     public ShishiOdoshiBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.SHISHI_ODOSHI.get(), pos, blockState);
@@ -77,7 +79,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         }
 
         if (blockEntity.animationPhase == AnimationPhase.FILLING) {
-            Fluid flowingFluid = getFlowingPipeFluid(level, pos.above());
+            Fluid flowingFluid = blockEntity.getFlowingPipeFluid(level, pos, state);
             if (flowingFluid != null) {
                 if (blockEntity.fluidAmount > 0 && blockEntity.fluid != flowingFluid) {
                     blockEntity.fluidAmount = 0;
@@ -141,14 +143,53 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         }
     }
 
-    private static @Nullable Fluid getFlowingPipeFluid(Level level, BlockPos pipePos) {
+    private @Nullable Fluid getFlowingPipeFluid(Level level, BlockPos pos, BlockState state) {
+        long gameTime = level.getGameTime();
+        if (gameTime >= nextPipeCheckTick) {
+            cachedPipePos = findPipeAbove(level, pos);
+            nextPipeCheckTick = gameTime + ShishiOdoshiPipeBlock.CONNECTION_RECHECK_INTERVAL_TICKS;
+        }
+        if (cachedPipePos == null) {
+            return null;
+        }
+
+        BlockPos pipePos = cachedPipePos;
         BlockState pipeState = level.getBlockState(pipePos);
         if (!(pipeState.getBlock() instanceof ShishiOdoshiPipeBlock)) {
+            cachedPipePos = null;
+            nextPipeCheckTick = gameTime;
             return null;
+        }
+
+        ShishiOdoshiPipeBlock.PipeLength desiredLength = ShishiOdoshiPipeBlock.computePipeLength(
+                pipeState.getValue(ShishiOdoshiPipeBlock.FACING),
+                state.getValue(ShishiOdoshiBlock.FACING)
+        );
+        if (pipeState.getValue(ShishiOdoshiPipeBlock.LENGTH) != desiredLength) {
+            pipeState = pipeState.setValue(ShishiOdoshiPipeBlock.LENGTH, desiredLength);
+            level.setBlock(pipePos, pipeState, Block.UPDATE_CLIENTS);
         }
 
         BlockPos sourcePos = pipePos.relative(pipeState.getValue(ShishiOdoshiPipeBlock.FACING).getOpposite());
         return ShishiOdoshiFluidRegistry.findSourceFluid(level, sourcePos);
+    }
+
+    private static @Nullable BlockPos findPipeAbove(Level level, BlockPos shishiOdoshiPos) {
+        for (int distance = 1; distance <= ShishiOdoshiPipeBlock.MAX_VERTICAL_CONNECTION_DISTANCE; distance++) {
+            BlockPos candidatePos = shishiOdoshiPos.above(distance);
+            if (level.isOutsideBuildHeight(candidatePos)) {
+                return null;
+            }
+
+            BlockState candidateState = level.getBlockState(candidatePos);
+            if (candidateState.getBlock() instanceof ShishiOdoshiPipeBlock) {
+                return candidatePos;
+            }
+            if (!candidateState.getCollisionShape(level, candidatePos).isEmpty()) {
+                return null;
+            }
+        }
+        return null;
     }
 
     public float getTipAngle(float partialTick) {

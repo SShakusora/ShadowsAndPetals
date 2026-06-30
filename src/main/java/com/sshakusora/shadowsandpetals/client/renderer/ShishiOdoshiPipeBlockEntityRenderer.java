@@ -39,6 +39,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
     private static final float FALLING_STREAM_HALF_WIDTH = 0.48F / 16.0F;
     private static final float STREAM_FADE_LENGTH = 2.0F / 16.0F;
     private static final float FLOW_UV_SCALE = 0.5F;
+    private static final float FALLING_STREAM_SEGMENT_LENGTH = 1.0F / FLOW_UV_SCALE;
     private static final float FLOW_U_CENTER = 0.5F;
     private final ShishiOdoshiFluidRenderInfo.Cache<ShishiOdoshiPipeBlockEntity> fluidRenderInfoCache =
             new ShishiOdoshiFluidRenderInfo.Cache<>();
@@ -53,7 +54,29 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
 
     @Override
     public AABB getRenderBoundingBox(ShishiOdoshiPipeBlockEntity blockEntity) {
-        return new AABB(blockEntity.getBlockPos()).expandTowards(0.0D, -1.0D, 0.0D);
+        ShishiOdoshiBlockEntity shishiOdoshi = blockEntity.getConnectedShishiOdoshi();
+        double streamBottomY;
+        if (shishiOdoshi != null) {
+            streamBottomY = shishiOdoshi.getBlockPos().getY();
+        } else {
+            Vec3 impactPosition = blockEntity.getFallbackImpactPosition();
+            streamBottomY = impactPosition == null
+                    ? blockEntity.getBlockPos().getY() - 1.0D
+                    : impactPosition.y;
+        }
+        double downwardExpansion = Math.max(1.0D, blockEntity.getBlockPos().getY() - streamBottomY);
+        return new AABB(blockEntity.getBlockPos()).expandTowards(0.0D, -downwardExpansion, 0.0D);
+    }
+
+    @Override
+    public boolean shouldRender(ShishiOdoshiPipeBlockEntity blockEntity, Vec3 cameraPosition) {
+        double viewDistance = getViewDistance();
+        return getRenderBoundingBox(blockEntity).distanceToSqr(cameraPosition) < viewDistance * viewDistance;
+    }
+
+    @Override
+    public boolean shouldRenderOffScreen() {
+        return true;
     }
 
     @Override
@@ -77,8 +100,17 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             return;
         }
 
-        if (blockEntity.getLevel().getBlockEntity(blockEntity.getBlockPos().below()) instanceof ShishiOdoshiBlockEntity shishiOdoshi) {
-            state.streamBottomY = getAnimatedOpeningY(shishiOdoshi.getTipAngle(partialTicks));
+        ShishiOdoshiBlockEntity shishiOdoshi = blockEntity.getConnectedShishiOdoshi();
+        if (shishiOdoshi != null) {
+            int verticalDistance = blockEntity.getBlockPos().getY() - shishiOdoshi.getBlockPos().getY();
+            state.streamBottomY = getAnimatedOpeningY(
+                    shishiOdoshi.getTipAngle(partialTicks), verticalDistance
+            );
+        } else {
+            Vec3 impactPosition = blockEntity.getFallbackImpactPosition();
+            if (impactPosition != null) {
+                state.streamBottomY = (float) (impactPosition.y - blockEntity.getBlockPos().getY());
+            }
         }
 
         BlockPos sourcePos = blockEntity.getBlockPos().relative(state.facing.getOpposite());
@@ -178,22 +210,30 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         float halfU = (maxX - minX) * FLOW_UV_SCALE * 0.5F;
         float minU = FLOW_U_CENTER - halfU;
         float maxU = FLOW_U_CENTER + halfU;
-        float topV = 0.0F;
-        float bottomV = (maxY - minY) * FLOW_UV_SCALE;
         float fadeStartY = Math.min(maxY, minY + STREAM_FADE_LENGTH);
-        float fadeStartV = (maxY - fadeStartY) * FLOW_UV_SCALE;
-        int transparentColor = color & 0x00FFFFFF;
-
-        if (fadeStartY < maxY) {
+        float segmentTopY = maxY;
+        while (segmentTopY > minY) {
+            float segmentBottomY = Math.max(minY, segmentTopY - FALLING_STREAM_SEGMENT_LENGTH);
             renderFallingStreamSegment(
-                    buffer, pose, sprite, minX, maxX, maxY, fadeStartY, z,
-                    minU, maxU, topV, fadeStartV, color, color, lightCoords
+                    buffer, pose, sprite, minX, maxX, segmentTopY, segmentBottomY, z,
+                    minU, maxU, 0.0F, (segmentTopY - segmentBottomY) * FLOW_UV_SCALE,
+                    getFadedStreamColor(color, segmentTopY, minY, fadeStartY),
+                    getFadedStreamColor(color, segmentBottomY, minY, fadeStartY),
+                    lightCoords
             );
+            segmentTopY = segmentBottomY;
         }
-        renderFallingStreamSegment(
-                buffer, pose, sprite, minX, maxX, fadeStartY, minY, z,
-                minU, maxU, fadeStartV, bottomV, color, transparentColor, lightCoords
-        );
+    }
+
+    private static int getFadedStreamColor(int color, float y, float bottomY, float fadeStartY) {
+        if (y >= fadeStartY) {
+            return color;
+        }
+        float alphaScale = fadeStartY == bottomY
+                ? 0.0F
+                : Mth.clamp((y - bottomY) / (fadeStartY - bottomY), 0.0F, 1.0F);
+        int alpha = Math.round((color >>> 24) * alphaScale);
+        return (color & 0x00FFFFFF) | (alpha << 24);
     }
 
     private static void renderFallingStreamSegment(
@@ -247,14 +287,14 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
                 .setNormal(pose, normalX, normalY, normalZ);
     }
 
-    private static float getAnimatedOpeningY(float tipAngle) {
+    private static float getAnimatedOpeningY(float tipAngle, int verticalDistance) {
         float radians = tipAngle * Mth.DEG_TO_RAD;
         float relativeY = MAIN_OPENING_Y - MAIN_PIVOT_Y;
         float relativeZ = MAIN_OPENING_Z - MAIN_PIVOT_Z;
         float rotatedY = MAIN_PIVOT_Y
                 + Mth.cos(radians) * relativeY
                 - Mth.sin(radians) * relativeZ;
-        return (rotatedY - 16.0F) / 16.0F;
+        return rotatedY / 16.0F - verticalDistance;
     }
 
     public static class State extends BlockEntityRenderState {
@@ -268,12 +308,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
 
     private record PipeChannel(float centerX, float outletZ) {
         private static PipeChannel forLength(ShishiOdoshiPipeBlock.PipeLength length) {
-            return switch (length) {
-                case SHORT -> new PipeChannel(8.0F / 16.0F, 11.0F / 16.0F);
-                case NORMAL, LONG -> new PipeChannel(8.0F / 16.0F, length == ShishiOdoshiPipeBlock.PipeLength.LONG ? 4.0F / 16.0F : 8.0F / 16.0F);
-                case NORMAL_LEFT -> new PipeChannel(4.5F / 16.0F, 8.0F / 16.0F);
-                case NORMAL_RIGHT -> new PipeChannel(11.5F / 16.0F, 8.0F / 16.0F);
-            };
+            return new PipeChannel(length.outletX(), length.outletZ());
         }
     }
 }

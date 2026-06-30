@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -28,11 +29,9 @@ public final class ShishiOdoshiFluidRegistry {
     static {
         registerSource(state -> state.hasProperty(BlockStateProperties.WATERLOGGED)
                 && state.getValue(BlockStateProperties.WATERLOGGED), () -> Fluids.WATER);
-        registerSource(Blocks.WATER_CAULDRON, Fluids.WATER);
         registerRenderProperties(Fluids.WATER, Identifier.withDefaultNamespace("block/water_flow"), 0xFFFFFF);
 
         registerSource(Blocks.MAGMA_BLOCK, Fluids.LAVA);
-        registerSource(Blocks.LAVA_CAULDRON, Fluids.LAVA);
         registerAnimationSpeed(Fluids.LAVA, 0.25F);
         registerRenderProperties(Fluids.LAVA, Identifier.withDefaultNamespace("block/lava_flow"), 0xFFFFFF);
     }
@@ -98,6 +97,11 @@ public final class ShishiOdoshiFluidRegistry {
         return RENDER_PROPERTIES.getOrDefault(fluid, RENDER_PROPERTIES.get(Fluids.WATER));
     }
 
+    /** Returns an explicit rendering override, or {@code null} to use the fluid's baked model. */
+    public static @Nullable RenderProperties getRegisteredRenderProperties(Fluid fluid) {
+        return RENDER_PROPERTIES.get(fluid);
+    }
+
     public static @Nullable Fluid findSourceFluid(LevelReader level, BlockPos sourcePos) {
         BlockState state = level.getBlockState(sourcePos);
         // Later registrations override broad predicates such as the waterlogged default.
@@ -108,7 +112,12 @@ public final class ShishiOdoshiFluidRegistry {
                 return fluid == Fluids.EMPTY ? null : fluid;
             }
         }
-        return null;
+
+        CauldronFluidContent cauldronContent = CauldronFluidContent.getForBlock(state.getBlock());
+        if (cauldronContent == null || cauldronContent.currentLevel(state) == 0) {
+            return null;
+        }
+        return cauldronContent.fluid == Fluids.EMPTY ? null : cauldronContent.fluid;
     }
 
     private record Source(Predicate<BlockState> predicate, Supplier<? extends Fluid> fluid) {}

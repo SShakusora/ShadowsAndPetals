@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiPipeBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
@@ -33,6 +34,8 @@ import java.util.Map;
 
 public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<ShishiOdoshiPipeBlock> CODEC = simpleCodec(ShishiOdoshiPipeBlock::new);
+    public static final int MAX_VERTICAL_CONNECTION_DISTANCE = 32;
+    public static final int CONNECTION_RECHECK_INTERVAL_TICKS = 10;
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<PipeLength> LENGTH = EnumProperty.create("length", PipeLength.class);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -80,22 +83,47 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
     }
 
     private static PipeLength computePipeLength(LevelReader level, BlockPos pos, Direction pipeFacing) {
-        BlockState below = level.getBlockState(pos.below());
-        if (below.getBlock() instanceof ShishiOdoshiBlock) {
-            Direction shishiFacing = below.getValue(ShishiOdoshiBlock.FACING).getOpposite();
-            if (pipeFacing == shishiFacing) {
-                return PipeLength.SHORT;
+        BlockPos shishiOdoshiPos = findShishiOdoshiBelow(level, pos);
+        if (shishiOdoshiPos != null) {
+            return computePipeLength(
+                    pipeFacing,
+                    level.getBlockState(shishiOdoshiPos).getValue(ShishiOdoshiBlock.FACING)
+            );
+        }
+        return PipeLength.NORMAL;
+    }
+
+    public static @Nullable BlockPos findShishiOdoshiBelow(LevelReader level, BlockPos pipePos) {
+        for (int distance = 1; distance <= MAX_VERTICAL_CONNECTION_DISTANCE; distance++) {
+            BlockPos candidatePos = pipePos.below(distance);
+            if (level.isOutsideBuildHeight(candidatePos)) {
+                return null;
             }
-            if (pipeFacing == shishiFacing.getOpposite()) {
-                return PipeLength.LONG;
+
+            BlockState candidateState = level.getBlockState(candidatePos);
+            if (candidateState.getBlock() instanceof ShishiOdoshiBlock) {
+                return candidatePos;
             }
-            if (pipeFacing == shishiFacing.getClockWise()) {
-                return PipeLength.NORMAL_RIGHT;
+            if (!candidateState.getCollisionShape(level, candidatePos).isEmpty()) {
+                return null;
             }
-            if (pipeFacing == shishiFacing.getCounterClockWise()) {
-                return PipeLength.NORMAL_LEFT;
-            }
-            return PipeLength.NORMAL;
+        }
+        return null;
+    }
+
+    public static PipeLength computePipeLength(Direction pipeFacing, Direction shishiOdoshiFacing) {
+        Direction inletFacing = shishiOdoshiFacing.getOpposite();
+        if (pipeFacing == inletFacing) {
+            return PipeLength.SHORT;
+        }
+        if (pipeFacing == inletFacing.getOpposite()) {
+            return PipeLength.LONG;
+        }
+        if (pipeFacing == inletFacing.getClockWise()) {
+            return PipeLength.NORMAL_RIGHT;
+        }
+        if (pipeFacing == inletFacing.getCounterClockWise()) {
+            return PipeLength.NORMAL_LEFT;
         }
         return PipeLength.NORMAL;
     }
@@ -140,7 +168,9 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return null;
+        return level.isClientSide()
+                ? createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::clientTick)
+                : null;
     }
 
     private static Map<PipeLength, Map<Direction, VoxelShape>> buildShapes() {
@@ -179,16 +209,28 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
     }
 
     public enum PipeLength implements StringRepresentable {
-        SHORT("short"),
-        NORMAL("normal"),
-        NORMAL_LEFT("normal_left"),
-        NORMAL_RIGHT("normal_right"),
-        LONG("long");
+        SHORT("short", 8.0F / 16.0F, 11.0F / 16.0F),
+        NORMAL("normal", 8.0F / 16.0F, 8.0F / 16.0F),
+        NORMAL_LEFT("normal_left", 4.5F / 16.0F, 8.0F / 16.0F),
+        NORMAL_RIGHT("normal_right", 11.5F / 16.0F, 8.0F / 16.0F),
+        LONG("long", 8.0F / 16.0F, 4.0F / 16.0F);
 
         private final String name;
+        private final float outletX;
+        private final float outletZ;
 
-        PipeLength(String name) {
+        PipeLength(String name, float outletX, float outletZ) {
             this.name = name;
+            this.outletX = outletX;
+            this.outletZ = outletZ;
+        }
+
+        public float outletX() {
+            return outletX;
+        }
+
+        public float outletZ() {
+            return outletZ;
         }
 
         @Override
