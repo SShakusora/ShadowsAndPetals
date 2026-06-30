@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.model;
 import com.mojang.math.Quadrant;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
+import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
@@ -72,6 +73,9 @@ public final class BlockModelRegistry {
 
     public static void wrapBlockStateModels(ModelEvent.ModifyBakingResult event) {
         event.getBakingResult().blockStateModels().replaceAll((state, model) -> {
+            if (state.getBlock() instanceof IroriBlock) {
+                return new IroriBlockStateModel(model);
+            }
             if (state.getBlock() instanceof WoodPostBlock woodPost) {
                 return new WoodPostBlockStateModel(woodPost, model);
             }
