@@ -20,6 +20,7 @@ public final class ShadowsAndPetalsJadePlugin implements IWailaPlugin {
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(CafeChairBlockComponentProvider.INSTANCE, CafeChairBlock.class);
         registration.registerBlockComponent(IroriBurnTimeComponentProvider.INSTANCE, IroriBlock.class);
-        registration.registerBlockComponent(RockeryHammerProgressComponentProvider.INSTANCE, Block.class);
+        registration.addTooltipCollectedCallback(RockeryHammerProgressOverlay::onTooltipCollected);
+        registration.addAfterRenderCallback(200, RockeryHammerProgressOverlay::afterRender);
     }
 }

@@ -11,6 +11,8 @@ import snownee.jade.api.IServerDataProvider;
 
 public final class RockeryHammerProgressServerDataProvider implements IServerDataProvider<BlockAccessor> {
     public static final RockeryHammerProgressServerDataProvider INSTANCE = new RockeryHammerProgressServerDataProvider();
+    static final String PROGRESS_KEY = "RockeryHammerProgress";
+    static final String DURATION_KEY = "RockeryHammerDuration";
 
     private RockeryHammerProgressServerDataProvider() {}
 
@@ -26,8 +28,14 @@ public final class RockeryHammerProgressServerDataProvider implements IServerDat
         if (progress < 0.0F) {
             return;
         }
-        data.putInt(RockeryHammerProgressComponentProvider.PROGRESS_KEY, Math.round(progress * 100));
-        data.putFloat(RockeryHammerProgressComponentProvider.DURATION_KEY, duration);
+        data.putInt(PROGRESS_KEY, Math.round(progress * 100));
+        data.putFloat(DURATION_KEY, duration);
+    }
+
+    @Override
+    public boolean shouldRequestData(BlockAccessor accessor) {
+        return accessor.getPlayer().getMainHandItem().getItem() instanceof HammerItem
+                && accessor.getPlayer().isUsingItem();
     }
 
     @Override

@@ -41,16 +41,6 @@ public final class BuiltinLanguageKeys {
             .en_us("Burned out")
             .zh_cn("已燃尽");
 
-    public static final DatagenLangRegistry.TranslationKey JADE_ROCKERY_HAMMERING = DatagenLangRegistry
-            .key("jade.shadowsandpetals.rockery.hammering")
-            .en_us("Hammering...")
-            .zh_cn("锤击中…");
-
-    public static final DatagenLangRegistry.TranslationKey JADE_ROCKERY_HAMMER_CONFIG = DatagenLangRegistry
-            .key("config.jade.plugin_shadowsandpetals.jade.rockery_hammer_progress")
-            .en_us("Show rockery hammering progress")
-            .zh_cn("显示石山锤击进度");
-
     public static final DatagenLangRegistry.TranslationKey ROCKERY_DIMENSIONS_LABEL = DatagenLangRegistry
             .key("tooltip.shadowsandpetals.rockery.dimensions_label")
             .en_us("Dimensions: ")
