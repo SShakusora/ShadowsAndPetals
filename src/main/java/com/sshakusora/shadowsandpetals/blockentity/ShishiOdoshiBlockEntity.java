@@ -384,7 +384,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         @Override
         public long getAmountAsLong(int index) {
             if (index != 0) return 0;
-            return (long) blockEntity.getWaterAmount();
+            return blockEntity.getWaterAmount();
         }
 
         @Override

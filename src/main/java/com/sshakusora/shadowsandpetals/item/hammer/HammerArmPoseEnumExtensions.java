@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.client;
+package com.sshakusora.shadowsandpetals.item.hammer;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.neoforged.fml.common.asm.enumextension.EnumProxy;

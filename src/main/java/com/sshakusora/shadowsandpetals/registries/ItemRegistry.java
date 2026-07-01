@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
-import com.sshakusora.shadowsandpetals.item.HammerItem;
 import com.sshakusora.shadowsandpetals.item.HarrowItem;
+import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.food.FoodProperties;

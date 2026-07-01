@@ -4,7 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.tooltip.ClientRockeryTooltip.RockeryPreviewText;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
-import com.sshakusora.shadowsandpetals.item.HammerItem;
+import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;

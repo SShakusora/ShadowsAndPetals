@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.item;
+package com.sshakusora.shadowsandpetals.item.hammer;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;

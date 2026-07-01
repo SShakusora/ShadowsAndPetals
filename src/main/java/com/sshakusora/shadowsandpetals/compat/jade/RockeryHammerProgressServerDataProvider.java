@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.compat.jade;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.item.HammerItem;
+import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;

@@ -205,7 +205,9 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
     private void updateGrillRenderState(IroriBlockEntity blockEntity, State state) {
         IroriBlockEntity.GrillRenderInfo grillInfo = blockEntity.getGrillRenderInfo();
-        if (grillInfo == null || blockEntity.getLevel() == null) {
+        if (grillInfo == null
+                || blockEntity.getLevel() == null
+                || IroriGrillSectionRenderer.canRenderInSection(blockEntity.getBlockPos(), grillInfo)) {
             return;
         }
 

@@ -9,7 +9,7 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID)
-public class SAPCapabilities {
+public class CapabilityRegistry {
 
     @SubscribeEvent
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {

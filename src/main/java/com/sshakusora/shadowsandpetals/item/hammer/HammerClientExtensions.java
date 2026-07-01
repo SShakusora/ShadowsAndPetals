@@ -1,8 +1,7 @@
-package com.sshakusora.shadowsandpetals.client;
+package com.sshakusora.shadowsandpetals.item.hammer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.sshakusora.shadowsandpetals.item.HammerItem;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import com.sshakusora.shadowsandpetals.util.MathUtils;
 import net.minecraft.client.model.HumanoidModel;

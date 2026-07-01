@@ -14,6 +14,7 @@ import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
+import com.sshakusora.shadowsandpetals.item.hammer.HammerClientExtensions;
 import com.sshakusora.shadowsandpetals.registries.*;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.neoforged.api.distmarker.Dist;
@@ -46,6 +47,11 @@ public class ClientRenderEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.COPPER_TEAPOT.get(), CopperTeapotBlockEntityRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void addSectionGeometry(AddSectionGeometryEvent event) {
+        IroriGrillSectionRenderer.addSectionGeometry(event);
     }
 
     @SubscribeEvent
