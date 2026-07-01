@@ -5,7 +5,7 @@
             "name": "SHADOWSANDPETALS_HAMMER_AND_CHISEL",
             "constructor": "(ZZLnet/neoforged/neoforge/client/IArmPoseTransformer;)V",
             "parameters": {
-                "class": "com/sshakusora/shadowsandpetals/client/HammerArmPoseEnumExtensions",
+                "class": "com/sshakusora/shadowsandpetals/item/hammer/HammerArmPoseEnumExtensions",
                 "field": "SHADOWSANDPETALS_HAMMER_AND_CHISEL"
             }
         }
