@@ -21,7 +21,7 @@ public final class RockeryHammerProgressServerDataProvider implements IServerDat
         if (!(item.getItem() instanceof HammerItem)) {
             return;
         }
-        float progress = HammerItem.getHammeringProgress(pos);
+        float progress = HammerItem.getHammeringProgress(accessor.getPlayer(), accessor.getLevel(), pos);
         float duration = HammerItem.getEffectiveUseDuration(item);
         if (progress < 0.0F) {
             return;
