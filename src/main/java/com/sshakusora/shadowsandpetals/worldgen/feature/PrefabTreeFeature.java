@@ -4,12 +4,15 @@ import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import com.sshakusora.shadowsandpetals.worldgen.feature.config.PrefabTreeConfiguration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,10 +20,9 @@ import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
-import net.minecraft.world.level.levelgen.structure.templatesystem.BlockIgnoreProcessor;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import net.minecraft.world.level.levelgen.structure.templatesystem.*;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,11 +72,12 @@ public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
                 .setIgnoreEntities(true)
                 .setKnownShape(false)
                 .setRandom(random)
-                .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR);
+                .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR)
+                .addProcessor(new SkipBlockedLeavesProcessor(level));
 
         BlockPos placementOrigin = alignTemplateToSapling(settings, localAnchor, origin);
         BoundingBox boundingBox = template.getBoundingBox(settings, placementOrigin);
-        if (!hasRoomForTree(level, boundingBox, origin)) {
+        if (!hasRoomForTrunk(level, template, settings, placementOrigin, origin)) {
             return false;
         }
 
@@ -122,19 +125,28 @@ public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
         return saplingPos.offset(-transformedAnchor.getX(), -transformedAnchor.getY(), -transformedAnchor.getZ());
     }
 
-    private static boolean hasRoomForTree(WorldGenLevel level, BoundingBox bounds, BlockPos origin) {
-        for (BlockPos pos : BlockPos.betweenClosed(bounds.minX(), bounds.minY(), bounds.minZ(), bounds.maxX(), bounds.maxY(), bounds.maxZ())) {
-            if (!level.ensureCanWrite(pos) || !level.isInsideBuildHeight(pos)) {
-                return false;
-            }
-
-            if (pos.equals(origin)) {
+    private static boolean hasRoomForTrunk(
+            WorldGenLevel level,
+            StructureTemplate template,
+            StructurePlaceSettings settings,
+            BlockPos placementOrigin,
+            BlockPos treeOrigin
+    ) {
+        StructurePlaceSettings preflightSettings = settings.copy().setRandom(null);
+        for (Block block : BuiltInRegistries.BLOCK) {
+            if (!block.defaultBlockState().is(BlockTags.LOGS)) {
                 continue;
             }
 
-            BlockState state = level.getBlockState(pos);
-            if (isBlockedForTree(state)) {
-                return false;
+            for (StructureTemplate.StructureBlockInfo blockInfo : template.filterBlocks(placementOrigin, preflightSettings, block)) {
+                BlockPos pos = blockInfo.pos();
+                if (!level.ensureCanWrite(pos) || !level.isInsideBuildHeight(pos)) {
+                    return false;
+                }
+
+                if (!pos.equals(treeOrigin) && isBlockedForTree(level.getBlockState(pos))) {
+                    return false;
+                }
             }
         }
 
@@ -191,5 +203,42 @@ public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
         }
 
         return baseLogs;
+    }
+
+    private static final class SkipBlockedLeavesProcessor extends StructureProcessor {
+        private final WorldGenLevel level;
+
+        private SkipBlockedLeavesProcessor(WorldGenLevel level) {
+            this.level = level;
+        }
+
+        @Override
+        public StructureTemplate.@Nullable StructureBlockInfo process(
+                LevelReader ignoredLevel,
+                BlockPos targetPosition,
+                BlockPos referencePos,
+                StructureTemplate.StructureBlockInfo originalBlockInfo,
+                StructureTemplate.StructureBlockInfo processedBlockInfo,
+                StructurePlaceSettings settings,
+                @Nullable StructureTemplate template
+        ) {
+            if (!processedBlockInfo.state().is(BlockTags.LEAVES)) {
+                return processedBlockInfo;
+            }
+
+            BlockPos pos = processedBlockInfo.pos();
+            if (!this.level.ensureCanWrite(pos)
+                    || !this.level.isInsideBuildHeight(pos)
+                    || isBlockedForTree(this.level.getBlockState(pos))) {
+                return null;
+            }
+
+            return processedBlockInfo;
+        }
+
+        @Override
+        protected StructureProcessorType<?> getType() {
+            return StructureProcessorType.NOP;
+        }
     }
 }
