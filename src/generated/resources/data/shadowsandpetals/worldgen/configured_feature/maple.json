@@ -1,6 +1,7 @@
 {
   "type": "shadowsandpetals:prefab_tree",
   "config": {
+    "leaf_noise_scale": 0.32,
     "templates": [
       "shadowsandpetals:maple/small_1",
       "shadowsandpetals:maple/small_2",

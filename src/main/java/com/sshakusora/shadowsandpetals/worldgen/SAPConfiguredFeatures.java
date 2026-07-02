@@ -88,6 +88,7 @@ public class SAPConfiguredFeatures {
         context.register(SAKURA, new ConfiguredFeature<>(
                 SAPFeatures.PREFAB_TREE.get(),
                 createPrefabTree(
+                        1, 0.12F, 0.26F,
                         ShadowsAndPetals.asResource("sakura/small_1"),
                         ShadowsAndPetals.asResource("sakura/small_2"),
                         ShadowsAndPetals.asResource("sakura/small_3"),
@@ -98,6 +99,7 @@ public class SAPConfiguredFeatures {
         context.register(FANCY_SAKURA, new ConfiguredFeature<>(
                 SAPFeatures.PREFAB_TREE.get(),
                 createPrefabTree(
+                        1, 0.12F, 0.26F,
                         ShadowsAndPetals.asResource("sakura/large_1"),
                         ShadowsAndPetals.asResource("sakura/large_2"),
                         ShadowsAndPetals.asResource("sakura/large_3")
@@ -106,6 +108,7 @@ public class SAPConfiguredFeatures {
         context.register(MAPLE, new ConfiguredFeature<>(
                 SAPFeatures.PREFAB_TREE.get(),
                 createPrefabTree(
+                        1, 0.10F, 0.32F,
                         ShadowsAndPetals.asResource("maple/small_1"),
                         ShadowsAndPetals.asResource("maple/small_2"),
                         ShadowsAndPetals.asResource("maple/small_3"),
@@ -117,6 +120,7 @@ public class SAPConfiguredFeatures {
         context.register(FANCY_MAPLE, new ConfiguredFeature<>(
                 SAPFeatures.PREFAB_TREE.get(),
                 createPrefabTree(
+                        1, 0.10F, 0.32F,
                         ShadowsAndPetals.asResource("maple/large_1"),
                         ShadowsAndPetals.asResource("maple/large_2")
                 )
@@ -124,6 +128,7 @@ public class SAPConfiguredFeatures {
         context.register(GINKGO, new ConfiguredFeature<>(
                 SAPFeatures.PREFAB_TREE.get(),
                 createPrefabTree(
+                        1, 0.08F, 0.24F,
                         ShadowsAndPetals.asResource("ginkgo/small_1"),
                         ShadowsAndPetals.asResource("ginkgo/small_2"),
                         ShadowsAndPetals.asResource("ginkgo/small_3"),
@@ -135,6 +140,7 @@ public class SAPConfiguredFeatures {
         context.register(FANCY_GINKGO, new ConfiguredFeature<>(
                 SAPFeatures.PREFAB_TREE.get(),
                 createPrefabTree(
+                        1, 0.08F, 0.24F,
                         ShadowsAndPetals.asResource("ginkgo/large_1"),
                         ShadowsAndPetals.asResource("ginkgo/large_2")
                 )
@@ -169,7 +175,21 @@ public class SAPConfiguredFeatures {
         );
     }
 
-    private static PrefabTreeConfiguration createPrefabTree(Identifier... templates) {
-        return new PrefabTreeConfiguration(List.of(templates), true, true, 1, true);
+    private static PrefabTreeConfiguration createPrefabTree(
+            int leafCoreRadius,
+            float leafSurfaceErosion,
+            float leafNoiseScale,
+            Identifier... templates
+    ) {
+        return new PrefabTreeConfiguration(
+                List.of(templates),
+                true,
+                true,
+                1,
+                true,
+                leafCoreRadius,
+                leafSurfaceErosion,
+                leafNoiseScale
+        );
     }
 }

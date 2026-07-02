@@ -1,6 +1,8 @@
 {
   "type": "shadowsandpetals:prefab_tree",
   "config": {
+    "leaf_noise_scale": 0.26,
+    "leaf_surface_erosion": 0.12,
     "templates": [
       "shadowsandpetals:sakura/large_1",
       "shadowsandpetals:sakura/large_2",

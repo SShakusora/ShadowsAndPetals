@@ -19,6 +19,7 @@ hs_err_pid*
 
 # Common working directory
 run
+logs
 /reference/
 run2
 /docs/

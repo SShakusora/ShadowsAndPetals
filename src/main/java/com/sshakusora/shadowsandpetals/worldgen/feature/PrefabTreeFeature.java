@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.mojang.serialization.Codec;
 import com.sshakusora.shadowsandpetals.worldgen.feature.config.PrefabTreeConfiguration;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -21,13 +22,11 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.*;
+import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
     private static final Rotation[] ROTATIONS = new Rotation[]{
@@ -65,19 +64,24 @@ public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
         Rotation rotation = config.allowRotation() ? ROTATIONS[random.nextInt(ROTATIONS.length)] : Rotation.NONE;
         Mirror mirror = pickMirror(random, config.allowMirror());
         BlockPos localAnchor = getTemplateAnchor(template);
+        long paletteSeed = random.nextLong();
         StructurePlaceSettings settings = new StructurePlaceSettings()
                 .setRotation(rotation)
                 .setMirror(mirror)
                 .setRotationPivot(localAnchor)
                 .setIgnoreEntities(true)
                 .setKnownShape(false)
-                .setRandom(random)
-                .addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR)
-                .addProcessor(new SkipBlockedLeavesProcessor(level));
+                .setRandom(RandomSource.create(paletteSeed));
 
         BlockPos placementOrigin = alignTemplateToSapling(settings, localAnchor, origin);
+        TemplateTreeBlocks templateBlocks = collectTemplateTreeBlocks(template, settings, placementOrigin, paletteSeed);
+        Set<BlockPos> erodedLeaves = selectErodedLeaves(templateBlocks, config, random.nextLong());
+        settings.addProcessor(BlockIgnoreProcessor.STRUCTURE_AND_AIR)
+                .addProcessor(new LeafNoiseErosionProcessor(erodedLeaves))
+                .addProcessor(new SkipBlockedLeavesProcessor(level));
+
         BoundingBox boundingBox = template.getBoundingBox(settings, placementOrigin);
-        if (!hasRoomForTrunk(level, template, settings, placementOrigin, origin)) {
+        if (!hasRoomForTrunk(level, templateBlocks.logs(), origin)) {
             return false;
         }
 
@@ -127,30 +131,148 @@ public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
 
     private static boolean hasRoomForTrunk(
             WorldGenLevel level,
-            StructureTemplate template,
-            StructurePlaceSettings settings,
-            BlockPos placementOrigin,
+            Set<BlockPos> logs,
             BlockPos treeOrigin
     ) {
-        StructurePlaceSettings preflightSettings = settings.copy().setRandom(null);
-        for (Block block : BuiltInRegistries.BLOCK) {
-            if (!block.defaultBlockState().is(BlockTags.LOGS)) {
-                continue;
+        for (BlockPos pos : logs) {
+            if (!level.ensureCanWrite(pos) || !level.isInsideBuildHeight(pos)) {
+                return false;
             }
 
-            for (StructureTemplate.StructureBlockInfo blockInfo : template.filterBlocks(placementOrigin, preflightSettings, block)) {
-                BlockPos pos = blockInfo.pos();
-                if (!level.ensureCanWrite(pos) || !level.isInsideBuildHeight(pos)) {
-                    return false;
-                }
-
-                if (!pos.equals(treeOrigin) && isBlockedForTree(level.getBlockState(pos))) {
-                    return false;
-                }
+            if (!pos.equals(treeOrigin) && isBlockedForTree(level.getBlockState(pos))) {
+                return false;
             }
         }
 
         return true;
+    }
+
+    private static TemplateTreeBlocks collectTemplateTreeBlocks(
+            StructureTemplate template,
+            StructurePlaceSettings settings,
+            BlockPos placementOrigin,
+            long paletteSeed
+    ) {
+        Set<BlockPos> logs = new HashSet<>();
+        Set<BlockPos> leaves = new HashSet<>();
+
+        for (Block block : BuiltInRegistries.BLOCK) {
+            BlockState defaultState = block.defaultBlockState();
+            Set<BlockPos> target;
+            if (defaultState.is(BlockTags.LOGS)) {
+                target = logs;
+            } else if (defaultState.is(BlockTags.LEAVES)) {
+                target = leaves;
+            } else {
+                continue;
+            }
+
+            StructurePlaceSettings filterSettings = settings.copy().setRandom(RandomSource.create(paletteSeed));
+            for (StructureTemplate.StructureBlockInfo blockInfo : template.filterBlocks(placementOrigin, filterSettings, block)) {
+                target.add(blockInfo.pos().immutable());
+            }
+        }
+
+        return new TemplateTreeBlocks(Set.copyOf(logs), Set.copyOf(leaves));
+    }
+
+    private static Set<BlockPos> selectErodedLeaves(
+            TemplateTreeBlocks templateBlocks,
+            PrefabTreeConfiguration config,
+            long noiseSeed
+    ) {
+        if (config.leafSurfaceErosion() <= 0.0F || templateBlocks.leaves().isEmpty()) {
+            return Set.of();
+        }
+
+        Set<BlockPos> coreLeaves = findCoreLeaves(templateBlocks, config.leafCoreRadius());
+        SimplexNoise noise = new SimplexNoise(RandomSource.create(noiseSeed));
+        double scale = config.leafNoiseScale();
+        List<ScoredLeaf> surfaceLeaves = new ArrayList<>();
+
+        for (BlockPos leaf : templateBlocks.leaves()) {
+            if (coreLeaves.contains(leaf)) {
+                continue;
+            }
+
+            int exposedFaces = countExposedFaces(leaf, templateBlocks);
+            if (exposedFaces == 0) {
+                continue;
+            }
+
+            double noiseValue = noise.getValue(leaf.getX() * scale, leaf.getY() * scale, leaf.getZ() * scale);
+            surfaceLeaves.add(new ScoredLeaf(leaf, noiseValue + exposedFaces * 0.1));
+        }
+
+        int erosionCount = Math.min(
+                surfaceLeaves.size(),
+                Math.round(surfaceLeaves.size() * config.leafSurfaceErosion())
+        );
+        if (erosionCount == 0) {
+            return Set.of();
+        }
+
+        surfaceLeaves.sort(
+                Comparator.comparingDouble(ScoredLeaf::score)
+                        .reversed()
+                        .thenComparingLong(scoredLeaf -> scoredLeaf.pos().asLong())
+        );
+        Set<BlockPos> result = new HashSet<>(erosionCount);
+        for (int i = 0; i < erosionCount; i++) {
+            result.add(surfaceLeaves.get(i).pos());
+        }
+        return Set.copyOf(result);
+    }
+
+    private static Set<BlockPos> findCoreLeaves(TemplateTreeBlocks templateBlocks, int coreRadius) {
+        if (coreRadius <= 0) {
+            return Set.of();
+        }
+
+        Set<BlockPos> coreLeaves = new HashSet<>();
+        ArrayDeque<LeafDistance> pending = new ArrayDeque<>();
+        for (BlockPos leaf : templateBlocks.leaves()) {
+            if (hasNeighborIn(leaf, templateBlocks.logs())) {
+                coreLeaves.add(leaf);
+                pending.addLast(new LeafDistance(leaf, 1));
+            }
+        }
+
+        while (!pending.isEmpty()) {
+            LeafDistance current = pending.removeFirst();
+            if (current.distance() >= coreRadius) {
+                continue;
+            }
+
+            for (Direction direction : Direction.values()) {
+                BlockPos neighbor = current.pos().relative(direction);
+                if (templateBlocks.leaves().contains(neighbor) && coreLeaves.add(neighbor)) {
+                    pending.addLast(new LeafDistance(neighbor, current.distance() + 1));
+                }
+            }
+        }
+
+        return coreLeaves;
+    }
+
+    private static boolean hasNeighborIn(BlockPos pos, Set<BlockPos> positions) {
+        for (Direction direction : Direction.values()) {
+            if (positions.contains(pos.relative(direction))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static int countExposedFaces(BlockPos leaf, TemplateTreeBlocks templateBlocks) {
+        int exposedFaces = 0;
+        for (Direction direction : Direction.values()) {
+            BlockPos neighbor = leaf.relative(direction);
+            if (!templateBlocks.leaves().contains(neighbor) && !templateBlocks.logs().contains(neighbor)) {
+                exposedFaces++;
+            }
+        }
+        return exposedFaces;
     }
 
     private static boolean isBlockedForTree(BlockState state) {
@@ -203,6 +325,44 @@ public class PrefabTreeFeature extends Feature<PrefabTreeConfiguration> {
         }
 
         return baseLogs;
+    }
+
+    private record TemplateTreeBlocks(Set<BlockPos> logs, Set<BlockPos> leaves) {
+    }
+
+    private record LeafDistance(BlockPos pos, int distance) {
+    }
+
+    private record ScoredLeaf(BlockPos pos, double score) {
+    }
+
+    private static final class LeafNoiseErosionProcessor extends StructureProcessor {
+        private final Set<BlockPos> erodedLeaves;
+
+        private LeafNoiseErosionProcessor(Set<BlockPos> erodedLeaves) {
+            this.erodedLeaves = erodedLeaves;
+        }
+
+        @Override
+        public StructureTemplate.@Nullable StructureBlockInfo process(
+                LevelReader level,
+                BlockPos targetPosition,
+                BlockPos referencePos,
+                StructureTemplate.StructureBlockInfo originalBlockInfo,
+                StructureTemplate.StructureBlockInfo processedBlockInfo,
+                StructurePlaceSettings settings,
+                @Nullable StructureTemplate template
+        ) {
+            return processedBlockInfo.state().is(BlockTags.LEAVES)
+                    && this.erodedLeaves.contains(processedBlockInfo.pos())
+                    ? null
+                    : processedBlockInfo;
+        }
+
+        @Override
+        protected StructureProcessorType<?> getType() {
+            return StructureProcessorType.NOP;
+        }
     }
 
     private static final class SkipBlockedLeavesProcessor extends StructureProcessor {

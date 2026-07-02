@@ -1,6 +1,8 @@
 {
   "type": "shadowsandpetals:prefab_tree",
   "config": {
+    "leaf_noise_scale": 0.24,
+    "leaf_surface_erosion": 0.08,
     "templates": [
       "shadowsandpetals:ginkgo/large_1",
       "shadowsandpetals:ginkgo/large_2"
