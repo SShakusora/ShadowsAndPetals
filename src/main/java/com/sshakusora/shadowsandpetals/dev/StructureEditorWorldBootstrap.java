@@ -10,11 +10,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.Comparator;
-import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,7 +20,6 @@ import java.util.Locale;
 public final class StructureEditorWorldBootstrap {
     public static final String WORLD_DIRECTORY = "sap_structure_editor";
     public static final String REBUILD_MARKER = ".sap-structure-editor-rebuild";
-    private static final String FINGERPRINT_FILE = ".sap-structure-editor-source.sha256";
     private static final String WORLD_NAME = "Shadows & Petals Structure Editor";
     private static final int STORAGE_VERSION = 19133;
 
@@ -46,20 +41,13 @@ public final class StructureEditorWorldBootstrap {
         ensureWorldFiles(worldDirectory);
         ensureStructureJunction(worldDirectory, sourceStructures);
 
-        String fingerprint = fingerprintStructures(sourceStructures);
-        Path fingerprintFile = worldDirectory.resolve(FINGERPRINT_FILE);
-        String previousFingerprint = Files.exists(fingerprintFile)
-                ? Files.readString(fingerprintFile, StandardCharsets.UTF_8).trim()
-                : "";
-
-        if (!fingerprint.equals(previousFingerprint)) {
-            clearGeneratedLayout(worldDirectory);
-            Files.writeString(worldDirectory.resolve(REBUILD_MARKER), fingerprint + System.lineSeparator(), StandardCharsets.UTF_8);
-            Files.writeString(fingerprintFile, fingerprint + System.lineSeparator(), StandardCharsets.UTF_8);
-            System.out.println("Structure templates changed; the editor layout will be rebuilt.");
-        } else {
-            System.out.println("Structure templates are unchanged; keeping the existing editor layout.");
-        }
+        clearGeneratedLayout(worldDirectory);
+        Files.writeString(
+                worldDirectory.resolve(REBUILD_MARKER),
+                "rebuild requested by prepareStructureEditorWorld" + System.lineSeparator(),
+                StandardCharsets.UTF_8
+        );
+        System.out.println("Structure editor layout will be rebuilt.");
     }
 
     private static void ensureWorldFiles(Path worldDirectory) throws IOException {
@@ -216,26 +204,6 @@ public final class StructureEditorWorldBootstrap {
         } else {
             Files.createSymbolicLink(link, sourceStructures);
         }
-    }
-
-    private static String fingerprintStructures(Path sourceStructures) throws IOException, NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        List<Path> structures;
-        try (var paths = Files.walk(sourceStructures)) {
-            structures = paths.filter(Files::isRegularFile)
-                    .filter(path -> path.getFileName().toString().endsWith(".nbt"))
-                    .sorted(Comparator.comparing(path -> sourceStructures.relativize(path).toString().replace('\\', '/')))
-                    .toList();
-        }
-
-        for (Path structure : structures) {
-            String relativePath = sourceStructures.relativize(structure).toString().replace('\\', '/');
-            digest.update(relativePath.getBytes(StandardCharsets.UTF_8));
-            digest.update((byte) 0);
-            digest.update(Files.readAllBytes(structure));
-            digest.update((byte) 0);
-        }
-        return HexFormat.of().formatHex(digest.digest());
     }
 
     private static void clearGeneratedLayout(Path worldDirectory) throws IOException {

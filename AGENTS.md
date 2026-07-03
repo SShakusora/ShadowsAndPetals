@@ -18,7 +18,7 @@ Root package: `com.sshakusora.shadowsandpetals`.
 Data generation outputs to `src/generated/resources/`, included in the `main` source set (`build.gradle:127`). Commit generated files.
 No tests exist — no `src/test/`, no gametest files.
 
-`runStructureEditor` depends on `prepareStructureEditorWorld`, which creates `run/saves/sap_structure_editor` and links its `generated/shadowsandpetals/structure/` directory to `src/main/resources/data/shadowsandpetals/structure/`. A SHA-256 fingerprint of source NBTs is tracked; changed templates clear and rebuild only the editor world's generated layout.
+`runStructureEditor` depends on `prepareStructureEditorWorld`, which creates `run/saves/sap_structure_editor` and links its `generated/shadowsandpetals/structure/` directory to `src/main/resources/data/shadowsandpetals/structure/`. Each execution clears and rebuilds the editor world's generated layout.
 
 ## Architecture
 
