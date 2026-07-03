@@ -53,8 +53,6 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
     private final QuadInstance quadInstance = new QuadInstance();
     private long animationStartNanos = -1L;
     private long lastRenderNanos = -1L;
-    private RockeryBlock lastBlock;
-    private RockeryDimensions lastDimensions;
 
     public RockeryPreviewRenderer(MultiBufferSource.BufferSource bufferSource) {
         super(bufferSource);
@@ -79,7 +77,7 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
         minecraft.gameRenderer.getLighting().setupFor(Lighting.Entry.LEVEL);
 
         RockeryDimensions dims = state.dimensions();
-        float yaw = state.yawDegrees() + (state.animate() ? animatedYaw(state) : 0.0F);
+        float yaw = state.yawDegrees() + (state.animate() ? animatedYaw() : 0.0F);
 
         poseStack.mulPose(Axis.XP.rotationDegrees(-30));
         poseStack.mulPose(Axis.YP.rotationDegrees(-45 + yaw));
@@ -120,7 +118,7 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
             VertexConsumer lines = this.bufferSource.getBuffer(SELECTION_OUTLINE);
             poseStack.pushPose();
             poseStack.translate(selected.getX() + 0.5F, selected.getY() + 0.5F, selected.getZ() + 0.5F);
-            poseStack.scale(1.035F, 1.035F, 1.035F);
+            poseStack.scale(1.045F, 1.045F, 1.045F);
             poseStack.translate(-0.5F, -0.5F, -0.5F);
             ShapeRenderer.renderShape(poseStack, lines, Shapes.block(), 0.0, 0.0, 0.0,
                     0xFFFFFFFF, 8.0F);
@@ -151,26 +149,22 @@ public class RockeryPreviewRenderer extends PictureInPictureRenderer<RockeryPrev
         return height / 2.0F;
     }
 
-    private float animatedYaw(RockeryPreviewState state) {
+    private float animatedYaw() {
         long now = System.nanoTime();
-        if (shouldResetAnimation(state, now)) {
+        if (shouldResetAnimation(now)) {
             animationStartNanos = now;
         }
 
         lastRenderNanos = now;
-        lastBlock = state.block();
-        lastDimensions = state.dimensions();
 
         long elapsed = Math.max(0L, now - animationStartNanos);
         return elapsed * 90.0F / ROTATE_DURATION_NANOS;
     }
 
-    private boolean shouldResetAnimation(RockeryPreviewState state, long now) {
+    private boolean shouldResetAnimation(long now) {
         return animationStartNanos < 0L
                 || lastRenderNanos < 0L
-                || now - lastRenderNanos > RESET_GAP_NANOS
-                || lastBlock != state.block()
-                || !state.dimensions().equals(lastDimensions);
+                || now - lastRenderNanos > RESET_GAP_NANOS;
     }
 
 }
