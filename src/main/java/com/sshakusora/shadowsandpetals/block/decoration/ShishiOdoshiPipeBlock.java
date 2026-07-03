@@ -93,6 +93,11 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
         return PipeLength.NORMAL;
     }
 
+    public static BlockState updatePipeLength(LevelReader level, BlockPos pos, BlockState state) {
+        PipeLength updatedLength = computePipeLength(level, pos, state.getValue(FACING));
+        return state.setValue(LENGTH, updatedLength);
+    }
+
     public static @Nullable BlockPos findShishiOdoshiBelow(LevelReader level, BlockPos pipePos) {
         for (int distance = 1; distance <= MAX_VERTICAL_CONNECTION_DISTANCE; distance++) {
             BlockPos candidatePos = pipePos.below(distance);
@@ -137,8 +142,7 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
             return Blocks.AIR.defaultBlockState();
         }
         if (direction == Direction.DOWN) {
-            PipeLength updatedLength = computePipeLength(level, pos, state.getValue(FACING));
-            state = state.setValue(LENGTH, updatedLength);
+            state = updatePipeLength(level, pos, state);
         }
         if (state.getValue(WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
@@ -168,9 +172,12 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return level.isClientSide()
-                ? createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::clientTick)
-                : null;
+        if (level.isClientSide()) {
+            return createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::clientTick);
+        }
+        return state.getValue(LENGTH) == PipeLength.NORMAL
+                ? null
+                : createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::serverTick);
     }
 
     private static Map<PipeLength, Map<Direction, VoxelShape>> buildShapes() {

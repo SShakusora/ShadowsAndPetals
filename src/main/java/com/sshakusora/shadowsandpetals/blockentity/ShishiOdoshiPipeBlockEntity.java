@@ -9,6 +9,7 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
@@ -26,6 +27,7 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
     private long nextConnectionCheckTick = Long.MIN_VALUE;
     private @Nullable Vec3 cachedFallbackImpactPosition;
     private long nextImpactCheckTick = Long.MIN_VALUE;
+    private long nextLengthCheckTick = Long.MIN_VALUE;
     private long lastSplashTick = Long.MIN_VALUE;
 
     public ShishiOdoshiPipeBlockEntity(BlockPos pos, BlockState blockState) {
@@ -68,6 +70,21 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
             nextImpactCheckTick = gameTime + ShishiOdoshiPipeBlock.CONNECTION_RECHECK_INTERVAL_TICKS;
         }
         return cachedFallbackImpactPosition;
+    }
+
+    public static void serverTick(
+            Level level, BlockPos pos, BlockState state, ShishiOdoshiPipeBlockEntity blockEntity
+    ) {
+        long gameTime = level.getGameTime();
+        if (gameTime < blockEntity.nextLengthCheckTick) {
+            return;
+        }
+
+        blockEntity.nextLengthCheckTick = gameTime + ShishiOdoshiPipeBlock.CONNECTION_RECHECK_INTERVAL_TICKS;
+        BlockState updatedState = ShishiOdoshiPipeBlock.updatePipeLength(level, pos, state);
+        if (updatedState != state) {
+            level.setBlock(pos, updatedState, Block.UPDATE_CLIENTS);
+        }
     }
 
     public static void clientTick(

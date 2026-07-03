@@ -72,7 +72,7 @@ public class RockeryRecipeCategory implements IRecipeCategory<RockeryInfoRecipe>
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return icon;
     }
 

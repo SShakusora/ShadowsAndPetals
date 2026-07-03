@@ -1,6 +1,5 @@
 package com.sshakusora.shadowsandpetals.compat.jade;
 
-import com.sshakusora.shadowsandpetals.block.decoration.CafeChairBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import net.minecraft.world.level.block.Block;
 import snownee.jade.api.IWailaClientRegistration;
@@ -18,7 +17,6 @@ public final class ShadowsAndPetalsJadePlugin implements IWailaPlugin {
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        registration.registerBlockComponent(CafeChairBlockComponentProvider.INSTANCE, CafeChairBlock.class);
         registration.registerBlockComponent(IroriBurnTimeComponentProvider.INSTANCE, IroriBlock.class);
         registration.addTooltipCollectedCallback(RockeryHammerProgressOverlay::onTooltipCollected);
         registration.addAfterRenderCallback(200, RockeryHammerProgressOverlay::afterRender);
