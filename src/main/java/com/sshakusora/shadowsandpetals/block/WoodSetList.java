@@ -292,17 +292,17 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
 
     private static void woodPostTooltip(TooltipLangBuilder tooltip) {
         tooltip.summary(
-                        "A slender wooden _post_ that adapts to nearby fittings.",
-                        "可适应周围连接件的细长木制_柱体_。")
+                        "A slender wooden _post_ that connects to posts, chains, and hanging fittings.",
+                        "可连接木柱、锁链与悬挂件的细长木制_柱体_。")
                 .behaviour(
                         "When placed:", "放置时:",
                         "Align along the _axis_ of the clicked face.", "沿点击面的_轴向_排列。")
                 .behaviour(
                         "When joined with aligned Posts or Chains:", "与同轴木柱或锁链相连时:",
-                        "Automatically form _connected supports_.", "自动形成_连续支撑结构_。")
+                        "Automatically form matching _support arms_.", "自动形成匹配的_支撑臂_。")
                 .behaviour(
                         "When a compatible fitting is hung below:", "下方悬挂兼容连接件时:",
-                        "Extend a matching _chain connection_.", "延伸出对应的_锁链连接_。");
+                        "Extend a short _chain-style connector_.", "延伸出短小的_锁链式连接件_。");
     }
 
     private static DeferredBlock<SlabBlock> treeSlab(String id, DeferredBlock<Block> planks, String zhName) {

@@ -129,11 +129,14 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A delicate ornament with independently dyeable _ribbon_ and _vane_.",
-                            "悬绳与短册可_分别染色_的精巧饰物。")
+                            "A hanging ornament with independently dyeable _ribbon_ and _vane_.",
+                            "悬绳与短册可_分别染色_的悬挂饰物。")
                     .behaviour(
                             "When crafted with dye:", "与染料合成时：",
                             "Change the _ribbon_ or _vane_ color.", "改变_悬绳_或_短册_颜色。")
+                    .behaviour(
+                            "Over time:", "经过一段时间后：",
+                            "Play soft ambient chimes.", "发出轻柔的环境风铃声。")
                     .action(
                             "Right-click", "右键点击",
                             "_Ring_ the wind chime.", "_敲响_风铃。"))
@@ -193,7 +196,7 @@ public class BlockRegistry {
                             "Open the teapot screen.", "打开茶壶界面。")
                     .behaviour(
                             "When placed on an irori:", "放置在围炉上时：",
-                            "Adjusts _height_.", "自动调整_高度_。"))
+                            "Lift to sit on the _irori grate_.", "抬高并摆放在_围炉炉架_上。"))
             .blockstate((provider, block) -> provider.copperTeapotBlock(block.get()))
             .recipe((provider, block) -> {
                 provider.shaped(RecipeCategory.DECORATIONS, block.get())
@@ -344,7 +347,10 @@ public class BlockRegistry {
                             "_Ignite_ the loaded fuel.", "_点燃_已添加的燃料。")
                     .action(
                             "Right-click the Ash:", "右键点击灰烬:",
-                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。"))
+                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。")
+                    .action(
+                            "Shift Right-click:", "Shift+右键:",
+                            "Open the master hearth _menu_.", "打开主围炉_界面_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, irori) -> provider.iroriBlock(irori.get()))
             .loot((provider, irori) -> provider.dropSelf(irori.get()))
@@ -394,7 +400,7 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A compact lamp mounted on a _sturdy wall_.",
+                            "A compact lamp that mounts to a _sturdy wall face_.",
                             "安装在_坚固墙面_上的小型灯具。")
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
@@ -417,7 +423,7 @@ public class BlockRegistry {
             .tooltipDescription(tooltip -> tooltip
                     .summary(
                             "A rugged lamp that attaches to _any sturdy face_.",
-                            "可安装在_任意坚固表面_上的耐用防爆灯。")
+                            "可安装在_任意坚固面_上的耐用防爆灯。")
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
@@ -573,7 +579,7 @@ public class BlockRegistry {
             .tooltipDescription(tooltip -> tooltip
                     .summary("A soft seat that can be _recolored_.", "一把可以_重新染色_的柔软座椅。")
                     .behaviour(
-                            "When right-clicked;", "右键点击时:",
+                            "When right-clicked:", "右键点击时:",
                             "_Sit_ on the chair.", "_坐_在椅子上。")
                     .behaviour(
                             "When landed on:", "落在上面时:",
@@ -619,11 +625,11 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A bamboo water feature that fills, tips, and _knocks_.",
-                            "蓄水后倾倒并发出_敲击声_的竹制添水。")
+                            "A bamboo water feature that fills from above, tips, and _knocks_.",
+                            "从上方蓄液、倾倒并发出_敲击声_的竹制添水。")
                     .behaviour(
                             "When supplied by a Pipe above:", "由上方竹管供液时:",
-                            "Fill gradually, then tip and _strike_ in a repeating cycle.", "逐渐蓄满，随后倾倒并循环_敲击_。"))
+                            "Fill with the pipe's fluid, then pour and _strike_ in a repeating cycle.", "蓄入竹管提供的流体，随后倾倒并循环_敲击_。"))
             .creativeTab(CreativeTabType.NATURE)
             .blockstate((provider, block) -> provider.shishiOdoshiBlock(block.get()))
             .loot((provider, block) -> provider.dropSelf(block.get()))
@@ -647,8 +653,8 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A bamboo _spout_ that supplies a Shishi-Odoshi.",
-                            "为添水供液的竹制_出水管_。")
+                            "A bamboo _spout_ that pours fluid from a source behind it.",
+                            "从背后流体源引出液体的竹制_出水管_。")
                     .behaviour(
                             "When attached to a compatible fluid source:", "连接兼容的流体源时:",
                             "Feed fluid into a _Shishi-Odoshi directly below_.", "向_正下方的添水_持续供液。"))

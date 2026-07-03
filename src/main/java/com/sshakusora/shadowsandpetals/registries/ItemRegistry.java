@@ -55,11 +55,11 @@ public class ItemRegistry {
     public static final DeferredItem<Item> CHISEL = SAPRegistries.item("chisel")
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A stoneworking tool used together with a _Hammer_.",
-                            "与_锤子_配合使用的石材加工工具。")
+                            "A stoneworking tool that enables _rockery carving_.",
+                            "用于_石山雕刻_的石工工具。")
                     .action(
                             "Hold in Off Hand", "放在副手",
-                            "Use a Hammer on _Stone_ to carve rockeries.", "用锤子敲击_石头_以雕刻石山。"))
+                            "Hold right-click with a Hammer on _Stone_ to carve matching rockeries.", "主手持锤子对_石头_长按右键，雕刻匹配形状的石山。"))
             .recipe((provider, item) -> {
                 provider.shaped(RecipeCategory.TOOLS, item.get())
                         .define('A', ALUMINUM_INGOT.get())
@@ -75,11 +75,11 @@ public class ItemRegistry {
     public static final DeferredItem<HammerItem> HAMMER = SAPRegistries.item("hammer", HammerItem::new)
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A heavy tool for carving _Stone_ into rockeries.",
-                            "用于将_石头_雕刻成石山的重型工具。")
+                            "A heavy tool that carves connected _Stone_ into rockeries.",
+                            "将相连的_石头_雕刻成石山的重型工具。")
                     .action(
                             "Chisel in Off Hand", "副手持凿子",
-                            "Hold right-click on _Stone_ to carve a rockery.", "对着_石头_长按右键以雕刻石山。"))
+                            "Hold right-click on _Stone_; the largest matching rockery is carved when the strike completes.", "对_石头_长按右键；敲击完成后会雕刻出可匹配的最大石山。"))
             .recipe((provider, item) -> {
                 provider.shaped(RecipeCategory.TOOLS, item.get())
                         .define('A', ALUMINUM_INGOT.get())
@@ -101,10 +101,10 @@ public class ItemRegistry {
                             "用于塑造_枯山水庭院_的造景工具。")
                     .behaviour(
                             "When Gravel is right-clicked", "右键点击沙砾时",
-                            "Turn it into a _Samon block_.", "将其转化为_砂纹方块_。")
+                            "Rake it into a _Samon block_ that connects to nearby samon.", "将其耙成会与附近砂纹相连的_砂纹方块_。")
                     .behaviour(
                             "When the top of Samon is right-clicked", "右键点击砂纹方块顶部时",
-                            "Cycle through its _connection patterns_.", "循环切换其_连接样式_。"))
+                            "Cycle through straight and corner _rake patterns_.", "循环切换直线与转角_砂纹样式_。"))
             .recipe((provider, item) -> {
                 provider.shaped(RecipeCategory.TOOLS, item.get())
                         .define('B', Items.BAMBOO)
