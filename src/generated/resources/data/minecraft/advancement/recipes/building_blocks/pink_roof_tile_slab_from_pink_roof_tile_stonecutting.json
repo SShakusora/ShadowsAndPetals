@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_pink_roof_tile": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:pink_roof_tile"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:pink_roof_tile_slab_from_pink_roof_tile_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_pink_roof_tile"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:pink_roof_tile_slab_from_pink_roof_tile_stonecutting"
+    ]
+  }
+}

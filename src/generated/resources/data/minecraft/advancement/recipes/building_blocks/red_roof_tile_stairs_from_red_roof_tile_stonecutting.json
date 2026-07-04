@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_red_roof_tile": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:red_roof_tile"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:red_roof_tile_stairs_from_red_roof_tile_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_red_roof_tile"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:red_roof_tile_stairs_from_red_roof_tile_stonecutting"
+    ]
+  }
+}

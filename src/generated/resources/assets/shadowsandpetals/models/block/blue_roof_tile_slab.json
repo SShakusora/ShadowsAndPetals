@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "shadowsandpetals:block/roof_tile/blue",
+    "side": "shadowsandpetals:block/roof_tile/blue",
+    "top": "shadowsandpetals:block/roof_tile/blue"
+  }
+}

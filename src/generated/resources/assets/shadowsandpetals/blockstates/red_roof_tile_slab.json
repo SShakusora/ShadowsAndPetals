@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=east,type=bottom": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab",
+      "y": 90
+    },
+    "facing=east,type=double": {
+      "model": "shadowsandpetals:block/red_roof_tile",
+      "y": 90
+    },
+    "facing=east,type=top": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab_top",
+      "y": 90
+    },
+    "facing=north,type=bottom": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab"
+    },
+    "facing=north,type=double": {
+      "model": "shadowsandpetals:block/red_roof_tile"
+    },
+    "facing=north,type=top": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab_top"
+    },
+    "facing=south,type=bottom": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab",
+      "y": 180
+    },
+    "facing=south,type=double": {
+      "model": "shadowsandpetals:block/red_roof_tile",
+      "y": 180
+    },
+    "facing=south,type=top": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab_top",
+      "y": 180
+    },
+    "facing=west,type=bottom": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab",
+      "y": 270
+    },
+    "facing=west,type=double": {
+      "model": "shadowsandpetals:block/red_roof_tile",
+      "y": 270
+    },
+    "facing=west,type=top": {
+      "model": "shadowsandpetals:block/red_roof_tile_slab_top",
+      "y": 270
+    }
+  }
+}

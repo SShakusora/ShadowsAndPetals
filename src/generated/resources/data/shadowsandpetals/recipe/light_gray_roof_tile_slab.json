@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "shadowsandpetals:light_gray_roof_tile"
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "count": 6,
+    "id": "shadowsandpetals:light_gray_roof_tile_slab"
+  }
+}

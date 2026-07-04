@@ -2,6 +2,22 @@
   "values": [
     "shadowsandpetals:sakura_slab",
     "shadowsandpetals:maple_slab",
-    "shadowsandpetals:ginkgo_slab"
+    "shadowsandpetals:ginkgo_slab",
+    "shadowsandpetals:white_roof_tile_slab",
+    "shadowsandpetals:orange_roof_tile_slab",
+    "shadowsandpetals:magenta_roof_tile_slab",
+    "shadowsandpetals:light_blue_roof_tile_slab",
+    "shadowsandpetals:yellow_roof_tile_slab",
+    "shadowsandpetals:lime_roof_tile_slab",
+    "shadowsandpetals:pink_roof_tile_slab",
+    "shadowsandpetals:gray_roof_tile_slab",
+    "shadowsandpetals:light_gray_roof_tile_slab",
+    "shadowsandpetals:cyan_roof_tile_slab",
+    "shadowsandpetals:purple_roof_tile_slab",
+    "shadowsandpetals:blue_roof_tile_slab",
+    "shadowsandpetals:brown_roof_tile_slab",
+    "shadowsandpetals:green_roof_tile_slab",
+    "shadowsandpetals:red_roof_tile_slab",
+    "shadowsandpetals:black_roof_tile_slab"
   ]
 }

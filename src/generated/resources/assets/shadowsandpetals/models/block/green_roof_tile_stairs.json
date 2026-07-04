@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "shadowsandpetals:block/roof_tile/green",
+    "side": "shadowsandpetals:block/roof_tile/green",
+    "top": "shadowsandpetals:block/roof_tile/green"
+  }
+}

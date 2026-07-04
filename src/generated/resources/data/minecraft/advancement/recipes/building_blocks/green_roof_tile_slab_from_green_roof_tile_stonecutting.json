@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_green_roof_tile": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:green_roof_tile"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "minecraft:green_roof_tile_slab_from_green_roof_tile_stonecutting"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_green_roof_tile"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "minecraft:green_roof_tile_slab_from_green_roof_tile_stonecutting"
+    ]
+  }
+}

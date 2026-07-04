@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "shadowsandpetals:lime_roof_tile",
+  "result": {
+    "id": "shadowsandpetals:lime_roof_tile_stairs"
+  }
+}

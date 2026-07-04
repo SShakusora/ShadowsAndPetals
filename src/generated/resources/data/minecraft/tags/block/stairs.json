@@ -2,6 +2,22 @@
   "values": [
     "shadowsandpetals:sakura_stairs",
     "shadowsandpetals:maple_stairs",
-    "shadowsandpetals:ginkgo_stairs"
+    "shadowsandpetals:ginkgo_stairs",
+    "shadowsandpetals:white_roof_tile_stairs",
+    "shadowsandpetals:orange_roof_tile_stairs",
+    "shadowsandpetals:magenta_roof_tile_stairs",
+    "shadowsandpetals:light_blue_roof_tile_stairs",
+    "shadowsandpetals:yellow_roof_tile_stairs",
+    "shadowsandpetals:lime_roof_tile_stairs",
+    "shadowsandpetals:pink_roof_tile_stairs",
+    "shadowsandpetals:gray_roof_tile_stairs",
+    "shadowsandpetals:light_gray_roof_tile_stairs",
+    "shadowsandpetals:cyan_roof_tile_stairs",
+    "shadowsandpetals:purple_roof_tile_stairs",
+    "shadowsandpetals:blue_roof_tile_stairs",
+    "shadowsandpetals:brown_roof_tile_stairs",
+    "shadowsandpetals:green_roof_tile_stairs",
+    "shadowsandpetals:red_roof_tile_stairs",
+    "shadowsandpetals:black_roof_tile_stairs"
   ]
 }

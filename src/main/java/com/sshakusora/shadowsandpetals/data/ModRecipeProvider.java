@@ -84,6 +84,18 @@ public class ModRecipeProvider extends RecipeProvider {
         stonecutterResultFromBase(category, result, ingredient, count);
     }
 
+    public void slabFromBase(RecipeCategory category, ItemLike result, ItemLike base) {
+        slabBuilder(category, result, Ingredient.of(base))
+                .unlockedBy(getHasName(base), has(base))
+                .save(output());
+    }
+
+    public void stairsFromBase(ItemLike result, ItemLike base) {
+        stairBuilder(result, Ingredient.of(base))
+                .unlockedBy(getHasName(base), has(base))
+                .save(output());
+    }
+
     public void save(RecipeBuilder builder) {
         builder.save(output());
     }

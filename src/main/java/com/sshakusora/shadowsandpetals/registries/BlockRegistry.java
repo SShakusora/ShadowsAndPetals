@@ -483,6 +483,40 @@ public class BlockRegistry {
             .lang("zh_cn", DyedBlockList.zhName(color) + "瓦")
             .register());
 
+    public static final DyedBlockList<RoofTileSlabBlock> ROOF_TILE_SLABS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile_slab", RoofTileSlabBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_SLAB)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .loot((provider, block) -> provider.dropSlab(block.get()))
+            .recipe((provider, block) -> {
+                provider.slabFromBase(RecipeCategory.BUILDING_BLOCKS, block.get(), ROOF_TILES.get(color).get());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
+            })
+            .lang("zh_cn", DyedBlockList.zhName(color) + "瓦台阶")
+            .register());
+
+    public static final DyedBlockList<StairBlock> ROOF_TILE_STAIRS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile_stairs", properties -> new StairBlock(ROOF_TILES.get(color).get().defaultBlockState(), properties))
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_STAIRS)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> {
+                provider.stairsFromBase(block.get(), ROOF_TILES.get(color).get());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, ROOF_TILES.get(color).get());
+            })
+            .lang("zh_cn", DyedBlockList.zhName(color) + "瓦楼梯")
+            .register());
+
     public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_vanity", VanityBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
