@@ -2,8 +2,9 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.data.model.BlockModelTemplates;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
+import net.minecraft.client.data.models.model.*;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -15,6 +16,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class ModItemModelProvider implements DataProvider {
@@ -44,45 +46,57 @@ public class ModItemModelProvider implements DataProvider {
     }
 
     public void generatedItem(Item item) {
-        JsonObject json = new JsonObject();
-        json.addProperty("parent", Identifier.withDefaultNamespace("item/generated").toString());
-
-        JsonObject textures = new JsonObject();
-        textures.addProperty("layer0", modLoc("item/" + name(item)).toString());
-        json.add("textures", textures);
-
-        this.models.put(modLoc("item/" + name(item)), json);
+        Identifier modelId = modLoc("item/" + name(item));
+        ModelTemplates.FLAT_ITEM.create(
+                modelId,
+                new TextureMapping().put(TextureSlot.LAYER0, new Material(modelId)),
+                this::putGeneratedModel
+        );
     }
 
     public void generatedBlockItem(Block block, Identifier texture) {
-        JsonObject json = new JsonObject();
-        json.addProperty("parent", Identifier.withDefaultNamespace("item/generated").toString());
-
-        JsonObject textures = new JsonObject();
-        textures.addProperty("layer0", texture.toString());
-        json.add("textures", textures);
-
-        this.models.put(modLoc("item/" + name(block)), json);
+        ModelTemplates.FLAT_ITEM.create(
+                modLoc("item/" + name(block)),
+                new TextureMapping().put(TextureSlot.LAYER0, new Material(texture)),
+                this::putGeneratedModel
+        );
     }
 
     public void windChimeItemModels() {
-        this.models.put(WindChimeColors.itemBodyModelId(), BlockModelTemplates.parentModel(modLoc("item/wind_chime_body")));
+        putParentModel(WindChimeColors.itemBodyModelId(), modLoc("item/wind_chime_body"));
         for (DyeColor ribbon : DyeColor.values()) {
-            JsonObject json = BlockModelTemplates.parentModel(modLoc("item/wind_chime_ribbon"));
-            JsonObject textures = new JsonObject();
-            textures.addProperty("2", modLoc("block/wind_chime/ribbon/" + ribbon.getName()).toString());
-            textures.addProperty("particle", modLoc("block/wind_chime/ribbon/" + ribbon.getName()).toString());
-            json.add("textures", textures);
-            this.models.put(WindChimeColors.itemRibbonModelId(ribbon), json);
+            TextureSlot ribbonSlot = TextureSlot.create("2");
+            Identifier ribbonTexture = modLoc("block/wind_chime/ribbon/" + ribbon.getName());
+            new ModelTemplate(Optional.of(modLoc("item/wind_chime_ribbon")), Optional.empty(), ribbonSlot, TextureSlot.PARTICLE)
+                    .create(
+                            WindChimeColors.itemRibbonModelId(ribbon),
+                            new TextureMapping()
+                                    .put(ribbonSlot, new Material(ribbonTexture))
+                                    .put(TextureSlot.PARTICLE, new Material(ribbonTexture)),
+                            this::putGeneratedModel
+                    );
         }
         for (DyeColor vane : DyeColor.values()) {
-            JsonObject json = BlockModelTemplates.parentModel(modLoc("item/wind_chime_vane"));
-            JsonObject textures = new JsonObject();
-            textures.addProperty("particle", modLoc("block/wind_chime/vane/" + vane.getName()).toString());
-            textures.addProperty("windchime0", modLoc("block/wind_chime/vane/" + vane.getName()).toString());
-            json.add("textures", textures);
-            this.models.put(WindChimeColors.itemVaneModelId(vane), json);
+            TextureSlot vaneSlot = TextureSlot.create("windchime0");
+            Identifier vaneTexture = modLoc("block/wind_chime/vane/" + vane.getName());
+            new ModelTemplate(Optional.of(modLoc("item/wind_chime_vane")), Optional.empty(), TextureSlot.PARTICLE, vaneSlot)
+                    .create(
+                            WindChimeColors.itemVaneModelId(vane),
+                            new TextureMapping()
+                                    .put(TextureSlot.PARTICLE, new Material(vaneTexture))
+                                    .put(vaneSlot, new Material(vaneTexture)),
+                            this::putGeneratedModel
+                    );
         }
+    }
+
+    private void putParentModel(Identifier modelId, Identifier parent) {
+        new ModelTemplate(Optional.of(parent), Optional.empty())
+                .create(modelId, new TextureMapping(), this::putGeneratedModel);
+    }
+
+    private void putGeneratedModel(Identifier modelId, ModelInstance model) {
+        this.models.put(modelId, model.get().getAsJsonObject());
     }
 
     public Identifier modLoc(String path) {

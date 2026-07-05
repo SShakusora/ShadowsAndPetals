@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID)
 public final class StructureEditorLayout {
@@ -71,7 +72,7 @@ public final class StructureEditorLayout {
             return;
         }
 
-        player.teleportTo((ServerLevel)player.level(), SPAWN.getX() + 0.5, SPAWN.getY(), SPAWN.getZ() + 0.5, java.util.Set.of(), 0.0F, 0.0F, true);
+        player.teleportTo(player.level(), SPAWN.getX() + 0.5, SPAWN.getY(), SPAWN.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
     }
 
     private static boolean isStructureEditor() {

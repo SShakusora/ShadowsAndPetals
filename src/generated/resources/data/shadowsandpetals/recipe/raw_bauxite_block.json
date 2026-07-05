@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "I": "shadowsandpetals:raw_bauxite"
+    "#": "shadowsandpetals:raw_bauxite"
   },
   "pattern": [
-    "III",
-    "III",
-    "III"
+    "###",
+    "###",
+    "###"
   ],
   "result": {
     "id": "shadowsandpetals:raw_bauxite_block"

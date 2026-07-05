@@ -1,99 +1,99 @@
 {
   "variants": {
-    "north=false,east=false,south=false,west=false,waterlogged=false": {
+    "east=false,north=false,south=false,waterlogged=false,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_0"
     },
-    "north=false,east=false,south=false,west=false,waterlogged=true": {
+    "east=false,north=false,south=false,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_8"
+    },
+    "east=false,north=false,south=false,waterlogged=true,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_0"
     },
-    "north=false,east=false,south=false,west=true,waterlogged=false": {
+    "east=false,north=false,south=false,waterlogged=true,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_8"
     },
-    "north=false,east=false,south=false,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_8"
-    },
-    "north=false,east=false,south=true,west=false,waterlogged=false": {
+    "east=false,north=false,south=true,waterlogged=false,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_4"
     },
-    "north=false,east=false,south=true,west=false,waterlogged=true": {
+    "east=false,north=false,south=true,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_12"
+    },
+    "east=false,north=false,south=true,waterlogged=true,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_4"
     },
-    "north=false,east=false,south=true,west=true,waterlogged=false": {
+    "east=false,north=false,south=true,waterlogged=true,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_12"
     },
-    "north=false,east=false,south=true,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_12"
-    },
-    "north=false,east=true,south=false,west=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_2"
-    },
-    "north=false,east=true,south=false,west=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_2"
-    },
-    "north=false,east=true,south=false,west=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_10"
-    },
-    "north=false,east=true,south=false,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_10"
-    },
-    "north=false,east=true,south=true,west=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_6"
-    },
-    "north=false,east=true,south=true,west=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_6"
-    },
-    "north=false,east=true,south=true,west=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_14"
-    },
-    "north=false,east=true,south=true,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_14"
-    },
-    "north=true,east=false,south=false,west=false,waterlogged=false": {
+    "east=false,north=true,south=false,waterlogged=false,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_1"
     },
-    "north=true,east=false,south=false,west=false,waterlogged=true": {
+    "east=false,north=true,south=false,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_9"
+    },
+    "east=false,north=true,south=false,waterlogged=true,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_1"
     },
-    "north=true,east=false,south=false,west=true,waterlogged=false": {
+    "east=false,north=true,south=false,waterlogged=true,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_9"
     },
-    "north=true,east=false,south=false,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_9"
-    },
-    "north=true,east=false,south=true,west=false,waterlogged=false": {
+    "east=false,north=true,south=true,waterlogged=false,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_5"
     },
-    "north=true,east=false,south=true,west=false,waterlogged=true": {
+    "east=false,north=true,south=true,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_13"
+    },
+    "east=false,north=true,south=true,waterlogged=true,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_5"
     },
-    "north=true,east=false,south=true,west=true,waterlogged=false": {
+    "east=false,north=true,south=true,waterlogged=true,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_13"
     },
-    "north=true,east=false,south=true,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_13"
+    "east=true,north=false,south=false,waterlogged=false,west=false": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_2"
     },
-    "north=true,east=true,south=false,west=false,waterlogged=false": {
+    "east=true,north=false,south=false,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_10"
+    },
+    "east=true,north=false,south=false,waterlogged=true,west=false": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_2"
+    },
+    "east=true,north=false,south=false,waterlogged=true,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_10"
+    },
+    "east=true,north=false,south=true,waterlogged=false,west=false": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_6"
+    },
+    "east=true,north=false,south=true,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_14"
+    },
+    "east=true,north=false,south=true,waterlogged=true,west=false": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_6"
+    },
+    "east=true,north=false,south=true,waterlogged=true,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_14"
+    },
+    "east=true,north=true,south=false,waterlogged=false,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_3"
     },
-    "north=true,east=true,south=false,west=false,waterlogged=true": {
+    "east=true,north=true,south=false,waterlogged=false,west=true": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_11"
+    },
+    "east=true,north=true,south=false,waterlogged=true,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_3"
     },
-    "north=true,east=true,south=false,west=true,waterlogged=false": {
+    "east=true,north=true,south=false,waterlogged=true,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_11"
     },
-    "north=true,east=true,south=false,west=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_11"
-    },
-    "north=true,east=true,south=true,west=false,waterlogged=false": {
+    "east=true,north=true,south=true,waterlogged=false,west=false": {
       "model": "shadowsandpetals:block/ginkgo_hedge_7"
     },
-    "north=true,east=true,south=true,west=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/ginkgo_hedge_7"
-    },
-    "north=true,east=true,south=true,west=true,waterlogged=false": {
+    "east=true,north=true,south=true,waterlogged=false,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_15"
     },
-    "north=true,east=true,south=true,west=true,waterlogged=true": {
+    "east=true,north=true,south=true,waterlogged=true,west=false": {
+      "model": "shadowsandpetals:block/ginkgo_hedge_7"
+    },
+    "east=true,north=true,south=true,waterlogged=true,west=true": {
       "model": "shadowsandpetals:block/ginkgo_hedge_15"
     }
   }

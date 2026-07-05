@@ -1,32 +1,32 @@
 {
   "variants": {
-    "facing=east,corner=false": {
+    "corner=false,facing=east": {
       "model": "shadowsandpetals:block/samon/straight",
       "y": 270
     },
-    "facing=east,corner=true": {
-      "model": "shadowsandpetals:block/samon/corner",
-      "y": 270
-    },
-    "facing=north,corner=false": {
+    "corner=false,facing=north": {
       "model": "shadowsandpetals:block/samon/straight",
       "y": 180
     },
-    "facing=north,corner=true": {
-      "model": "shadowsandpetals:block/samon/corner",
-      "y": 180
-    },
-    "facing=south,corner=false": {
+    "corner=false,facing=south": {
       "model": "shadowsandpetals:block/samon/straight"
     },
-    "facing=south,corner=true": {
-      "model": "shadowsandpetals:block/samon/corner"
-    },
-    "facing=west,corner=false": {
+    "corner=false,facing=west": {
       "model": "shadowsandpetals:block/samon/straight",
       "y": 90
     },
-    "facing=west,corner=true": {
+    "corner=true,facing=east": {
+      "model": "shadowsandpetals:block/samon/corner",
+      "y": 270
+    },
+    "corner=true,facing=north": {
+      "model": "shadowsandpetals:block/samon/corner",
+      "y": 180
+    },
+    "corner=true,facing=south": {
+      "model": "shadowsandpetals:block/samon/corner"
+    },
+    "corner=true,facing=west": {
       "model": "shadowsandpetals:block/samon/corner",
       "y": 90
     }

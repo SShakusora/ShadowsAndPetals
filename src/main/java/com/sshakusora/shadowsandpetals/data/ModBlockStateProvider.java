@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.google.gson.JsonObject;
+import com.mojang.serialization.JsonOps;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
@@ -8,6 +9,14 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelTemplates;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.client.data.models.model.*;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModelDispatcher;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,13 +26,12 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
-import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class ModBlockStateProvider implements DataProvider {
@@ -78,18 +86,11 @@ public class ModBlockStateProvider implements DataProvider {
     }
 
     public void simpleBlock(Block block, ModelRef model) {
-        JsonObject variants = new JsonObject();
-        JsonObject state = new JsonObject();
-        state.addProperty("model", model.id().toString());
-        variants.add("", state);
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, BlockModelGenerators.createSimpleBlock(block, BlockModelGenerators.plainVariant(model.id())));
     }
 
     public void simpleBlockItem(Block block, ModelRef model) {
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(model.id()));
+        putParentModel(itemModelId(block), model.id());
     }
 
     public void leavesBlockWithItem(LeavesBlock block) {
@@ -106,39 +107,26 @@ public class ModBlockStateProvider implements DataProvider {
 
     public void cubeAllBlockWithItem(Block block, Identifier texture) {
         Identifier modelId = blockModelId(block);
-        this.models.put(modelId, BlockModelTemplates.cubeAllModel(texture));
+        putCubeAllModel(modelId, texture);
         simpleBlockWithItem(block, new ModelRef(modelId));
     }
 
     public void horizontalFacingCubeAllBlockWithItem(Block block, Identifier texture) {
         Identifier modelId = blockModelId(block);
-        this.models.put(modelId, BlockModelTemplates.cubeAllModel(texture));
-
-        JsonObject variants = new JsonObject();
-        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=north", modelRef(modelId));
-        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=east", rotatedModel(modelId, 0, 90));
-        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=south", rotatedModel(modelId, 0, 180));
-        variants.add(HorizontalDirectionalBlock.FACING.getName() + "=west", rotatedModel(modelId, 0, 270));
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(modelId));
+        putCubeAllModel(modelId, texture);
+        putBlockState(
+                block,
+                MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(modelId))
+                        .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+        );
+        putParentModel(itemModelId(block), modelId);
     }
 
     public void axisBlockWithItem(RotatedPillarBlock block, Identifier sideTexture, Identifier endTexture) {
         Identifier modelId = blockModelId(block);
-        this.models.put(modelId, BlockModelTemplates.cubeColumnModel(sideTexture, endTexture));
-
-        JsonObject variants = new JsonObject();
-        variants.add(RotatedPillarBlock.AXIS.getName() + "=x", rotatedModel(modelId, 90, 90));
-        variants.add(RotatedPillarBlock.AXIS.getName() + "=y", modelRef(modelId));
-        variants.add(RotatedPillarBlock.AXIS.getName() + "=z", rotatedModel(modelId, 90, 0));
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(modelId));
+        putCubeColumnModel(modelId, sideTexture, endTexture);
+        putBlockState(block, BlockModelGenerators.createAxisAlignedPillarBlock(block, BlockModelGenerators.plainVariant(modelId)));
+        putParentModel(itemModelId(block), modelId);
     }
 
     public void woodPostBlockWithItem(WoodPostBlock block, Identifier sideTexture, Identifier endTexture) {
@@ -161,15 +149,8 @@ public class ModBlockStateProvider implements DataProvider {
             this.models.put(upperChainModel, BlockModelTemplates.woodPostChainModel(true, type.texture()));
         }
 
-        JsonObject variants = new JsonObject();
-        variants.add("axis=y", rotatedModel(coreModel, 0, 0));
-        variants.add("axis=x", rotatedModel(coreModel, 90, 90));
-        variants.add("axis=z", rotatedModel(coreModel, 90, 0));
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(coreModel));
+        putBlockState(block, BlockModelGenerators.createAxisAlignedPillarBlock(block, BlockModelGenerators.plainVariant(coreModel)));
+        putParentModel(itemModelId(block), coreModel);
     }
 
     public void saplingBlock(SaplingBlock block) {
@@ -178,44 +159,23 @@ public class ModBlockStateProvider implements DataProvider {
 
     public void saplingBlock(SaplingBlock block, Identifier texture) {
         Identifier modelId = blockModelId(block);
-        this.models.put(modelId, BlockModelTemplates.crossModel(texture));
+        putCrossModel(modelId, texture);
         simpleBlock(block, new ModelRef(modelId));
     }
 
     public void orangeTreeBlock(OrangeTreeBlock block) {
-        JsonObject variants = new JsonObject();
-        for (int age : OrangeTreeBlock.AGE.getPossibleValues()) {
-            for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
-                String modelName = age < OrangeTreeBlock.DOUBLE_HEIGHT_AGE
-                        ? "tree_" + age
-                        : "tree_" + age + "_" + half.getSerializedName();
-                Identifier modelId = modLoc("block/orange/" + modelName);
-                for (Direction facing : Direction.Plane.HORIZONTAL) {
-                    int y = switch (facing) {
-                        case EAST -> 90;
-                        case SOUTH -> 180;
-                        case WEST -> 270;
-                        default -> 0;
-                    };
-                    variants.add(
-                            OrangeTreeBlock.AGE.getName() + "=" + age
-                                    + "," + OrangeTreeBlock.FACING.getName() + "=" + facing.getSerializedName()
-                                    + "," + OrangeTreeBlock.HALF.getName() + "=" + half.getSerializedName(),
-                            rotatedModel(modelId, 0, y)
-                    );
-                }
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(OrangeTreeBlock.AGE, OrangeTreeBlock.FACING, OrangeTreeBlock.HALF)
+                        .generate((age, facing, half) -> {
+                            String modelName = age < OrangeTreeBlock.DOUBLE_HEIGHT_AGE
+                                    ? "tree_" + age
+                                    : "tree_" + age + "_" + half.getSerializedName();
+                            return horizontallyRotatedVariant(modLoc("block/orange/" + modelName), facing);
+                        })));
     }
 
     public void hedgeBlockWithItem(HedgeBlock block, Identifier texture) {
         Identifier straightModel = modLoc("block/" + name(block) + "_5");
-
-        JsonObject variants = new JsonObject();
         for (int mask = 0; mask < 16; mask++) {
             boolean north = (mask & 1) != 0;
             boolean east = (mask & 1 << 1) != 0;
@@ -223,14 +183,11 @@ public class ModBlockStateProvider implements DataProvider {
             boolean west = (mask & 1 << 3) != 0;
             Identifier modelId = modLoc("block/" + name(block) + "_" + mask);
             this.models.put(modelId, BlockModelTemplates.hedgeStateModel(texture, north, east, south, west));
-            variants.add(hedgeVariantKey(north, east, south, west, false), modelRef(modelId));
-            variants.add(hedgeVariantKey(north, east, south, west, true), modelRef(modelId));
         }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(straightModel));
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(HedgeBlock.NORTH, HedgeBlock.EAST, HedgeBlock.SOUTH, HedgeBlock.WEST, HedgeBlock.WATERLOGGED)
+                        .generate((north, east, south, west, waterlogged) -> BlockModelGenerators.plainVariant(hedgeModelId(block, north, east, south, west)))));
+        putParentModel(itemModelId(block), straightModel);
     }
 
     public void ingotPileBlock(IngotPileBlock block) {
@@ -239,20 +196,17 @@ public class ModBlockStateProvider implements DataProvider {
                 ? blockName.substring(0, blockName.length() - "_ingot_pile".length())
                 : blockName;
 
-        JsonObject variants = new JsonObject();
-        for (SlabType type : SlabType.values()) {
-            boolean isDouble = type == SlabType.DOUBLE;
-            String modelPath = "block/ingot_pile/" + metalName + (isDouble ? "_double" : "_bottom");
-            Identifier modelId = modLoc(modelPath);
-
-            variants.add("axis=x,type=" + type.getSerializedName(), modelRef(modelId));
-            variants.add("axis=z,type=" + type.getSerializedName(), rotatedModel(modelId, 0, 90));
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(modLoc("block/ingot_pile/" + metalName + "_bottom")));
+        Identifier bottomModel = modLoc("block/ingot_pile/" + metalName + "_bottom");
+        Identifier doubleModel = modLoc("block/ingot_pile/" + metalName + "_double");
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(IngotPileBlock.TYPE)
+                        .select(SlabType.BOTTOM, BlockModelGenerators.plainVariant(bottomModel))
+                        .select(SlabType.TOP, BlockModelGenerators.plainVariant(bottomModel))
+                        .select(SlabType.DOUBLE, BlockModelGenerators.plainVariant(doubleModel)))
+                .with(PropertyDispatch.modify(IngotPileBlock.HORIZONTAL_AXIS)
+                        .select(Direction.Axis.X, BlockModelGenerators.NOP)
+                        .select(Direction.Axis.Z, BlockModelGenerators.Y_ROT_90)));
+        putParentModel(itemModelId(block), modLoc("block/ingot_pile/" + metalName + "_bottom"));
     }
 
     public void vanityBlock(VanityBlock block) {
@@ -264,197 +218,105 @@ public class ModBlockStateProvider implements DataProvider {
         Identifier lowerModel = modLoc("block/vanity/" + woodName + "_lower");
         Identifier upperModel = modLoc("block/vanity/" + woodName + "_upper");
 
-        JsonObject variants = new JsonObject();
-        for (DoubleBlockHalf half : DoubleBlockHalf.values()) {
-            Identifier model = half == DoubleBlockHalf.LOWER ? lowerModel : upperModel;
-            for (boolean waterlogged : new boolean[]{false, true}) {
-                int i = 0;
-                for (Direction dir : Direction.Plane.HORIZONTAL) {
-                    addVanityVariant(variants, half, waterlogged, dir, model, i * 90);
-                    i++;
-                }
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(VanityBlock.HALF)
+                        .select(DoubleBlockHalf.LOWER, BlockModelGenerators.plainVariant(lowerModel))
+                        .select(DoubleBlockHalf.UPPER, BlockModelGenerators.plainVariant(upperModel)))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+                .with(PropertyDispatch.modify(VanityBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
     }
 
     public void iroriBlock(IroriBlock block) {
         Identifier basePath = modLoc("block/irori/block");
-        JsonObject variants = new JsonObject();
-
-        for (boolean waterlogged : new boolean[]{false, true}) {
-            for (boolean north : new boolean[]{false, true}) {
-                for (boolean east : new boolean[]{false, true}) {
-                    for (boolean south : new boolean[]{false, true}) {
-                        for (boolean west : new boolean[]{false, true}) {
-                            addIroriVariant(variants, north, east, south, west, waterlogged);
-                        }
-                    }
-                }
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(basePath));
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(IroriBlock.NORTH, IroriBlock.EAST, IroriBlock.SOUTH, IroriBlock.WEST, IroriBlock.WATERLOGGED)
+                        .generate((north, east, south, west, waterlogged) -> iroriVariant(north, east, south, west))));
+        putParentModel(itemModelId(block), basePath);
     }
 
     public void copperTeapotBlock(CopperTeapotBlock block) {
         Identifier mainModel = modLoc("block/teapot/copper/main");
         Identifier onIroriModel = modLoc("block/teapot/copper/main_on_irori");
 
-        JsonObject variants = new JsonObject();
-        for (Direction dir : Direction.Plane.HORIZONTAL) {
-            int y = switch (dir) {
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
-                default -> 0;
-            };
-            for (boolean onIrori : new boolean[]{false, true}) {
-                for (boolean waterlogged : new boolean[]{false, true}) {
-                    variants.add(
-                            CopperTeapotBlock.FACING.getName() + "=" + dir.getSerializedName()
-                                    + "," + CopperTeapotBlock.ON_IRORI.getName() + "=" + onIrori
-                                    + "," + CopperTeapotBlock.WATERLOGGED.getName() + "=" + waterlogged,
-                            rotatedModel(onIrori ? onIroriModel : mainModel, 0, y)
-                    );
-                }
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(CopperTeapotBlock.ON_IRORI)
+                        .select(false, BlockModelGenerators.plainVariant(mainModel))
+                        .select(true, BlockModelGenerators.plainVariant(onIroriModel)))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+                .with(PropertyDispatch.modify(CopperTeapotBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
     }
 
     public void bedroomLampBlock(BedroomLampBlock block) {
         Identifier onModel = modLoc("block/bedroom_lamp/on");
         Identifier offModel = modLoc("block/bedroom_lamp/off");
 
-        JsonObject variants = new JsonObject();
-        variants.add(BedroomLampBlock.LIT.getName() + "=true", modelRef(onModel));
-        variants.add(BedroomLampBlock.LIT.getName() + "=false", modelRef(offModel));
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(BedroomLampBlock.LIT)
+                        .select(false, BlockModelGenerators.plainVariant(offModel))
+                        .select(true, BlockModelGenerators.plainVariant(onModel))));
     }
 
     public void wallLampBlock(WallLampBlock block) {
         Identifier onModel = modLoc("block/wall_lamp/on");
         Identifier offModel = modLoc("block/wall_lamp/off");
 
-        JsonObject variants = new JsonObject();
-        for (Direction dir : Direction.Plane.HORIZONTAL) {
-            int y = switch (dir) {
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
-                default -> 0;
-            };
-            variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, 0, y));
-            variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, 0, y));
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(WallLampBlock.LIT)
+                        .select(false, BlockModelGenerators.plainVariant(offModel))
+                        .select(true, BlockModelGenerators.plainVariant(onModel)))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
     }
 
     public void emergencyLampBlock(EmergencyLampBlock block) {
         Identifier onModel = modLoc("block/emergency_lamp/on");
         Identifier offModel = modLoc("block/emergency_lamp/off");
 
-        JsonObject variants = new JsonObject();
-        for (Direction dir : Direction.values()) {
-            int x = dir == Direction.UP ? 0 : dir == Direction.DOWN ? 180 : 90;
-            int y = switch (dir) {
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
-                default -> 0;
-            };
-            variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, x, y));
-            variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, x, y));
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(EmergencyLampBlock.LIT)
+                        .select(false, BlockModelGenerators.plainVariant(offModel))
+                        .select(true, BlockModelGenerators.plainVariant(onModel)))
+                .with(PropertyDispatch.modify(EmergencyLampBlock.FACING)
+                        .select(Direction.UP, BlockModelGenerators.NOP)
+                        .select(Direction.DOWN, BlockModelGenerators.X_ROT_180)
+                        .select(Direction.NORTH, BlockModelGenerators.X_ROT_90)
+                        .select(Direction.EAST, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_90))
+                        .select(Direction.SOUTH, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_180))
+                        .select(Direction.WEST, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_270))));
     }
 
     public void deskLampBlock(DeskLampBlock block) {
         Identifier onModel = modLoc("block/desk_lamp/on");
         Identifier offModel = modLoc("block/desk_lamp/off");
 
-        JsonObject variants = new JsonObject();
-        for (Direction dir : Direction.Plane.HORIZONTAL) {
-            int y = switch (dir) {
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
-                default -> 0;
-            };
-            variants.add("facing=" + dir.getSerializedName() + ",lit=true", rotatedModel(onModel, 0, y));
-            variants.add("facing=" + dir.getSerializedName() + ",lit=false", rotatedModel(offModel, 0, y));
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(DeskLampBlock.LIT)
+                        .select(false, BlockModelGenerators.plainVariant(offModel))
+                        .select(true, BlockModelGenerators.plainVariant(onModel)))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
     }
 
     public void samonBlock(SamonBlock block) {
         Identifier straightModel = modLoc("block/samon/straight");
         Identifier cornerModel = modLoc("block/samon/corner");
 
-        JsonObject variants = new JsonObject();
-        for (Direction facing : Direction.Plane.HORIZONTAL) {
-            int y = (int) facing.toYRot();
-            for (boolean corner : new boolean[]{false, true}) {
-                Identifier model = corner ? cornerModel : straightModel;
-                variants.add(
-                        SamonBlock.FACING.getName() + "=" + facing.getSerializedName()
-                                + "," + SamonBlock.CORNER.getName() + "=" + corner,
-                        rotatedModel(model, 0, y)
-                );
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(straightModel));
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(SamonBlock.FACING, SamonBlock.CORNER)
+                        .generate((facing, corner) -> rotatedVariant(corner ? cornerModel : straightModel, 0, (int) facing.toYRot()))));
+        putParentModel(itemModelId(block), straightModel);
     }
 
     public void shishiOdoshiBlock(ShishiOdoshiBlock block) {
         Identifier blockModel = modLoc("block/shishi_odoshi/block");
 
-        JsonObject variants = new JsonObject();
-        for (Direction facing : Direction.Plane.HORIZONTAL) {
-            int y = switch (facing) {
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
-                default -> 0;
-            };
-            for (boolean waterlogged : new boolean[]{false, true}) {
-                variants.add(
-                        ShishiOdoshiBlock.FACING.getName() + "=" + facing.getSerializedName()
-                                + "," + ShishiOdoshiBlock.WATERLOGGED.getName() + "=" + waterlogged,
-                        rotatedModel(blockModel, 0, y)
-                );
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(blockModel))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+                .with(PropertyDispatch.modify(ShishiOdoshiBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
     }
 
     public void windChimeBlock(WindChimeBlock block) {
@@ -487,55 +349,25 @@ public class ModBlockStateProvider implements DataProvider {
     }
 
     public void shishiOdoshiPipeBlock(ShishiOdoshiPipeBlock block) {
-        JsonObject variants = new JsonObject();
-        for (Direction facing : Direction.Plane.HORIZONTAL) {
-            int y = switch (facing) {
-                case EAST -> 90;
-                case SOUTH -> 180;
-                case WEST -> 270;
-                default -> 0;
-            };
-            for (ShishiOdoshiPipeBlock.PipeLength length : ShishiOdoshiPipeBlock.PipeLength.values()) {
-                Identifier modelId = modLoc("block/shishi_odoshi/pipe/" + length.getSerializedName());
-                for (boolean waterlogged : new boolean[]{false, true}) {
-                    variants.add(
-                            ShishiOdoshiPipeBlock.FACING.getName() + "=" + facing.getSerializedName()
-                                    + "," + ShishiOdoshiPipeBlock.LENGTH.getName() + "=" + length.getSerializedName()
-                                    + "," + ShishiOdoshiPipeBlock.WATERLOGGED.getName() + "=" + waterlogged,
-                            rotatedModel(modelId, 0, y)
-                    );
-                }
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
-        this.models.put(itemModelId(block), BlockModelTemplates.parentModel(modLoc("block/shishi_odoshi/pipe/long")));
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(ShishiOdoshiPipeBlock.LENGTH)
+                        .generate(length -> BlockModelGenerators.plainVariant(modLoc("block/shishi_odoshi/pipe/" + length.getSerializedName()))))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+                .with(PropertyDispatch.modify(ShishiOdoshiPipeBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
+        putParentModel(itemModelId(block), modLoc("block/shishi_odoshi/pipe/long"));
     }
 
     public void rockeryBlock(RockeryBlock block, RockeryDimensions dims) {
-        JsonObject variants = new JsonObject();
-        for (int part = 0; part <= RockeryBlock.PART.getPossibleValues().stream().mapToInt(Integer::intValue).max().orElse(0); part++) {
-            Vec3i pos = dims.localPos(part < dims.partCount() ? part : 0);
-            Identifier modelId = modLoc(dims.modelDir()
-                    + "/" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ());
-            for (Direction facing : Direction.Plane.HORIZONTAL) {
-                int yRot = (int) facing.toYRot();
-                for (boolean waterlogged : new boolean[]{false, true}) {
-                    variants.add(
-                            RockeryBlock.FACING.getName() + "=" + facing.getSerializedName()
-                                    + "," + RockeryBlock.PART.getName() + "=" + part
-                                    + "," + RockeryBlock.WATERLOGGED.getName() + "=" + waterlogged,
-                            rotatedModel(modelId, 0, yRot)
-                    );
-                }
-            }
-        }
-
-        JsonObject root = new JsonObject();
-        root.add("variants", variants);
-        this.blockStates.put(id(block), root);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(RockeryBlock.FACING, RockeryBlock.PART, RockeryBlock.WATERLOGGED)
+                        .generate((facing, part, waterlogged) -> {
+                            Vec3i pos = dims.localPos(part < dims.partCount() ? part : 0);
+                            Identifier modelId = modLoc(dims.modelDir()
+                                    + "/" + pos.getX() + "_" + pos.getY() + "_" + pos.getZ());
+                            return rotatedVariant(modelId, 0, (int) facing.toYRot());
+                        })));
     }
 
     private String name(Block block) {
@@ -554,86 +386,59 @@ public class ModBlockStateProvider implements DataProvider {
         return modLoc("item/" + name(block));
     }
 
-    private static JsonObject modelRef(Identifier modelId) {
-        JsonObject json = new JsonObject();
-        json.addProperty("model", modelId.toString());
-        return json;
+    private void putBlockState(Block block, BlockModelDefinitionGenerator generator) {
+        JsonObject json = BlockStateModelDispatcher.CODEC
+                .encodeStart(JsonOps.INSTANCE, generator.create())
+                .getOrThrow()
+                .getAsJsonObject();
+        this.blockStates.put(id(block), json);
     }
 
-    private static JsonObject rotatedModel(Identifier modelId, int x, int y) {
-        return rotatedModel(modelId, x, y, false);
+    private void putGeneratedModel(Identifier modelId, ModelInstance model) {
+        this.models.put(modelId, model.get().getAsJsonObject());
     }
 
-    private static JsonObject rotatedModel(Identifier modelId, int x, int y, boolean uvLock) {
-        JsonObject json = modelRef(modelId);
-        if (x != 0) {
-            json.addProperty("x", x);
-        }
-        if (y != 0) {
-            json.addProperty("y", y);
-        }
-        if (uvLock) {
-            json.addProperty("uvlock", true);
-        }
-        return json;
+    private void putParentModel(Identifier modelId, Identifier parent) {
+        new ModelTemplate(Optional.of(parent), Optional.empty())
+                .create(modelId, new TextureMapping(), this::putGeneratedModel);
     }
 
-    private static JsonObject multipartPart(@Nullable JsonObject when, JsonObject apply) {
-        JsonObject json = new JsonObject();
-        if (when != null) {
-            json.add("when", when);
-        }
-        json.add("apply", apply);
-        return json;
-    }
-
-    private static JsonObject parentModelWithWindChimeRibbonTexture(Identifier parent, DyeColor ribbon) {
-        JsonObject json = BlockModelTemplates.parentModel(parent);
-        JsonObject textures = new JsonObject();
-        textures.addProperty("2", ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName()).toString());
-        textures.addProperty("particle", ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName()).toString());
-        json.add("textures", textures);
-        return json;
-    }
-
-    private static JsonObject parentModelWithWindChimeBodyTexture(Identifier parent, DyeColor ribbon) {
-        JsonObject json = BlockModelTemplates.parentModel(parent);
-        JsonObject textures = new JsonObject();
-        textures.addProperty("2", ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName()).toString());
-        textures.addProperty("particle", Identifier.withDefaultNamespace("block/glass").toString());
-        json.add("textures", textures);
-        return json;
-    }
-
-    private static JsonObject parentModelWithWindChimeVaneTexture(Identifier parent, DyeColor vane) {
-        JsonObject json = BlockModelTemplates.parentModel(parent);
-        JsonObject textures = new JsonObject();
-        textures.addProperty("particle", ShadowsAndPetals.asResource("block/wind_chime/vane/" + vane.getName()).toString());
-        textures.addProperty("windchime0", ShadowsAndPetals.asResource("block/wind_chime/vane/" + vane.getName()).toString());
-        json.add("textures", textures);
-        return json;
-    }
-
-    private static JsonObject singleCondition(String key, String value) {
-        JsonObject json = new JsonObject();
-        json.addProperty(key, value);
-        return json;
-    }
-
-    private static Identifier chainModelId(WoodPostBlock.ConnectionType type, boolean upperHalf) {
-        return ShadowsAndPetals.asResource("block/wood_post_" + type.getSerializedName() + (upperHalf ? "_link_top" : "_link"));
-    }
-
-    private static void addVanityVariant(JsonObject variants, DoubleBlockHalf half, boolean waterlogged, Direction facing, Identifier modelId, int y) {
-        variants.add(
-                HorizontalDirectionalBlock.FACING.getName() + "=" + facing.getSerializedName()
-                        + "," + VanityBlock.HALF.getName() + "=" + half.getSerializedName()
-                        + "," + BlockStateProperties.WATERLOGGED.getName() + "=" + waterlogged,
-                rotatedModel(modelId, 0, y)
+    private void putCubeAllModel(Identifier modelId, Identifier texture) {
+        ModelTemplates.CUBE_ALL.create(
+                modelId,
+                new TextureMapping().put(TextureSlot.ALL, new Material(texture)),
+                this::putGeneratedModel
         );
     }
 
-    private void addIroriVariant(JsonObject variants, boolean north, boolean east, boolean south, boolean west, boolean waterlogged) {
+    private void putCubeColumnModel(Identifier modelId, Identifier sideTexture, Identifier endTexture) {
+        ModelTemplates.CUBE_COLUMN.create(
+                modelId,
+                new TextureMapping()
+                        .put(TextureSlot.SIDE, new Material(sideTexture))
+                        .put(TextureSlot.END, new Material(endTexture)),
+                this::putGeneratedModel
+        );
+    }
+
+    private void putCrossModel(Identifier modelId, Identifier texture) {
+        ModelTemplates.CROSS.create(
+                modelId,
+                new TextureMapping().put(TextureSlot.CROSS, new Material(texture)),
+                this::putGeneratedModel
+        );
+        this.models.get(modelId).addProperty("render_type", "cutout");
+    }
+
+    private Identifier hedgeModelId(HedgeBlock block, boolean north, boolean east, boolean south, boolean west) {
+        int mask = (north ? 1 : 0)
+                | (east ? 1 << 1 : 0)
+                | (south ? 1 << 2 : 0)
+                | (west ? 1 << 3 : 0);
+        return modLoc("block/" + name(block) + "_" + mask);
+    }
+
+    private MultiVariant iroriVariant(boolean north, boolean east, boolean south, boolean west) {
         boolean edgeNorth = !north;
         boolean edgeEast = !east;
         boolean edgeSouth = !south;
@@ -651,14 +456,87 @@ public class ModBlockStateProvider implements DataProvider {
             default -> throw new IllegalStateException("Unexpected edge count: " + edgeCount);
         };
 
-        variants.add(
-                IroriBlock.NORTH.getName() + "=" + north
-                        + "," + IroriBlock.EAST.getName() + "=" + east
-                        + "," + IroriBlock.SOUTH.getName() + "=" + south
-                        + "," + IroriBlock.WEST.getName() + "=" + west
-                        + "," + IroriBlock.WATERLOGGED.getName() + "=" + waterlogged,
-                rotatedModel(modelId, 0, iroriModelRotation(edgeNorth, edgeEast, edgeSouth, edgeWest, edgeCount))
+        return rotatedVariant(modelId, 0, iroriModelRotation(edgeNorth, edgeEast, edgeSouth, edgeWest, edgeCount));
+    }
+
+    private static MultiVariant horizontallyRotatedVariant(Identifier modelId, Direction facing) {
+        return rotatedVariant(modelId, 0, switch (facing) {
+            case EAST -> 90;
+            case SOUTH -> 180;
+            case WEST -> 270;
+            default -> 0;
+        });
+    }
+
+    private static MultiVariant rotatedVariant(Identifier modelId, int x, int y) {
+        MultiVariant variant = BlockModelGenerators.plainVariant(modelId);
+        variant = applyXRotation(variant, x);
+        return applyYRotation(variant, y);
+    }
+
+    private static MultiVariant applyXRotation(MultiVariant variant, int degrees) {
+        return switch (Math.floorMod(degrees, 360)) {
+            case 0 -> variant;
+            case 90 -> variant.with(BlockModelGenerators.X_ROT_90);
+            case 180 -> variant.with(BlockModelGenerators.X_ROT_180);
+            case 270 -> variant.with(BlockModelGenerators.X_ROT_270);
+            default -> throw new IllegalArgumentException("Unsupported X rotation: " + degrees);
+        };
+    }
+
+    private static MultiVariant applyYRotation(MultiVariant variant, int degrees) {
+        return switch (Math.floorMod(degrees, 360)) {
+            case 0 -> variant;
+            case 90 -> variant.with(BlockModelGenerators.Y_ROT_90);
+            case 180 -> variant.with(BlockModelGenerators.Y_ROT_180);
+            case 270 -> variant.with(BlockModelGenerators.Y_ROT_270);
+            default -> throw new IllegalArgumentException("Unsupported Y rotation: " + degrees);
+        };
+    }
+
+    private static JsonObject parentModelWithWindChimeRibbonTexture(Identifier parent, DyeColor ribbon) {
+        TextureSlot ribbonSlot = TextureSlot.create("2");
+        Identifier ribbonTexture = ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName());
+        return parentModelWithTextures(
+                parent,
+                new ModelTemplate(Optional.of(parent), Optional.empty(), ribbonSlot, TextureSlot.PARTICLE),
+                new TextureMapping()
+                        .put(ribbonSlot, new Material(ribbonTexture))
+                        .put(TextureSlot.PARTICLE, new Material(ribbonTexture))
         );
+    }
+
+    private static JsonObject parentModelWithWindChimeBodyTexture(Identifier parent, DyeColor ribbon) {
+        TextureSlot ribbonSlot = TextureSlot.create("2");
+        return parentModelWithTextures(
+                parent,
+                new ModelTemplate(Optional.of(parent), Optional.empty(), ribbonSlot, TextureSlot.PARTICLE),
+                new TextureMapping()
+                        .put(ribbonSlot, new Material(ShadowsAndPetals.asResource("block/wind_chime/ribbon/" + ribbon.getName())))
+                        .put(TextureSlot.PARTICLE, new Material(Identifier.withDefaultNamespace("block/glass")))
+        );
+    }
+
+    private static JsonObject parentModelWithWindChimeVaneTexture(Identifier parent, DyeColor vane) {
+        TextureSlot vaneSlot = TextureSlot.create("windchime0");
+        Identifier vaneTexture = ShadowsAndPetals.asResource("block/wind_chime/vane/" + vane.getName());
+        return parentModelWithTextures(
+                parent,
+                new ModelTemplate(Optional.of(parent), Optional.empty(), TextureSlot.PARTICLE, vaneSlot),
+                new TextureMapping()
+                        .put(TextureSlot.PARTICLE, new Material(vaneTexture))
+                        .put(vaneSlot, new Material(vaneTexture))
+        );
+    }
+
+    private static JsonObject parentModelWithTextures(Identifier parent, ModelTemplate template, TextureMapping mapping) {
+        JsonObject[] result = new JsonObject[1];
+        template.create(parent.withPrefix("generated/"), mapping, (ignored, model) -> result[0] = model.get().getAsJsonObject());
+        return result[0];
+    }
+
+    private static Identifier chainModelId(WoodPostBlock.ConnectionType type, boolean upperHalf) {
+        return ShadowsAndPetals.asResource("block/wood_post_" + type.getSerializedName() + (upperHalf ? "_link_top" : "_link"));
     }
 
     private static int iroriModelRotation(boolean north, boolean east, boolean south, boolean west, int edgeCount) {
@@ -686,14 +564,6 @@ public class ModBlockStateProvider implements DataProvider {
             case 3 -> !south ? 0 : !west ? 90 : !north ? 180 : 270;
             default -> throw new IllegalStateException("Unexpected edge count: " + edgeCount);
         };
-    }
-
-    private static String hedgeVariantKey(boolean north, boolean east, boolean south, boolean west, boolean waterlogged) {
-        return HedgeBlock.NORTH.getName() + "=" + north
-                + "," + HedgeBlock.EAST.getName() + "=" + east
-                + "," + HedgeBlock.SOUTH.getName() + "=" + south
-                + "," + HedgeBlock.WEST.getName() + "=" + west
-                + "," + BlockStateProperties.WATERLOGGED.getName() + "=" + waterlogged;
     }
 
     public static final class Models {

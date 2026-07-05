@@ -23,17 +23,6 @@ public final class DatagenRecipeFactory {
     }
 
     public static void storageBlock(ModRecipeProvider provider, DeferredBlock<?> block, ItemLike ingredient, String unpackedRecipeId) {
-        provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get())
-                .define('I', ingredient)
-                .pattern("III")
-                .pattern("III")
-                .pattern("III")
-                .unlockedBy(provider.hasName(ingredient), provider.hasItem(ingredient))
-                .save(provider.output());
-
-        provider.shapeless(RecipeCategory.MISC, ingredient.asItem(), 9)
-                .requires(block.get())
-                .unlockedBy(provider.hasName(block.get()), provider.hasItem(block.get()))
-                .save(provider.output(), provider.id(unpackedRecipeId).toString());
+        provider.storageBlock(RecipeCategory.MISC, ingredient, RecipeCategory.BUILDING_BLOCKS, block.get(), unpackedRecipeId);
     }
 }

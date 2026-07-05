@@ -1,7 +1,10 @@
 package com.sshakusora.shadowsandpetals.data;
 
-import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import net.minecraft.client.data.models.model.ItemModelUtils;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -20,26 +23,28 @@ public class ModClientItemProvider implements DataProvider {
 
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
-        return DataProvider.saveAll(cache, json -> json, this.pathProvider::json, buildEntries());
+        return DataProvider.saveAll(cache, ClientItem.CODEC, this.pathProvider::json, buildEntries());
     }
 
-    private Map<Identifier, JsonObject> buildEntries() {
-        Map<Identifier, JsonObject> result = new LinkedHashMap<>();
+    private Map<Identifier, ClientItem> buildEntries() {
+        Map<Identifier, ClientItem> result = new LinkedHashMap<>();
         for (var entry : DatagenClientItemRegistry.entries().entrySet()) {
-            JsonObject model = new JsonObject();
-            model.addProperty("type", entry.getValue().type().toString());
-            if (entry.getValue().modelId() != null) {
-                model.addProperty("model", entry.getValue().modelId().toString());
-            }
-            JsonObject root = new JsonObject();
-            root.add("model", model);
-
+            ClientItem clientItem = entry.getValue().modelId() != null
+                    ? new ClientItem(ItemModelUtils.plainModel(entry.getValue().modelId()), ClientItem.Properties.DEFAULT)
+                    : new ClientItem(customItemModel(entry.getValue().type()), ClientItem.Properties.DEFAULT);
             result.put(
-                ShadowsAndPetals.asResource(entry.getKey().getPath()),
-                root
+                    ShadowsAndPetals.asResource(entry.getKey().getPath()),
+                    clientItem
             );
         }
         return result;
+    }
+
+    private static ItemModel.Unbaked customItemModel(Identifier type) {
+        if (type.equals(WindChimeItemModel.TYPE)) {
+            return WindChimeItemModel.Unbaked.INSTANCE;
+        }
+        throw new IllegalArgumentException("Unsupported custom client item model type for datagen: " + type);
     }
 
     @Override

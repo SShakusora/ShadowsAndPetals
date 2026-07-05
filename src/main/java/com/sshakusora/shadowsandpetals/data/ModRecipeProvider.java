@@ -90,6 +90,19 @@ public class ModRecipeProvider extends RecipeProvider {
                 .save(output());
     }
 
+    public void storageBlock(RecipeCategory unpackedCategory, ItemLike unpacked, RecipeCategory packedCategory, ItemLike packed, String unpackedRecipeId) {
+        nineBlockStorageRecipes(
+                unpackedCategory,
+                unpacked,
+                packedCategory,
+                packed,
+                id(getSimpleRecipeName(packed)).toString(),
+                null,
+                id(unpackedRecipeId).toString(),
+                null
+        );
+    }
+
     public void stairsFromBase(ItemLike result, ItemLike base) {
         stairBuilder(result, Ingredient.of(base))
                 .unlockedBy(getHasName(base), has(base))
