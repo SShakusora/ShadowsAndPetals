@@ -20,9 +20,11 @@
 			}
 		},
 		{
+			"name": "glow",
 			"from": [6, 2, 6],
 			"to": [10, 6, 10],
 			"rotation": {"angle": 0, "axis": "y", "origin": [6, 2, 6]},
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 12, 4, 16], "texture": "#0"},
 				"east": {"uv": [0, 12, 4, 16], "texture": "#0"},

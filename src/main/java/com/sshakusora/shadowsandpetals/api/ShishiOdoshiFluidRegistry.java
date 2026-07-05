@@ -20,6 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+// TODO：熔岩炼药锅在测试服没有效果
 /** Public integration API for shishi-odoshi fluid sources and animation speeds. */
 public final class ShishiOdoshiFluidRegistry {
     private static final List<Source> SOURCES = new CopyOnWriteArrayList<>();

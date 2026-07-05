@@ -372,7 +372,7 @@ public class BlockRegistry {
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
                     .noOcclusion()
-                    .lightLevel(state -> state.getValue(BedroomLampBlock.LIT) ? 15 : 0))
+                    .lightLevel(state -> state.getValue(BedroomLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
             .withItem()
             .tooltipDescription(tooltip -> tooltip
@@ -395,7 +395,7 @@ public class BlockRegistry {
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
                     .noOcclusion()
-                    .lightLevel(state -> state.getValue(WallLampBlock.LIT) ? 15 : 0))
+                    .lightLevel(state -> state.getValue(WallLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
             .withItem()
             .tooltipDescription(tooltip -> tooltip
@@ -418,7 +418,7 @@ public class BlockRegistry {
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
                     .noOcclusion()
-                    .lightLevel(state -> state.getValue(EmergencyLampBlock.LIT) ? 15 : 0))
+                    .lightLevel(state -> state.getValue(EmergencyLampBlock.LIT) ? 10 : 0))
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
@@ -440,7 +440,7 @@ public class BlockRegistry {
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
                     .noOcclusion()
-                    .lightLevel(state -> state.getValue(DeskLampBlock.LIT) ? 15 : 0))
+                    .lightLevel(state -> state.getValue(DeskLampBlock.LIT) ? 10 : 0))
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(

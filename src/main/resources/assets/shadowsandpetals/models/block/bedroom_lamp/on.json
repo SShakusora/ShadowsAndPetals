@@ -4,7 +4,7 @@
 	"textures": {
 		"0": "shadowsandpetals:block/bedroom_lamp/main",
 		"1": "shadowsandpetals:block/bedroom_lamp/side",
-		"particle": "minecraft:block/glass"
+		"particle": "block/glass"
 	},
 	"elements": [
 		{
@@ -216,9 +216,11 @@
 			}
 		},
 		{
+			"name": "glow",
 			"from": [6.5, 7, 6.5],
 			"to": [9.5, 11, 9.5],
 			"rotation": {"angle": 0, "axis": "y", "origin": [7, 7, 7]},
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 9, 3, 13], "texture": "#0"},
 				"east": {"uv": [0, 9, 3, 13], "texture": "#0"},
