@@ -109,8 +109,9 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         state.burnTime = burnTime;
         if (burnTime > 0 && blockEntity.getLevel() != null) {
             state.burningSprite = ensureBurningSprite();
-            float smoothTime = blockEntity.getLevel().getGameTime() + partialTicks;
-            float breathPhase = (smoothTime % BREATHING_CYCLE_TICKS) / BREATHING_CYCLE_TICKS;
+            long gameTime = blockEntity.getLevel().getGameTime();
+            float breathPhase = (Math.floorMod(gameTime, (long) BREATHING_CYCLE_TICKS) + partialTicks)
+                    / BREATHING_CYCLE_TICKS;
             float breathFactor = (float) ((Math.sin(breathPhase * Math.PI * 2.0) + 1.0) / 2.0);
             state.burningBreathLight = LightCoordsUtil.pack(
                     (int) (BREATHING_LIGHT_MIN + (BREATHING_LIGHT_MAX - BREATHING_LIGHT_MIN) * breathFactor),

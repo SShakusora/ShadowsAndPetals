@@ -73,10 +73,8 @@ public class WindChimeBlockEntityRenderer implements BlockEntityRenderer<WindChi
         }
 
         long gameTime = blockEntity.getLevel().getGameTime();
-        float time = gameTime + partialTicks;
         updateMotionProfile(state, blockEntity.getBlockPos().asLong());
-        float localTime = time * state.timeScale;
-        float secondaryWave = Mth.sin(localTime * 0.031F + state.secondaryPhase);
+        float secondaryWave = sampleWave(gameTime, partialTicks, state.timeScale, 0.031F, state.secondaryPhase);
         float bodyYWander = sampleWander(
                 gameTime, partialTicks, state.profilePosition,
                 BODY_Y_WANDER_SALT, BODY_Y_WANDER_INTERVAL
@@ -91,25 +89,25 @@ public class WindChimeBlockEntityRenderer implements BlockEntityRenderer<WindChi
                 ? 90.0F
                 : 0.0F;
         state.bodySwingX = naturalMotionWeight * state.bodyAmplitude * (
-                Mth.sin(localTime * 0.075F + state.phaseX) * 2.5F
+                sampleWave(gameTime, partialTicks, state.timeScale, 0.075F, state.phaseX) * 2.5F
                         + secondaryWave * 0.8F * state.secondaryAmplitude
         )
                 + blockEntity.getBodyX(partialTicks);
         state.bodySwingY = naturalMotionWeight
-                * (Mth.sin(localTime * 0.024F + state.phaseY) * 3.0F * state.bodyAmplitude + bodyYWander)
+                * (sampleWave(gameTime, partialTicks, state.timeScale, 0.024F, state.phaseY) * 3.0F * state.bodyAmplitude + bodyYWander)
                 + blockEntity.getBodyY(partialTicks);
         state.bodySwingZ = naturalMotionWeight
-                * Mth.sin(localTime * 0.061F + state.phaseZ + 1.8F) * 2.0F * state.bodyAmplitude
+                * sampleWave(gameTime, partialTicks, state.timeScale, 0.061F, state.phaseZ + 1.8F) * 2.0F * state.bodyAmplitude
                 + blockEntity.getBodyZ(partialTicks);
         state.mainSwingX = naturalMotionWeight
-                * Mth.sin(localTime * 0.075F + state.phaseX - 0.65F) * 4.0F * state.mainAmplitude
+                * sampleWave(gameTime, partialTicks, state.timeScale, 0.075F, state.phaseX - 0.65F) * 4.0F * state.mainAmplitude
                 + blockEntity.getMainX(partialTicks);
         state.mainSwingY = naturalMotionWeight
-                * (Mth.sin(localTime * 0.029F + state.phaseY - 0.8F) * 7.0F * state.mainAmplitude
+                * (sampleWave(gameTime, partialTicks, state.timeScale, 0.029F, state.phaseY - 0.8F) * 7.0F * state.mainAmplitude
                 + mainYWander)
                 + blockEntity.getMainY(partialTicks);
         state.mainSwingZ = naturalMotionWeight
-                * Mth.sin(localTime * 0.061F + state.phaseZ + 1.15F) * 3.0F * state.mainAmplitude
+                * sampleWave(gameTime, partialTicks, state.timeScale, 0.061F, state.phaseZ + 1.15F) * 3.0F * state.mainAmplitude
                 + blockEntity.getMainZ(partialTicks);
 
         BlockStateModel bodyModel = BlockModelRegistry.getWindChimeBodyModel(state.colors.ribbon());
@@ -249,6 +247,15 @@ public class WindChimeBlockEntityRenderer implements BlockEntityRenderer<WindChi
 
     private static float sampleRange(long bits, int shift, float min, float max) {
         return min + (max - min) * sample01(bits, shift);
+    }
+
+    private static float sampleWave(
+            long gameTime, float partialTicks, float timeScale, float frequency, float phase
+    ) {
+        double angularSpeed = (double) timeScale * frequency;
+        double angle = ((double) gameTime * angularSpeed + phase) % (Math.PI * 2.0D);
+        angle += partialTicks * angularSpeed;
+        return (float) Math.sin(angle);
     }
 
     private static float sampleWander(
