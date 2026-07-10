@@ -177,8 +177,8 @@ dependencies {
     implementation "maven.modrinth:jade:26.0.10+neoforge"
 
     // Shader development runtime
-    runtimeOnly "maven.modrinth:sodium:mc26.1.1-0.8.9-neoforge"
-    runtimeOnly "maven.modrinth:iris:1.10.9+26.1-neoforge"
+    runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.9.1-neoforge"
+    runtimeOnly "maven.modrinth:iris:1.11.2+26.1-neoforge"
 
     // Shader packs for visual compatibility testing
     shaderpacks "maven.modrinth:complementary-reimagined:r5.8.1@zip"
