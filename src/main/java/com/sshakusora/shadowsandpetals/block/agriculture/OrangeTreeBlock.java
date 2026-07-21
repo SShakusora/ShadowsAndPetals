@@ -40,7 +40,7 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
     public static final int MATURE_AGE = 4;
     public static final int MAX_AGE = 7;
 
-    private static final VoxelShape[] SHAPES = {
+    private static final VoxelShape[] UPPER_SHAPES = {
             Block.column(14.0D, 0.0D, 6.0D),
             Block.column(14.0D, 0.0D, 10.0D),
             Block.column(14.0D, 0.0D, 14.0D),
@@ -49,6 +49,16 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
             Block.column(14.0D, 0.0D, 14.0D),
             Block.column(14.0D, 0.0D, 14.0D),
             Block.column(14.0D, 0.0D, 14.0D),
+    };
+    private static final VoxelShape[] LOWER_SHAPES = {
+            UPPER_SHAPES[0],
+            UPPER_SHAPES[1],
+            UPPER_SHAPES[2],
+            Block.column(14.0D, 0.0D, 16.0D),
+            Block.column(14.0D, 0.0D, 16.0D),
+            Block.column(14.0D, 0.0D, 16.0D),
+            Block.column(14.0D, 0.0D, 16.0D),
+            Block.column(14.0D, 0.0D, 16.0D),
     };
 
     public OrangeTreeBlock(BlockBehaviour.Properties properties) {
@@ -71,12 +81,17 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        // The seed starts as a single-height plant. The upper half is created at age three.
+    }
+
+    @Override
+    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return (state.getValue(HALF) != DoubleBlockHalf.LOWER || !level.getBlockState(pos.below()).is(Blocks.FARMLAND)) && super.canSurvive(state, level, pos);
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES[state.getValue(AGE)];
+        int age = state.getValue(AGE);
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? LOWER_SHAPES[age] : UPPER_SHAPES[age];
     }
 
     @Override
@@ -90,7 +105,7 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
             BlockState neighbourState,
             RandomSource random
     ) {
-        if (isDoubleHeight(state.getValue(AGE))) {
+        if (state.getValue(AGE) >= DOUBLE_HEIGHT_AGE) {
             return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);
         }
         return state.canSurvive(level, pos) ? state : Blocks.AIR.defaultBlockState();
@@ -122,7 +137,7 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
 
         BlockState newLowerState = lowerState.setValue(AGE, newAge).setValue(HALF, DoubleBlockHalf.LOWER);
         level.setBlock(lowerPos, newLowerState, Block.UPDATE_CLIENTS);
-        if (isDoubleHeight(newAge)) {
+        if (newAge >= DOUBLE_HEIGHT_AGE) {
             level.setBlock(
                     lowerPos.above(),
                     newLowerState.setValue(HALF, DoubleBlockHalf.UPPER),
@@ -137,14 +152,15 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
         }
 
         BlockPos upperPos = lowerPos.above();
-        return level.isInsideBuildHeight(upperPos)
-                && (!isDoubleHeight(newAge) || canGrowInto(level, upperPos));
-    }
+        if (!level.isInsideBuildHeight(upperPos)) {
+            return false;
+        }
+        if (newAge < DOUBLE_HEIGHT_AGE) {
+            return true;
+        }
 
-    private boolean canGrowInto(LevelReader level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        return state.isAir()
-                || state.is(this) && state.getValue(HALF) == DoubleBlockHalf.UPPER;
+        BlockState upperState = level.getBlockState(upperPos);
+        return upperState.isAir() || upperState.is(this) && upperState.getValue(HALF) == DoubleBlockHalf.UPPER;
     }
 
     @Override
@@ -155,18 +171,14 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
             Player player,
             BlockHitResult hitResult
     ) {
-        if (state.getValue(HALF) != DoubleBlockHalf.UPPER
-                || state.getValue(AGE) != MAX_AGE
-                || !player.getMainHandItem().isEmpty()) {
+        if (state.getValue(HALF) != DoubleBlockHalf.UPPER || state.getValue(AGE) != MAX_AGE || !player.getMainHandItem().isEmpty()) {
             return super.useWithoutItem(state, level, pos, player, hitResult);
         }
 
         if (level instanceof ServerLevel serverLevel) {
             BlockPos lowerPos = pos.below();
             BlockState lowerState = serverLevel.getBlockState(lowerPos);
-            if (!lowerState.is(this)
-                    || lowerState.getValue(HALF) != DoubleBlockHalf.LOWER
-                    || lowerState.getValue(AGE) != MAX_AGE) {
+            if (!lowerState.is(this) || lowerState.getValue(HALF) != DoubleBlockHalf.LOWER || lowerState.getValue(AGE) != MAX_AGE) {
                 return InteractionResult.PASS;
             }
 
@@ -192,15 +204,20 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
     }
 
     @Override
-    protected ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+    public ItemStack getCloneItemStack(
+            LevelReader level,
+            BlockPos pos,
+            BlockState state,
+            boolean includeData,
+            @Nullable Player player
+    ) {
         return new ItemStack(ItemRegistry.ORANGE_SEED.get());
     }
 
     @Override
     public boolean isValidBonemealTarget(LevelReader level, BlockPos pos, BlockState state) {
         PosAndState lowerHalf = getLowerHalf(level, pos, state);
-        return lowerHalf != null
-                && canGrow(level, lowerHalf.pos(), lowerHalf.state(), lowerHalf.state().getValue(AGE) + 1);
+        return lowerHalf != null && canGrow(level, lowerHalf.pos(), lowerHalf.state(), lowerHalf.state().getValue(AGE) + 1);
     }
 
     @Override
@@ -226,10 +243,6 @@ public class OrangeTreeBlock extends DoublePlantBlock implements BonemealableBlo
         return lowerState.is(this) && lowerState.getValue(HALF) == DoubleBlockHalf.LOWER
                 ? new PosAndState(lowerPos, lowerState)
                 : null;
-    }
-
-    private static boolean isDoubleHeight(int age) {
-        return age >= DOUBLE_HEIGHT_AGE;
     }
 
     @Override

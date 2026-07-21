@@ -28,6 +28,12 @@ public class ItemRegistry {
                     .saturationModifier(0.3F)
                     .build()))
             .model((provider, item) -> provider.generatedItem(item.get()))
+            .recipe((provider, orange) -> {
+                provider.shapeless(RecipeCategory.FOOD, ORANGE_SEED.get())
+                        .requires(orange.get())
+                        .unlockedBy(provider.hasName(orange.get()), provider.hasItem(orange.get()))
+                        .save(provider.output());
+            })
             .lang("zh_cn", "蜜柑")
             .creativeTab(CreativeTabType.AGRICULTURE)
             .register();
