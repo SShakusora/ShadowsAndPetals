@@ -465,7 +465,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.horizontalFacingCubeAllBlockWithItem(
+            .blockstate((provider, block) -> provider.horizontalFacingRoofTileBlockWithItem(
                     block.get(),
                     provider.modLoc("block/roof_tile/" + color.getName())
             ))

@@ -12,9 +12,10 @@ import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerato
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplates;
+import net.minecraft.client.data.models.model.ModelTemplate;
 import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
+import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Holder;
 import net.minecraft.data.BlockFamily;
@@ -28,9 +29,35 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ModWoodModelProvider extends ModelProvider {
+    private static final ModelTemplate ROOF_TILE_SLAB = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_slab")),
+            Optional.empty(),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_SLAB_TOP = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_slab_top")),
+            Optional.of("_top"),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_STAIRS = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_stairs")),
+            Optional.empty(),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_INNER_STAIRS = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_inner_stairs")),
+            Optional.of("_inner"),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_OUTER_STAIRS = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_outer_stairs")),
+            Optional.of("_outer"),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
     private static final Block[] WOOD_BLOCKS = BlockRegistry.WOOD_SETS.stream()
             .flatMap(ModWoodModelProvider::blocksOf)
             .toArray(Block[]::new);
@@ -113,17 +140,30 @@ public class ModWoodModelProvider extends ModelProvider {
         StairBlock stairs = BlockRegistry.ROOF_TILE_STAIRS.get(color).get();
         TextureMapping mapping = roofTileMapping(color);
 
-        Identifier slabBottom = ModelTemplates.SLAB_BOTTOM.create(slab, mapping, blockModels.modelOutput);
-        MultiVariant slabTop = BlockModelGenerators.plainVariant(ModelTemplates.SLAB_TOP.create(slab, mapping, blockModels.modelOutput));
+        Identifier slabBottom = ROOF_TILE_SLAB.create(slab, mapping, blockModels.modelOutput);
+        MultiVariant slabTop = BlockModelGenerators.plainVariant(ROOF_TILE_SLAB_TOP.create(slab, mapping, blockModels.modelOutput));
         MultiVariant slabDouble = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(baseBlock));
         blockModels.blockStateOutput.accept(createRoofTileSlab(slab, BlockModelGenerators.plainVariant(slabBottom), slabTop, slabDouble));
         blockModels.registerSimpleItemModel(slab, slabBottom);
 
-        MultiVariant inner = BlockModelGenerators.plainVariant(ModelTemplates.STAIRS_INNER.create(stairs, mapping, blockModels.modelOutput));
-        Identifier straight = ModelTemplates.STAIRS_STRAIGHT.create(stairs, mapping, blockModels.modelOutput);
-        MultiVariant outer = BlockModelGenerators.plainVariant(ModelTemplates.STAIRS_OUTER.create(stairs, mapping, blockModels.modelOutput));
-        blockModels.blockStateOutput.accept(BlockModelGenerators.createStairs(stairs, inner, BlockModelGenerators.plainVariant(straight), outer));
+        MultiVariant inner = BlockModelGenerators.plainVariant(ROOF_TILE_INNER_STAIRS.create(stairs, mapping, blockModels.modelOutput));
+        Identifier straight = ROOF_TILE_STAIRS.create(stairs, mapping, blockModels.modelOutput);
+        MultiVariant outer = BlockModelGenerators.plainVariant(ROOF_TILE_OUTER_STAIRS.create(stairs, mapping, blockModels.modelOutput));
+        blockModels.blockStateOutput.accept(createRoofTileStairs(stairs, inner, BlockModelGenerators.plainVariant(straight), outer));
         blockModels.registerSimpleItemModel(stairs, straight);
+    }
+
+    private static BlockModelDefinitionGenerator createRoofTileStairs(
+            Block block,
+            MultiVariant inner,
+            MultiVariant straight,
+            MultiVariant outer
+    ) {
+        BlockModelDefinitionGenerator generator = BlockModelGenerators.createStairs(block, inner, straight, outer);
+        if (generator instanceof MultiVariantGenerator multiVariantGenerator) {
+            return multiVariantGenerator.with(VariantMutator.UV_LOCK.withValue(false));
+        }
+        throw new IllegalStateException("Unexpected stairs generator type: " + generator.getClass().getName());
     }
 
     private static BlockModelDefinitionGenerator createRoofTileSlab(

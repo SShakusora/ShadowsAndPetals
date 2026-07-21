@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:block/outer_stairs",
+  "parent": "shadowsandpetals:block/template/roof_tile_outer_stairs",
   "textures": {
     "bottom": "shadowsandpetals:block/roof_tile/purple",
     "side": "shadowsandpetals:block/roof_tile/purple",

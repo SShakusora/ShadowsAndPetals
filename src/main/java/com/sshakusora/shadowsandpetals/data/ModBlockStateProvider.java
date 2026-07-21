@@ -38,6 +38,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class ModBlockStateProvider implements DataProvider {
+    private static final ModelTemplate ROOF_TILE_BLOCK = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_block")),
+            Optional.empty(),
+            TextureSlot.ALL
+    );
     private final PackOutput.PathProvider blockStatePathProvider;
     private final PackOutput.PathProvider modelPathProvider;
     private final Map<Identifier, JsonObject> blockStates = new LinkedHashMap<>();
@@ -117,6 +122,21 @@ public class ModBlockStateProvider implements DataProvider {
     public void horizontalFacingCubeAllBlockWithItem(Block block, Identifier texture) {
         Identifier modelId = blockModelId(block);
         putCubeAllModel(modelId, texture);
+        putBlockState(
+                block,
+                MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(modelId))
+                        .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+        );
+        putParentModel(itemModelId(block), modelId);
+    }
+
+    public void horizontalFacingRoofTileBlockWithItem(Block block, Identifier texture) {
+        Identifier modelId = blockModelId(block);
+        ROOF_TILE_BLOCK.create(
+                modelId,
+                new TextureMapping().put(TextureSlot.ALL, new Material(texture)),
+                this::putGeneratedModel
+        );
         putBlockState(
                 block,
                 MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(modelId))
