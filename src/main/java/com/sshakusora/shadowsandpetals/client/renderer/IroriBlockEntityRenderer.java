@@ -110,7 +110,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
         updateFirewoodTransform(blockEntity, state);
 
-        BlockStateModel model = BlockModelRegistry.getIroriFirewoodModel(firewoodModel);
+        BlockStateModel model = BlockModelRegistry.IRORI_FIREWOOD.get(firewoodModel);
         if (model == null) {
             clearFirewoodModel(state);
             return;
@@ -295,7 +295,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
             return;
         }
 
-        BlockStateModel model = BlockModelRegistry.getIroriGrillModel(grillInfo.model());
+        BlockStateModel model = BlockModelRegistry.IRORI_GRILL.get(grillInfo.model());
         if (model == null) {
             return;
         }

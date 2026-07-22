@@ -110,9 +110,9 @@ public class WindChimeBlockEntityRenderer implements BlockEntityRenderer<WindChi
                 * sampleWave(gameTime, partialTicks, state.timeScale, 0.061F, state.phaseZ + 1.15F) * 3.0F * state.mainAmplitude
                 + blockEntity.getMainZ(partialTicks);
 
-        BlockStateModel bodyModel = BlockModelRegistry.getWindChimeBodyModel(state.colors.ribbon());
-        BlockStateModel mainRibbonModel = BlockModelRegistry.getWindChimeMainRibbonModel(state.colors.ribbon());
-        BlockStateModel vaneModel = BlockModelRegistry.getWindChimeVaneModel(state.colors.vane());
+        BlockStateModel bodyModel = BlockModelRegistry.WIND_CHIME_BODY.get(state.colors.ribbon());
+        BlockStateModel mainRibbonModel = BlockModelRegistry.WIND_CHIME_MAIN_RIBBON.get(state.colors.ribbon());
+        BlockStateModel vaneModel = BlockModelRegistry.WIND_CHIME_VANE.get(state.colors.vane());
         if (bodyModel == null || mainRibbonModel == null || vaneModel == null) {
             state.bodyParts = List.of();
             state.hangingParts = List.of();

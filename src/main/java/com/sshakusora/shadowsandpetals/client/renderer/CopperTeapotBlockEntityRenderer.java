@@ -65,7 +65,7 @@ public class CopperTeapotBlockEntityRenderer implements
             return;
         }
 
-        BlockStateModel lidModel = BlockModelRegistry.getCopperTeapotLidModel();
+        BlockStateModel lidModel = BlockModelRegistry.COPPER_TEAPOT_LID.get();
         if (lidModel == null) {
             state.lidModelParts = List.of();
             return;

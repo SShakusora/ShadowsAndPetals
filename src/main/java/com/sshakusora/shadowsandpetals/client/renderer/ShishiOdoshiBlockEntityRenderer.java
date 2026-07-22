@@ -75,7 +75,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
             return;
         }
 
-        BlockStateModel mainModel = BlockModelRegistry.getShishiOdoshiMainModel();
+        BlockStateModel mainModel = BlockModelRegistry.SHISHI_ODOSHI_MAIN.get();
         if (mainModel == null) {
             return;
         }
