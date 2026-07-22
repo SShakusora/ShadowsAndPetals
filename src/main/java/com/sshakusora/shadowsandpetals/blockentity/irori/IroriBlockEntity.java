@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState.FirewoodModel;
 import com.sshakusora.shadowsandpetals.client.effect.IroriClientEffects;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
+import com.sshakusora.shadowsandpetals.event.IroriPhantomRepellent;
 import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
@@ -30,7 +31,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -508,6 +508,8 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             return;
         }
 
+        IroriPhantomRepellent.tick((ServerLevel) level, blockEntity);
+
         IroriCookingState.TickResult cookingTick = blockEntity.cookingState.tick();
         if (cookingTick.changed()) {
             blockEntity.setChanged();
@@ -578,32 +580,14 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     @Override
     public void handleUpdateTag(ValueInput input) {
-        boolean grillWasVisible = getGrillRenderInfo() != null;
         loadCustomOnly(input);
         syncFirewoodLightStateFromBlockEntityData();
-        refreshGrillSectionIfVisibilityChanged(grillWasVisible);
     }
 
     @Override
     public void onDataPacket(Connection net, ValueInput input) {
-        boolean grillWasVisible = getGrillRenderInfo() != null;
         loadWithComponents(input);
         syncFirewoodLightStateFromBlockEntityData();
-        refreshGrillSectionIfVisibilityChanged(grillWasVisible);
-    }
-
-    private void refreshGrillSectionIfVisibilityChanged(boolean grillWasVisible) {
-        if (level == null || !level.isClientSide()) {
-            return;
-        }
-
-        boolean grillIsVisible = getGrillRenderInfo() != null;
-        if (grillWasVisible == grillIsVisible) {
-            return;
-        }
-
-        BlockState state = getBlockState();
-        level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
     }
 
     @Override

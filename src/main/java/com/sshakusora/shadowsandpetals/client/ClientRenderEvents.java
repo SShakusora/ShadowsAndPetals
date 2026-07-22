@@ -50,11 +50,6 @@ public class ClientRenderEvents {
     }
 
     @SubscribeEvent
-    public static void addSectionGeometry(AddSectionGeometryEvent event) {
-        IroriGrillSectionRenderer.addSectionGeometry(event);
-    }
-
-    @SubscribeEvent
     public static void registerStandaloneModels(ModelEvent.RegisterStandalone event) {
         BlockModelRegistry.registerStandaloneModels(event);
     }

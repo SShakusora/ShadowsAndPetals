@@ -334,22 +334,32 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A modular _hearth_ that burns fuel and leaves useful ash.",
-                            "能够燃烧燃料并留下有用灰烬的组合式_围炉_。")
+                            "A modular _hearth_ for burning fuel, cooking food, and keeping watch.",
+                            "能够燃烧燃料、烹饪食物并守护周围的组合式_围炉_。")
                     .behaviour(
-                            "When fuel burns out:", "燃料耗尽时:",
+                            "While burning:", "燃烧时：",
+                            "Cook campfire and smoking recipes, repel nearby _Phantoms_, and suppress their spawning.",
+                            "烹饪篝火与烟熏配方，驱散附近的_幻翼_并抑制其生成。")
+                    .behaviour(
+                            "When fuel burns out:", "燃料耗尽时：",
                             "Leave behind ash that can be collected as _Bone Meal_.", "留下可收集为_骨粉_的灰烬。")
                     .action(
-                            "Drop Fuel into the Basin:", "将燃料丢入炉膛:",
+                            "Drop Fuel into the Basin:", "将燃料丢入炉膛：",
                             "_Load_ the hearth with fuel.", "为围炉_添加_燃料。")
                     .action(
-                            "Use Flint and Steel or a Fire Charge:", "使用打火石或火焰弹:",
+                            "Use Flint and Steel or a Fire Charge:", "使用打火石或火焰弹：",
                             "_Ignite_ the loaded fuel.", "_点燃_已添加的燃料。")
                     .action(
-                            "Right-click the Ash:", "右键点击灰烬:",
+                            "Right-click the Center with Cookable Food:", "手持可烹饪食物右键中心：",
+                            "Place one item on the _grill_.", "将一份食物放上_炉架_。")
+                    .action(
+                            "Empty-hand Right-click the Food:", "空手右键炉架上的食物：",
+                            "Take it from the _grill_.", "从_炉架_上取回食物。")
+                    .action(
+                            "Right-click the Ash:", "右键点击灰烬：",
                             "Collect it as _Bone Meal_.", "将其收集为_骨粉_。")
                     .action(
-                            "Shift Right-click:", "Shift+右键:",
+                            "Shift Right-click:", "Shift+右键：",
                             "Open the master hearth _menu_.", "打开主围炉_界面_。"))
             .creativeTab(CreativeTabType.MAIN)
             .blockstate((provider, irori) -> provider.iroriBlock(irori.get()))
