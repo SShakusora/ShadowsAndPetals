@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.blockentity.CopperTeapotBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
@@ -99,11 +100,17 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockPos placementPos = context.getClickedPos();
+        if (context.getLevel().getBlockEntity(placementPos.below()) instanceof IroriBlockEntity irori
+                && irori.hasCookingItem(placementPos.below())) {
+            return null;
+        }
+
         return defaultBlockState()
                 .setValue(FACING, context.getHorizontalDirection().getOpposite())
-                .setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).getType() == Fluids.WATER)
-                .setValue(ON_IRORI, context.getLevel().getBlockState(context.getClickedPos().below()).getBlock() instanceof IroriBlock);
+                .setValue(WATERLOGGED, context.getLevel().getFluidState(placementPos).getType() == Fluids.WATER)
+                .setValue(ON_IRORI, context.getLevel().getBlockState(placementPos.below()).getBlock() instanceof IroriBlock);
     }
 
     @Override

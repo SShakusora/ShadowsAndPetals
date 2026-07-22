@@ -29,11 +29,12 @@ public final class BehaviorEventBootstrap {
         event.enqueueWork(() -> {
             ModLoader.postEvent(new RegisterIroriBehaviorsEvent());
             LOGGER.debug(
-                    "Registered Irori behaviors: grill={}, fuel={}, ignition={}, ashDrops={}",
+                    "Registered Irori behaviors: grill={}, fuel={}, ignition={}, ashDrops={}, cooking={}",
                     IroriApi.registeredGrillRuleIds(),
                     IroriApi.registeredFuelRuleIds(),
                     IroriApi.registeredIgnitionBehaviorIds(),
-                    IroriApi.registeredAshDropProviderIds()
+                    IroriApi.registeredAshDropProviderIds(),
+                    IroriApi.registeredCookingProviderIds()
             );
 
             ModLoader.postEvent(new RegisterShishiOdoshiFluidsEvent());

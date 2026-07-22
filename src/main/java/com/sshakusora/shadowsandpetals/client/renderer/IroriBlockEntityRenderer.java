@@ -21,6 +21,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -30,6 +32,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -50,9 +53,14 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private static final int BREATHING_LIGHT_MAX = 13;
     private static final float BURNING_QUAD_MIN = 0;
     private static final float BURNING_QUAD_MAX = 1.0F;
+    private static final double COOKING_ITEM_Y_OFFSET = 21.2D / 16.0D;
+    private static final float COOKING_ITEM_SCALE = 0.5F;
+    private static final double COOKING_ITEM_MAX_HORIZONTAL_JITTER = 1.0D / 16.0D;
+    private static final long COOKING_ITEM_TRANSFORM_SALT = 0x49524F52494C4F4EL;
     private static final Direction[] DIRECTIONS = Direction.values();
     private final RandomSource firewoodRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
     private final RandomSource transformRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
+    private final ItemModelResolver itemModelResolver;
     private final Map<IroriFuelState.FirewoodModel, CachedFirewoodModel> firewoodModelCache =
             new EnumMap<>(IroriFuelState.FirewoodModel.class);
     private final Map<IroriBlockEntity.GrillModel, CachedGrillModel> grillModelCache =
@@ -60,6 +68,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private @Nullable TextureAtlasSprite burningSprite;
 
     public IroriBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        this.itemModelResolver = context.itemModelResolver();
     }
 
     @Override
@@ -79,6 +88,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
         resetFrameState(state);
         updateGrillRenderState(blockEntity, state);
+        updateCookingItemRenderState(blockEntity, state);
 
         if (!blockEntity.shouldRenderFirewood()) {
             clearFirewoodModel(state);
@@ -140,6 +150,29 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
                     state.grillModelParts,
                     state.grillHasTranslucency,
                     BlockModelRenderState.EMPTY_TINTS,
+                    state.lightCoords,
+                    OverlayTexture.NO_OVERLAY,
+                    0
+            );
+            poseStack.popPose();
+        }
+
+        for (CookingItemState cookingItem : state.cookingItems) {
+            if (cookingItem.itemState().isEmpty()) {
+                continue;
+            }
+            poseStack.pushPose();
+            poseStack.translate(
+                    cookingItem.offsetX() + 0.5D,
+                    COOKING_ITEM_Y_OFFSET,
+                    cookingItem.offsetZ() + 0.5D
+            );
+            poseStack.mulPose(Axis.YP.rotationDegrees(cookingItem.rotationY()));
+            poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+            poseStack.scale(COOKING_ITEM_SCALE, COOKING_ITEM_SCALE, COOKING_ITEM_SCALE);
+            cookingItem.itemState().submit(
+                    poseStack,
+                    submitNodeCollector,
                     state.lightCoords,
                     OverlayTexture.NO_OVERLAY,
                     0
@@ -223,6 +256,37 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         state.burnTime = 0;
         state.burningBreathLight = 0;
         state.burningSprite = null;
+        state.cookingItems = List.of();
+    }
+
+    private void updateCookingItemRenderState(IroriBlockEntity blockEntity, State state) {
+        if (blockEntity.getLevel() == null) {
+            return;
+        }
+
+        List<CookingItemState> cookingItems = new ArrayList<>();
+        for (IroriBlockEntity.CookingRenderItem item : blockEntity.getCookingRenderItems()) {
+            ItemStackRenderState itemState = new ItemStackRenderState();
+            int seed = (int) (item.seed() ^ item.seed() >>> 32);
+            itemModelResolver.updateForTopItem(
+                    itemState,
+                    item.stack(),
+                    ItemDisplayContext.FIXED,
+                    blockEntity.getLevel(),
+                    null,
+                    seed
+            );
+            RandomSource random = RandomSource.create(item.seed() ^ COOKING_ITEM_TRANSFORM_SALT);
+            double jitterX = random.triangle(0.0D, COOKING_ITEM_MAX_HORIZONTAL_JITTER);
+            double jitterZ = random.triangle(0.0D, COOKING_ITEM_MAX_HORIZONTAL_JITTER);
+            cookingItems.add(new CookingItemState(
+                    itemState,
+                    item.offsetX() + jitterX,
+                    item.offsetZ() + jitterZ,
+                    random.nextFloat() * 360.0F
+            ));
+        }
+        state.cookingItems = List.copyOf(cookingItems);
     }
 
     private void updateGrillRenderState(IroriBlockEntity blockEntity, State state) {
@@ -389,6 +453,15 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         public int burnTime;
         public int burningBreathLight;
         public @Nullable TextureAtlasSprite burningSprite;
+        public List<CookingItemState> cookingItems = List.of();
+    }
+
+    public record CookingItemState(
+            ItemStackRenderState itemState,
+            double offsetX,
+            double offsetZ,
+            float rotationY
+    ) {
     }
 
     private record CachedFirewoodModel(

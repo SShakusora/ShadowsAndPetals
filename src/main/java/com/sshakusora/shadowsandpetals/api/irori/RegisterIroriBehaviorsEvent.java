@@ -37,4 +37,12 @@ public final class RegisterIroriBehaviorsEvent extends Event implements IModBusE
     public void registerAshDropProvider(Identifier id, IroriAshDropProvider provider) {
         IroriApi.registerAshDropProvider(id, provider);
     }
+
+    public void registerCookingProvider(Identifier id, IroriCookingProvider provider) {
+        IroriApi.registerCookingProvider(id, provider);
+    }
+
+    public void registerCookingProvider(Identifier id, int priority, IroriCookingProvider provider) {
+        IroriApi.registerCookingProvider(id, priority, provider);
+    }
 }

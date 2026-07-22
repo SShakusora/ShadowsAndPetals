@@ -18,10 +18,12 @@ public final class IroriApi {
     private static final Map<Identifier, RegisteredFuelRule> FUEL_RULES = new LinkedHashMap<>();
     private static final Map<Identifier, RegisteredIgnitionBehavior> IGNITION_BEHAVIORS = new LinkedHashMap<>();
     private static final Map<Identifier, IroriAshDropProvider> ASH_DROP_PROVIDERS = new LinkedHashMap<>();
+    private static final Map<Identifier, RegisteredCookingProvider> COOKING_PROVIDERS = new LinkedHashMap<>();
     private static volatile List<RegisteredGrillRule> grillRuleSnapshot = List.of();
     private static volatile List<RegisteredFuelRule> fuelRuleSnapshot = List.of();
     private static volatile List<RegisteredIgnitionBehavior> ignitionBehaviorSnapshot = List.of();
     private static volatile List<RegisteredAshDropProvider> ashDropProviderSnapshot = List.of();
+    private static volatile List<RegisteredCookingProvider> cookingProviderSnapshot = List.of();
 
     private IroriApi() {
     }
@@ -100,6 +102,31 @@ public final class IroriApi {
         ASH_DROP_PROVIDERS.forEach((providerId, registeredProvider) ->
                 snapshot.add(new RegisteredAshDropProvider(providerId, registeredProvider)));
         ashDropProviderSnapshot = List.copyOf(snapshot);
+    }
+
+    public static void registerCookingProvider(Identifier id, IroriCookingProvider provider) {
+        registerCookingProvider(id, 0, provider);
+    }
+
+    /**
+     * Registers a cooking provider. Higher-priority providers are evaluated first; equal
+     * priorities preserve registration order.
+     */
+    public static synchronized void registerCookingProvider(
+            Identifier id,
+            int priority,
+            IroriCookingProvider provider
+    ) {
+        Objects.requireNonNull(id, "id");
+        Objects.requireNonNull(provider, "provider");
+        RegisteredCookingProvider registered = new RegisteredCookingProvider(id, priority, provider);
+        if (COOKING_PROVIDERS.putIfAbsent(id, registered) != null) {
+            throw new IllegalArgumentException("Duplicate Irori cooking provider id: " + id);
+        }
+
+        List<RegisteredCookingProvider> snapshot = new ArrayList<>(COOKING_PROVIDERS.values());
+        snapshot.sort(Comparator.comparingInt(RegisteredCookingProvider::priority).reversed());
+        cookingProviderSnapshot = List.copyOf(snapshot);
     }
 
     /**
@@ -184,6 +211,21 @@ public final class IroriApi {
         return List.copyOf(drops);
     }
 
+    /** Returns the process selected by the first cooking provider that handles the context. */
+    public static Optional<IroriCookingProcess> findCookingProcess(IroriCookingContext context) {
+        Objects.requireNonNull(context, "context");
+        for (RegisteredCookingProvider registered : cookingProviderSnapshot) {
+            Optional<IroriCookingProcess> process = Objects.requireNonNull(
+                    registered.provider().getProcess(context),
+                    () -> "Irori cooking provider " + registered.id() + " returned null"
+            );
+            if (process.isPresent()) {
+                return process;
+            }
+        }
+        return Optional.empty();
+    }
+
     /**
      * Returns the registered grill rule ids in evaluation order.
      */
@@ -203,6 +245,10 @@ public final class IroriApi {
         return ashDropProviderSnapshot.stream().map(RegisteredAshDropProvider::id).toList();
     }
 
+    public static List<Identifier> registeredCookingProviderIds() {
+        return cookingProviderSnapshot.stream().map(RegisteredCookingProvider::id).toList();
+    }
+
     private record RegisteredGrillRule(Identifier id, IroriGrillRule rule) {
     }
 
@@ -217,5 +263,12 @@ public final class IroriApi {
     }
 
     private record RegisteredAshDropProvider(Identifier id, IroriAshDropProvider provider) {
+    }
+
+    private record RegisteredCookingProvider(
+            Identifier id,
+            int priority,
+            IroriCookingProvider provider
+    ) {
     }
 }

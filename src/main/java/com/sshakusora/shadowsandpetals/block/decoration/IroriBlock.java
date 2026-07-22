@@ -7,9 +7,11 @@ import com.sshakusora.shadowsandpetals.api.irori.IroriIgnitionContext;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriComponentTopology;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
+import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -19,8 +21,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -237,7 +241,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return;
         }
         IroriBlockEntity master = irori.resolveMaster();
-        if (!isValidFuelAcceptor(pos, master, level)) {
+        if (!isCenterPosition(pos, master, level)) {
             return;
         }
 
@@ -263,6 +267,9 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         if (stack.isEmpty()) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
+        if (player.isSecondaryUseActive()) {
+            return openMasterMenu(level, pos, player);
+        }
         if (state.getValue(WATERLOGGED) || !isBasinHit(state, pos, hitResult)) {
             return InteractionResult.PASS;
         }
@@ -273,15 +280,12 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         IroriBlockEntity master = irori.resolveMaster();
-        boolean hasAsh = master.hasAsh();
-        IroriIgnitionBehavior ignitionBehavior = IroriApi.findIgnitionBehavior(stack).orElse(null);
-        if (!hasAsh && ignitionBehavior == null) {
-            return InteractionResult.PASS;
-        }
-        if (!isValidFuelAcceptor(pos, master, level)) {
+        if (!isCenterPosition(pos, master, level)) {
             return InteractionResult.PASS;
         }
 
+        boolean hasAsh = master.hasAsh();
+        IroriIgnitionBehavior ignitionBehavior = IroriApi.findIgnitionBehavior(stack).orElse(null);
         if (hasAsh) {
             if (!level.isClientSide()) {
                 master.clearAshAndDropResults();
@@ -289,25 +293,40 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
-        if (!master.canIgnite()) {
-            return InteractionResult.PASS;
-        }
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-        if (!master.tryIgnite(level, level.getRandom())) {
-            return InteractionResult.PASS;
+        if (ignitionBehavior != null) {
+            if (!master.canIgnite()) {
+                return InteractionResult.PASS;
+            }
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (!master.tryIgnite(level, level.getRandom())) {
+                return InteractionResult.PASS;
+            }
+
+            ignitionBehavior.onIgnited(new IroriIgnitionContext(
+                    level,
+                    pos,
+                    master.getBlockPos(),
+                    player,
+                    hand,
+                    stack
+            ));
+            return InteractionResult.SUCCESS_SERVER;
         }
 
-        ignitionBehavior.onIgnited(new IroriIgnitionContext(
-                level,
-                pos,
-                master.getBlockPos(),
-                player,
-                hand,
-                stack
-        ));
-        return InteractionResult.SUCCESS;
+        if (stack.getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock().defaultBlockState().is(BlockTagRegistry.REQUIRES_IRORI_GRILL)
+                && master.isSurfacePositionOccupied(pos)) {
+            return InteractionResult.FAIL;
+        }
+
+        boolean builtInCookingInput = level.recipeAccess().propertySet(RecipePropertySet.CAMPFIRE_INPUT).test(stack) || level.recipeAccess().propertySet(RecipePropertySet.SMOKER_INPUT).test(stack);
+        if (level instanceof ServerLevel serverLevel
+                && master.tryPlaceCookingItem(serverLevel, pos, player, stack)) {
+            return InteractionResult.SUCCESS_SERVER;
+        }
+        return builtInCookingInput ? InteractionResult.CONSUME : InteractionResult.PASS;
     }
 
     @Override
@@ -325,10 +344,18 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         IroriBlockEntity master = irori.resolveMaster();
-        if (!master.hasAsh()) {
+        if (!isCenterPosition(pos, master, level)) {
             return InteractionResult.PASS;
         }
-        if (!isValidFuelAcceptor(pos, master, level)) {
+
+        if (master.hasCookingItem(pos)) {
+            if (!level.isClientSide()) {
+                master.takeCookingItem(pos, player);
+            }
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        }
+
+        if (!master.hasAsh()) {
             return InteractionResult.PASS;
         }
 
@@ -388,7 +415,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return IroriApi.getFuelBurnTime(stack, level) > 0;
     }
 
-    private static boolean isValidFuelAcceptor(BlockPos pos, IroriBlockEntity master, Level level) {
+    private static boolean isCenterPosition(BlockPos pos, IroriBlockEntity master, Level level) {
         return IroriComponentTopology.bounds(level, master.getBlockPos()).containsCenter(pos);
     }
 

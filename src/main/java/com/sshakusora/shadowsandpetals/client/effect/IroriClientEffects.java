@@ -49,9 +49,7 @@ public final class IroriClientEffects {
     }
 
     private static void tickBurningEffects(IroriBlockEntity blockEntity, Level level, BlockState blockState) {
-        if (blockEntity.getBurnTime() <= 0
-                || blockEntity.getFirewoodModel() == null
-                || blockState.getValue(IroriBlock.WATERLOGGED)) {
+        if (blockEntity.getBurnTime() <= 0 || blockEntity.getFirewoodModel() == null || blockState.getValue(IroriBlock.WATERLOGGED)) {
             return;
         }
 

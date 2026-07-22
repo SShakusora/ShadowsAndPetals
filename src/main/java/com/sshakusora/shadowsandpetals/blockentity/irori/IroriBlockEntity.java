@@ -9,12 +9,16 @@ import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
@@ -26,17 +30,16 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class IroriBlockEntity extends BlockEntity implements Container, MenuProvider {
     private static final String MASTER_POS_KEY = "MasterPos";
@@ -45,6 +48,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     private @Nullable BlockPos masterPos;
     private final IroriFuelState fuelState = new IroriFuelState();
+    private final IroriCookingState cookingState = new IroriCookingState();
     private double cachedRenderOffsetX;
     private double cachedRenderOffsetZ;
     private int cachedComponentWidth = 1;
@@ -196,11 +200,14 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
 
         IroriBlockEntity master = resolveMaster();
-        if (master.fuelState.isFuelEmpty() && master.fuelState.getFirewoodModel() == null) {
+        if (master.fuelState.isFuelEmpty()
+                && master.fuelState.getFirewoodModel() == null
+                && master.cookingState.isEmpty()) {
             return;
         }
 
         Containers.dropContents(level, master.getBlockPos(), master);
+        master.dropCookingContents(false, master.getBlockPos());
         master.resetStoredState();
         syncFirewoodLightState(level, IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos()), master.getBlockPos(), false);
         master.setChanged();
@@ -213,11 +220,14 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
 
         IroriBlockEntity master = resolveMaster();
-        if (master.fuelState.isFuelEmpty() && master.fuelState.getFirewoodModel() == null) {
+        if (master.fuelState.isFuelEmpty()
+                && master.fuelState.getFirewoodModel() == null
+                && master.cookingState.isEmpty()) {
             return;
         }
 
         Containers.dropContents(level, dropPos, master);
+        master.dropCookingContents(true, dropPos);
         if (master.fuelState.isBurning() || master.isAshModel()) {
             master.dropAshResults(dropPos);
         }
@@ -250,6 +260,85 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     public boolean hasAsh() {
         return getMaster().isAshModel();
+    }
+
+    public boolean hasCookingItem(BlockPos cookingPos) {
+        return getMaster().cookingState.contains(cookingPos);
+    }
+
+    /** Returns whether one physical center cell already contains an item or a block element. */
+    public boolean isSurfacePositionOccupied(BlockPos cookingPos) {
+        IroriBlockEntity master = getMaster();
+        if (master.cookingState.contains(cookingPos)) {
+            return true;
+        }
+        return master.level != null && !master.level.getBlockState(cookingPos.above()).isAir();
+    }
+
+    public boolean tryPlaceCookingItem(
+            ServerLevel level,
+            BlockPos cookingPos,
+            Player player,
+            ItemStack heldStack
+    ) {
+        IroriBlockEntity master = resolveMaster();
+        if (heldStack.isEmpty()
+                || master.isSurfacePositionOccupied(cookingPos)
+                || !master.isValidCookingPosition(cookingPos)) {
+            return false;
+        }
+
+        IroriCookingContext context = new IroriCookingContext(
+                level,
+                master.getBlockPos(),
+                cookingPos,
+                heldStack
+        );
+        IroriCookingProcess process = IroriApi.findCookingProcess(context).orElse(null);
+        if (process == null) {
+            return false;
+        }
+
+        ItemStack placedStack = heldStack.copyWithCount(1);
+        if (!master.cookingState.place(cookingPos, placedStack, process)) {
+            return false;
+        }
+        heldStack.consume(1, player);
+
+        level.gameEvent(player, GameEvent.BLOCK_CHANGE, cookingPos);
+        master.onSurfaceContentsChanged();
+        return true;
+    }
+
+    public boolean takeCookingItem(BlockPos cookingPos, Player player) {
+        IroriBlockEntity master = resolveMaster();
+        ItemStack removed = master.cookingState.take(cookingPos);
+        if (removed.isEmpty()) {
+            return false;
+        }
+
+        player.getInventory().placeItemBackInInventory(removed);
+        if (master.level != null) {
+            master.level.gameEvent(player, GameEvent.BLOCK_CHANGE, cookingPos);
+        }
+        master.onSurfaceContentsChanged();
+        return true;
+    }
+
+    public List<CookingRenderItem> getCookingRenderItems() {
+        IroriBlockEntity master = getMaster();
+        if (master != this) {
+            return List.of();
+        }
+
+        return cookingState.placedItems().stream()
+                .map(item -> new CookingRenderItem(
+                        item.stack(),
+                        item.position().getX() - worldPosition.getX(),
+                        item.position().getZ() - worldPosition.getZ(),
+                        item.position().asLong()
+                ))
+                .toList();
     }
 
     public FirewoodRenderOffset getFirewoodRenderOffset() {
@@ -347,6 +436,9 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
                 }
             }
         }
+        for (IroriCookingState.PlacedItem item : cookingState.placedItems()) {
+            contents.add(new IroriContent.ItemContent(item.position().above(), item.stack()));
+        }
 
         return new IroriView(level, worldPosition, apiLayout, contents, fuelState.isBurning());
     }
@@ -363,6 +455,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
         BlockPos masterPos = IroriComponentTopology.electMaster(component);
         IroriFuelState.Snapshot carriedState = resolveComponentFuelState(level, component, masterPos);
+        IroriCookingState.Snapshot carriedCookingState = resolveComponentCookingState(level, component, masterPos);
 
         for (BlockPos pos : component) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -371,6 +464,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
                 irori.setMasterPos(pos.equals(masterPos) ? null : masterPos);
                 if (!pos.equals(masterPos)) {
                     irori.fuelState.reset();
+                    irori.cookingState.reset();
                 }
             }
         }
@@ -378,6 +472,13 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         BlockEntity blockEntity = level.getBlockEntity(masterPos);
         if (blockEntity instanceof IroriBlockEntity master) {
             master.fuelState.restore(carriedState);
+            master.cookingState.restore(carriedCookingState);
+            List<IroriCookingState.PlacedItem> removedItems = master.cookingState.removeOutside(
+                    IroriComponentTopology.centerPositions(component, masterPos)
+            );
+            if (!level.isClientSide()) {
+                dropPlacedItems(level, removedItems, false, masterPos);
+            }
             master.invalidateRenderOffsetCache();
             master.setChanged();
         }
@@ -407,6 +508,15 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             return;
         }
 
+        IroriCookingState.TickResult cookingTick = blockEntity.cookingState.tick();
+        if (cookingTick.changed()) {
+            blockEntity.setChanged();
+        }
+        if (!cookingTick.completedPositions().isEmpty()) {
+            blockEntity.finishCooking((ServerLevel) level, cookingTick.completedPositions());
+            blockEntity.syncToClient();
+        }
+
         if (!blockEntity.fuelState.tickBurnTime()) {
             return;
         }
@@ -427,6 +537,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
         if (isValidMaster()) {
             fuelState.save(output);
+            cookingState.save(output, worldPosition);
         }
     }
 
@@ -435,6 +546,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         super.loadAdditional(input);
         masterPos = input.getLong(MASTER_POS_KEY).map(BlockPos::of).orElse(null);
         fuelState.load(input);
+        cookingState.load(input, worldPosition);
         invalidateRenderOffsetCache();
     }
 
@@ -446,7 +558,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     /**
      * Marks placed surface content as changed and refreshes the whole connected Irori component.
-     * Future food and item placement mechanics should use this single update path.
+     * Surface placement mechanics should use this single update path.
      */
     public void onSurfaceContentsChanged() {
         IroriBlockEntity master = resolveMaster();
@@ -466,14 +578,32 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     @Override
     public void handleUpdateTag(ValueInput input) {
+        boolean grillWasVisible = getGrillRenderInfo() != null;
         loadCustomOnly(input);
         syncFirewoodLightStateFromBlockEntityData();
+        refreshGrillSectionIfVisibilityChanged(grillWasVisible);
     }
 
     @Override
     public void onDataPacket(Connection net, ValueInput input) {
+        boolean grillWasVisible = getGrillRenderInfo() != null;
         loadWithComponents(input);
         syncFirewoodLightStateFromBlockEntityData();
+        refreshGrillSectionIfVisibilityChanged(grillWasVisible);
+    }
+
+    private void refreshGrillSectionIfVisibilityChanged(boolean grillWasVisible) {
+        if (level == null || !level.isClientSide()) {
+            return;
+        }
+
+        boolean grillIsVisible = getGrillRenderInfo() != null;
+        if (grillWasVisible == grillIsVisible) {
+            return;
+        }
+
+        BlockState state = getBlockState();
+        level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
     }
 
     @Override
@@ -611,8 +741,60 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
     }
 
+    private boolean isValidCookingPosition(BlockPos cookingPos) {
+        if (level == null) {
+            return false;
+        }
+        Set<BlockPos> component = IroriComponentTopology.collectConnectedComponent(level, worldPosition);
+        return IroriComponentTopology.centerPositions(component, worldPosition).contains(cookingPos);
+    }
+
+    private void finishCooking(ServerLevel level, List<BlockPos> completedPositions) {
+        for (BlockPos completedPos : completedPositions) {
+            double x = completedPos.getX() + 0.5D;
+            double y = completedPos.getY() + 0.82D;
+            double z = completedPos.getZ() + 0.5D;
+            level.sendParticles(ParticleTypes.SMOKE, x, y, z, 4, 0.15D, 0.04D, 0.15D, 0.01D);
+            level.playSound(
+                    null,
+                    completedPos,
+                    SoundEvents.GENERIC_EXTINGUISH_FIRE,
+                    SoundSource.BLOCKS,
+                    0.35F,
+                    1.6F
+            );
+            level.gameEvent(GameEvent.BLOCK_CHANGE, completedPos, GameEvent.Context.of(getBlockState()));
+        }
+    }
+
+    private void dropCookingContents(boolean atFallbackPosition, BlockPos fallbackPos) {
+        if (level == null) {
+            return;
+        }
+        dropPlacedItems(level, cookingState.takeAll(), atFallbackPosition, fallbackPos);
+    }
+
+    private static void dropPlacedItems(
+            Level level,
+            List<IroriCookingState.PlacedItem> items,
+            boolean atFallbackPosition,
+            BlockPos fallbackPos
+    ) {
+        for (IroriCookingState.PlacedItem item : items) {
+            BlockPos dropPos = atFallbackPosition ? fallbackPos : item.position();
+            Containers.dropItemStack(
+                    level,
+                    dropPos.getX() + 0.5D,
+                    dropPos.getY() + 0.8D,
+                    dropPos.getZ() + 0.5D,
+                    item.stack()
+            );
+        }
+    }
+
     private void resetStoredState() {
         fuelState.reset();
+        cookingState.reset();
         invalidateRenderOffsetCache();
     }
 
@@ -671,6 +853,39 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return IroriFuelState.Snapshot.EMPTY;
     }
 
+    private static IroriCookingState.Snapshot resolveComponentCookingState(
+            Level level,
+            Set<BlockPos> component,
+            BlockPos electedMasterPos
+    ) {
+        Map<BlockPos, IroriCookingState.SlotSnapshot> merged = new LinkedHashMap<>();
+        addCookingSnapshot(level.getBlockEntity(electedMasterPos), merged);
+        for (BlockPos pos : component) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof IroriBlockEntity irori && irori.isValidMaster()) {
+                addCookingSnapshot(irori, merged);
+            }
+        }
+        for (BlockPos pos : component) {
+            addCookingSnapshot(level.getBlockEntity(pos), merged);
+        }
+        return merged.isEmpty()
+                ? IroriCookingState.Snapshot.EMPTY
+                : new IroriCookingState.Snapshot(List.copyOf(merged.values()));
+    }
+
+    private static void addCookingSnapshot(
+            @Nullable BlockEntity blockEntity,
+            Map<BlockPos, IroriCookingState.SlotSnapshot> merged
+    ) {
+        if (!(blockEntity instanceof IroriBlockEntity irori)) {
+            return;
+        }
+        for (IroriCookingState.SlotSnapshot slot : irori.cookingState.snapshot().slots()) {
+            merged.putIfAbsent(slot.position(), slot);
+        }
+    }
+
     private static void syncComponentToClient(Level level, Set<BlockPos> component) {
         if (level.isClientSide()) {
             return;
@@ -724,6 +939,17 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             int centerWidth,
             int centerDepth
     ) {
+    }
+
+    public record CookingRenderItem(ItemStack stack, double offsetX, double offsetZ, long seed) {
+        public CookingRenderItem {
+            stack = stack.copy();
+        }
+
+        @Override
+        public ItemStack stack() {
+            return stack.copy();
+        }
     }
 
     public enum GrillModel {

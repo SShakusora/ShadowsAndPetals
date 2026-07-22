@@ -9,16 +9,22 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /** Registers the built-in behavior rules exposed through the public Irori API. */
 public final class IroriBehaviorRegistry {
     private static final int MIN_ASH_BONE_MEAL_DROPS = 1;
     private static final int MAX_ASH_BONE_MEAL_DROPS = 3;
+    private static final int CAMPFIRE_COOKING_PRIORITY = 100;
+    private static final int SMOKING_PRIORITY = 0;
 
     private IroriBehaviorRegistry() {
     }
@@ -28,6 +34,12 @@ public final class IroriBehaviorRegistry {
                 ShadowsAndPetals.asResource("block_tag_requires_grill"),
                 (irori, content) -> content instanceof IroriContent.BlockContent blockContent
                         && blockContent.state().is(BlockTagRegistry.REQUIRES_IRORI_GRILL)
+                        ? GrillRequirement.REQUIRE
+                        : GrillRequirement.PASS
+        );
+        event.registerGrillRule(
+                ShadowsAndPetals.asResource("placed_item_requires_grill"),
+                (irori, content) -> content instanceof IroriContent.ItemContent
                         ? GrillRequirement.REQUIRE
                         : GrillRequirement.PASS
         );
@@ -56,6 +68,33 @@ public final class IroriBehaviorRegistry {
                     return List.of(new ItemStack(Items.BONE_MEAL, count));
                 }
         );
+        event.registerCookingProvider(
+                ShadowsAndPetals.asResource("campfire_cooking"),
+                CAMPFIRE_COOKING_PRIORITY,
+                context -> getRecipeProcess(context, RecipeType.CAMPFIRE_COOKING)
+        );
+        event.registerCookingProvider(
+                ShadowsAndPetals.asResource("smoking"),
+                SMOKING_PRIORITY,
+                context -> getRecipeProcess(context, RecipeType.SMOKING)
+        );
+    }
+
+    private static <T extends AbstractCookingRecipe> Optional<IroriCookingProcess> getRecipeProcess(
+            IroriCookingContext context,
+            RecipeType<T> recipeType
+    ) {
+        SingleRecipeInput input = new SingleRecipeInput(context.input());
+        return context.level().recipeAccess()
+                .getRecipeFor(recipeType, input, context.level())
+                .map(RecipeHolder::value)
+                .flatMap(recipe -> {
+                    ItemStack result = recipe.assemble(input);
+                    if (result.isEmpty() || !result.isItemEnabled(context.level().enabledFeatures())) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(new IroriCookingProcess(result, recipe.cookingTime()));
+                });
     }
 
     private static IroriIgnitionBehavior itemIgnitionBehavior(

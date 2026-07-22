@@ -9,9 +9,8 @@ import java.util.Objects;
 /**
  * Read-only description of content placed on an Irori surface.
  *
- * <p>The built-in implementation currently exposes blocks above the center of the Irori. Item
- * content is part of the API contract so future placed-food and placed-item mechanics can use the
- * same rules without changing the grill API.
+ * <p>The built-in implementation exposes blocks above the center of the Irori and items placed on
+ * its cooking surface, allowing both kinds of content to participate in the same grill rules.
  */
 public interface IroriContent {
     BlockPos position();
