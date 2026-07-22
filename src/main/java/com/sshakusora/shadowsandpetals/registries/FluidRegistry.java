@@ -19,7 +19,7 @@ public final class FluidRegistry {
             .clientModel(
                     Identifier.withDefaultNamespace("block/water_still"),
                     Identifier.withDefaultNamespace("block/water_flow"),
-                    0xFFC16D3D
+                    0xFFCCC957
             )
             .lang("Tea")
             .lang("zh_cn", "茶")

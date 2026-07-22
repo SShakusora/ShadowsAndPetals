@@ -34,7 +34,9 @@ public class ModDataGenerator {
         generator.addProvider(true, new LootTableProvider(output, Set.of(), List.of(
                 new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK)
         ), lookupProvider));
-        generator.addProvider(true, new ModBlockTagProvider(output, lookupProvider));
+        ModBlockTagProvider blockTags = new ModBlockTagProvider(output, lookupProvider);
+        generator.addProvider(true, blockTags);
+        generator.addProvider(true, new ModItemTagProvider(output, lookupProvider, blockTags.contentsGetter()));
         generator.addProvider(true, new ModDataMapProvider(output, lookupProvider));
         generator.addProvider(true, new ModSoundDefinitionsProvider(output));
         generator.addProvider(true, new WorldGenProvider(output, lookupProvider));

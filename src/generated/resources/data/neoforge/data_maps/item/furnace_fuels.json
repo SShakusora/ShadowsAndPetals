@@ -1,0 +1,40 @@
+{
+  "values": {
+    "shadowsandpetals:ginkgo_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:ginkgo_wood_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:maple_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:maple_wood_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:sakura_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:sakura_wood_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:stripped_ginkgo_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:stripped_ginkgo_wood_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:stripped_maple_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:stripped_maple_wood_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:stripped_sakura_post": {
+      "burn_time": 100
+    },
+    "shadowsandpetals:stripped_sakura_wood_post": {
+      "burn_time": 100
+    }
+  }
+}
