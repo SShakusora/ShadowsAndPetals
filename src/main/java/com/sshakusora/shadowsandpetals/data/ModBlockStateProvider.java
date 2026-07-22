@@ -25,10 +25,7 @@ import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.RotatedPillarBlock;
-import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
@@ -99,6 +96,17 @@ public class ModBlockStateProvider implements DataProvider {
 
     public void simpleBlockItem(Block block, ModelRef model) {
         putParentModel(itemModelId(block), model.id());
+    }
+
+    public void fluidBlock(LiquidBlock block, Identifier particleTexture) {
+        Identifier modelId = blockModelId(block);
+        new ModelTemplate(Optional.empty(), Optional.empty(), TextureSlot.PARTICLE)
+                .create(
+                        modelId,
+                        new TextureMapping().put(TextureSlot.PARTICLE, new Material(particleTexture)),
+                        this::putGeneratedModel
+                );
+        simpleBlock(block, new ModelRef(modelId));
     }
 
     public void leavesBlockWithItem(LeavesBlock block) {

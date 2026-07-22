@@ -1,0 +1,13 @@
+{
+  "type": "shadowsandpetals:teapot_brewing",
+  "fluid": {
+    "amount": 1000,
+    "ingredient": "minecraft:water"
+  },
+  "ingredient": "#minecraft:leaves",
+  "processing_time": 200,
+  "result": {
+    "amount": 1000,
+    "id": "shadowsandpetals:tea"
+  }
+}

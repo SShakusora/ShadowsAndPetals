@@ -1,4 +1,4 @@
-// 26.1.2	2026-07-04T22:00:33.5274511	ShadowsAndPetals Client Items
+// 26.1.2	2026-07-22T23:04:48.7222727	ShadowsAndPetals Client Items
 bc6db7941b67378c651d38d1f0515d00dfa2eac7 assets/shadowsandpetals/items/acacia_vanity.json
 910bb05eedb1766753a871c9802d055e21118b3b assets/shadowsandpetals/items/aluminum_block.json
 109d601484b114df7f7bab4dc1cbbda77b858a38 assets/shadowsandpetals/items/aluminum_ingot.json
@@ -156,6 +156,7 @@ b2e7cb2aa68b518c4529438f3d854a6c935ef5f6 assets/shadowsandpetals/items/stripped_
 5090e1728fd4bc94e8ec5efbd9cfdede469eb83f assets/shadowsandpetals/items/stripped_sakura_post.json
 5f94048df76d9ee62e157ed37ee77f06a7dce2e2 assets/shadowsandpetals/items/stripped_sakura_wood.json
 6a90d9534b094c75e4bc0a15e1db102b3f0b50d0 assets/shadowsandpetals/items/stripped_sakura_wood_post.json
+178780a86d2a6aa9d92dd83ce8fe395f800f90e7 assets/shadowsandpetals/items/tea_bucket.json
 babf96e8e7bda206987fa4586de7e4c09e79c14c assets/shadowsandpetals/items/wall_lamp.json
 fe7ae68fe0da368602f59bd340ca2ad80882f960 assets/shadowsandpetals/items/warped_vanity.json
 b6a2de54e2363d47918f274ff7d2aeefc88d22d1 assets/shadowsandpetals/items/white_cafe_chair.json

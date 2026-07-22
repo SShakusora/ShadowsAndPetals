@@ -16,6 +16,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
@@ -159,7 +160,7 @@ public class RegBlockBuilder<B extends Block> {
      * when Shift is held, and controls when Ctrl is held.
      * <p>
      * The actual tooltip text must be registered separately via
-     * {@link com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder}
+     * {@link TooltipLangBuilder}
      * during data generation.
      */
     public RegBlockBuilder<B> tooltipDescription() {
@@ -352,7 +353,7 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     /**
-     * Adds a block tag for datagen (e.g. {@link net.minecraft.tags.BlockTags#MINEABLE_WITH_PICKAXE}).
+     * Adds a block tag for datagen (e.g. {@link BlockTags#MINEABLE_WITH_PICKAXE}).
      */
     public RegBlockBuilder<B> tag(TagKey<Block> tag) {
         this.blockTags.add(tag);

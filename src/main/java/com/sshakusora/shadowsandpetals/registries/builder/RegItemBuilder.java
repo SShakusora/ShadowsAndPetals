@@ -39,6 +39,7 @@ public class RegItemBuilder<I extends Item> {
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
     private BiConsumer<ModItemModelProvider, DeferredItem<I>> itemModelGenerator;
     private Function<DeferredItem<I>, Identifier> clientItemModelFactory;
+    private Function<DeferredItem<I>, Identifier> customClientItemTypeFactory;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
     private final List<Identifier> aliases = new ArrayList<>();
     private boolean hasTooltipDescription;
@@ -100,7 +101,7 @@ public class RegItemBuilder<I extends Item> {
      * when Shift is held, and controls when Ctrl is held.
      * <p>
      * The actual tooltip text must be registered separately via
-     * {@link com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder}
+     * {@link TooltipLangBuilder}
      * during data generation.
      */
     public RegItemBuilder<I> tooltipDescription() {
@@ -176,6 +177,21 @@ public class RegItemBuilder<I extends Item> {
      */
     public RegItemBuilder<I> clientItem(Identifier modelId) {
         return clientItem(item -> modelId);
+    }
+
+    /**
+     * Attaches a custom client item-model type used by {@link ModClientItemProvider}.
+     */
+    public RegItemBuilder<I> customClientItem(Function<DeferredItem<I>, Identifier> modelTypeFactory) {
+        this.customClientItemTypeFactory = modelTypeFactory;
+        return this;
+    }
+
+    /**
+     * Attaches a fixed custom client item-model type used by {@link ModClientItemProvider}.
+     */
+    public RegItemBuilder<I> customClientItem(Identifier modelType) {
+        return customClientItem(item -> modelType);
     }
 
     /**
@@ -281,6 +297,11 @@ public class RegItemBuilder<I extends Item> {
     }
 
     private void applyClientItem(DeferredItem<I> deferredItem) {
+        if (customClientItemTypeFactory != null) {
+            DatagenClientItemRegistry.addCustomModel(
+                    deferredItem.getId(), customClientItemTypeFactory.apply(deferredItem));
+            return;
+        }
         Identifier modelId = clientItemModelFactory != null
                 ? clientItemModelFactory.apply(deferredItem)
                 : ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath());
@@ -288,7 +309,7 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
-     * Fluent builder for registering a {@link net.minecraft.world.item.BlockItem} separately from the block.
+     * Fluent builder for registering a {@link BlockItem} separately from the block.
      */
     public static class BlockItemBuilder {
         private final DeferredRegister.Items registry;

@@ -1,11 +1,13 @@
 package com.sshakusora.shadowsandpetals.registries;
 
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.item.HarrowItem;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CookingBookCategory;
@@ -13,6 +15,16 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 public class ItemRegistry {
+    public static final DeferredItem<BucketItem> TEA_BUCKET = SAPRegistries.item(
+                    "tea_bucket",
+                    properties -> new BucketItem(FluidRegistry.TEA.get(), properties)
+            )
+            .properties(properties -> properties.craftRemainder(Items.BUCKET).stacksTo(1))
+            .customClientItem(ShadowsAndPetals.asResource("tea_bucket"))
+            .lang("zh_cn", "茶桶")
+            .creativeTab(CreativeTabType.MAIN)
+            .register();
+
     public static final DeferredItem<BlockItem> ORANGE_SEED = SAPRegistries.item(
                     "orange_seed",
                     properties -> new BlockItem(BlockRegistry.ORANGE_TREE.get(), properties)

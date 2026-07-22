@@ -15,6 +15,7 @@ public class ShadowsAndPetals {
         SAPRegistries.register(modEventBus);
         BehaviorEventBootstrap.register(modEventBus);
 
+        FluidRegistry.init();
         ItemRegistry.init();
         BlockRegistry.init();
         BlockEntityRegistry.init();

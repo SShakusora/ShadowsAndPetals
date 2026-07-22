@@ -1,6 +1,8 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.ModBlockTagProvider;
+import com.sshakusora.shadowsandpetals.registries.builder.RegBlockBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -10,9 +12,9 @@ import net.neoforged.neoforge.registries.DeferredBlock;
 import java.util.*;
 
 /**
- * Global registry that collects block → tag mappings declared via {@link com.sshakusora.shadowsandpetals.registries.builder.RegBlockBuilder}
+ * Global registry that collects block → tag mappings declared via {@link RegBlockBuilder}
  * during block registration. These mappings are later consumed by
- * {@link com.sshakusora.shadowsandpetals.data.ModBlockTagProvider} for automatic datagen.
+ * {@link ModBlockTagProvider} for automatic datagen.
  */
 public final class BlockTagRegistry {
     public static final TagKey<Block> REQUIRES_IRORI_GRILL = create("requires_irori_grill");

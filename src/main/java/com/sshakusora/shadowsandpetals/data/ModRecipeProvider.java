@@ -4,21 +4,27 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.fluids.FluidStackTemplate;
+import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends RecipeProvider {
+    private final HolderLookup.Provider registries;
     private RecipeOutput recipeOutput;
 
     public ModRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
         super(registries, output);
+        this.registries = registries;
     }
 
     @Override
@@ -50,6 +56,18 @@ public class ModRecipeProvider extends RecipeProvider {
 
     public Ingredient ingredient(TagKey<Item> tag) {
         return Ingredient.of(items.getOrThrow(tag));
+    }
+
+    public SizedFluidIngredient fluidIngredient(Identifier id, int amount) {
+        var holder = registries.lookupOrThrow(Registries.FLUID)
+                .getOrThrow(ResourceKey.create(Registries.FLUID, id));
+        return SizedFluidIngredient.of(holder.value(), amount);
+    }
+
+    public FluidStackTemplate fluidResult(Identifier id, int amount) {
+        var holder = registries.lookupOrThrow(Registries.FLUID)
+                .getOrThrow(ResourceKey.create(Registries.FLUID, id));
+        return new FluidStackTemplate(holder, amount);
     }
 
     public String hasName(ItemLike item) {

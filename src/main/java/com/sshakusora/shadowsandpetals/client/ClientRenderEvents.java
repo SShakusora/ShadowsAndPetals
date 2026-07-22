@@ -8,6 +8,7 @@ import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
 import com.sshakusora.shadowsandpetals.client.renderer.*;
 import com.sshakusora.shadowsandpetals.client.screen.IroriScreen;
+import com.sshakusora.shadowsandpetals.client.screen.TeapotScreen;
 import com.sshakusora.shadowsandpetals.client.tooltip.ClientRockeryTooltip;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewRenderer;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
@@ -16,12 +17,16 @@ import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegist
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerClientExtensions;
 import com.sshakusora.shadowsandpetals.registries.*;
+import com.sshakusora.shadowsandpetals.registries.builder.RegFluidBuilder;
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
@@ -36,6 +41,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerMenuScreens(RegisterMenuScreensEvent event) {
         event.register(MenuRegistry.IRORI.get(), IroriScreen::new);
+        event.register(MenuRegistry.TEAPOT.get(), TeapotScreen::new);
     }
 
     @SubscribeEvent
@@ -57,6 +63,22 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerItemModels(RegisterItemModelsEvent event) {
         WindChimeItemModel.register(event);
+    }
+
+    @SubscribeEvent
+    public static void registerFluidModels(RegisterFluidModelsEvent event) {
+        for (var definition : RegFluidBuilder.clientModels()) {
+            event.register(
+                    new FluidModel.Unbaked(
+                            new Material(definition.stillTexture()),
+                            new Material(definition.flowingTexture()),
+                            definition.overlayTexture().map(Material::new).orElse(null),
+                            FluidTintSources.constant(definition.tintColor())
+                    ),
+                    definition.source(),
+                    definition.flowing()
+            );
+        }
     }
 
     @SubscribeEvent

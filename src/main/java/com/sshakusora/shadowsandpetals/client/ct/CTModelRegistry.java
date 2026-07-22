@@ -1,13 +1,14 @@
 package com.sshakusora.shadowsandpetals.client.ct;
 
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry.CTEntry;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.client.event.ModelEvent;
 
 /**
  * Hooks into {@link ModelEvent.ModifyBakingResult} to replace the standard
- * {@link net.minecraft.client.renderer.block.dispatch.BlockStateModel} of
+ * {@link BlockStateModel} of
  * connected-texture blocks with {@link CTBlockStateModel}.
  * <p>
  * Call {@link #wrapModels(ModelEvent.ModifyBakingResult)} from the client

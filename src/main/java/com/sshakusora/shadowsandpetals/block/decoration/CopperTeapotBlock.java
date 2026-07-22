@@ -118,7 +118,7 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
             BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof CopperTeapotBlockEntity teapot) {
-            player.openMenu(teapot);
+            player.openMenu(teapot, pos);
             player.awardStat(Stats.OPEN_BARREL);
         }
         return InteractionResult.SUCCESS;
