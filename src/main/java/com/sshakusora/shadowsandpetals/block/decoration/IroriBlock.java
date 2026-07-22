@@ -1,7 +1,8 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriComponentTopology;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
@@ -47,7 +48,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<IroriBlock> CODEC = simpleCodec(IroriBlock::new);
@@ -57,8 +59,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    private static final int MAX_CONNECTED_SIZE = 4;
-    private static final int MAX_CONNECTED_BLOCKS = MAX_CONNECTED_SIZE * MAX_CONNECTED_SIZE;
     private static final double STANDALONE_BASIN_MIN = 3.0D / 16.0D;
     private static final double STANDALONE_BASIN_MAX = 13.0D / 16.0D;
     private static final double CONNECTED_BASIN_INSET = 4.0D / 16.0D;
@@ -395,15 +395,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     private static boolean isValidFuelAcceptor(BlockPos pos, IroriBlockEntity master, Level level) {
-        IroriBlockEntity.RectangularComponent component = IroriBlockEntity.computeComponentBounds(level, master.getBlockPos());
-        int centerMinX = component.minX() + (component.width() - 1) / 2;
-        int centerMaxX = component.minX() + component.width() / 2;
-        int centerMinZ = component.minZ() + (component.depth() - 1) / 2;
-        int centerMaxZ = component.minZ() + component.depth() / 2;
-        return pos.getX() >= centerMinX
-                && pos.getX() <= centerMaxX
-                && pos.getZ() >= centerMinZ
-                && pos.getZ() <= centerMaxZ;
+        return IroriComponentTopology.bounds(level, master.getBlockPos()).containsCenter(pos);
     }
 
     private static boolean isBasinHit(BlockState state, BlockPos pos, BlockHitResult hitResult) {
@@ -447,121 +439,18 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     private BlockState updateConnections(BlockState state, BlockGetter level, BlockPos pos) {
-        int candidateMask = 0;
-        for (Direction direction : Direction.Plane.HORIZONTAL) {
-            if (isConnectableIrori(level.getBlockState(pos.relative(direction)))) {
-                candidateMask |= directionMask(direction);
-            }
-        }
-
-        int bestMask = 0;
-        int bestSize = 1;
-        int bestConnectionCount = 0;
-        ComponentTraversal bestTraversal = new ComponentTraversal(Set.of(pos.immutable()), true);
-
-        for (int connectionMask = candidateMask; connectionMask >= 0; connectionMask = (connectionMask - 1) & candidateMask) {
-            ComponentTraversal traversal = traverseConnectedComponent(level, pos, state, connectionMask);
-            int connectionCount = Integer.bitCount(connectionMask);
-            int componentSize = traversal.positions().size();
-            if (traversal.valid()
-                    && (componentSize > bestSize || componentSize == bestSize && connectionCount > bestConnectionCount)) {
-                bestMask = connectionMask;
-                bestSize = componentSize;
-                bestConnectionCount = connectionCount;
-                bestTraversal = traversal;
-            }
-            if (connectionMask == 0) {
-                break;
-            }
-        }
-
-        BlockState newState = applyConnectionMask(state, bestMask);
+        IroriComponentTopology.ConnectionSelection selection =
+                IroriComponentTopology.selectConnections(level, pos, state);
+        BlockState newState = selection.applyTo(state);
         if (level instanceof Level blockLevel && newState != state) {
             BlockEntity blockEntity = blockLevel.getBlockEntity(pos);
             if (blockEntity instanceof IroriBlockEntity irori) {
                 irori.dropContentsAndReset();
             }
-            IroriBlockEntity.reelectMaster(blockLevel, bestTraversal.positions());
+            IroriBlockEntity.reelectMaster(blockLevel, selection.positions());
         }
 
         return newState;
-    }
-
-    private ComponentTraversal traverseConnectedComponent(
-            BlockGetter level,
-            BlockPos origin,
-            BlockState originState,
-            int originConnectionMask
-    ) {
-        Set<BlockPos> visited = new HashSet<>();
-        ArrayDeque<BlockPos> queue = new ArrayDeque<>();
-        BlockPos originImmutable = origin.immutable();
-        queue.add(originImmutable);
-        visited.add(originImmutable);
-        ComponentBounds bounds = new ComponentBounds(originImmutable);
-
-        while (!queue.isEmpty()) {
-            BlockPos currentPos = queue.removeFirst();
-            BlockState currentState = stateAt(level, origin, originState, currentPos);
-
-            for (Direction direction : Direction.Plane.HORIZONTAL) {
-                BlockPos nextPos = currentPos.relative(direction).immutable();
-                if (visited.contains(nextPos) || !isConnectableIrori(stateAt(level, origin, originState, nextPos))) {
-                    continue;
-                }
-                if (hasConnection(origin, currentPos, currentState, direction, originConnectionMask)) {
-                    visited.add(nextPos);
-                    if (visited.size() > MAX_CONNECTED_BLOCKS || !bounds.include(nextPos)) {
-                        return new ComponentTraversal(visited, false);
-                    }
-                    queue.add(nextPos);
-                }
-            }
-        }
-
-        return new ComponentTraversal(visited, bounds.isFilledBy(visited.size()));
-    }
-
-    private BlockState applyConnectionMask(BlockState state, int connectionMask) {
-        return state
-                .setValue(NORTH, (connectionMask & directionMask(Direction.NORTH)) != 0)
-                .setValue(EAST, (connectionMask & directionMask(Direction.EAST)) != 0)
-                .setValue(SOUTH, (connectionMask & directionMask(Direction.SOUTH)) != 0)
-                .setValue(WEST, (connectionMask & directionMask(Direction.WEST)) != 0);
-    }
-
-    private BlockState stateAt(BlockGetter level, BlockPos origin, BlockState originState, BlockPos pos) {
-        return pos.equals(origin) ? originState : level.getBlockState(pos);
-    }
-
-    private boolean isConnectableIrori(BlockState state) {
-        return state.is(this);
-    }
-
-    private static boolean hasConnection(
-            BlockPos origin,
-            BlockPos pos,
-            BlockState state,
-            Direction direction,
-            int originConnectionMask
-    ) {
-        if (pos.equals(origin)) {
-            return (originConnectionMask & directionMask(direction)) != 0;
-        }
-        if (pos.relative(direction).equals(origin)) {
-            return (originConnectionMask & directionMask(direction.getOpposite())) != 0;
-        }
-        return state.getValue(getConnectionProperty(direction));
-    }
-
-    public static BooleanProperty getConnectionProperty(Direction direction) {
-        return switch (direction) {
-            case NORTH -> NORTH;
-            case EAST -> EAST;
-            case SOUTH -> SOUTH;
-            case WEST -> WEST;
-            default -> throw new IllegalArgumentException("Unsupported direction: " + direction);
-        };
     }
 
     private static VoxelShape[] createShapes() {
@@ -629,50 +518,4 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 | (state.getValue(WEST) ? 8 : 0);
     }
 
-    private static int directionMask(Direction direction) {
-        return switch (direction) {
-            case NORTH -> 1;
-            case EAST -> 2;
-            case SOUTH -> 4;
-            case WEST -> 8;
-            default -> throw new IllegalArgumentException("Unsupported direction: " + direction);
-        };
-    }
-
-    private static final class ComponentBounds {
-        private int minX;
-        private int maxX;
-        private int minZ;
-        private int maxZ;
-
-        private ComponentBounds(BlockPos initialPos) {
-            this.minX = initialPos.getX();
-            this.maxX = initialPos.getX();
-            this.minZ = initialPos.getZ();
-            this.maxZ = initialPos.getZ();
-        }
-
-        private boolean include(BlockPos pos) {
-            this.minX = Math.min(this.minX, pos.getX());
-            this.maxX = Math.max(this.maxX, pos.getX());
-            this.minZ = Math.min(this.minZ, pos.getZ());
-            this.maxZ = Math.max(this.maxZ, pos.getZ());
-            return width() <= MAX_CONNECTED_SIZE && depth() <= MAX_CONNECTED_SIZE;
-        }
-
-        private boolean isFilledBy(int blockCount) {
-            return blockCount == width() * depth();
-        }
-
-        private int width() {
-            return this.maxX - this.minX + 1;
-        }
-
-        private int depth() {
-            return this.maxZ - this.minZ + 1;
-        }
-    }
-
-    private record ComponentTraversal(Set<BlockPos> positions, boolean valid) {
-    }
 }

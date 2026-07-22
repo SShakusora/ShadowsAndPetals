@@ -184,7 +184,7 @@ public class BlockRegistry {
                     .sound(SoundType.COPPER)
                     .noOcclusion()
                     .requiresCorrectToolForDrops())
-            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.SUPPORTS_IRORI_GRILL)
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.REQUIRES_IRORI_GRILL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
             .tooltipDescription(tooltip -> tooltip

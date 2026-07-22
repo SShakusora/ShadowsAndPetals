@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.compat.jade;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntity;

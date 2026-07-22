@@ -5,7 +5,10 @@ import com.mojang.blaze3d.vertex.QuadInstance;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriComponentTopology;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState;
+import com.sshakusora.shadowsandpetals.client.effect.IroriClientEffects;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Sheets;
@@ -50,8 +53,8 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private static final Direction[] DIRECTIONS = Direction.values();
     private final RandomSource firewoodRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
     private final RandomSource transformRandom = RandomSource.create(FIREWOOD_RENDER_SEED);
-    private final Map<IroriBlockEntity.FirewoodModel, CachedFirewoodModel> firewoodModelCache =
-            new EnumMap<>(IroriBlockEntity.FirewoodModel.class);
+    private final Map<IroriFuelState.FirewoodModel, CachedFirewoodModel> firewoodModelCache =
+            new EnumMap<>(IroriFuelState.FirewoodModel.class);
     private final Map<IroriBlockEntity.GrillModel, CachedGrillModel> grillModelCache =
             new EnumMap<>(IroriBlockEntity.GrillModel.class);
     private @Nullable TextureAtlasSprite burningSprite;
@@ -82,13 +85,13 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
             return;
         }
 
-        IroriBlockEntity.FirewoodModel firewoodModel = blockEntity.getFirewoodModel();
+        IroriFuelState.FirewoodModel firewoodModel = blockEntity.getFirewoodModel();
         if (firewoodModel == null) {
             clearFirewoodModel(state);
             return;
         }
 
-        state.firewoodAppearProgress = blockEntity.getFirewoodAppearProgress(partialTicks);
+        state.firewoodAppearProgress = IroriClientEffects.getFirewoodAppearProgress(blockEntity, partialTicks);
         state.firewoodAlpha = computeFirewoodAlpha(state.firewoodAppearProgress);
 
         IroriBlockEntity.FirewoodRenderOffset renderOffset = blockEntity.getFirewoodRenderOffset();
@@ -124,14 +127,32 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        renderGrill(state, poseStack, submitNodeCollector);
+        if (!state.grillModelParts.isEmpty()) {
+            poseStack.pushPose();
+            poseStack.translate(state.grillOffsetX, 10.0 / 16.0D, state.grillOffsetZ);
+            if (state.grillRotated) {
+                poseStack.translate(0.5D, 0.0D, 0.5D);
+                poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
+                poseStack.translate(-0.5D, 0.0D, -0.5D);
+            }
+            submitNodeCollector.submitMultiLayerBlockModel(
+                    poseStack,
+                    state.grillModelParts,
+                    state.grillHasTranslucency,
+                    BlockModelRenderState.EMPTY_TINTS,
+                    state.lightCoords,
+                    OverlayTexture.NO_OVERLAY,
+                    0
+            );
+            poseStack.popPose();
+        }
 
         if (state.burnTime > 0 && state.burningSprite != null && state.burningBreathLight > 0) {
             poseStack.pushPose();
             poseStack.translate(
-                    state.firewoodOffsetX + state.firewoodJitterX,
+                    state.firewoodOffsetX,
                     BURNING_OVERLAY_Y_OFFSET,
-                    state.firewoodOffsetZ + state.firewoodJitterZ
+                    state.firewoodOffsetZ
             );
             int lightCoords = state.burningBreathLight;
             TextureAtlasSprite sprite = state.burningSprite;
@@ -155,9 +176,9 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
         poseStack.pushPose();
         poseStack.translate(
-                state.firewoodOffsetX + state.firewoodJitterX,
+                state.firewoodOffsetX,
                 FIREWOOD_Y_OFFSET + (1.0F - state.firewoodAppearProgress) * FIREWOOD_APPEAR_FALL_DISTANCE,
-                state.firewoodOffsetZ + state.firewoodJitterZ
+                state.firewoodOffsetZ
         );
         poseStack.translate(0.5D, 0.0D, 0.5D);
         poseStack.mulPose(Axis.YP.rotationDegrees(state.firewoodRotationY));
@@ -206,9 +227,7 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
     private void updateGrillRenderState(IroriBlockEntity blockEntity, State state) {
         IroriBlockEntity.GrillRenderInfo grillInfo = blockEntity.getGrillRenderInfo();
-        if (grillInfo == null
-                || blockEntity.getLevel() == null
-                || IroriGrillSectionRenderer.canRenderInSection(blockEntity.getBlockPos(), grillInfo)) {
+        if (grillInfo == null || blockEntity.getLevel() == null || IroriGrillSectionRenderer.canRenderInSection(blockEntity.getBlockPos(), grillInfo)) {
             return;
         }
 
@@ -249,41 +268,13 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         state.grillRotated = grillInfo.rotated();
     }
 
-    private static void renderGrill(
-            State state,
-            PoseStack poseStack,
-            SubmitNodeCollector submitNodeCollector
-    ) {
-        if (state.grillModelParts.isEmpty()) {
-            return;
-        }
-
-        poseStack.pushPose();
-        poseStack.translate(state.grillOffsetX, 10.0 / 16.0D, state.grillOffsetZ);
-        if (state.grillRotated) {
-            poseStack.translate(0.5D, 0.0D, 0.5D);
-            poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
-            poseStack.translate(-0.5D, 0.0D, -0.5D);
-        }
-        submitNodeCollector.submitMultiLayerBlockModel(
-                poseStack,
-                state.grillModelParts,
-                state.grillHasTranslucency,
-                BlockModelRenderState.EMPTY_TINTS,
-                state.lightCoords,
-                OverlayTexture.NO_OVERLAY,
-                0
-        );
-        poseStack.popPose();
-    }
-
     @Override
     public AABB getRenderBoundingBox(IroriBlockEntity blockEntity) {
         if (blockEntity.getLevel() == null || blockEntity.getMaster() != blockEntity) {
             return new AABB(blockEntity.getBlockPos());
         }
 
-        IroriBlockEntity.RectangularComponent component = IroriBlockEntity.computeComponentBounds(
+        IroriComponentTopology.Bounds component = IroriComponentTopology.bounds(
                 blockEntity.getLevel(),
                 blockEntity.getBlockPos()
         );
@@ -311,12 +302,10 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
                 state.firewoodRotationY += 90.0F;
             }
         }
-        state.firewoodJitterX = 0.0D;
-        state.firewoodJitterZ = 0.0D;
     }
 
     private void applyCachedFirewoodModel(IroriBlockEntity blockEntity, State state,
-                                          IroriBlockEntity.FirewoodModel firewoodModel, BlockStateModel model) {
+                                          IroriFuelState.FirewoodModel firewoodModel, BlockStateModel model) {
         var level = blockEntity.getLevel();
         if (level == null) return;
         var tintGetter = (BlockAndTintGetter) level;
@@ -394,8 +383,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         public boolean firewoodHasTranslucency;
         public double firewoodOffsetX;
         public double firewoodOffsetZ;
-        public double firewoodJitterX;
-        public double firewoodJitterZ;
         public float firewoodAppearProgress = 1.0F;
         public float firewoodRotationY;
         public int firewoodAlpha = FULL_ALPHA;

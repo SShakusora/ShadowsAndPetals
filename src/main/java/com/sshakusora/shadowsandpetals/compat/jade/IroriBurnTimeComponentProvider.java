@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.compat.jade;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.blockentity.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;

@@ -15,7 +15,7 @@ import java.util.*;
  * {@link com.sshakusora.shadowsandpetals.data.ModBlockTagProvider} for automatic datagen.
  */
 public final class BlockTagRegistry {
-    public static final TagKey<Block> SUPPORTS_IRORI_GRILL = create("supports_irori_grill");
+    public static final TagKey<Block> REQUIRES_IRORI_GRILL = create("requires_irori_grill");
     public static final TagKey<Block> WOOD_POST_HANGING_CONNECTIONS = create("wood_post_hanging_connections");
 
     private static final Map<TagKey<Block>, List<DeferredBlock<? extends Block>>> TAG_MAP = new HashMap<>();
