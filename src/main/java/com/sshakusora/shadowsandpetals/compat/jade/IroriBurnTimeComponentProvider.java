@@ -47,7 +47,7 @@ public final class IroriBurnTimeComponentProvider implements IBlockComponentProv
             burnCycle = irori.getBurnCycle();
         }
         if (burnTime <= 0 || burnTimeTotal <= 0) {
-            if (irori.shouldDropBoneMealAsh()) {
+            if (irori.hasAsh()) {
                 tooltip.add(Component.translatable(BuiltinLanguageKeys.JADE_IRORI_BURNED_OUT.key()).withStyle(ChatFormatting.GRAY));
             }
             return;

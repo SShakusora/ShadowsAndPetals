@@ -1,13 +1,15 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.api.irori.IroriApi;
+import com.sshakusora.shadowsandpetals.api.irori.IroriIgnitionBehavior;
+import com.sshakusora.shadowsandpetals.api.irori.IroriIgnitionContext;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriComponentTopology;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
@@ -18,9 +20,7 @@ import net.minecraft.world.entity.InsideBlockEffectApplier;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -37,7 +37,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -274,18 +273,18 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         IroriBlockEntity master = irori.resolveMaster();
-        boolean ashModel = master.shouldDropBoneMealAsh();
-        boolean ignitionItem = stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE);
-        if (!ashModel && !ignitionItem) {
+        boolean hasAsh = master.hasAsh();
+        IroriIgnitionBehavior ignitionBehavior = IroriApi.findIgnitionBehavior(stack).orElse(null);
+        if (!hasAsh && ignitionBehavior == null) {
             return InteractionResult.PASS;
         }
         if (!isValidFuelAcceptor(pos, master, level)) {
             return InteractionResult.PASS;
         }
 
-        if (ashModel) {
+        if (hasAsh) {
             if (!level.isClientSide()) {
-                master.clearAshAndDropBoneMeal();
+                master.clearAshAndDropResults();
             }
             return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
@@ -300,10 +299,14 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return InteractionResult.PASS;
         }
 
-        playIgnitionEffects(level, pos, player, stack, hand);
-        if (!player.isCreative() && stack.is(Items.FIRE_CHARGE)) {
-            stack.shrink(1);
-        }
+        ignitionBehavior.onIgnited(new IroriIgnitionContext(
+                level,
+                pos,
+                master.getBlockPos(),
+                player,
+                hand,
+                stack
+        ));
         return InteractionResult.SUCCESS;
     }
 
@@ -322,7 +325,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         IroriBlockEntity master = irori.resolveMaster();
-        if (!master.shouldDropBoneMealAsh()) {
+        if (!master.hasAsh()) {
             return InteractionResult.PASS;
         }
         if (!isValidFuelAcceptor(pos, master, level)) {
@@ -330,7 +333,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         if (!level.isClientSide()) {
-            master.clearAshAndDropBoneMeal();
+            master.clearAshAndDropResults();
         }
         return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
@@ -345,15 +348,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return InteractionResult.SUCCESS_SERVER;
         }
         return InteractionResult.PASS;
-    }
-
-    private static void playIgnitionEffects(Level level, BlockPos pos, Player player, ItemStack stack, InteractionHand hand) {
-        SoundEvent sound = stack.is(Items.FIRE_CHARGE) ? SoundEvents.FIRECHARGE_USE : SoundEvents.FLINTANDSTEEL_USE;
-        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, level.getRandom().nextFloat() * 0.4F + 0.8F);
-        level.gameEvent(player, GameEvent.BLOCK_CHANGE, pos);
-        if (stack.is(Items.FLINT_AND_STEEL)) {
-            stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
-        }
     }
 
     private static boolean canAcceptFuel(ItemStack currentFuel, ItemStack heldStack) {
@@ -383,7 +377,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             updatedFuel.grow(insertCount);
         }
 
-        master.clearAshAndDropBoneMeal();
+        master.clearAshAndDropResults();
         master.setFuelStack(updatedFuel, level.getRandom());
         level.playSound(null, soundPos, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 0.9F, 0.95F + level.getRandom().nextFloat() * 0.1F);
         droppedStack.shrink(insertCount);
@@ -391,7 +385,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     private static boolean isFuel(ItemStack stack, Level level) {
-        return !stack.isEmpty() && stack.getBurnTime(RecipeType.SMELTING, level.fuelValues()) > 0;
+        return IroriApi.getFuelBurnTime(stack, level) > 0;
     }
 
     private static boolean isValidFuelAcceptor(BlockPos pos, IroriBlockEntity master, Level level) {

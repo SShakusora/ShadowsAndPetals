@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
-import com.sshakusora.shadowsandpetals.api.ShishiOdoshiFluidRegistry;
+import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiPipeBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;

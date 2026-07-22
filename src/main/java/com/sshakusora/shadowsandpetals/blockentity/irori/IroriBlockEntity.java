@@ -1,12 +1,12 @@
 package com.sshakusora.shadowsandpetals.blockentity.irori;
 
+import com.sshakusora.shadowsandpetals.api.irori.*;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState.FirewoodModel;
 import com.sshakusora.shadowsandpetals.client.effect.IroriClientEffects;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
-import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -25,7 +25,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -34,14 +33,14 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public class IroriBlockEntity extends BlockEntity implements Container, MenuProvider {
     private static final String MASTER_POS_KEY = "MasterPos";
     private static final double ASH_DROP_Y = 10.0D / 16.0D + 0.1D;
-    private static final int MIN_ASH_BONE_MEAL_DROPS = 1;
-    private static final int MAX_ASH_BONE_MEAL_DROPS = 3;
     private static final FirewoodRenderOffset ZERO_RENDER_OFFSET = new FirewoodRenderOffset(0.0D, 0.0D);
 
     private @Nullable BlockPos masterPos;
@@ -220,7 +219,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
         Containers.dropContents(level, dropPos, master);
         if (master.fuelState.isBurning() || master.isAshModel()) {
-            master.dropBoneMealAsh(dropPos);
+            master.dropAshResults(dropPos);
         }
         master.resetStoredState();
         syncFirewoodLightState(level, IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos()), master.getBlockPos(), false);
@@ -228,7 +227,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         master.syncToClient();
     }
 
-    public boolean clearAshAndDropBoneMeal() {
+    public boolean clearAshAndDropResults() {
         if (level == null || level.isClientSide()) {
             return false;
         }
@@ -238,7 +237,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             return false;
         }
 
-        master.dropBoneMealAsh();
+        master.dropAshResults();
         master.fuelState.clearAsh();
         master.setChanged();
         master.syncToClient();
@@ -249,7 +248,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return getMaster() == this && fuelState.getFirewoodModel() != null;
     }
 
-    public boolean shouldDropBoneMealAsh() {
+    public boolean hasAsh() {
         return getMaster().isAshModel();
     }
 
@@ -314,19 +313,42 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             return null;
         }
 
-        for (int x = 0; x < layout.centerWidth(); x++) {
-            for (int z = 0; z < layout.centerDepth(); z++) {
-                if (level.getBlockState(worldPosition.offset(x, 1, z)).is(BlockTagRegistry.REQUIRES_IRORI_GRILL)) {
-                    return new GrillRenderInfo(
-                            layout.model(),
-                            layout.offsetX(),
-                            layout.offsetZ(),
-                            layout.rotated()
-                    );
+        if (!IroriApi.requiresGrill(createApiView(level, layout))) {
+            return null;
+        }
+
+        return new GrillRenderInfo(
+                layout.model(),
+                layout.offsetX(),
+                layout.offsetZ(),
+                layout.rotated()
+        );
+    }
+
+    private IroriView createApiView(Level level, GrillLayoutInfo grillLayout) {
+        IroriComponentTopology.Layout componentLayout = getComponentLayout();
+        IroriLayout apiLayout = new IroriLayout(
+                componentLayout.width(),
+                componentLayout.depth(),
+                componentLayout.offsetX(),
+                componentLayout.offsetZ(),
+                componentLayout.rotated(),
+                componentLayout.centerWidth(),
+                componentLayout.centerDepth()
+        );
+
+        List<IroriContent> contents = new ArrayList<>(grillLayout.centerWidth() * grillLayout.centerDepth());
+        for (int x = 0; x < grillLayout.centerWidth(); x++) {
+            for (int z = 0; z < grillLayout.centerDepth(); z++) {
+                BlockPos contentPos = worldPosition.offset(x, 1, z);
+                BlockState contentState = level.getBlockState(contentPos);
+                if (!contentState.isAir()) {
+                    contents.add(new IroriContent.BlockContent(contentPos, contentState));
                 }
             }
         }
-        return null;
+
+        return new IroriView(level, worldPosition, apiLayout, contents, fuelState.isBurning());
     }
 
     public boolean isComponentWideAndDeep() {
@@ -420,6 +442,16 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         if (level != null && !level.isClientSide()) {
             syncComponentToClient(level, IroriComponentTopology.collectConnectedComponent(level, getBlockPos()));
         }
+    }
+
+    /**
+     * Marks placed surface content as changed and refreshes the whole connected Irori component.
+     * Future food and item placement mechanics should use this single update path.
+     */
+    public void onSurfaceContentsChanged() {
+        IroriBlockEntity master = resolveMaster();
+        master.setChanged();
+        master.syncToClient();
     }
 
     @Override
@@ -547,32 +579,36 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return fuelState.isAsh();
     }
 
-    private void dropBoneMealAsh() {
+    private void dropAshResults() {
         FirewoodRenderOffset renderOffset = getFirewoodRenderOffset();
-        spawnBoneMealAsh(
+        spawnAshDrops(
+                worldPosition,
                 worldPosition.getX() + 0.5D + renderOffset.x(),
                 worldPosition.getY() + ASH_DROP_Y,
                 worldPosition.getZ() + 0.5D + renderOffset.z()
         );
     }
 
-    private void dropBoneMealAsh(BlockPos dropPos) {
-        spawnBoneMealAsh(dropPos.getX() + 0.5D, dropPos.getY() + ASH_DROP_Y, dropPos.getZ() + 0.5D);
+    private void dropAshResults(BlockPos dropPos) {
+        spawnAshDrops(dropPos, dropPos.getX() + 0.5D, dropPos.getY() + ASH_DROP_Y, dropPos.getZ() + 0.5D);
     }
 
-    private void spawnBoneMealAsh(double x, double y, double z) {
+    private void spawnAshDrops(BlockPos dropPos, double x, double y, double z) {
         if (level == null) {
             return;
         }
 
-        int count = MIN_ASH_BONE_MEAL_DROPS + level.getRandom().nextInt(MAX_ASH_BONE_MEAL_DROPS - MIN_ASH_BONE_MEAL_DROPS + 1);
-        ItemEntity itemEntity = new ItemEntity(level, x, y, z, new ItemStack(Items.BONE_MEAL, count));
-        itemEntity.setDeltaMovement(
-                level.getRandom().triangle(0.0D, 0.035D),
-                0.04D,
-                level.getRandom().triangle(0.0D, 0.035D)
-        );
-        level.addFreshEntity(itemEntity);
+        RandomSource random = level.getRandom();
+        IroriAshDropContext context = new IroriAshDropContext(level, dropPos, random);
+        for (ItemStack drop : IroriApi.getAshDrops(context)) {
+            ItemEntity itemEntity = new ItemEntity(level, x, y, z, drop);
+            itemEntity.setDeltaMovement(
+                    random.triangle(0.0D, 0.035D),
+                    0.04D,
+                    random.triangle(0.0D, 0.035D)
+            );
+            level.addFreshEntity(itemEntity);
+        }
     }
 
     private void resetStoredState() {

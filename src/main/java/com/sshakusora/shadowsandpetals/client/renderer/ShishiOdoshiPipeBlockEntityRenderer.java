@@ -3,7 +3,7 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import com.sshakusora.shadowsandpetals.api.ShishiOdoshiFluidRegistry;
+import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiPipeBlock;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiPipeBlockEntity;

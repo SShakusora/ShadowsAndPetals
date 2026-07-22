@@ -1,12 +1,12 @@
 package com.sshakusora.shadowsandpetals.blockentity.irori;
 
+import com.sshakusora.shadowsandpetals.api.irori.IroriApi;
 import net.minecraft.core.NonNullList;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -289,7 +289,7 @@ public final class IroriFuelState {
     }
 
     private static int getFuelBurnTime(ItemStack stack, Level level) {
-        return stack.getBurnTime(RecipeType.SMELTING, level.fuelValues());
+        return IroriApi.getFuelBurnTime(stack, level);
     }
 
     private static @Nullable FirewoodModel selectModelForFuel(

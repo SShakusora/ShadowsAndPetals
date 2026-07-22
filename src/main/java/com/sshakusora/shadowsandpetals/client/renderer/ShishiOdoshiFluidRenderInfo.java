@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.client.renderer;
 
-import com.sshakusora.shadowsandpetals.api.ShishiOdoshiFluidRegistry;
+import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;

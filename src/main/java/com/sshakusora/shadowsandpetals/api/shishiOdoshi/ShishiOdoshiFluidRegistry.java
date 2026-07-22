@@ -1,12 +1,10 @@
-package com.sshakusora.shadowsandpetals.api;
+package com.sshakusora.shadowsandpetals.api.shishiOdoshi;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
@@ -21,21 +19,21 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 // TODO：熔岩炼药锅在测试服没有效果
-/** Public integration API for shishi-odoshi fluid sources and animation speeds. */
+/**
+ * Public integration API for shishi-odoshi fluid sources, animation speeds and rendering.
+ *
+ * <p>Mods should normally register their fluid behavior from
+ * {@link RegisterShishiOdoshiFluidsEvent}. Direct registration remains available for backwards
+ * compatibility and initialization code that cannot subscribe to the mod event bus.
+ */
 public final class ShishiOdoshiFluidRegistry {
     private static final List<Source> SOURCES = new CopyOnWriteArrayList<>();
     private static final Map<Fluid, Float> ANIMATION_SPEEDS = new ConcurrentHashMap<>();
     private static final Map<Fluid, RenderProperties> RENDER_PROPERTIES = new ConcurrentHashMap<>();
-
-    static {
-        registerSource(state -> state.hasProperty(BlockStateProperties.WATERLOGGED)
-                && state.getValue(BlockStateProperties.WATERLOGGED), () -> Fluids.WATER);
-        registerRenderProperties(Fluids.WATER, Identifier.withDefaultNamespace("block/water_flow"), 0xFFFFFF);
-
-        registerSource(Blocks.MAGMA_BLOCK, Fluids.LAVA);
-        registerAnimationSpeed(Fluids.LAVA, 0.25F);
-        registerRenderProperties(Fluids.LAVA, Identifier.withDefaultNamespace("block/lava_flow"), 0xFFFFFF);
-    }
+    private static final RenderProperties DEFAULT_RENDER_PROPERTIES = new RenderProperties(
+            Identifier.withDefaultNamespace("block/water_flow"),
+            0xFFFFFF
+    );
 
     private ShishiOdoshiFluidRegistry() {}
 
@@ -95,7 +93,10 @@ public final class ShishiOdoshiFluidRegistry {
     }
 
     public static RenderProperties getRenderProperties(Fluid fluid) {
-        return RENDER_PROPERTIES.getOrDefault(fluid, RENDER_PROPERTIES.get(Fluids.WATER));
+        return RENDER_PROPERTIES.getOrDefault(
+                fluid,
+                RENDER_PROPERTIES.getOrDefault(Fluids.WATER, DEFAULT_RENDER_PROPERTIES)
+        );
     }
 
     /** Returns an explicit rendering override, or {@code null} to use the fluid's baked model. */
@@ -119,6 +120,21 @@ public final class ShishiOdoshiFluidRegistry {
             return null;
         }
         return cauldronContent.fluid == Fluids.EMPTY ? null : cauldronContent.fluid;
+    }
+
+    /** Number of explicitly registered source rules, primarily useful for diagnostics. */
+    public static int registeredSourceCount() {
+        return SOURCES.size();
+    }
+
+    /** Number of fluids with an explicitly configured animation speed. */
+    public static int registeredAnimationSpeedCount() {
+        return ANIMATION_SPEEDS.size();
+    }
+
+    /** Number of fluids with explicitly configured render properties. */
+    public static int registeredRenderPropertiesCount() {
+        return RENDER_PROPERTIES.size();
     }
 
     private record Source(Predicate<BlockState> predicate, Supplier<? extends Fluid> fluid) {}
