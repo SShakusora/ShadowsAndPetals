@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "L": "shadowsandpetals:ginkgo_leaves"
+  },
+  "pattern": [
+    "LLL"
+  ],
+  "result": {
+    "count": 6,
+    "id": "shadowsandpetals:ginkgo_leaves_slab"
+  }
+}

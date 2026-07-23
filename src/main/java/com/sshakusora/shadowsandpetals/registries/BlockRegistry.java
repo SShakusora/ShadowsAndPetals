@@ -55,6 +55,16 @@ public class BlockRegistry {
             "秋橡树树叶",
             () -> ColorParticleOption.create(ParticleTypes.TINTED_LEAVES, ARGB.color(255, 176, 106, 45))
     );
+    public static final DeferredBlock<SlabBlock> AUTUMN_OAK_LEAVES_SLAB = WoodSetList.treeLeavesSlab(
+            "autumn_oak_leaves_slab",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树叶台阶"
+    );
+    public static final DeferredBlock<StairBlock> AUTUMN_OAK_LEAVES_STAIRS = WoodSetList.treeLeavesStairs(
+            "autumn_oak_leaves_stairs",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树叶楼梯"
+    );
     public static final DeferredBlock<HedgeBlock> AUTUMN_OAK_HEDGE = WoodSetList.treeHedge(
             "autumn_oak_hedge",
             AUTUMN_OAK_LEAVES,

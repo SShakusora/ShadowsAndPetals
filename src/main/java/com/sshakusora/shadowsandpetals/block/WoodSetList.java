@@ -73,6 +73,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             DeferredBlock<ButtonBlock> button,
             DeferredBlock<SaplingBlock> sapling,
             DeferredBlock<LeavesBlock> leaves,
+            DeferredBlock<SlabBlock> leavesSlab,
+            DeferredBlock<StairBlock> leavesStairs,
             DeferredBlock<HedgeBlock> hedge
     ) {}
 
@@ -95,8 +97,10 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<ButtonBlock> button = treeButton(type.name + "_button", planks, type.woodZhName + "按钮");
         DeferredBlock<SaplingBlock> sapling = treeSapling(type.name + "_sapling", type.grower, type.treeZhName + "树苗");
         DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶", type.fallingLeafParticleSupplier);
+        DeferredBlock<SlabBlock> leavesSlab = treeLeavesSlab(type.name + "_leaves_slab", leaves, type.treeZhName + "树叶台阶");
+        DeferredBlock<StairBlock> leavesStairs = treeLeavesStairs(type.name + "_leaves_stairs", leaves, type.treeZhName + "树叶楼梯");
         DeferredBlock<HedgeBlock> hedge = treeHedge(type.name + "_hedge", leaves, type.treeZhName + "树篱");
-        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, hedge);
+        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesSlab, leavesStairs, hedge);
     }
 
     private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String zhName) {
@@ -435,6 +439,60 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .lang("zh_cn", zhName)
                 .blockstate((provider, leaves) -> provider.leavesBlockWithItem(leaves.get(), ShadowsAndPetals.asResource("block/" + id)))
                 .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
+                .register();
+    }
+
+    public static DeferredBlock<SlabBlock> treeLeavesSlab(String id, DeferredBlock<LeavesBlock> leaves, String zhName) {
+        return SAPRegistries.block(id, SlabBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
+                        .strength(0.2F)
+                        .sound(SoundType.GRASS)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE, BlockTags.SLABS)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES_SLABS)
+                .lang("zh_cn", zhName)
+                .blockstate((provider, slab) -> provider.leavesSlabBlockWithItem(
+                        slab.get(),
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                ))
+                .loot((provider, slab) -> provider.dropSlab(slab.get()))
+                .recipe((provider, slab) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, slab.get(), 6)
+                        .define('L', leaves.get())
+                        .pattern("LLL")
+                        .unlockedBy(provider.hasName(leaves.get()), provider.hasItem(leaves.get()))
+                        .save(provider.output()))
+                .register();
+    }
+
+    public static DeferredBlock<StairBlock> treeLeavesStairs(String id, DeferredBlock<LeavesBlock> leaves, String zhName) {
+        return SAPRegistries.block(id, properties -> new StairBlock(leaves.get().defaultBlockState(), properties))
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
+                        .strength(0.2F)
+                        .sound(SoundType.GRASS)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE, BlockTags.STAIRS)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES_STAIRS)
+                .lang("zh_cn", zhName)
+                .blockstate((provider, stairs) -> provider.leavesStairsBlockWithItem(
+                        stairs.get(),
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                ))
+                .loot((provider, stairs) -> provider.dropSelf(stairs.get()))
+                .recipe((provider, stairs) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, stairs.get(), 4)
+                        .define('L', leaves.get())
+                        .pattern("L  ")
+                        .pattern("LL ")
+                        .pattern("LLL")
+                        .unlockedBy(provider.hasName(leaves.get()), provider.hasItem(leaves.get()))
+                        .save(provider.output()))
                 .register();
     }
 

@@ -117,6 +117,41 @@ public class ModBlockStateProvider implements DataProvider {
         cubeAllBlockWithItem(block, texture);
     }
 
+    public void leavesSlabBlockWithItem(SlabBlock block, Identifier texture) {
+        TextureMapping shapeMapping = leavesShapeTextureMapping(texture);
+        Identifier bottomModel = createCutoutMippedModel(ModelTemplates.SLAB_BOTTOM, block, shapeMapping);
+        Identifier topModel = createCutoutMippedModel(ModelTemplates.SLAB_TOP, block, shapeMapping);
+        Identifier doubleModel = modLoc("block/" + name(block) + "_double");
+        createCutoutMippedModel(
+                ModelTemplates.CUBE_ALL,
+                doubleModel,
+                new TextureMapping().put(TextureSlot.ALL, new Material(texture))
+        );
+
+        putBlockState(block, BlockModelGenerators.createSlab(
+                block,
+                BlockModelGenerators.plainVariant(bottomModel),
+                BlockModelGenerators.plainVariant(topModel),
+                BlockModelGenerators.plainVariant(doubleModel)
+        ));
+        putParentModel(itemModelId(block), bottomModel);
+    }
+
+    public void leavesStairsBlockWithItem(StairBlock block, Identifier texture) {
+        TextureMapping mapping = leavesShapeTextureMapping(texture);
+        Identifier straightModel = createCutoutMippedModel(ModelTemplates.STAIRS_STRAIGHT, block, mapping);
+        Identifier innerModel = createCutoutMippedModel(ModelTemplates.STAIRS_INNER, block, mapping);
+        Identifier outerModel = createCutoutMippedModel(ModelTemplates.STAIRS_OUTER, block, mapping);
+
+        putBlockState(block, BlockModelGenerators.createStairs(
+                block,
+                BlockModelGenerators.plainVariant(innerModel),
+                BlockModelGenerators.plainVariant(straightModel),
+                BlockModelGenerators.plainVariant(outerModel)
+        ));
+        putParentModel(itemModelId(block), straightModel);
+    }
+
     public void cubeAllBlockWithItem(Block block) {
         cubeAllBlockWithItem(block, modLoc("block/" + name(block)));
     }
@@ -430,6 +465,25 @@ public class ModBlockStateProvider implements DataProvider {
 
     private void putGeneratedModel(Identifier modelId, ModelInstance model) {
         this.models.put(modelId, model.get().getAsJsonObject());
+    }
+
+    private Identifier createCutoutMippedModel(ModelTemplate template, Block block, TextureMapping mapping) {
+        Identifier modelId = template.create(block, mapping, this::putGeneratedModel);
+        this.models.get(modelId).addProperty("render_type", "cutout_mipped");
+        return modelId;
+    }
+
+    private void createCutoutMippedModel(ModelTemplate template, Identifier modelId, TextureMapping mapping) {
+        template.create(modelId, mapping, this::putGeneratedModel);
+        this.models.get(modelId).addProperty("render_type", "cutout_mipped");
+    }
+
+    private static TextureMapping leavesShapeTextureMapping(Identifier texture) {
+        Material material = new Material(texture);
+        return new TextureMapping()
+                .put(TextureSlot.BOTTOM, material)
+                .put(TextureSlot.TOP, material)
+                .put(TextureSlot.SIDE, material);
     }
 
     private void putParentModel(Identifier modelId, Identifier parent) {

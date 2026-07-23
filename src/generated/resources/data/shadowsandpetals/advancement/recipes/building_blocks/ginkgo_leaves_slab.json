@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ginkgo_leaves": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:ginkgo_leaves"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shadowsandpetals:ginkgo_leaves_slab"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ginkgo_leaves"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "shadowsandpetals:ginkgo_leaves_slab"
+    ]
+  }
+}

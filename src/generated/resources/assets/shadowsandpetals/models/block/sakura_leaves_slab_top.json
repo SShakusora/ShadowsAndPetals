@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/slab_top",
+  "render_type": "cutout_mipped",
+  "textures": {
+    "bottom": "shadowsandpetals:block/sakura_leaves",
+    "side": "shadowsandpetals:block/sakura_leaves",
+    "top": "shadowsandpetals:block/sakura_leaves"
+  }
+}
