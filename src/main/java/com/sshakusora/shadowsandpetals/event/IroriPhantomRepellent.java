@@ -21,8 +21,8 @@ public final class IroriPhantomRepellent {
     private static final double HORIZONTAL_RADIUS = 32.0D;
     private static final double VERTICAL_RADIUS = 48.0D;
     private static final int REPEL_INTERVAL_TICKS = 10;
-    private static final double REPEL_SPEED = 0.85D;
-    private static final double REPEL_UPWARD_SPEED = 0.15D;
+    private static final double ESCAPE_ANCHOR_DISTANCE = HORIZONTAL_RADIUS + 12.0D;
+    private static final double ESCAPE_ANCHOR_HEIGHT = 32.0D;
 
     private IroriPhantomRepellent() {
     }
@@ -103,24 +103,26 @@ public final class IroriPhantomRepellent {
 
     private static void repel(Phantom phantom, Vec3 center) {
         phantom.setTarget(null);
-        phantom.getNavigation().stop();
 
         double x = phantom.getX() - center.x;
         double z = phantom.getZ() - center.z;
         double horizontalDistance = Math.sqrt(x * x + z * z);
         if (horizontalDistance < 1.0E-4D) {
-            double angle = phantom.getId() * 2.399963229728653D;
+            double angle = Math.toRadians(phantom.getYRot() + 90.0F);
             x = Math.cos(angle);
             z = Math.sin(angle);
             horizontalDistance = 1.0D;
         }
 
-        Vec3 outwardVelocity = new Vec3(
-                x / horizontalDistance * REPEL_SPEED,
-                REPEL_UPWARD_SPEED,
-                z / horizontalDistance * REPEL_SPEED
+        BlockPos escapeAnchor = BlockPos.containing(
+                center.x + x / horizontalDistance * ESCAPE_ANCHOR_DISTANCE,
+                Math.max(phantom.getY(), center.y + ESCAPE_ANCHOR_HEIGHT),
+                center.z + z / horizontalDistance * ESCAPE_ANCHOR_DISTANCE
         );
-        phantom.setDeltaMovement(phantom.getDeltaMovement().scale(0.25D).add(outwardVelocity.scale(0.75D)));
-        phantom.hurtMarked = true;
+
+        // PhantomMoveControl steers toward moveTargetPoint and smooths both rotation and velocity.
+        // Moving its circle anchor outside the protected area lets the vanilla AI fly it away naturally.
+        phantom.anchorPoint = escapeAnchor;
+        phantom.moveTargetPoint = Vec3.atCenterOf(escapeAnchor);
     }
 }
