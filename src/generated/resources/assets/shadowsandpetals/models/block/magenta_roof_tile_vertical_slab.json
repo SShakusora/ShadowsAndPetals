@@ -1,0 +1,8 @@
+{
+  "parent": "shadowsandpetals:block/template/roof_tile_vertical_slab",
+  "textures": {
+    "bottom": "shadowsandpetals:block/roof_tile/magenta",
+    "side": "shadowsandpetals:block/roof_tile/magenta",
+    "top": "shadowsandpetals:block/roof_tile/magenta"
+  }
+}

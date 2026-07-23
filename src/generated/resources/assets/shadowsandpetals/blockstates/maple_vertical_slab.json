@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "type=double": {
+      "model": "shadowsandpetals:block/maple_planks"
+    },
+    "type=east": {
+      "model": "shadowsandpetals:block/maple_vertical_slab",
+      "uvlock": true,
+      "y": 90
+    },
+    "type=north": {
+      "model": "shadowsandpetals:block/maple_vertical_slab",
+      "uvlock": true
+    },
+    "type=south": {
+      "model": "shadowsandpetals:block/maple_vertical_slab",
+      "uvlock": true,
+      "y": 180
+    },
+    "type=west": {
+      "model": "shadowsandpetals:block/maple_vertical_slab",
+      "uvlock": true,
+      "y": 270
+    }
+  }
+}

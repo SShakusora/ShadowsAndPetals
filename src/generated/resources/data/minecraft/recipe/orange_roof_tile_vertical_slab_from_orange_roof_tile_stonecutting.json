@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "shadowsandpetals:orange_roof_tile",
+  "result": {
+    "count": 2,
+    "id": "shadowsandpetals:orange_roof_tile_vertical_slab"
+  }
+}

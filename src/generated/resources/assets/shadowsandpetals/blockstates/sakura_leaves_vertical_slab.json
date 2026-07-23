@@ -1,0 +1,26 @@
+{
+  "variants": {
+    "type=double": {
+      "model": "shadowsandpetals:block/sakura_leaves"
+    },
+    "type=east": {
+      "model": "shadowsandpetals:block/sakura_leaves_vertical_slab",
+      "uvlock": true,
+      "y": 90
+    },
+    "type=north": {
+      "model": "shadowsandpetals:block/sakura_leaves_vertical_slab",
+      "uvlock": true
+    },
+    "type=south": {
+      "model": "shadowsandpetals:block/sakura_leaves_vertical_slab",
+      "uvlock": true,
+      "y": 180
+    },
+    "type=west": {
+      "model": "shadowsandpetals:block/sakura_leaves_vertical_slab",
+      "uvlock": true,
+      "y": 270
+    }
+  }
+}

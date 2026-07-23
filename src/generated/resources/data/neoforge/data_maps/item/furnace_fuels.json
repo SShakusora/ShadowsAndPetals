@@ -3,17 +3,26 @@
     "shadowsandpetals:ginkgo_post": {
       "burn_time": 100
     },
+    "shadowsandpetals:ginkgo_vertical_slab": {
+      "burn_time": 150
+    },
     "shadowsandpetals:ginkgo_wood_post": {
       "burn_time": 100
     },
     "shadowsandpetals:maple_post": {
       "burn_time": 100
     },
+    "shadowsandpetals:maple_vertical_slab": {
+      "burn_time": 150
+    },
     "shadowsandpetals:maple_wood_post": {
       "burn_time": 100
     },
     "shadowsandpetals:sakura_post": {
       "burn_time": 100
+    },
+    "shadowsandpetals:sakura_vertical_slab": {
+      "burn_time": 150
     },
     "shadowsandpetals:sakura_wood_post": {
       "burn_time": 100

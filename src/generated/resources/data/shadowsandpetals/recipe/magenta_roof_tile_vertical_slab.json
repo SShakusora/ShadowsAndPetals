@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "S": "shadowsandpetals:magenta_roof_tile_slab"
+  },
+  "pattern": [
+    "S",
+    "S",
+    "S"
+  ],
+  "result": {
+    "count": 3,
+    "id": "shadowsandpetals:magenta_roof_tile_vertical_slab"
+  }
+}

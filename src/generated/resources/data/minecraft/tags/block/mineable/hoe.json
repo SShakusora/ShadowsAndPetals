@@ -2,18 +2,22 @@
   "values": [
     "shadowsandpetals:sakura_leaves",
     "shadowsandpetals:sakura_leaves_slab",
+    "shadowsandpetals:sakura_leaves_vertical_slab",
     "shadowsandpetals:sakura_leaves_stairs",
     "shadowsandpetals:sakura_hedge",
     "shadowsandpetals:maple_leaves",
     "shadowsandpetals:maple_leaves_slab",
+    "shadowsandpetals:maple_leaves_vertical_slab",
     "shadowsandpetals:maple_leaves_stairs",
     "shadowsandpetals:maple_hedge",
     "shadowsandpetals:ginkgo_leaves",
     "shadowsandpetals:ginkgo_leaves_slab",
+    "shadowsandpetals:ginkgo_leaves_vertical_slab",
     "shadowsandpetals:ginkgo_leaves_stairs",
     "shadowsandpetals:ginkgo_hedge",
     "shadowsandpetals:autumn_oak_leaves",
     "shadowsandpetals:autumn_oak_leaves_slab",
+    "shadowsandpetals:autumn_oak_leaves_vertical_slab",
     "shadowsandpetals:autumn_oak_leaves_stairs",
     "shadowsandpetals:autumn_oak_hedge"
   ]

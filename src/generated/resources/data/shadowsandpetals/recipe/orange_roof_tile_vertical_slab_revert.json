@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    "shadowsandpetals:orange_roof_tile_vertical_slab"
+  ],
+  "result": {
+    "id": "shadowsandpetals:orange_roof_tile_slab"
+  }
+}

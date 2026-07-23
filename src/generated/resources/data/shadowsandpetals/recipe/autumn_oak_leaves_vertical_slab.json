@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "S": "shadowsandpetals:autumn_oak_leaves_slab"
+  },
+  "pattern": [
+    "S",
+    "S",
+    "S"
+  ],
+  "result": {
+    "count": 3,
+    "id": "shadowsandpetals:autumn_oak_leaves_vertical_slab"
+  }
+}

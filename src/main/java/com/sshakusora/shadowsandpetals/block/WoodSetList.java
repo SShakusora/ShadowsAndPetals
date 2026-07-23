@@ -2,7 +2,9 @@ package com.sshakusora.shadowsandpetals.block;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.VerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabOrder;
@@ -66,6 +68,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             DeferredBlock<WoodPostBlock> woodPost,
             DeferredBlock<WoodPostBlock> strippedWoodPost,
             DeferredBlock<SlabBlock> slab,
+            DeferredBlock<VerticalSlabBlock> verticalSlab,
             DeferredBlock<StairBlock> stairs,
             DeferredBlock<FenceBlock> fence,
             DeferredBlock<FenceGateBlock> fenceGate,
@@ -74,6 +77,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             DeferredBlock<SaplingBlock> sapling,
             DeferredBlock<LeavesBlock> leaves,
             DeferredBlock<SlabBlock> leavesSlab,
+            DeferredBlock<LeavesVerticalSlabBlock> leavesVerticalSlab,
             DeferredBlock<StairBlock> leavesStairs,
             DeferredBlock<HedgeBlock> hedge
     ) {}
@@ -90,6 +94,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<WoodPostBlock> woodPost = treeWoodPost(type.name + "_wood_post", wood, log, type.woodZhName + "柱");
         DeferredBlock<WoodPostBlock> strippedWoodPost = treeStrippedWoodPost("stripped_" + type.name + "_wood_post", strippedWood, strippedLog, "去皮" + type.woodZhName + "柱");
         DeferredBlock<SlabBlock> slab = treeSlab(type.name + "_slab", planks, type.woodZhName + "台阶");
+        DeferredBlock<VerticalSlabBlock> verticalSlab = treeVerticalSlab(type.name + "_vertical_slab", slab, planks, "竖直" + type.woodZhName + "台阶");
         DeferredBlock<StairBlock> stairs = treeStairs(type.name + "_stairs", planks, type.woodZhName + "楼梯");
         DeferredBlock<FenceBlock> fence = treeFence(type.name + "_fence", planks, type.woodZhName + "栅栏");
         DeferredBlock<FenceGateBlock> fenceGate = treeFenceGate(type.name + "_fence_gate", planks, type.woodZhName + "栅栏门");
@@ -98,9 +103,10 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<SaplingBlock> sapling = treeSapling(type.name + "_sapling", type.grower, type.treeZhName + "树苗");
         DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶", type.fallingLeafParticleSupplier);
         DeferredBlock<SlabBlock> leavesSlab = treeLeavesSlab(type.name + "_leaves_slab", leaves, type.treeZhName + "树叶台阶");
+        DeferredBlock<LeavesVerticalSlabBlock> leavesVerticalSlab = treeLeavesVerticalSlab(type.name + "_leaves_vertical_slab", leavesSlab, leaves, "竖直" + type.treeZhName + "树叶台阶");
         DeferredBlock<StairBlock> leavesStairs = treeLeavesStairs(type.name + "_leaves_stairs", leaves, type.treeZhName + "树叶楼梯");
         DeferredBlock<HedgeBlock> hedge = treeHedge(type.name + "_hedge", leaves, type.treeZhName + "树篱");
-        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesSlab, leavesStairs, hedge);
+        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, verticalSlab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesSlab, leavesVerticalSlab, leavesStairs, hedge);
     }
 
     private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String zhName) {
@@ -442,6 +448,43 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .register();
     }
 
+    private static DeferredBlock<VerticalSlabBlock> treeVerticalSlab(
+            String id,
+            DeferredBlock<SlabBlock> slab,
+            DeferredBlock<Block> planks,
+            String zhName
+    ) {
+        return SAPRegistries.block(id, VerticalSlabBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SLAB)
+                        .strength(2.0F, 3.0F)
+                        .sound(SoundType.WOOD))
+                .tags(BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_VERTICAL_SLABS)
+                .lang("zh_cn", zhName)
+                .blockstate((provider, verticalSlab) -> provider.verticalSlabBlockWithItem(
+                        verticalSlab.get(),
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(planks.get()).getPath()),
+                        planks.get(),
+                        false
+                ))
+                .loot((provider, verticalSlab) -> provider.dropSlab(verticalSlab.get()))
+                .recipe((provider, verticalSlab) -> {
+                    provider.shaped(RecipeCategory.BUILDING_BLOCKS, verticalSlab.get(), 3)
+                            .define('S', slab.get())
+                            .pattern("S")
+                            .pattern("S")
+                            .pattern("S")
+                            .unlockedBy(provider.hasName(slab.get()), provider.hasItem(slab.get()))
+                            .save(provider.output());
+                    provider.shapeless(RecipeCategory.BUILDING_BLOCKS, slab.get())
+                            .requires(verticalSlab.get())
+                            .unlockedBy(provider.hasName(verticalSlab.get()), provider.hasItem(verticalSlab.get()))
+                            .save(provider.output(), provider.id(id + "_revert").toString());
+                })
+                .register();
+    }
+
     public static DeferredBlock<SlabBlock> treeLeavesSlab(String id, DeferredBlock<LeavesBlock> leaves, String zhName) {
         return SAPRegistries.block(id, SlabBlock::new)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
@@ -465,6 +508,47 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .pattern("LLL")
                         .unlockedBy(provider.hasName(leaves.get()), provider.hasItem(leaves.get()))
                         .save(provider.output()))
+                .register();
+    }
+
+    public static DeferredBlock<LeavesVerticalSlabBlock> treeLeavesVerticalSlab(
+            String id,
+            DeferredBlock<SlabBlock> leavesSlab,
+            DeferredBlock<LeavesBlock> leaves,
+            String zhName
+    ) {
+        return SAPRegistries.block(id, LeavesVerticalSlabBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
+                        .strength(0.2F)
+                        .sound(SoundType.GRASS)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE)
+                .withItem()
+                .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES_VERTICAL_SLABS)
+                .lang("zh_cn", zhName)
+                .blockstate((provider, verticalSlab) -> provider.verticalSlabBlockWithItem(
+                        verticalSlab.get(),
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath()),
+                        leaves.get(),
+                        true
+                ))
+                .loot((provider, verticalSlab) -> provider.dropSlab(verticalSlab.get()))
+                .recipe((provider, verticalSlab) -> {
+                    provider.shaped(RecipeCategory.BUILDING_BLOCKS, verticalSlab.get(), 3)
+                            .define('S', leavesSlab.get())
+                            .pattern("S")
+                            .pattern("S")
+                            .pattern("S")
+                            .unlockedBy(provider.hasName(leavesSlab.get()), provider.hasItem(leavesSlab.get()))
+                            .save(provider.output());
+                    provider.shapeless(RecipeCategory.BUILDING_BLOCKS, leavesSlab.get())
+                            .requires(verticalSlab.get())
+                            .unlockedBy(provider.hasName(verticalSlab.get()), provider.hasItem(verticalSlab.get()))
+                            .save(provider.output(), provider.id(id + "_revert").toString());
+                })
                 .register();
     }
 

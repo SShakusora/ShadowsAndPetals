@@ -1,0 +1,8 @@
+{
+  "parent": "shadowsandpetals:block/template/roof_tile_vertical_slab_east",
+  "textures": {
+    "bottom": "shadowsandpetals:block/roof_tile/light_gray",
+    "side": "shadowsandpetals:block/roof_tile/light_gray",
+    "top": "shadowsandpetals:block/roof_tile/light_gray"
+  }
+}

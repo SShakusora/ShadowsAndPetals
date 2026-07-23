@@ -1,0 +1,79 @@
+{
+  "variants": {
+    "facing=east,type=double": {
+      "model": "shadowsandpetals:block/black_roof_tile",
+      "y": 90
+    },
+    "facing=east,type=east": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab",
+      "y": 90
+    },
+    "facing=east,type=north": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_west",
+      "y": 90
+    },
+    "facing=east,type=south": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_east",
+      "y": 90
+    },
+    "facing=east,type=west": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_south",
+      "y": 90
+    },
+    "facing=north,type=double": {
+      "model": "shadowsandpetals:block/black_roof_tile"
+    },
+    "facing=north,type=east": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_east"
+    },
+    "facing=north,type=north": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab"
+    },
+    "facing=north,type=south": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_south"
+    },
+    "facing=north,type=west": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_west"
+    },
+    "facing=south,type=double": {
+      "model": "shadowsandpetals:block/black_roof_tile",
+      "y": 180
+    },
+    "facing=south,type=east": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_west",
+      "y": 180
+    },
+    "facing=south,type=north": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_south",
+      "y": 180
+    },
+    "facing=south,type=south": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab",
+      "y": 180
+    },
+    "facing=south,type=west": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_east",
+      "y": 180
+    },
+    "facing=west,type=double": {
+      "model": "shadowsandpetals:block/black_roof_tile",
+      "y": 270
+    },
+    "facing=west,type=east": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_south",
+      "y": 270
+    },
+    "facing=west,type=north": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_east",
+      "y": 270
+    },
+    "facing=west,type=south": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab_west",
+      "y": 270
+    },
+    "facing=west,type=west": {
+      "model": "shadowsandpetals:block/black_roof_tile_vertical_slab",
+      "y": 270
+    }
+  }
+}

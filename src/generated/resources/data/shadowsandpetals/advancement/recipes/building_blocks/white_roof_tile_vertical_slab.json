@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shadowsandpetals:white_roof_tile_vertical_slab"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    },
+    "has_white_roof_tile_slab": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:white_roof_tile_slab"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_white_roof_tile_slab"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "shadowsandpetals:white_roof_tile_vertical_slab"
+    ]
+  }
+}

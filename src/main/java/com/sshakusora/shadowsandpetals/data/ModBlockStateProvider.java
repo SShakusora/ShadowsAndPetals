@@ -40,6 +40,11 @@ public class ModBlockStateProvider implements DataProvider {
             Optional.empty(),
             TextureSlot.ALL
     );
+    private static final ModelTemplate VERTICAL_SLAB = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/vertical_slab")),
+            Optional.empty(),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
     private final PackOutput.PathProvider blockStatePathProvider;
     private final PackOutput.PathProvider modelPathProvider;
     private final Map<Identifier, JsonObject> blockStates = new LinkedHashMap<>();
@@ -135,6 +140,31 @@ public class ModBlockStateProvider implements DataProvider {
                 BlockModelGenerators.plainVariant(doubleModel)
         ));
         putParentModel(itemModelId(block), bottomModel);
+    }
+
+    public void verticalSlabBlockWithItem(
+            VerticalSlabBlock block,
+            Identifier texture,
+            Block doubleBlock,
+            boolean cutoutMipped
+    ) {
+        Identifier modelId = VERTICAL_SLAB.create(block, leavesShapeTextureMapping(texture), this::putGeneratedModel);
+        if (cutoutMipped) {
+            this.models.get(modelId).addProperty("render_type", "cutout_mipped");
+        }
+
+        MultiVariant model = BlockModelGenerators.plainVariant(modelId).with(BlockModelGenerators.UV_LOCK);
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(VerticalSlabBlock.TYPE)
+                        .select(VerticalSlabBlock.VerticalSlabType.NORTH, model)
+                        .select(VerticalSlabBlock.VerticalSlabType.SOUTH, model.with(BlockModelGenerators.Y_ROT_180))
+                        .select(VerticalSlabBlock.VerticalSlabType.EAST, model.with(BlockModelGenerators.Y_ROT_90))
+                        .select(VerticalSlabBlock.VerticalSlabType.WEST, model.with(BlockModelGenerators.Y_ROT_270))
+                        .select(
+                                VerticalSlabBlock.VerticalSlabType.DOUBLE,
+                                BlockModelGenerators.plainVariant(blockModelId(doubleBlock))
+                        )));
+        putParentModel(itemModelId(block), modelId);
     }
 
     public void leavesStairsBlockWithItem(StairBlock block, Identifier texture) {

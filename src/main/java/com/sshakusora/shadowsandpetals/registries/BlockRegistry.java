@@ -7,6 +7,7 @@ import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
@@ -59,6 +60,12 @@ public class BlockRegistry {
             "autumn_oak_leaves_slab",
             AUTUMN_OAK_LEAVES,
             "秋橡树树叶台阶"
+    );
+    public static final DeferredBlock<LeavesVerticalSlabBlock> AUTUMN_OAK_LEAVES_VERTICAL_SLAB = WoodSetList.treeLeavesVerticalSlab(
+            "autumn_oak_leaves_vertical_slab",
+            AUTUMN_OAK_LEAVES_SLAB,
+            AUTUMN_OAK_LEAVES,
+            "竖直秋橡树树叶台阶"
     );
     public static final DeferredBlock<StairBlock> AUTUMN_OAK_LEAVES_STAIRS = WoodSetList.treeLeavesStairs(
             "autumn_oak_leaves_stairs",
@@ -518,6 +525,35 @@ public class BlockRegistry {
                 provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
             })
             .lang("zh_cn", DyedBlockList.zhName(color) + "瓦台阶")
+            .register());
+
+    public static final DyedBlockList<RoofTileVerticalSlabBlock> ROOF_TILE_VERTICAL_SLABS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile_vertical_slab", RoofTileVerticalSlabBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_SLAB)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .clientItem(block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath()))
+            .loot((provider, block) -> provider.dropSlab(block.get()))
+            .recipe((provider, block) -> {
+                var slab = ROOF_TILE_SLABS.get(color).get();
+                provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 3)
+                        .define('S', slab)
+                        .pattern("S")
+                        .pattern("S")
+                        .pattern("S")
+                        .unlockedBy(provider.hasName(slab), provider.hasItem(slab))
+                        .save(provider.output());
+                provider.shapeless(RecipeCategory.BUILDING_BLOCKS, slab)
+                        .requires(block.get())
+                        .unlockedBy(provider.hasName(block.get()), provider.hasItem(block.get()))
+                        .save(provider.output(), provider.id(color.getName() + "_roof_tile_vertical_slab_revert").toString());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
+            })
+            .lang("zh_cn", "竖直" + DyedBlockList.zhName(color) + "瓦台阶")
             .register());
 
     public static final DyedBlockList<StairBlock> ROOF_TILE_STAIRS = new DyedBlockList<>(color -> SAPRegistries

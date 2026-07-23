@@ -3,6 +3,8 @@ package com.sshakusora.shadowsandpetals.data;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.decoration.RoofTileSlabBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.RoofTileVerticalSlabBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.VerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelGenerators;
@@ -17,6 +19,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.client.data.models.model.TextureSlot;
 import net.minecraft.client.renderer.block.dispatch.VariantMutator;
 import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.data.BlockFamily;
 import net.minecraft.data.PackOutput;
@@ -24,6 +27,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.SlabType;
@@ -41,6 +45,26 @@ public class ModWoodModelProvider extends ModelProvider {
     private static final ModelTemplate ROOF_TILE_SLAB_TOP = new ModelTemplate(
             Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_slab_top")),
             Optional.of("_top"),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_VERTICAL_SLAB = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_vertical_slab")),
+            Optional.empty(),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_VERTICAL_SLAB_SOUTH = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_vertical_slab_south")),
+            Optional.of("_south"),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_VERTICAL_SLAB_WEST = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_vertical_slab_west")),
+            Optional.of("_west"),
+            TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
+    );
+    private static final ModelTemplate ROOF_TILE_VERTICAL_SLAB_EAST = new ModelTemplate(
+            Optional.of(ShadowsAndPetals.asResource("block/template/roof_tile_vertical_slab_east")),
+            Optional.of("_east"),
             TextureSlot.BOTTOM, TextureSlot.TOP, TextureSlot.SIDE
     );
     private static final ModelTemplate ROOF_TILE_STAIRS = new ModelTemplate(
@@ -62,7 +86,7 @@ public class ModWoodModelProvider extends ModelProvider {
             .flatMap(ModWoodModelProvider::blocksOf)
             .toArray(Block[]::new);
     private static final Block[] ROOF_TILE_SHAPE_BLOCKS = Stream.concat(
-            BlockRegistry.ROOF_TILE_SLABS.stream(),
+            Stream.concat(BlockRegistry.ROOF_TILE_SLABS.stream(), BlockRegistry.ROOF_TILE_VERTICAL_SLABS.stream()),
             BlockRegistry.ROOF_TILE_STAIRS.stream()
     ).map(holder -> holder.get()).toArray(Block[]::new);
 
@@ -137,6 +161,7 @@ public class ModWoodModelProvider extends ModelProvider {
     private static void registerRoofTileShapeModels(BlockModelGenerators blockModels, DyeColor color) {
         Block baseBlock = BlockRegistry.ROOF_TILES.get(color).get();
         RoofTileSlabBlock slab = BlockRegistry.ROOF_TILE_SLABS.get(color).get();
+        RoofTileVerticalSlabBlock verticalSlab = BlockRegistry.ROOF_TILE_VERTICAL_SLABS.get(color).get();
         StairBlock stairs = BlockRegistry.ROOF_TILE_STAIRS.get(color).get();
         TextureMapping mapping = roofTileMapping(color);
 
@@ -145,6 +170,26 @@ public class ModWoodModelProvider extends ModelProvider {
         MultiVariant slabDouble = BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(baseBlock));
         blockModels.blockStateOutput.accept(createRoofTileSlab(slab, BlockModelGenerators.plainVariant(slabBottom), slabTop, slabDouble));
         blockModels.registerSimpleItemModel(slab, slabBottom);
+
+        Identifier verticalSlabModel = ROOF_TILE_VERTICAL_SLAB.create(verticalSlab, mapping, blockModels.modelOutput);
+        MultiVariant verticalSlabSouth = BlockModelGenerators.plainVariant(
+                ROOF_TILE_VERTICAL_SLAB_SOUTH.create(verticalSlab, mapping, blockModels.modelOutput)
+        );
+        MultiVariant verticalSlabWest = BlockModelGenerators.plainVariant(
+                ROOF_TILE_VERTICAL_SLAB_WEST.create(verticalSlab, mapping, blockModels.modelOutput)
+        );
+        MultiVariant verticalSlabEast = BlockModelGenerators.plainVariant(
+                ROOF_TILE_VERTICAL_SLAB_EAST.create(verticalSlab, mapping, blockModels.modelOutput)
+        );
+        blockModels.blockStateOutput.accept(createRoofTileVerticalSlab(
+                verticalSlab,
+                BlockModelGenerators.plainVariant(verticalSlabModel),
+                verticalSlabSouth,
+                verticalSlabWest,
+                verticalSlabEast,
+                BlockModelGenerators.plainVariant(ModelLocationUtils.getModelLocation(baseBlock))
+        ));
+        blockModels.registerSimpleItemModel(verticalSlab, verticalSlabModel);
 
         MultiVariant inner = BlockModelGenerators.plainVariant(ROOF_TILE_INNER_STAIRS.create(stairs, mapping, blockModels.modelOutput));
         Identifier straight = ROOF_TILE_STAIRS.create(stairs, mapping, blockModels.modelOutput);
@@ -178,6 +223,51 @@ public class ModWoodModelProvider extends ModelProvider {
                         .select(SlabType.TOP, top)
                         .select(SlabType.DOUBLE, full))
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING);
+    }
+
+    private static BlockModelDefinitionGenerator createRoofTileVerticalSlab(
+            RoofTileVerticalSlabBlock block,
+            MultiVariant north,
+            MultiVariant south,
+            MultiVariant west,
+            MultiVariant east,
+            MultiVariant full
+    ) {
+        return MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(VerticalSlabBlock.TYPE, RoofTileVerticalSlabBlock.FACING)
+                        .generate((type, facing) -> type == VerticalSlabBlock.VerticalSlabType.DOUBLE
+                                ? horizontalVariant(full, facing)
+                                : horizontalVariant(switch (relativeType(type, facing)) {
+                                    case NORTH -> north;
+                                    case SOUTH -> south;
+                                    case WEST -> west;
+                                    case EAST -> east;
+                                    case DOUBLE -> throw new IllegalStateException("A half slab cannot use the double model");
+                                }, facing)));
+    }
+
+    private static VerticalSlabBlock.VerticalSlabType relativeType(
+            VerticalSlabBlock.VerticalSlabType type,
+            Direction facing
+    ) {
+        Rotation inverseFacingRotation = switch (facing) {
+            case NORTH -> Rotation.NONE;
+            case EAST -> Rotation.COUNTERCLOCKWISE_90;
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.CLOCKWISE_90;
+            default -> throw new IllegalArgumentException("Roof tile facing must be horizontal: " + facing);
+        };
+        return VerticalSlabBlock.VerticalSlabType.fromDirection(inverseFacingRotation.rotate(type.direction()));
+    }
+
+    private static MultiVariant horizontalVariant(MultiVariant model, Direction facing) {
+        return switch (facing) {
+            case NORTH -> model;
+            case EAST -> model.with(BlockModelGenerators.Y_ROT_90);
+            case SOUTH -> model.with(BlockModelGenerators.Y_ROT_180);
+            case WEST -> model.with(BlockModelGenerators.Y_ROT_270);
+            default -> throw new IllegalArgumentException("Roof tile facing must be horizontal: " + facing);
+        };
     }
 
     private static TextureMapping roofTileMapping(DyeColor color) {

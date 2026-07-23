@@ -27,7 +27,7 @@ public class ModDataMapProvider extends DataMapProvider {
 
         BlockRegistry.WOOD_SETS.forEach(woodSet -> {
             addStrippables(strippables, woodSet);
-            addPostFuels(furnaceFuels, woodSet);
+            addWoodFuels(furnaceFuels, woodSet);
         });
     }
 
@@ -38,11 +38,12 @@ public class ModDataMapProvider extends DataMapProvider {
         strippables.add(woodSet.woodPost().get().builtInRegistryHolder(), new Strippable(woodSet.strippedWoodPost().get()), false);
     }
 
-    private static void addPostFuels(Builder<FurnaceFuel, Item> furnaceFuels, WoodSetList.WoodSet woodSet) {
+    private static void addWoodFuels(Builder<FurnaceFuel, Item> furnaceFuels, WoodSetList.WoodSet woodSet) {
         addFuel(furnaceFuels, woodSet.post(), 100);
         addFuel(furnaceFuels, woodSet.strippedPost(), 100);
         addFuel(furnaceFuels, woodSet.woodPost(), 100);
         addFuel(furnaceFuels, woodSet.strippedWoodPost(), 100);
+        addFuel(furnaceFuels, woodSet.verticalSlab(), 150);
     }
 
     private static void addFuel(
