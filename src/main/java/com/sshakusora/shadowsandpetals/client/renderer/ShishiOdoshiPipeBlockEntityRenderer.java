@@ -94,6 +94,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         state.length = blockState.getValue(ShishiOdoshiPipeBlock.LENGTH);
         state.shouldRenderWater = false;
         state.fluidSprite = null;
+        state.fluidLightEmission = 0;
         state.streamBottomY = DEFAULT_STREAM_Y_BOTTOM;
 
         if (blockEntity.getLevel() == null) {
@@ -127,6 +128,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             state.shouldRenderWater = true;
             state.fluidSprite = renderInfo.sprite();
             state.waterColor = renderInfo.color();
+            state.fluidLightEmission = renderInfo.lightEmission();
         }
     }
 
@@ -142,7 +144,9 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         }
 
         PipeChannel channel = PipeChannel.forLength(state.length);
-        int lightCoords = state.lightCoords;
+        int lightCoords = ShishiOdoshiFluidRenderInfo.applyLightEmission(
+                state.lightCoords, state.fluidLightEmission
+        );
         int waterColor = state.waterColor;
 
         poseStack.pushPose();
@@ -302,6 +306,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         public ShishiOdoshiPipeBlock.PipeLength length = ShishiOdoshiPipeBlock.PipeLength.NORMAL;
         public boolean shouldRenderWater;
         public int waterColor;
+        public int fluidLightEmission;
         public @Nullable TextureAtlasSprite fluidSprite;
         public float streamBottomY = DEFAULT_STREAM_Y_BOTTOM;
     }

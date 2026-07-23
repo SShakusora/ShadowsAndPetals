@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiPipeBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
@@ -141,6 +142,9 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
         if (direction == state.getValue(FACING).getOpposite() && !state.canSurvive(level, pos)) {
             return Blocks.AIR.defaultBlockState();
         }
+        if (direction == state.getValue(FACING).getOpposite() && level instanceof Level blockLevel) {
+            blockLevel.getLightEngine().checkBlock(pos);
+        }
         if (direction == Direction.DOWN) {
             state = updatePipeLength(level, pos, state);
         }
@@ -153,6 +157,25 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        return getSuppliedFluidLightEmission(state, level, pos);
+    }
+
+    public static int getSuppliedFluidLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        Direction facing = state.getValue(FACING);
+        BlockPos sourcePos = pos.relative(facing.getOpposite());
+        var fluid = ShishiOdoshiFluidRegistry.findSourceFluid(level, sourcePos);
+        return fluid == null
+                ? 0
+                : fluid.defaultFluidState().createLegacyBlock().getLightEmission(level, sourcePos);
     }
 
     @Override
@@ -175,9 +198,7 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
         if (level.isClientSide()) {
             return createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::clientTick);
         }
-        return state.getValue(LENGTH) == PipeLength.NORMAL
-                ? null
-                : createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::serverTick);
+        return createTickerHelper(type, BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntity::serverTick);
     }
 
     private static Map<PipeLength, Map<Direction, VoxelShape>> buildShapes() {

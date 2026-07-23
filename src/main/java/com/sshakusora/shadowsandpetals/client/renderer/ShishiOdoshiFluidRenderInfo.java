@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -47,10 +48,15 @@ final class ShishiOdoshiFluidRenderInfo {
                             fluid.defaultFluidState(), level.getBlockState(pos), level, pos
                     );
         }
-        return new Info(sprite, ARGB.color(STREAM_ALPHA, tint & 0x00FFFFFF));
+        int lightEmission = fluid.defaultFluidState().createLegacyBlock().getLightEmission(level, pos);
+        return new Info(sprite, ARGB.color(STREAM_ALPHA, tint & 0x00FFFFFF), lightEmission);
     }
 
-    record Info(TextureAtlasSprite sprite, int color) {}
+    static int applyLightEmission(int packedLight, int lightEmission) {
+        return LightCoordsUtil.lightCoordsWithEmission(packedLight, lightEmission);
+    }
+
+    record Info(TextureAtlasSprite sprite, int color, int lightEmission) {}
 
     static final class Cache<K> {
         private final Map<K, CachedInfo> entries = new WeakHashMap<>();

@@ -87,6 +87,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         );
         state.fluidSprite = fluidRenderInfo == null ? null : fluidRenderInfo.sprite();
         state.waterColor = fluidRenderInfo == null ? 0xD0FFFFFF : fluidRenderInfo.color();
+        state.fluidLightEmission = fluidRenderInfo == null ? 0 : fluidRenderInfo.lightEmission();
         updatePourPath(state);
 
         if (cachedMainModel != mainModel) {
@@ -211,7 +212,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
                     minU, maxU,
                     (tubeStart - tailDistance) * FLOW_UV_SCALE,
                     (tubeEnd - tailDistance) * FLOW_UV_SCALE,
-                    state.waterColor, state.lightCoords,
+                    state.waterColor, state.fluidLightCoords(),
                     true
             );
         }
@@ -226,7 +227,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
                     minU, maxU,
                     (fallingStart - tailDistance) * FLOW_UV_SCALE,
                     (fallingEnd - tailDistance) * FLOW_UV_SCALE,
-                    state.waterColor, state.lightCoords,
+                    state.waterColor, state.fluidLightCoords(),
                     true
             );
         }
@@ -301,7 +302,12 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         public float outletY;
         public float outletZ;
         public int waterColor;
+        public int fluidLightEmission;
         public @Nullable TextureAtlasSprite fluidSprite;
         public boolean mainHasTranslucency;
+
+        private int fluidLightCoords() {
+            return ShishiOdoshiFluidRenderInfo.applyLightEmission(lightCoords, fluidLightEmission);
+        }
     }
 }

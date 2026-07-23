@@ -28,7 +28,9 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
     private @Nullable Vec3 cachedFallbackImpactPosition;
     private long nextImpactCheckTick = Long.MIN_VALUE;
     private long nextLengthCheckTick = Long.MIN_VALUE;
+    private long nextLightCheckTick = Long.MIN_VALUE;
     private long lastSplashTick = Long.MIN_VALUE;
+    private int cachedLightEmission = Integer.MIN_VALUE;
 
     public ShishiOdoshiPipeBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), pos, blockState);
@@ -75,6 +77,8 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
     public static void serverTick(
             Level level, BlockPos pos, BlockState state, ShishiOdoshiPipeBlockEntity blockEntity
     ) {
+        blockEntity.updateLightEmission(level, pos, state);
+
         long gameTime = level.getGameTime();
         if (gameTime < blockEntity.nextLengthCheckTick) {
             return;
@@ -90,6 +94,8 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
     public static void clientTick(
             Level level, BlockPos pos, BlockState state, ShishiOdoshiPipeBlockEntity blockEntity
     ) {
+        blockEntity.updateLightEmission(level, pos, state);
+
         Vec3 impactPosition = blockEntity.getFallbackImpactPosition();
         long gameTime = level.getGameTime();
         if (impactPosition == null
@@ -106,6 +112,22 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
 
         blockEntity.lastSplashTick = gameTime;
         spawnWaterSplash(level, impactPosition);
+    }
+
+    private void updateLightEmission(Level level, BlockPos pos, BlockState state) {
+        long gameTime = level.getGameTime();
+        if (gameTime < nextLightCheckTick) {
+            return;
+        }
+
+        nextLightCheckTick = gameTime + ShishiOdoshiPipeBlock.CONNECTION_RECHECK_INTERVAL_TICKS;
+        int lightEmission = ShishiOdoshiPipeBlock.getSuppliedFluidLightEmission(state, level, pos);
+        if (lightEmission == cachedLightEmission) {
+            return;
+        }
+
+        cachedLightEmission = lightEmission;
+        level.getLightEngine().checkBlock(pos);
     }
 
     private @Nullable Vec3 findFallbackImpactPosition(Level level) {

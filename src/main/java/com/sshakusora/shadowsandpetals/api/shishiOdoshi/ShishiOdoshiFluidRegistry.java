@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.api.shishiOdoshi;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -104,6 +105,10 @@ public final class ShishiOdoshiFluidRegistry {
     }
 
     public static @Nullable Fluid findSourceFluid(LevelReader level, BlockPos sourcePos) {
+        return findSourceFluid((BlockGetter) level, sourcePos);
+    }
+
+    public static @Nullable Fluid findSourceFluid(BlockGetter level, BlockPos sourcePos) {
         BlockState state = level.getBlockState(sourcePos);
         // Later registrations override broad predicates such as the waterlogged default.
         for (int i = SOURCES.size() - 1; i >= 0; i--) {
