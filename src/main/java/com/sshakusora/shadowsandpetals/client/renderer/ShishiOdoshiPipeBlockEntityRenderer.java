@@ -39,8 +39,9 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
     private static final float FALLING_STREAM_HALF_WIDTH = 0.48F / 16.0F;
     private static final float STREAM_FADE_LENGTH = 2.0F / 16.0F;
     private static final float FLOW_UV_SCALE = 0.5F;
-    private static final float FALLING_STREAM_SEGMENT_LENGTH = 1.0F / FLOW_UV_SCALE;
+    private static final float FLOW_UV_SCROLL_PER_TICK = 1.0F / 40.0F;
     private static final float FLOW_U_CENTER = 0.5F;
+    private static final float FLOW_UV_WRAP_EPSILON = 1.0E-4F;
     private final ShishiOdoshiFluidRenderInfo.Cache<ShishiOdoshiPipeBlockEntity> fluidRenderInfoCache =
             new ShishiOdoshiFluidRenderInfo.Cache<>();
 
@@ -95,6 +96,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         state.shouldRenderWater = false;
         state.fluidSprite = null;
         state.fluidLightEmission = 0;
+        state.flowOffset = 0.0F;
         state.streamBottomY = DEFAULT_STREAM_Y_BOTTOM;
 
         if (blockEntity.getLevel() == null) {
@@ -129,6 +131,13 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             state.fluidSprite = renderInfo.sprite();
             state.waterColor = renderInfo.color();
             state.fluidLightEmission = renderInfo.lightEmission();
+            // Keep the phase stable across frames while still interpolating smoothly within each tick.
+            double elapsedTicks = blockEntity.getLevel().getGameTime() + (double) partialTicks;
+            double animationSpeed = ShishiOdoshiFluidRegistry.getAnimationSpeed(fluid);
+            state.flowOffset = (float) Mth.positiveModulo(
+                    elapsedTicks * animationSpeed * FLOW_UV_SCROLL_PER_TICK,
+                    1.0D
+            );
         }
     }
 
@@ -159,8 +168,11 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
                 poseStack,
                 Sheets.translucentBlockSheet(),
                 (pose, buffer) -> {
-                    renderInnerStreamQuad(buffer, pose, sprite, lightCoords, waterColor, channel);
-                    renderFallingStreamQuad(buffer, pose, sprite, lightCoords, waterColor, channel, state.streamBottomY);
+                    renderInnerStreamQuad(buffer, pose, sprite, lightCoords, waterColor, channel, state.flowOffset);
+                    renderFallingStreamQuad(
+                            buffer, pose, sprite, lightCoords, waterColor,
+                            channel, state.streamBottomY, state.flowOffset
+                    );
                 }
         );
 
@@ -173,7 +185,8 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             TextureAtlasSprite sprite,
             int lightCoords,
             int color,
-            PipeChannel channel
+            PipeChannel channel,
+            float flowOffset
     ) {
         float minX = channel.centerX - INNER_STREAM_HALF_WIDTH;
         float maxX = channel.centerX + INNER_STREAM_HALF_WIDTH;
@@ -183,18 +196,48 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         float halfU = (maxX - minX) * FLOW_UV_SCALE * 0.5F;
         float minU = FLOW_U_CENTER - halfU;
         float maxU = FLOW_U_CENTER + halfU;
-        float sourceV = 0.0F;
-        float mouthV = (maxZ - minZ) * FLOW_UV_SCALE;
+        float streamLength = maxZ - minZ;
+        float segmentStartDistance = 0.0F;
+        // Atlas sprites cannot wrap independently, so split the geometry whenever V wraps to zero.
+        while (segmentStartDistance < streamLength) {
+            float startV = getWrappedFlowV(segmentStartDistance, flowOffset);
+            float distanceToWrap = (1.0F - startV) / FLOW_UV_SCALE;
+            float segmentEndDistance = Math.min(streamLength, segmentStartDistance + distanceToWrap);
+            float endV = startV + (segmentEndDistance - segmentStartDistance) * FLOW_UV_SCALE;
+            float startZ = maxZ - segmentStartDistance;
+            float endZ = maxZ - segmentEndDistance;
+            renderInnerStreamSegment(
+                    buffer, pose, sprite, minX, maxX, startZ, endZ,
+                    minU, maxU, startV, endV, color, lightCoords
+            );
+            segmentStartDistance = segmentEndDistance;
+        }
+    }
 
-        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, minZ, color, minU, mouthV, lightCoords, 0.0F, 1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, maxZ, color, minU, sourceV, lightCoords, 0.0F, 1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, maxZ, color, maxU, sourceV, lightCoords, 0.0F, 1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, minZ, color, maxU, mouthV, lightCoords, 0.0F, 1.0F, 0.0F);
+    private static void renderInnerStreamSegment(
+            VertexConsumer buffer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            float minX,
+            float maxX,
+            float startZ,
+            float endZ,
+            float minU,
+            float maxU,
+            float startV,
+            float endV,
+            int color,
+            int lightCoords
+    ) {
+        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, endZ, color, minU, endV, lightCoords, 0.0F, 1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, startZ, color, minU, startV, lightCoords, 0.0F, 1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, startZ, color, maxU, startV, lightCoords, 0.0F, 1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, endZ, color, maxU, endV, lightCoords, 0.0F, 1.0F, 0.0F);
 
-        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, minZ, color, maxU, mouthV, lightCoords, 0.0F, -1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, maxZ, color, maxU, sourceV, lightCoords, 0.0F, -1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, maxZ, color, minU, sourceV, lightCoords, 0.0F, -1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, minZ, color, minU, mouthV, lightCoords, 0.0F, -1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, endZ, color, maxU, endV, lightCoords, 0.0F, -1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, maxX, WATER_SURFACE_Y, startZ, color, maxU, startV, lightCoords, 0.0F, -1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, startZ, color, minU, startV, lightCoords, 0.0F, -1.0F, 0.0F);
+        addVertex(buffer, pose, sprite, minX, WATER_SURFACE_Y, endZ, color, minU, endV, lightCoords, 0.0F, -1.0F, 0.0F);
     }
 
     private static void renderFallingStreamQuad(
@@ -204,7 +247,8 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
             int lightCoords,
             int color,
             PipeChannel channel,
-            float streamBottomY
+            float streamBottomY,
+            float flowOffset
     ) {
         float minX = channel.centerX - FALLING_STREAM_HALF_WIDTH;
         float maxX = channel.centerX + FALLING_STREAM_HALF_WIDTH;
@@ -215,18 +259,33 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         float minU = FLOW_U_CENTER - halfU;
         float maxU = FLOW_U_CENTER + halfU;
         float fadeStartY = Math.min(maxY, minY + STREAM_FADE_LENGTH);
-        float segmentTopY = maxY;
-        while (segmentTopY > minY) {
-            float segmentBottomY = Math.max(minY, segmentTopY - FALLING_STREAM_SEGMENT_LENGTH);
+        // Continue measuring from the inlet so the horizontal and falling sections share one phase.
+        float innerStreamLength = SOURCE_Z - (channel.outletZ - SURFACE_OFFSET);
+        float fallingStreamLength = maxY - minY;
+        float segmentStartDistance = innerStreamLength;
+        float streamEndDistance = innerStreamLength + fallingStreamLength;
+        while (segmentStartDistance < streamEndDistance) {
+            float startV = getWrappedFlowV(segmentStartDistance, flowOffset);
+            float distanceToWrap = (1.0F - startV) / FLOW_UV_SCALE;
+            float segmentEndDistance = Math.min(streamEndDistance, segmentStartDistance + distanceToWrap);
+            float endV = startV + (segmentEndDistance - segmentStartDistance) * FLOW_UV_SCALE;
+            float segmentTopY = maxY - (segmentStartDistance - innerStreamLength);
+            float segmentBottomY = maxY - (segmentEndDistance - innerStreamLength);
             renderFallingStreamSegment(
                     buffer, pose, sprite, minX, maxX, segmentTopY, segmentBottomY, z,
-                    minU, maxU, 0.0F, (segmentTopY - segmentBottomY) * FLOW_UV_SCALE,
+                    minU, maxU, startV, endV,
                     getFadedStreamColor(color, segmentTopY, minY, fadeStartY),
                     getFadedStreamColor(color, segmentBottomY, minY, fadeStartY),
                     lightCoords
             );
-            segmentTopY = segmentBottomY;
+            segmentStartDistance = segmentEndDistance;
         }
+    }
+
+    private static float getWrappedFlowV(float pathDistance, float flowOffset) {
+        // Subtracting the growing offset moves texture features forward along the flow path.
+        float wrappedV = Mth.positiveModulo(pathDistance * FLOW_UV_SCALE - flowOffset, 1.0F);
+        return wrappedV > 1.0F - FLOW_UV_WRAP_EPSILON ? 0.0F : wrappedV;
     }
 
     private static int getFadedStreamColor(int color, float y, float bottomY, float fadeStartY) {
@@ -307,6 +366,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         public boolean shouldRenderWater;
         public int waterColor;
         public int fluidLightEmission;
+        public float flowOffset;
         public @Nullable TextureAtlasSprite fluidSprite;
         public float streamBottomY = DEFAULT_STREAM_Y_BOTTOM;
     }

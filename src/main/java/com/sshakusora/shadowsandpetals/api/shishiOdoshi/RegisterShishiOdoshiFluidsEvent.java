@@ -40,6 +40,10 @@ public final class RegisterShishiOdoshiFluidsEvent extends Event implements IMod
         ShishiOdoshiFluidRegistry.registerSource(sourcePredicate, fluid);
     }
 
+    /**
+     * Registers the animation-speed multiplier used by the shishi-odoshi motion,
+     * pouring strip and pipe fluid-texture scrolling.
+     */
     public void registerAnimationSpeed(Fluid fluid, float speed) {
         ShishiOdoshiFluidRegistry.registerAnimationSpeed(fluid, speed);
     }

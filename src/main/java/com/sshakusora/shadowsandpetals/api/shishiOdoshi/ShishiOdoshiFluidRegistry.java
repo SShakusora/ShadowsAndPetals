@@ -62,7 +62,8 @@ public final class ShishiOdoshiFluidRegistry {
 
     /**
      * Sets the speed of the tipping animation and the pouring strip moving
-     * through and out of the bamboo tube. Filling, returning and bouncing
+     * through and out of the bamboo tube, as well as the supplied fluid texture
+     * scrolling through a shishi-odoshi pipe. Filling, returning and bouncing
      * always retain their original speed.
      * A value of 2.0 is twice as fast; 0.5 is half speed.
      */
