@@ -263,7 +263,10 @@ public class ModBlockStateProvider implements DataProvider {
         Identifier basePath = modLoc("block/irori/block");
         putBlockState(block, MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(IroriBlock.NORTH, IroriBlock.EAST, IroriBlock.SOUTH, IroriBlock.WEST, IroriBlock.WATERLOGGED)
-                        .generate((north, east, south, west, waterlogged) -> iroriVariant(north, east, south, west))));
+                        .generate((north, east, south, west, waterlogged) -> iroriVariant(north, east, south, west)))
+                .with(PropertyDispatch.modify(IroriBlock.HAS_GRILL)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
         putParentModel(itemModelId(block), basePath);
     }
 

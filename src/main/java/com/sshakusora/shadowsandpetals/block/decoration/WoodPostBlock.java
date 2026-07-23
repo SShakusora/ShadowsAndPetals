@@ -27,6 +27,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -236,13 +237,13 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
                 .collect(Collectors.toUnmodifiableMap(ConnectionType::getSerializedName, Function.identity()));
 
         private final String serializedName;
-        private final Identifier texture;
+        private final @Nullable Identifier texture;
 
         ConnectionType(String serializedName) {
             this(serializedName, null);
         }
 
-        ConnectionType(String serializedName, Identifier texture) {
+        ConnectionType(String serializedName, @Nullable Identifier texture) {
             this.serializedName = serializedName;
             this.texture = texture;
         }
@@ -260,7 +261,7 @@ public class WoodPostBlock extends Block implements SimpleWaterloggedBlock {
             return texture != null;
         }
 
-        public Identifier texture() {
+        public @Nullable Identifier texture() {
             return texture;
         }
 

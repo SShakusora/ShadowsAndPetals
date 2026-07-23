@@ -61,6 +61,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
     public static final BooleanProperty WEST = BlockStateProperties.WEST;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+    public static final BooleanProperty HAS_GRILL = BooleanProperty.create("has_grill");
 
     private static final double STANDALONE_BASIN_MIN = 3.0D / 16.0D;
     private static final double STANDALONE_BASIN_MAX = 13.0D / 16.0D;
@@ -69,6 +70,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     private static final double ITEM_BASIN_VERTICAL_EPSILON = 1.0D / 16.0D;
 
     private static final VoxelShape BASE_SHAPE = box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D);
+    private static final VoxelShape GRILL_SHAPE = box(1.0D, 10.0D, 1.0D, 15.0D, 21.5D, 15.0D);
     private static final VoxelShape STANDALONE_SHAPE = Shapes.or(
             BASE_SHAPE,
             box(0.0D, 10.0D, 0.0D, 16.0D, 15.0D, 1.0D),
@@ -113,6 +115,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     private static final Map<Direction, VoxelShape> CORNER_SHAPES = VoxelShapeUtils.rotateHorizontal(CORNER_NORTH_EAST_SHAPE);
     private static final Map<Direction, VoxelShape> END_SHAPES = createEndShapes();
     private static final VoxelShape[] SHAPES_BY_CONNECTIONS = createShapes();
+    private static final VoxelShape[] SHAPES_WITH_GRILL_BY_CONNECTIONS = createGrillShapes();
 
     public IroriBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -121,7 +124,8 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 .setValue(EAST, false)
                 .setValue(SOUTH, false)
                 .setValue(WEST, false)
-                .setValue(WATERLOGGED, false));
+                .setValue(WATERLOGGED, false)
+                .setValue(HAS_GRILL, false));
     }
 
     @Override
@@ -133,7 +137,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, WATERLOGGED);
+        builder.add(NORTH, EAST, SOUTH, WEST, WATERLOGGED, HAS_GRILL);
     }
 
     @Override
@@ -149,6 +153,10 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     ) {
         if (state.getValue(WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+
+        if (direction == Direction.UP && level instanceof Level blockLevel && !blockLevel.isClientSide()) {
+            ticks.scheduleTick(pos, this, 1);
         }
 
         if (direction.getAxis().isHorizontal()) {
@@ -179,7 +187,10 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES_BY_CONNECTIONS[getConnectionMask(state)];
+        int connectionMask = getConnectionMask(state);
+        return state.getValue(HAS_GRILL)
+                ? SHAPES_WITH_GRILL_BY_CONNECTIONS[connectionMask]
+                : SHAPES_BY_CONNECTIONS[connectionMask];
     }
 
     @Override
@@ -205,6 +216,13 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return createTickerHelper(type, BlockEntityRegistry.IRORI.get(), IroriBlockEntity::tick);
+    }
+
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (level.getBlockEntity(pos) instanceof IroriBlockEntity irori) {
+            irori.refreshGrillState();
+        }
     }
 
     @Override
@@ -487,6 +505,14 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             boolean edgeSouth = (mask & 4) == 0;
             boolean edgeWest = (mask & 8) == 0;
             shapes[mask] = getShapeForEdges(edgeNorth, edgeEast, edgeSouth, edgeWest).optimize();
+        }
+        return shapes;
+    }
+
+    private static VoxelShape[] createGrillShapes() {
+        VoxelShape[] shapes = new VoxelShape[SHAPES_BY_CONNECTIONS.length];
+        for (int mask = 0; mask < shapes.length; mask++) {
+            shapes[mask] = Shapes.or(SHAPES_BY_CONNECTIONS[mask], GRILL_SHAPE).optimize();
         }
         return shapes;
     }

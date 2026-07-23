@@ -31,6 +31,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -100,6 +101,14 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     public IroriBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.IRORI.get(), pos, blockState);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level instanceof ServerLevel serverLevel) {
+            serverLevel.scheduleTick(worldPosition, getBlockState().getBlock(), 1);
+        }
     }
 
     public IroriBlockEntity getMaster() {
@@ -396,13 +405,12 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     }
 
     public @Nullable GrillRenderInfo getGrillRenderInfo() {
-        GrillLayoutInfo layout = getGrillLayoutInfo();
-        Level level = this.level;
-        if (layout == null || level == null) {
+        if (!getBlockState().getValue(IroriBlock.HAS_GRILL)) {
             return null;
         }
 
-        if (!IroriApi.requiresGrill(createApiView(level, layout))) {
+        GrillLayoutInfo layout = getGrillLayoutInfo();
+        if (layout == null) {
             return null;
         }
 
@@ -481,6 +489,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             }
             master.invalidateRenderOffsetCache();
             master.setChanged();
+            master.refreshGrillState();
         }
 
         syncFirewoodLightState(level, component, masterPos, carriedState.burnTime() > 0);
@@ -554,7 +563,39 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     public void syncToClient() {
         if (level != null && !level.isClientSide()) {
-            syncComponentToClient(level, IroriComponentTopology.collectConnectedComponent(level, getBlockPos()));
+            IroriBlockEntity master = resolveMaster();
+            master.refreshGrillState();
+            syncComponentToClient(level, IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos()));
+        }
+    }
+
+    /** Recomputes the server-authoritative grill flag for every cell in this Irori component. */
+    public void refreshGrillState() {
+        Level level = this.level;
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+
+        IroriBlockEntity master = resolveMaster();
+        Set<BlockPos> component = IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos());
+        Set<BlockPos> centerPositions = IroriComponentTopology.centerPositions(component, master.getBlockPos());
+        GrillLayoutInfo layout = master.getGrillLayoutInfo();
+        boolean hasGrill = layout != null && IroriApi.requiresGrill(master.createApiView(level, layout));
+
+        for (BlockPos componentPos : component) {
+            BlockState componentState = level.getBlockState(componentPos);
+            if (!componentState.hasProperty(IroriBlock.HAS_GRILL)) {
+                continue;
+            }
+
+            boolean shouldHaveGrill = hasGrill && centerPositions.contains(componentPos);
+            if (componentState.getValue(IroriBlock.HAS_GRILL) != shouldHaveGrill) {
+                level.setBlock(
+                        componentPos,
+                        componentState.setValue(IroriBlock.HAS_GRILL, shouldHaveGrill),
+                        Block.UPDATE_CLIENTS
+                );
+            }
         }
     }
 

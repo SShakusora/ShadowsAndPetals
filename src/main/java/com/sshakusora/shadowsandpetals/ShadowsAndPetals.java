@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals;
 
 import com.sshakusora.shadowsandpetals.registries.*;
-import com.sshakusora.shadowsandpetals.registries.event.BehaviorEventBootstrap;
+import com.sshakusora.shadowsandpetals.registries.event.CustomEventBootstrap;
 import com.sshakusora.shadowsandpetals.worldgen.SAPFeatures;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
@@ -13,7 +13,7 @@ public class ShadowsAndPetals {
 
     public ShadowsAndPetals(IEventBus modEventBus) {
         SAPRegistries.register(modEventBus);
-        BehaviorEventBootstrap.register(modEventBus);
+        CustomEventBootstrap.register(modEventBus);
 
         FluidRegistry.init();
         ItemRegistry.init();

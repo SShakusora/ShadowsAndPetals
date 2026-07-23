@@ -13,16 +13,16 @@ import org.slf4j.Logger;
 /**
  * Wires built-in behavior listeners and dispatches the public behavior registration events.
  */
-public final class BehaviorEventBootstrap {
+public final class CustomEventBootstrap {
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    private BehaviorEventBootstrap() {
+    private CustomEventBootstrap() {
     }
 
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(IroriBehaviorRegistry::register);
         modEventBus.addListener(ShishiOdoshiFluidBehaviorRegistry::register);
-        modEventBus.addListener(BehaviorEventBootstrap::commonSetup);
+        modEventBus.addListener(CustomEventBootstrap::commonSetup);
     }
 
     private static void commonSetup(FMLCommonSetupEvent event) {
