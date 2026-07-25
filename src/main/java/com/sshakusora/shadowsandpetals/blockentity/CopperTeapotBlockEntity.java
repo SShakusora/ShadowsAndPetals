@@ -39,6 +39,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -103,7 +104,7 @@ public class CopperTeapotBlockEntity extends RandomizableContainerBlockEntity {
 
     private int openCount;
     private int brewProgress;
-    private Identifier activeRecipeId;
+    private @Nullable Identifier activeRecipeId;
     private float lidProgress;
     private float lidProgressOld;
 
@@ -285,8 +286,7 @@ public class CopperTeapotBlockEntity extends RandomizableContainerBlockEntity {
     private boolean hasHeatSource(ServerLevel level) {
         BlockPos belowPos = worldPosition.below();
         BlockState belowState = level.getBlockState(belowPos);
-        if (belowState.hasProperty(BlockStateProperties.LIT)
-                && belowState.getValue(BlockStateProperties.LIT)) {
+        if (belowState.hasProperty(BlockStateProperties.LIT) && belowState.getValue(BlockStateProperties.LIT)) {
             return true;
         }
         return level.getBlockEntity(belowPos) instanceof IroriBlockEntity irori

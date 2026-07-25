@@ -65,8 +65,7 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
 
     static {
         SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE));
-        ON_IRORI_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(
-                NORTH_SHAPE.move(0.0D, IRORI_RENDER_OFFSET, 0.0D)));
+        ON_IRORI_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE.move(0.0D, IRORI_RENDER_OFFSET, 0.0D)));
     }
 
     public CopperTeapotBlock(BlockBehaviour.Properties properties) {

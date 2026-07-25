@@ -1,7 +1,6 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import net.minecraft.core.BlockPos;
@@ -44,7 +43,6 @@ import java.util.Map;
 
 public class CafeChairBlock extends AbstractSeatBlock {
     public static final MapCodec<CafeChairBlock> CODEC = simpleCodec(CafeChairBlock::new);
-    public static final String DYE_HINT_PREFIX_KEY = BuiltinLanguageKeys.CAFE_CHAIR_DYE_HINT_PREFIX.key();
     private static final double SEAT_HEIGHT = 0.625D;
     private static final VoxelShape SHAPE = Shapes.or(
             Block.box(7.0D, 0.0D, 7.0D, 9.0D, 7.0D, 9.0D),
@@ -80,7 +78,7 @@ public class CafeChairBlock extends AbstractSeatBlock {
 
     @Override
     protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (stack.getItem() instanceof DyeItem dyeItem) {
+        if (stack.getItem() instanceof DyeItem) {
             DyeColor dyeColor = stack.get(DataComponents.DYE);
             if (dyeColor == null) {
                 return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
@@ -101,10 +99,6 @@ public class CafeChairBlock extends AbstractSeatBlock {
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
-    }
-
-    public static boolean canApplyDye(BlockState state, DyeColor dyeColor) {
-        return getDyedState(state, dyeColor).getBlock() != state.getBlock();
     }
 
     public static BlockState getDyedState(BlockState state, DyeColor dyeColor) {
@@ -216,10 +210,6 @@ public class CafeChairBlock extends AbstractSeatBlock {
             super.updateEntityMovementAfterFallOn(level, entity);
             return;
         }
-        bounceUp(entity);
-    }
-
-    private void bounceUp(Entity entity) {
         Vec3 deltaMovement = entity.getDeltaMovement();
         if (deltaMovement.y < 0.0D) {
             double bounceScale = entity instanceof LivingEntity ? 1.0D : 0.8D;
