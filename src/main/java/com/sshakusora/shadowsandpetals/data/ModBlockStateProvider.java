@@ -387,6 +387,22 @@ public class ModBlockStateProvider implements DataProvider {
                         .select(Direction.WEST, BlockModelGenerators.X_ROT_90.then(BlockModelGenerators.Y_ROT_270))));
     }
 
+    public void recessedLampBlock(RecessedLampBlock block) {
+        putBlockState(block, MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(RecessedLampBlock.MOUNT, RecessedLampBlock.LIT)
+                        .select(RecessedLampBlock.Mount.FLOOR, false, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/up_off")))
+                        .select(RecessedLampBlock.Mount.FLOOR, true, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/up_on")))
+                        .select(RecessedLampBlock.Mount.FLOOR_SLAB, false, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/up_slab_off")))
+                        .select(RecessedLampBlock.Mount.FLOOR_SLAB, true, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/up_slab_on")))
+                        .select(RecessedLampBlock.Mount.CEILING, false, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/down_off")))
+                        .select(RecessedLampBlock.Mount.CEILING, true, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/down_on")))
+                        .select(RecessedLampBlock.Mount.CEILING_SLAB, false, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/down_slab_off")))
+                        .select(RecessedLampBlock.Mount.CEILING_SLAB, true, BlockModelGenerators.plainVariant(modLoc("block/recessed_lamp/down_slab_on"))))
+                .with(PropertyDispatch.modify(RecessedLampBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
+    }
+
     public void deskLampBlock(DeskLampBlock block) {
         Identifier onModel = modLoc("block/desk_lamp/on");
         Identifier offModel = modLoc("block/desk_lamp/off");

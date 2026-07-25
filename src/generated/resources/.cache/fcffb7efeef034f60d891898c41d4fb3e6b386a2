@@ -1,4 +1,4 @@
-// 26.1.2	2026-07-23T09:49:50.6974562	ShadowsAndPetals Block States
+// 26.1.2	2026-07-25T21:05:42.2975019	ShadowsAndPetals Block States
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
 6ceb0929c2fdf5c397f687894087d0d843142290 assets/shadowsandpetals/blockstates/aluminum_ingot_pile.json
@@ -77,6 +77,7 @@ ceefe8e60234bfc1a6778896d0950b0ff0d0583f assets/shadowsandpetals/blockstates/ora
 565c5142c2ee20dc4aff7effa861a73cf3dadb3d assets/shadowsandpetals/blockstates/purple_roof_tile.json
 d814199aa5f8f1ba70698efba9bf79e6b319a401 assets/shadowsandpetals/blockstates/raw_bauxite_block.json
 74329dae667be402b62e0e539859b96b45210654 assets/shadowsandpetals/blockstates/raw_concrete.json
+73a73fda0970de60047fe6f252b3c5c5f8ebc357 assets/shadowsandpetals/blockstates/recessed_lamp.json
 bffa7296c31eafb1747621ba4b92156030d56033 assets/shadowsandpetals/blockstates/red_cafe_chair.json
 75afc98519d9b9d0a61ec800139ed89ff1e3c605 assets/shadowsandpetals/blockstates/red_roof_tile.json
 761f01c04c8bbfae7f88c67812dcd1b28e9a9073 assets/shadowsandpetals/blockstates/rockery_1_1_1.json

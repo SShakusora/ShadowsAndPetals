@@ -1,0 +1,6 @@
+{
+  "parent": "shadowsandpetals:block/recessed_lamp/up_on",
+  "transform": {
+    "translation": [0.0, -0.5, 0.0]
+  }
+}

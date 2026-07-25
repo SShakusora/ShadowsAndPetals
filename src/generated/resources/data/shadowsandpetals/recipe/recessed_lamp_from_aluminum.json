@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#c:glass_panes/colorless",
+    "I": "shadowsandpetals:aluminum_ingot",
+    "L": "minecraft:glowstone"
+  },
+  "pattern": [
+    "GIG",
+    "ILI",
+    "GIG"
+  ],
+  "result": {
+    "count": 4,
+    "id": "shadowsandpetals:recessed_lamp"
+  }
+}

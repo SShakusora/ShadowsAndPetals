@@ -461,6 +461,50 @@ public class BlockRegistry {
             .lang("zh_cn", "防爆灯")
             .register();
 
+    public static final DeferredBlock<RecessedLampBlock> RECESSED_LAMP = SAPRegistries
+            .block("recessed_lamp", RecessedLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A compact light recessed into a _floor or ceiling_.",
+                            "嵌入_地面或天花板_的小型灯具。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, lamp) -> provider.recessedLampBlock(lamp.get()))
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, lamp.get(), 4)
+                        .define('I', Tags.Items.INGOTS_IRON)
+                        .define('L', Items.GLOWSTONE)
+                        .define('G', Tags.Items.GLASS_PANES_COLORLESS)
+                        .pattern("GIG")
+                        .pattern("ILI")
+                        .pattern("GIG")
+                        .unlockedBy("has_iron_ingot", provider.hasTag(Tags.Items.INGOTS_IRON))
+                        .save(provider.output());
+
+                provider.shaped(RecipeCategory.DECORATIONS, lamp.get(), 4)
+                        .define('I', ItemRegistry.ALUMINUM_INGOT.get())
+                        .define('L', Items.GLOWSTONE)
+                        .define('G', Tags.Items.GLASS_PANES_COLORLESS)
+                        .pattern("GIG")
+                        .pattern("ILI")
+                        .pattern("GIG")
+                        .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
+                        .save(provider.output(), provider.id("recessed_lamp_from_aluminum").toString());
+            })
+            .clientItem(ShadowsAndPetals.asResource("block/recessed_lamp/up_off"))
+            .lang("zh_cn", "嵌灯")
+            .register();
+
     public static final DeferredBlock<DeskLampBlock> DESK_LAMP = SAPRegistries
             .block("desk_lamp", DeskLampBlock::new)
             .properties(properties -> BlockBehaviour.Properties.of()

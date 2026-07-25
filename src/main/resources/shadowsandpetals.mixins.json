@@ -6,6 +6,7 @@
   "mixins": [
   ],
   "client": [
+    "LocalPlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

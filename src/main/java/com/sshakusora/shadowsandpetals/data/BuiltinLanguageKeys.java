@@ -11,6 +11,11 @@ public final class BuiltinLanguageKeys {
             .en_us("%s can be dyed to ")
             .zh_cn("%s 可被染成 ");
 
+    public static final DatagenLangRegistry.TranslationKey RECESSED_LAMP_SPACE_OCCUPIED = DatagenLangRegistry
+            .key("message.shadowsandpetals.recessed_lamp.space_occupied")
+            .en_us("A recessed lamp already occupies this space")
+            .zh_cn("此处已被嵌灯占用");
+
     public static final DatagenLangRegistry.TranslationKey VANITY_CONTAINER_NAME = DatagenLangRegistry
             .key("container.shadowsandpetals.vanity")
             .en_us("Vanity")

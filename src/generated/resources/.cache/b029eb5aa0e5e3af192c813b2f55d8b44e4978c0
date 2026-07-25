@@ -1,4 +1,4 @@
-// 26.1.2	2026-07-23T09:56:48.1277528	ShadowsAndPetals Client Items
+// 26.1.2	2026-07-25T20:59:08.3229966	ShadowsAndPetals Client Items
 bc6db7941b67378c651d38d1f0515d00dfa2eac7 assets/shadowsandpetals/items/acacia_vanity.json
 910bb05eedb1766753a871c9802d055e21118b3b assets/shadowsandpetals/items/aluminum_block.json
 109d601484b114df7f7bab4dc1cbbda77b858a38 assets/shadowsandpetals/items/aluminum_ingot.json
@@ -140,6 +140,7 @@ da6e07aaf3d55dcc5aca809b688af3034ff4e3d5 assets/shadowsandpetals/items/pink_roof
 21ed0d76adf7c17be8034186de2cd75cec40d02d assets/shadowsandpetals/items/raw_bauxite.json
 c2a979026c7b42ee09dba929ab7432af9337ee32 assets/shadowsandpetals/items/raw_bauxite_block.json
 1e1b4fe5fad29431f1dd4ed74a2d0168d7c106b5 assets/shadowsandpetals/items/raw_concrete.json
+5acaebe84392d1a73bc5ab48485a1cc6dc98a785 assets/shadowsandpetals/items/recessed_lamp.json
 89e3cf56223ba040eb2560862b223c46a54c7d9c assets/shadowsandpetals/items/red_cafe_chair.json
 2dbb1afc3da8c1210de2745b664ce1a098b2716b assets/shadowsandpetals/items/red_roof_tile.json
 aee879b2f14c61a057ada4f190ecea8285d347f7 assets/shadowsandpetals/items/red_roof_tile_slab.json

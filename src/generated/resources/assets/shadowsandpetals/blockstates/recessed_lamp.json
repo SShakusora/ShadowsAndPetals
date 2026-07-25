@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "lit=false,mount=ceiling,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_off"
+    },
+    "lit=false,mount=ceiling,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_off"
+    },
+    "lit=false,mount=ceiling_slab,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+    },
+    "lit=false,mount=ceiling_slab,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+    },
+    "lit=false,mount=floor,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_off"
+    },
+    "lit=false,mount=floor,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_off"
+    },
+    "lit=false,mount=floor_slab,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+    },
+    "lit=false,mount=floor_slab,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+    },
+    "lit=true,mount=ceiling,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_on"
+    },
+    "lit=true,mount=ceiling,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_on"
+    },
+    "lit=true,mount=ceiling_slab,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+    },
+    "lit=true,mount=ceiling_slab,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+    },
+    "lit=true,mount=floor,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_on"
+    },
+    "lit=true,mount=floor,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_on"
+    },
+    "lit=true,mount=floor_slab,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+    },
+    "lit=true,mount=floor_slab,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+    }
+  }
+}
