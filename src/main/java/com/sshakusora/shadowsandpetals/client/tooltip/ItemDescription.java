@@ -1,6 +1,7 @@
-package com.sshakusora.shadowsandpetals.foundation.tooltip;
+package com.sshakusora.shadowsandpetals.client.tooltip;
 
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
+import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.CommonComponents;

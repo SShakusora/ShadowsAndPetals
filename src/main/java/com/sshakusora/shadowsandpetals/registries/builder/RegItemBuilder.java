@@ -1,17 +1,17 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.client.tooltip.ItemDescription;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeRegistry;
 import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
+import com.sshakusora.shadowsandpetals.data.lang.TooltipLangBuilder;
 import com.sshakusora.shadowsandpetals.data.model.ItemModelCallback;
 import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
+import com.sshakusora.shadowsandpetals.tooltip.TooltipComponentRegistry;
+import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;

@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.foundation.tooltip;
+package com.sshakusora.shadowsandpetals.data.lang;
 
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 

@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.foundation.tooltip;
+package com.sshakusora.shadowsandpetals.tooltip;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;

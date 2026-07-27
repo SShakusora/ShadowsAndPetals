@@ -3,7 +3,6 @@ package com.sshakusora.shadowsandpetals.client.tooltip;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

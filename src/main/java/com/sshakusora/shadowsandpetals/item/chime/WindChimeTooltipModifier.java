@@ -1,8 +1,8 @@
 package com.sshakusora.shadowsandpetals.item.chime;
 
+import com.sshakusora.shadowsandpetals.client.tooltip.TooltipHelper;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipHelper;
-import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipModifier;
+import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;

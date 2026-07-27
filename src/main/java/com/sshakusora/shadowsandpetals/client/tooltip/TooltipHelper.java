@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.foundation.tooltip;
+package com.sshakusora.shadowsandpetals.client.tooltip;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
