@@ -29,7 +29,7 @@ public class ItemRegistry {
                     "orange_seed",
                     properties -> new BlockItem(BlockRegistry.ORANGE_TREE.get(), properties)
             )
-            .model((provider, item) -> provider.generatedItem(item.get()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang("zh_cn", "蜜柑种子")
             .creativeTab(CreativeTabType.AGRICULTURE)
             .register();
@@ -39,7 +39,7 @@ public class ItemRegistry {
                     .nutrition(4)
                     .saturationModifier(0.3F)
                     .build()))
-            .model((provider, item) -> provider.generatedItem(item.get()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .recipe((provider, orange) -> {
                 provider.shapeless(RecipeCategory.FOOD, ORANGE_SEED.get())
                         .requires(orange.get())
@@ -51,13 +51,13 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
-            .model((provider, item) -> provider.generatedItem(item.get()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang("zh_cn", "粗矾土")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
     public static final DeferredItem<Item> ALUMINUM_INGOT = SAPRegistries.item("aluminum_ingot")
-            .model((provider, item) -> provider.generatedItem(item.get()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .recipe((provider, ingot) -> {
                 SimpleCookingRecipeBuilder.smelting(Ingredient.of(RAW_BAUXITE.get()), RecipeCategory.MISC, CookingBookCategory.MISC, ingot.get(), 0.7F, 200)
                         .unlockedBy(provider.hasName(RAW_BAUXITE.get()), provider.hasItem(RAW_BAUXITE.get()))

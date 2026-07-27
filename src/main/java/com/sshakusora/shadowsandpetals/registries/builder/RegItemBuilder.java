@@ -1,7 +1,11 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
+import com.sshakusora.shadowsandpetals.data.DatagenRecipeRegistry;
+import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
+import com.sshakusora.shadowsandpetals.data.model.ItemModelCallback;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
@@ -37,7 +41,7 @@ public class RegItemBuilder<I extends Item> {
     private Function<Item.Properties, I> itemFactory;
     private final Map<String, String> langNames = new LinkedHashMap<>();
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
-    private BiConsumer<ModItemModelProvider, DeferredItem<I>> itemModelGenerator;
+    private Supplier<? extends ItemModelCallback<I>> itemModelGenerator;
     private Function<DeferredItem<I>, Identifier> clientItemModelFactory;
     private Function<DeferredItem<I>, Identifier> customClientItemTypeFactory;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
@@ -159,13 +163,13 @@ public class RegItemBuilder<I extends Item> {
     /**
      * Attaches an item-model datagen callback.
      */
-    public RegItemBuilder<I> model(BiConsumer<ModItemModelProvider, DeferredItem<I>> generator) {
-        this.itemModelGenerator = generator;
+    public RegItemBuilder<I> model(Supplier<? extends ItemModelCallback<I>> generator) {
+        this.itemModelGenerator = Objects.requireNonNull(generator);
         return this;
     }
 
     /**
-     * Attaches a client item-model mapping used by {@link ModClientItemProvider}.
+     * Attaches a client item-model mapping used by the unified model provider.
      */
     public RegItemBuilder<I> clientItem(Function<DeferredItem<I>, Identifier> modelFactory) {
         this.clientItemModelFactory = modelFactory;
@@ -173,14 +177,14 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
-     * Attaches a fixed client item-model mapping used by {@link ModClientItemProvider}.
+     * Attaches a fixed client item-model mapping used by the unified model provider.
      */
     public RegItemBuilder<I> clientItem(Identifier modelId) {
         return clientItem(item -> modelId);
     }
 
     /**
-     * Attaches a custom client item-model type used by {@link ModClientItemProvider}.
+     * Attaches a custom client item-model type used by the unified model provider.
      */
     public RegItemBuilder<I> customClientItem(Function<DeferredItem<I>, Identifier> modelTypeFactory) {
         this.customClientItemTypeFactory = modelTypeFactory;
@@ -188,7 +192,7 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
-     * Attaches a fixed custom client item-model type used by {@link ModClientItemProvider}.
+     * Attaches a fixed custom client item-model type used by the unified model provider.
      */
     public RegItemBuilder<I> customClientItem(Identifier modelType) {
         return customClientItem(item -> modelType);
@@ -248,10 +252,7 @@ public class RegItemBuilder<I extends Item> {
         if (recipeGenerator != null) {
             DatagenRecipeRegistry.add(deferredItem.getId(), provider -> recipeGenerator.accept(provider, deferredItem));
         }
-        if (itemModelGenerator != null) {
-            DatagenItemModelRegistry.add(deferredItem.getId(), provider -> itemModelGenerator.accept(provider, deferredItem));
-        }
-        applyClientItem(deferredItem);
+        applyModelDatagen(deferredItem);
         for (CreativeTabType tab : creativeTabs) {
             CreativeTabContentsRegistry.add(tab, deferredItem);
         }
@@ -292,20 +293,18 @@ public class RegItemBuilder<I extends Item> {
      */
     public DeferredItem<Item> simple() {
         DeferredItem<Item> deferredItem = registry.registerSimpleItem(name, () -> properties);
-        DatagenClientItemRegistry.add(deferredItem.getId(), ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath()));
+        ModelDatagenRegistry.addItem(deferredItem, null, null, null);
         return deferredItem;
     }
 
-    private void applyClientItem(DeferredItem<I> deferredItem) {
-        if (customClientItemTypeFactory != null) {
-            DatagenClientItemRegistry.addCustomModel(
-                    deferredItem.getId(), customClientItemTypeFactory.apply(deferredItem));
-            return;
-        }
-        Identifier modelId = clientItemModelFactory != null
+    private void applyModelDatagen(DeferredItem<I> deferredItem) {
+        Identifier clientModel = clientItemModelFactory != null
                 ? clientItemModelFactory.apply(deferredItem)
-                : ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath());
-        DatagenClientItemRegistry.add(deferredItem.getId(), modelId);
+                : null;
+        Identifier customType = customClientItemTypeFactory != null
+                ? customClientItemTypeFactory.apply(deferredItem)
+                : null;
+        ModelDatagenRegistry.addItem(deferredItem, itemModelGenerator, clientModel, customType);
     }
 
     /**
@@ -364,7 +363,7 @@ public class RegItemBuilder<I extends Item> {
         }
 
         /**
-         * Attaches a client item-model mapping used by {@link ModClientItemProvider}.
+         * Attaches a client item-model mapping used by the unified model provider.
          */
         public BlockItemBuilder clientItem(Function<DeferredItem<BlockItem>, Identifier> modelFactory) {
             this.clientItemModelFactory = modelFactory;
@@ -372,7 +371,7 @@ public class RegItemBuilder<I extends Item> {
         }
 
         /**
-         * Attaches a fixed client item-model mapping used by {@link ModClientItemProvider}.
+         * Attaches a fixed client item-model mapping used by the unified model provider.
          */
         public BlockItemBuilder clientItem(Identifier modelId) {
             return clientItem(item -> modelId);
@@ -424,8 +423,8 @@ public class RegItemBuilder<I extends Item> {
             }
             Identifier modelId = clientItemModelFactory != null
                     ? clientItemModelFactory.apply(deferredItem)
-                    : ShadowsAndPetals.asResource("item/" + deferredItem.getId().getPath());
-            DatagenClientItemRegistry.add(deferredItem.getId(), modelId);
+                    : null;
+            ModelDatagenRegistry.addItem(deferredItem, null, modelId, null);
             for (CreativeTabType tab : creativeTabs) {
                 CreativeTabContentsRegistry.add(tab, deferredItem);
             }

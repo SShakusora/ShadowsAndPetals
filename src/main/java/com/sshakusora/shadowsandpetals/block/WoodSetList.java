@@ -6,6 +6,9 @@ import com.sshakusora.shadowsandpetals.block.decoration.VerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SAPLeavesBlock;
+import com.sshakusora.shadowsandpetals.data.model.generator.NatureBlockModels;
+import com.sshakusora.shadowsandpetals.data.model.generator.StandardBlockModels;
+import com.sshakusora.shadowsandpetals.data.model.generator.WoodBlockModels;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabOrder;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
@@ -83,12 +86,19 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
     ) {}
 
     private static WoodSet registerWoodSet(Type type) {
+        WoodSet[] modelSet = new WoodSet[1];
         String fixZhName = type.woodZhName.endsWith("木") ? type.woodZhName.substring(0, type.woodZhName.length() - 1) : type.woodZhName;
         DeferredBlock<RotatedPillarBlock> log = treeLog(type.name + "_log", type.treeZhName + "原木");
         DeferredBlock<RotatedPillarBlock> strippedLog = strippedTreeLog("stripped_" + type.name + "_log", "去皮" + type.treeZhName + "原木");
         DeferredBlock<RotatedPillarBlock> wood = treeWood(type.name + "_wood", log, type.woodZhName);
         DeferredBlock<RotatedPillarBlock> strippedWood = strippedTreeWood("stripped_" + type.name + "_wood", strippedLog, "去皮" + type.woodZhName);
-        DeferredBlock<Block> planks = treePlanks(type.name + "_planks", log, strippedLog, type.woodZhName + "板");
+        DeferredBlock<Block> planks = treePlanks(
+                type.name + "_planks",
+                log,
+                strippedLog,
+                type.woodZhName + "板",
+                () -> modelSet[0]
+        );
         DeferredBlock<WoodPostBlock> post = treePost(type.name + "_post", log, fixZhName + "原木柱");
         DeferredBlock<WoodPostBlock> strippedPost = treeStrippedPost("stripped_" + type.name + "_post", strippedLog, "去皮" + fixZhName + "原木柱");
         DeferredBlock<WoodPostBlock> woodPost = treeWoodPost(type.name + "_wood_post", wood, log, type.woodZhName + "柱");
@@ -106,7 +116,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<LeavesVerticalSlabBlock> leavesVerticalSlab = treeLeavesVerticalSlab(type.name + "_leaves_vertical_slab", leavesSlab, leaves, "竖直" + type.treeZhName + "树叶台阶");
         DeferredBlock<StairBlock> leavesStairs = treeLeavesStairs(type.name + "_leaves_stairs", leaves, type.treeZhName + "树叶楼梯");
         DeferredBlock<HedgeBlock> hedge = treeHedge(type.name + "_hedge", leaves, type.treeZhName + "树篱");
-        return new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, verticalSlab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesSlab, leavesVerticalSlab, leavesStairs, hedge);
+        WoodSet result = new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, verticalSlab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesSlab, leavesVerticalSlab, leavesStairs, hedge);
+        modelSet[0] = result;
+        return result;
     }
 
     private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String zhName) {
@@ -169,7 +181,13 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .register();
     }
 
-    private static DeferredBlock<Block> treePlanks(String id, DeferredBlock<RotatedPillarBlock> log, DeferredBlock<RotatedPillarBlock> strippedLog, String zhName) {
+    private static DeferredBlock<Block> treePlanks(
+            String id,
+            DeferredBlock<RotatedPillarBlock> log,
+            DeferredBlock<RotatedPillarBlock> strippedLog,
+            String zhName,
+            Supplier<WoodSet> modelSet
+    ) {
         return SAPRegistries.block(id)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                         .strength(2.0F, 3.0F)
@@ -178,6 +196,11 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_PLANKS)
                 .lang("zh_cn", zhName)
+                .blockstate(() -> (context, generator) -> WoodBlockModels.woodSet(
+                        context,
+                        generator,
+                        modelSet.get()
+                ))
                 .loot((provider, block) -> provider.dropSelf(block.get()))
                 .recipe((provider, block) -> {
                     provider.shapeless(RecipeCategory.BUILDING_BLOCKS, block.get(), 4)
@@ -203,8 +226,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tooltipDescription(WoodSetList::woodPostTooltip)
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_POSTS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, post) -> provider.woodPostBlockWithItem(
-                        post.get(),
+                .blockstate(() -> (context, generator) -> WoodBlockModels.post(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(log.get()).getPath()),
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(log.get()).getPath() + "_top")
                 ))
@@ -230,8 +254,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tooltipDescription(WoodSetList::woodPostTooltip)
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STRIPPED_POSTS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, post) -> provider.woodPostBlockWithItem(
-                        post.get(),
+                .blockstate(() -> (context, generator) -> WoodBlockModels.post(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(strippedLog.get()).getPath()),
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(strippedLog.get()).getPath() + "_top")
                 ))
@@ -257,8 +282,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tooltipDescription(WoodSetList::woodPostTooltip)
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_WOOD_POSTS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, post) -> provider.woodPostBlockWithItem(
-                        post.get(),
+                .blockstate(() -> (context, generator) -> WoodBlockModels.post(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(log.get()).getPath()),
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(log.get()).getPath())
                 ))
@@ -284,8 +310,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tooltipDescription(WoodSetList::woodPostTooltip)
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_STRIPPED_WOOD_POSTS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, post) -> provider.woodPostBlockWithItem(
-                        post.get(),
+                .blockstate(() -> (context, generator) -> WoodBlockModels.post(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(strippedLog.get()).getPath()),
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(strippedLog.get()).getPath())
                 ))
@@ -443,7 +470,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, leaves) -> provider.leavesBlockWithItem(leaves.get(), ShadowsAndPetals.asResource("block/" + id)))
+                .blockstate(() -> (context, generator) -> NatureBlockModels.leaves(
+                        context, generator, ShadowsAndPetals.asResource("block/" + id)))
                 .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
                 .register();
     }
@@ -462,8 +490,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_VERTICAL_SLABS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, verticalSlab) -> provider.verticalSlabBlockWithItem(
-                        verticalSlab.get(),
+                .blockstate(() -> (context, generator) -> StandardBlockModels.verticalSlab(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(planks.get()).getPath()),
                         planks.get(),
                         false
@@ -498,8 +527,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES_SLABS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, slab) -> provider.leavesSlabBlockWithItem(
-                        slab.get(),
+                .blockstate(() -> (context, generator) -> NatureBlockModels.leavesSlab(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
                 ))
                 .loot((provider, slab) -> provider.dropSlab(slab.get()))
@@ -529,8 +559,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES_VERTICAL_SLABS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, verticalSlab) -> provider.verticalSlabBlockWithItem(
-                        verticalSlab.get(),
+                .blockstate(() -> (context, generator) -> StandardBlockModels.verticalSlab(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath()),
                         leaves.get(),
                         true
@@ -565,8 +596,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_LEAVES_STAIRS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, stairs) -> provider.leavesStairsBlockWithItem(
-                        stairs.get(),
+                .blockstate(() -> (context, generator) -> NatureBlockModels.leavesStairs(
+                        context,
+                        generator,
                         ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
                 ))
                 .loot((provider, stairs) -> provider.dropSelf(stairs.get()))
@@ -593,7 +625,11 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_HEDGES)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, hedge) -> provider.hedgeBlockWithItem(hedge.get(), ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())))
+                .blockstate(() -> (context, generator) -> NatureBlockModels.hedge(
+                        context,
+                        generator,
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                ))
                 .loot((provider, hedge) -> provider.dropSelf(hedge.get()))
                 .recipe((provider, hedge) -> provider.shaped(RecipeCategory.DECORATIONS, hedge.get(), 6)
                         .define('L', leaves.get())
@@ -616,8 +652,10 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .withItem()
                 .creativeTab(CreativeTabType.NATURE, CreativeTabOrder.NATURE_SAPLINGS)
                 .lang("zh_cn", zhName)
-                .blockstate((provider, sapling) -> provider.saplingBlock(sapling.get(), ShadowsAndPetals.asResource("block/" + id)))
-                .itemModel((provider, sapling) -> provider.generatedBlockItem(sapling.get(), ShadowsAndPetals.asResource("block/" + id)))
+                .blockstate(() -> (context, generator) -> NatureBlockModels.sapling(
+                        context, generator, ShadowsAndPetals.asResource("block/" + id)))
+                .itemModel(() -> (context, generator) -> NatureBlockModels.saplingItem(
+                        context, generator, ShadowsAndPetals.asResource("block/" + id)))
                 .register();
     }
 }

@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.model.ModModelProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -22,11 +23,8 @@ public class ModDataGenerator {
         PackOutput output = generator.getPackOutput();
         CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 
-        generator.addProvider(true, new ModBlockStateProvider(output));
+        generator.addProvider(true, new ModModelProvider(output));
         generator.addProvider(true, new ModRockeryModelProvider(output));
-        generator.addProvider(true, new ModWoodModelProvider(output));
-        generator.addProvider(true, new ModItemModelProvider(output));
-        generator.addProvider(true, new ModClientItemProvider(output));
         generator.addProvider(true, new ModConnectedTextureBleedProvider(output));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.DEFAULT_LOCALE));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.ZH_CN));

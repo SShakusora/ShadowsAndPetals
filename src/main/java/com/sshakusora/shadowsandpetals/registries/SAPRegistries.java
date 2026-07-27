@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.model.generator.StandardBlockModels;
 import com.sshakusora.shadowsandpetals.legacy.BlockEntityAliasRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.*;
 import net.minecraft.core.particles.ParticleType;
@@ -65,7 +66,8 @@ public class SAPRegistries {
     // Block helpers
 
     public static RegBlockBuilder<Block> block(String name) {
-        return new RegBlockBuilder<>(BLOCKS, name);
+        return new RegBlockBuilder<>(BLOCKS, name)
+                .blockstate(() -> StandardBlockModels::cubeAll);
     }
 
     public static <B extends Block> RegBlockBuilder<B> block(String name, Function<BlockBehaviour.Properties, B> factory) {

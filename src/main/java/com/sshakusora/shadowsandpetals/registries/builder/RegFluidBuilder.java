@@ -1,8 +1,9 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.data.DatagenBlockStateRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
+import com.sshakusora.shadowsandpetals.data.model.generator.StandardBlockModels;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -180,9 +181,9 @@ public final class RegFluidBuilder {
             Identifier particleTexture = stillTexture != null
                     ? stillTexture
                     : Identifier.withDefaultNamespace("block/water_still");
-            DatagenBlockStateRegistry.add(
-                    registration.block.getId(),
-                    provider -> provider.fluidBlock(registration.block.get(), particleTexture)
+            ModelDatagenRegistry.addBlock(
+                    registration.block,
+                    () -> (context, generator) -> StandardBlockModels.fluid(context, generator, particleTexture)
             );
         }
 

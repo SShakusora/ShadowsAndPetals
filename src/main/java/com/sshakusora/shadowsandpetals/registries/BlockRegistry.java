@@ -12,6 +12,7 @@ import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
+import com.sshakusora.shadowsandpetals.data.model.generator.*;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
@@ -87,7 +88,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, ore) -> provider.cubeAllBlockWithItem(ore.get(), provider.modLoc("block/bauxite_ore/bauxite_ore")))
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
+                    context, generator, generator.modLoc("block/bauxite_ore/bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
             .lang("zh_cn", "矾土矿石")
             .register();
@@ -101,7 +103,8 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, ore) -> provider.cubeAllBlockWithItem(ore.get(), provider.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
+                    context, generator, generator.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
             .lang("zh_cn", "深层矾土矿石")
             .register();
@@ -115,7 +118,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.RAW_BAUXITE.get(), "raw_bauxite_from_block"))
             .lang("zh_cn", "粗矾土块")
@@ -130,7 +133,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
             .lang("zh_cn", "铝块")
@@ -159,7 +162,7 @@ public class BlockRegistry {
                             "_Ring_ the wind chime.", "_敲响_风铃。"))
             .tooltipModifier(new WindChimeTooltipModifier())
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.windChimeBlock(block.get()))
+            .blockstate(() -> WindChimeModels::block)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, windChime) -> {
                 provider.shaped(RecipeCategory.DECORATIONS, windChime.get())
@@ -189,7 +192,7 @@ public class BlockRegistry {
                         null
                 );
             })
-            .itemModel((provider, block) -> provider.windChimeItemModels())
+            .itemModel(() -> WindChimeModels::item)
             .customClientItem(ShadowsAndPetals.asResource("wind_chime"))
             .lang("zh_cn", "风铃")
             .register();
@@ -214,7 +217,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When placed on an irori:", "放置在围炉上时：",
                             "Lift to sit on the _irori grate_.", "抬高并摆放在_围炉炉架_上。"))
-            .blockstate((provider, block) -> provider.copperTeapotBlock(block.get()))
+            .blockstate(() -> DecorationBlockModels::copperTeapot)
             .recipe((provider, block) -> {
                 provider.shaped(RecipeCategory.DECORATIONS, block.get())
                         .define('C', Items.COPPER_INGOT)
@@ -244,7 +247,7 @@ public class BlockRegistry {
                             "When placed beside itself:", "与同类方块相邻放置时:",
                             "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .connectedTexture(CTTextureType.OMNIDIRECTIONAL)
             .recipe((provider, block) -> {
@@ -271,7 +274,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_pile"))
             .lang("zh_cn", "铝锭堆")
@@ -287,7 +290,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.IRON_INGOT, "iron_ingot_from_pile"))
             .lang("zh_cn", "铁锭堆")
@@ -303,7 +306,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.COPPER_INGOT, "copper_ingot_from_pile"))
             .lang("zh_cn", "铜锭堆")
@@ -319,7 +322,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.GOLD_INGOT, "gold_ingot_from_pile"))
             .lang("zh_cn", "金锭堆")
@@ -335,7 +338,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
             .lang("zh_cn", "下界合金锭堆")
@@ -379,7 +382,7 @@ public class BlockRegistry {
                             "Shift Right-click:", "Shift+右键：",
                             "Open the master hearth _menu_.", "打开主围炉_界面_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, irori) -> provider.iroriBlock(irori.get()))
+            .blockstate(() -> DecorationBlockModels::irori)
             .loot((provider, irori) -> provider.dropSelf(irori.get()))
             .recipe((provider, irori) -> provider.shaped(RecipeCategory.DECORATIONS, irori.get())
                     .define('L', ItemTags.LOGS)
@@ -410,7 +413,7 @@ public class BlockRegistry {
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, lamp) -> provider.bedroomLampBlock(lamp.get()))
+            .blockstate(() -> DecorationBlockModels::bedroomLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .clientItem(ShadowsAndPetals.asResource("block/bedroom_lamp/off"))
             .lang("zh_cn", "卧室台灯")
@@ -433,7 +436,7 @@ public class BlockRegistry {
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, lamp) -> provider.wallLampBlock(lamp.get()))
+            .blockstate(() -> DecorationBlockModels::wallLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .clientItem(ShadowsAndPetals.asResource("block/wall_lamp/off"))
             .lang("zh_cn", "壁灯")
@@ -455,7 +458,7 @@ public class BlockRegistry {
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, lamp) -> provider.emergencyLampBlock(lamp.get()))
+            .blockstate(() -> DecorationBlockModels::emergencyLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .clientItem(ShadowsAndPetals.asResource("block/emergency_lamp/off"))
             .lang("zh_cn", "防爆灯")
@@ -478,7 +481,7 @@ public class BlockRegistry {
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, lamp) -> provider.recessedLampBlock(lamp.get()))
+            .blockstate(() -> DecorationBlockModels::recessedLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .recipe((provider, lamp) -> {
                 provider.shaped(RecipeCategory.DECORATIONS, lamp.get(), 4)
@@ -521,7 +524,7 @@ public class BlockRegistry {
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, lamp) -> provider.deskLampBlock(lamp.get()))
+            .blockstate(() -> DecorationBlockModels::deskLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
             .lang("zh_cn", "台灯")
@@ -536,9 +539,10 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.horizontalFacingRoofTileBlockWithItem(
-                    block.get(),
-                    provider.modLoc("block/roof_tile/" + color.getName())
+            .blockstate(() -> (context, generator) -> RoofTileModels.base(
+                    context,
+                    generator,
+                    generator.modLoc("block/roof_tile/" + color.getName())
             ))
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> {
@@ -563,6 +567,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
             .withItem()
             .creativeTab(CreativeTabType.MAIN)
+            .blockstate(() -> (context, generator) -> RoofTileModels.shapes(context, generator, color))
             .loot((provider, block) -> provider.dropSlab(block.get()))
             .recipe((provider, block) -> {
                 provider.slabFromBase(RecipeCategory.BUILDING_BLOCKS, block.get(), ROOF_TILES.get(color).get());
@@ -634,7 +639,7 @@ public class BlockRegistry {
                             "When the front is obstructed:", "前方被阻挡时:",
                             "The drawer _cannot open_.", "抽屉_无法打开_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, vanity) -> provider.vanityBlock(vanity.get()))
+            .blockstate(() -> DecorationBlockModels::vanity)
             .clientItem(ShadowsAndPetals.asResource("item/vanity/" + woodType.getName()))
             .recipe((provider, vanity) -> provider.shaped(RecipeCategory.DECORATIONS, vanity.get())
                     .define('S', woodType.getSlab())
@@ -723,9 +728,10 @@ public class BlockRegistry {
                             "_Recolor_ the chair.", "为椅子_重新染色_。"))
             .creativeTab(CreativeTabType.MAIN)
             .lang("zh_cn", DyedBlockList.zhName(color) + "咖啡椅")
-            .blockstate((provider, chair) -> provider.simpleBlockWithItem(
-                    chair.get(),
-                    provider.models().getExistingFile(provider.modLoc("block/cafe_chair/" + color.getName()))
+            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
+                    context,
+                    generator,
+                    generator.modLoc("block/cafe_chair/" + color.getName())
             ))
             .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
                     .define('W', WoolUtils.getWool(color))
@@ -744,7 +750,7 @@ public class BlockRegistry {
                     .sound(SoundType.STONE))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .blockstate((provider, block) -> provider.samonBlock(block.get()))
+            .blockstate(() -> DecorationBlockModels::samon)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .lang("zh_cn", "砂纹")
             .register();
@@ -765,7 +771,7 @@ public class BlockRegistry {
                             "When supplied by a Pipe above:", "由上方竹管供液时:",
                             "Fill with the pipe's fluid, then pour and _strike_ in a repeating cycle.", "蓄入竹管提供的流体，随后倾倒并循环_敲击_。"))
             .creativeTab(CreativeTabType.NATURE)
-            .blockstate((provider, block) -> provider.shishiOdoshiBlock(block.get()))
+            .blockstate(() -> DecorationBlockModels::shishiOdoshi)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
                     .define('B', Items.BAMBOO)
@@ -793,7 +799,7 @@ public class BlockRegistry {
                             "When attached to a compatible fluid source:", "连接兼容的流体源时:",
                             "Feed fluid into a _Shishi-Odoshi directly below_.", "向_正下方的添水_持续供液。"))
             .creativeTab(CreativeTabType.NATURE)
-            .blockstate((provider, block) -> provider.shishiOdoshiPipeBlock(block.get()))
+            .blockstate(() -> DecorationBlockModels::shishiOdoshiPipe)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
                     .define('B', Items.BAMBOO)
@@ -813,7 +819,7 @@ public class BlockRegistry {
                     .noOcclusion()
                     .offsetType(BlockBehaviour.OffsetType.XZ)
                     .pushReaction(PushReaction.DESTROY))
-            .blockstate((provider, tree) -> provider.orangeTreeBlock(tree.get()))
+            .blockstate(() -> NatureBlockModels::orangeTree)
             .loot((provider, tree) -> provider.addTable(
                     tree.get(),
                     LootTable.lootTable().withPool(LootPool.lootPool()
@@ -845,7 +851,7 @@ public class BlockRegistry {
                         100)
                 .creativeTab(CreativeTabType.NATURE)
                 .tags(BlockTags.MINEABLE_WITH_PICKAXE)
-                .blockstate((provider, block) -> provider.rockeryBlock(block.get(), dims))
+                .blockstate(() -> (context, generator) -> NatureBlockModels.rockery(context, generator, dims))
                 .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))
                 .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
                 .lang("en_us", "rockery")

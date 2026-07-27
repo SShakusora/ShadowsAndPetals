@@ -4,6 +4,9 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.data.model.BlockModelCallback;
+import com.sshakusora.shadowsandpetals.data.model.ItemModelCallback;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.ItemDescription;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipComponentRegistry;
 import com.sshakusora.shadowsandpetals.foundation.tooltip.TooltipLangBuilder;
@@ -26,6 +29,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredBlock;
+import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jspecify.annotations.Nullable;
 
@@ -50,10 +54,10 @@ public class RegBlockBuilder<B extends Block> {
     private Item.Properties itemProperties;
     private Function<Block, ? extends BlockItem> itemFactory;
     private final Map<String, String> langNames = new LinkedHashMap<>();
-    private BiConsumer<ModBlockStateProvider, DeferredBlock<B>> blockStateGenerator;
+    private Supplier<? extends BlockModelCallback<B>> blockStateGenerator;
     private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
     private BiConsumer<ModRecipeProvider, DeferredBlock<B>> recipeGenerator;
-    private BiConsumer<ModItemModelProvider, DeferredBlock<B>> itemModelGenerator;
+    private Supplier<? extends ItemModelCallback<BlockItem>> itemModelGenerator;
     private Function<DeferredBlock<B>, Identifier> clientItemModelFactory;
     private Function<DeferredBlock<B>, Identifier> customClientItemTypeFactory;
     private Function<DeferredBlock<B>, Identifier> ctBaseTextureFactory;
@@ -211,8 +215,8 @@ public class RegBlockBuilder<B extends Block> {
     /**
      * Attaches a blockstate datagen callback.
      */
-    public RegBlockBuilder<B> blockstate(BiConsumer<ModBlockStateProvider, DeferredBlock<B>> generator) {
-        this.blockStateGenerator = generator;
+    public RegBlockBuilder<B> blockstate(Supplier<? extends BlockModelCallback<B>> generator) {
+        this.blockStateGenerator = Objects.requireNonNull(generator);
         return this;
     }
 
@@ -235,13 +239,13 @@ public class RegBlockBuilder<B extends Block> {
     /**
      * Attaches an item-model datagen callback for the block item.
      */
-    public RegBlockBuilder<B> itemModel(BiConsumer<ModItemModelProvider, DeferredBlock<B>> generator) {
-        this.itemModelGenerator = generator;
+    public RegBlockBuilder<B> itemModel(Supplier<? extends ItemModelCallback<BlockItem>> generator) {
+        this.itemModelGenerator = Objects.requireNonNull(generator);
         return this;
     }
 
     /**
-     * Attaches a client item-model mapping used by {@link ModClientItemProvider}.
+     * Attaches a client item-model mapping used by the unified model provider.
      */
     public RegBlockBuilder<B> clientItem(Function<DeferredBlock<B>, Identifier> modelFactory) {
         this.clientItemModelFactory = modelFactory;
@@ -249,14 +253,14 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     /**
-     * Attaches a fixed client item-model mapping used by {@link ModClientItemProvider}.
+     * Attaches a fixed client item-model mapping used by the unified model provider.
      */
     public RegBlockBuilder<B> clientItem(Identifier modelId) {
         return clientItem(block -> modelId);
     }
 
     /**
-     * Attaches a custom client item model type used by {@link ModClientItemProvider}.
+     * Attaches a custom client item model type used by the unified model provider.
      * <p>
      * Use this for special item models whose JSON entry only needs a {@code type}
      * property instead of the vanilla {@code minecraft:model + model} pair.
@@ -267,7 +271,7 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     /**
-     * Attaches a fixed custom client item model type used by {@link ModClientItemProvider}.
+     * Attaches a fixed custom client item model type used by the unified model provider.
      */
     public RegBlockBuilder<B> customClientItem(Identifier modelType) {
         return customClientItem(block -> modelType);
@@ -462,9 +466,8 @@ public class RegBlockBuilder<B extends Block> {
         registerBlockTags(deferredBlock);
 
         if (withItem) {
-            registerBlockItem(deferredBlock);
-            applyItemModelUnchecked(deferredBlock);
-            applyClientItemUnchecked(deferredBlock);
+            DeferredItem<BlockItem> blockItem = registerBlockItem(deferredBlock);
+            applyItemDatagenUnchecked(deferredBlock, blockItem);
         }
 
         if (tooltipModifier != null) {
@@ -574,12 +577,8 @@ public class RegBlockBuilder<B extends Block> {
 
     @SuppressWarnings("unchecked")
     private void applyBlockStateUnchecked(DeferredBlock<? extends Block> block) {
-        if (blockStateGenerator == null) {
-            return;
-        }
-
         DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
-        DatagenBlockStateRegistry.add(block.getId(), provider -> blockStateGenerator.accept(provider, typedBlock));
+        ModelDatagenRegistry.addBlock(typedBlock, blockStateGenerator);
     }
 
     @SuppressWarnings("unchecked")
@@ -606,37 +605,27 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     @SuppressWarnings("unchecked")
-    private void applyItemModelUnchecked(DeferredBlock<? extends Block> block) {
-        if (itemModelGenerator == null) {
-            return;
-        }
-
+    private void applyItemDatagenUnchecked(DeferredBlock<? extends Block> block, DeferredItem<BlockItem> item) {
         DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
-        DatagenItemModelRegistry.add(block.getId(), provider -> itemModelGenerator.accept(provider, typedBlock));
-    }
-
-    @SuppressWarnings("unchecked")
-    private void applyClientItemUnchecked(DeferredBlock<? extends Block> block) {
-        DeferredBlock<B> typedBlock = (DeferredBlock<B>) block;
-        if (customClientItemTypeFactory != null) {
-            DatagenClientItemRegistry.addCustomModel(block.getId(), customClientItemTypeFactory.apply(typedBlock));
-            return;
-        }
-
-        Identifier modelId = clientItemModelFactory != null
+        Identifier clientModel = clientItemModelFactory != null
                 ? clientItemModelFactory.apply(typedBlock)
-                : ShadowsAndPetals.asResource("item/" + block.getId().getPath());
-        DatagenClientItemRegistry.add(block.getId(), modelId);
+                : null;
+        Identifier customType = customClientItemTypeFactory != null
+                ? customClientItemTypeFactory.apply(typedBlock)
+                : null;
+        ModelDatagenRegistry.addItem(item, itemModelGenerator, clientModel, customType);
     }
 
-    private void registerBlockItem(DeferredBlock<? extends Block> block) {
+    private DeferredItem<BlockItem> registerBlockItem(DeferredBlock<? extends Block> block) {
         DeferredRegister.Items items = SAPRegistries.ITEMS;
         if (itemFactory != null) {
-            items.register(name, key -> itemFactory.apply(block.get()));
-        } else {
-            final Item.Properties props = itemProperties;
-            items.register(name, key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
+            return items.register(name, key -> itemFactory.apply(block.get()));
         }
+        final Item.Properties props = itemProperties;
+        return items.register(name, key -> new BlockItem(
+                block.get(),
+                props.setId(ResourceKey.create(Registries.ITEM, key))
+        ));
     }
 
     private void registerCreativeTabs(DeferredBlock<? extends Block> block) {
@@ -671,8 +660,11 @@ public class RegBlockBuilder<B extends Block> {
         this.withItem = true;
         postRegister(block);
         final Item.Properties props = itemProperties != null ? itemProperties : new Item.Properties();
-        SAPRegistries.ITEMS.register(name, key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key))));
-        applyClientItemUnchecked(block);
+        DeferredItem<BlockItem> item = SAPRegistries.ITEMS.register(
+                name,
+                key -> new BlockItem(block.get(), props.setId(ResourceKey.create(Registries.ITEM, key)))
+        );
+        applyItemDatagenUnchecked(block, item);
         return block;
     }
 
