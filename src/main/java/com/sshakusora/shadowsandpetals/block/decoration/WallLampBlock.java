@@ -6,18 +6,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -63,38 +58,10 @@ public class WallLampBlock extends HorizontalDirectionalBlock {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction clickedFace = context.getClickedFace();
         if (clickedFace.getAxis().isHorizontal()) {
-            BlockState clickState = defaultBlockState().setValue(FACING, clickedFace);
-            if (clickState.canSurvive(context.getLevel(), context.getClickedPos())) {
-                return clickState;
-            }
+            return defaultBlockState().setValue(FACING, clickedFace);
         }
 
-        BlockState facingState = defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
-        return facingState.canSurvive(context.getLevel(), context.getClickedPos()) ? facingState : null;
-    }
-
-    @Override
-    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        Direction attachedFace = state.getValue(FACING).getOpposite();
-        BlockPos neighborPos = pos.relative(attachedFace);
-        return level.getBlockState(neighborPos).isFaceSturdy(level, neighborPos, state.getValue(FACING), SupportType.FULL);
-    }
-
-    @Override
-    protected BlockState updateShape(
-            BlockState state,
-            LevelReader level,
-            ScheduledTickAccess ticks,
-            BlockPos pos,
-            Direction direction,
-            BlockPos neighborPos,
-            BlockState neighborState,
-            RandomSource random
-    ) {
-        if (direction == state.getValue(FACING).getOpposite() && !state.canSurvive(level, pos)) {
-            return Blocks.AIR.defaultBlockState();
-        }
-        return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
+        return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override

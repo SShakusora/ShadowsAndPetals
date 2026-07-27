@@ -15,9 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -73,19 +71,7 @@ public class RecessedLampBlock extends Block implements SimpleWaterloggedBlock {
         BlockState state = defaultBlockState()
                 .setValue(MOUNT, mount)
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(pos).is(Fluids.WATER));
-        return state.canSurvive(context.getLevel(), pos) ? state : null;
-    }
-
-    @Override
-    protected boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
-        Mount mount = state.getValue(MOUNT);
-        Direction face = mount.face();
-        BlockPos supportPos = pos.relative(face.getOpposite());
-        BlockState supportState = level.getBlockState(supportPos);
-        if (mount.slabType() != null) {
-            return isSlabType(supportState, mount.slabType());
-        }
-        return supportState.isFaceSturdy(level, supportPos, face, SupportType.FULL);
+        return state;
     }
 
     @Override
@@ -103,9 +89,6 @@ public class RecessedLampBlock extends Block implements SimpleWaterloggedBlock {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
 
-        if (direction == state.getValue(MOUNT).face().getOpposite() && !state.canSurvive(level, pos)) {
-            return Blocks.AIR.defaultBlockState();
-        }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
