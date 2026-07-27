@@ -83,10 +83,13 @@ public final class DecorationBlockModels {
             SAPBlockModelGenerator generator
     ) {
         CopperTeapotBlock block = context.get();
+        Identifier main = generator.modLoc("block/teapot/copper/main");
+        Identifier mainOnIrori = generator.modLoc("block/teapot/copper/main_on_irori");
+        generator.translatedParentModel(mainOnIrori, main, 0.0F, 0.3125F, 0.0F);
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(CopperTeapotBlock.ON_IRORI)
-                        .select(false, BlockModelGenerators.plainVariant(generator.modLoc("block/teapot/copper/main")))
-                        .select(true, BlockModelGenerators.plainVariant(generator.modLoc("block/teapot/copper/main_on_irori"))))
+                        .select(false, BlockModelGenerators.plainVariant(main))
+                        .select(true, BlockModelGenerators.plainVariant(mainOnIrori)))
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
                 .with(PropertyDispatch.modify(CopperTeapotBlock.WATERLOGGED)
                         .select(false, BlockModelGenerators.NOP)
@@ -141,16 +144,24 @@ public final class DecorationBlockModels {
             SAPBlockModelGenerator generator
     ) {
         RecessedLampBlock block = context.get();
+        Identifier upOff = generator.modLoc("block/recessed_lamp/up_off");
+        Identifier upOn = generator.modLoc("block/recessed_lamp/up_on");
+        Identifier downOff = generator.modLoc("block/recessed_lamp/down_off");
+        Identifier downOn = generator.modLoc("block/recessed_lamp/down_on");
+        Identifier upSlabOff = translatedLampModel(generator, "up_slab_off", upOff, -0.5F);
+        Identifier upSlabOn = translatedLampModel(generator, "up_slab_on", upOn, -0.5F);
+        Identifier downSlabOff = translatedLampModel(generator, "down_slab_off", downOff, 0.5F);
+        Identifier downSlabOn = translatedLampModel(generator, "down_slab_on", downOn, 0.5F);
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(RecessedLampBlock.MOUNT, RecessedLampBlock.LIT)
-                        .select(RecessedLampBlock.Mount.FLOOR, false, model(generator, "block/recessed_lamp/up_off"))
-                        .select(RecessedLampBlock.Mount.FLOOR, true, model(generator, "block/recessed_lamp/up_on"))
-                        .select(RecessedLampBlock.Mount.FLOOR_SLAB, false, model(generator, "block/recessed_lamp/up_slab_off"))
-                        .select(RecessedLampBlock.Mount.FLOOR_SLAB, true, model(generator, "block/recessed_lamp/up_slab_on"))
-                        .select(RecessedLampBlock.Mount.CEILING, false, model(generator, "block/recessed_lamp/down_off"))
-                        .select(RecessedLampBlock.Mount.CEILING, true, model(generator, "block/recessed_lamp/down_on"))
-                        .select(RecessedLampBlock.Mount.CEILING_SLAB, false, model(generator, "block/recessed_lamp/down_slab_off"))
-                        .select(RecessedLampBlock.Mount.CEILING_SLAB, true, model(generator, "block/recessed_lamp/down_slab_on")))
+                        .select(RecessedLampBlock.Mount.FLOOR, false, BlockModelGenerators.plainVariant(upOff))
+                        .select(RecessedLampBlock.Mount.FLOOR, true, BlockModelGenerators.plainVariant(upOn))
+                        .select(RecessedLampBlock.Mount.FLOOR_SLAB, false, BlockModelGenerators.plainVariant(upSlabOff))
+                        .select(RecessedLampBlock.Mount.FLOOR_SLAB, true, BlockModelGenerators.plainVariant(upSlabOn))
+                        .select(RecessedLampBlock.Mount.CEILING, false, BlockModelGenerators.plainVariant(downOff))
+                        .select(RecessedLampBlock.Mount.CEILING, true, BlockModelGenerators.plainVariant(downOn))
+                        .select(RecessedLampBlock.Mount.CEILING_SLAB, false, BlockModelGenerators.plainVariant(downSlabOff))
+                        .select(RecessedLampBlock.Mount.CEILING_SLAB, true, BlockModelGenerators.plainVariant(downSlabOn)))
                 .with(PropertyDispatch.modify(RecessedLampBlock.WATERLOGGED)
                         .select(false, BlockModelGenerators.NOP)
                         .select(true, BlockModelGenerators.NOP)));
@@ -266,6 +277,17 @@ public final class DecorationBlockModels {
 
     private static MultiVariant model(SAPBlockModelGenerator generator, String path) {
         return BlockModelGenerators.plainVariant(generator.modLoc(path));
+    }
+
+    private static Identifier translatedLampModel(
+            SAPBlockModelGenerator generator,
+            String name,
+            Identifier parent,
+            float y
+    ) {
+        Identifier model = generator.modLoc("block/recessed_lamp/" + name);
+        generator.translatedParentModel(model, parent, 0.0F, y, 0.0F);
+        return model;
     }
 
     private static MultiVariant rotatedVariant(Identifier model, int x, int y) {

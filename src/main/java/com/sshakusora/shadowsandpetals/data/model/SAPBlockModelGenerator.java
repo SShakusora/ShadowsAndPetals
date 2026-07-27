@@ -11,6 +11,7 @@ import net.minecraft.client.data.models.model.TextureMapping;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -89,6 +90,14 @@ public final class SAPBlockModelGenerator {
 
     public void parentModel(Identifier modelId, Identifier parent) {
         new ModelTemplate(java.util.Optional.of(parent), java.util.Optional.empty())
+                .create(modelId, new TextureMapping(), modelOutput);
+    }
+
+    public void translatedParentModel(Identifier modelId, Identifier parent, float x, float y, float z) {
+        ExtendedModelTemplateBuilder.builder()
+                .parent(parent)
+                .rootTransforms(transform -> transform.translation(x, y, z))
+                .build()
                 .create(modelId, new TextureMapping(), modelOutput);
     }
 
