@@ -13,7 +13,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
-import com.sshakusora.shadowsandpetals.item.chime.WindChimeDyeRecipe;
+import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
@@ -415,6 +415,12 @@ public class BlockRegistry {
             .creativeTab(CreativeTabType.MAIN)
             .blockstate(() -> DecorationBlockModels::bedroomLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                    .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                    .requires(Items.GLOWSTONE)
+                    .requires(Tags.Items.INGOTS_IRON)
+                    .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                    .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/bedroom_lamp/off"))
             .lang("zh_cn", "卧室台灯")
             .register();
@@ -438,6 +444,12 @@ public class BlockRegistry {
             .creativeTab(CreativeTabType.MAIN)
             .blockstate(() -> DecorationBlockModels::wallLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                    .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                    .requires(Items.GLOWSTONE)
+                    .requires(ItemRegistry.ALUMINUM_INGOT.get())
+                    .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                    .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/wall_lamp/off"))
             .lang("zh_cn", "壁灯")
             .register();
@@ -460,6 +472,23 @@ public class BlockRegistry {
             .creativeTab(CreativeTabType.MAIN)
             .blockstate(() -> DecorationBlockModels::emergencyLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> {
+                provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                        .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                        .requires(Items.WHITE_STAINED_GLASS)
+                        .requires(Items.GLOWSTONE)
+                        .requires(Tags.Items.INGOTS_IRON)
+                        .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                        .save(provider.output());
+
+                provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                        .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                        .requires(Items.WHITE_STAINED_GLASS)
+                        .requires(Items.GLOWSTONE)
+                        .requires(ItemRegistry.ALUMINUM_INGOT.get())
+                        .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                        .save(provider.output(), provider.id("emergency_lamp_from_aluminum").toString());
+            })
             .clientItem(ShadowsAndPetals.asResource("block/emergency_lamp/off"))
             .lang("zh_cn", "防爆灯")
             .register();
@@ -526,6 +555,12 @@ public class BlockRegistry {
             .creativeTab(CreativeTabType.MAIN)
             .blockstate(() -> DecorationBlockModels::deskLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                    .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                    .requires(Items.GLOWSTONE)
+                    .requires(ItemRegistry.ALUMINUM_INGOT.get(), 2)
+                    .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                    .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
             .lang("zh_cn", "台灯")
             .register();

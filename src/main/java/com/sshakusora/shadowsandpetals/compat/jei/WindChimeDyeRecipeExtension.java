@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.compat.jei;
 
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
-import com.sshakusora.shadowsandpetals.item.chime.WindChimeDyeRecipe;
+import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
 import mezz.jei.api.recipe.IFocusGroup;

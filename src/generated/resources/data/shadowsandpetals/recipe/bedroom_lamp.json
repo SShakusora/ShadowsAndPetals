@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#c:dusts/redstone",
+    "#c:dusts/redstone",
+    "minecraft:glowstone",
+    "#c:ingots/iron"
+  ],
+  "result": {
+    "count": 2,
+    "id": "shadowsandpetals:bedroom_lamp"
+  }
+}

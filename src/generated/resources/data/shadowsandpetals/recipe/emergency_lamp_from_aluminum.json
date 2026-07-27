@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#c:dusts/redstone",
+    "#c:dusts/redstone",
+    "minecraft:white_stained_glass",
+    "minecraft:glowstone",
+    "shadowsandpetals:aluminum_ingot"
+  ],
+  "result": {
+    "count": 2,
+    "id": "shadowsandpetals:emergency_lamp"
+  }
+}

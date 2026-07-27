@@ -1,6 +1,7 @@
-package com.sshakusora.shadowsandpetals.item.chime;
+package com.sshakusora.shadowsandpetals.recipe;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.registries.RecipeSerializerRegistry;
 import net.minecraft.core.component.DataComponentPatch;
