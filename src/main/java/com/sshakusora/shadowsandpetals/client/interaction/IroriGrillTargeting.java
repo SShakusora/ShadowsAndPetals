@@ -2,7 +2,7 @@ package com.sshakusora.shadowsandpetals.client.interaction;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.api.client.ClientPickEvent;
-import com.sshakusora.shadowsandpetals.block.decoration.RecessedLampBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -17,14 +17,13 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import org.jspecify.annotations.Nullable;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
-public final class RecessedLampTargeting {
+public final class IroriGrillTargeting {
     private static final BlockPos[] CANDIDATE_OFFSETS = {
             BlockPos.ZERO,
-            new BlockPos(0, 1, 0),
             new BlockPos(0, -1, 0)
     };
 
-    private RecessedLampTargeting() {
+    private IroriGrillTargeting() {
     }
 
     @SubscribeEvent
@@ -35,33 +34,27 @@ public final class RecessedLampTargeting {
                 event.getCameraEntity(),
                 event.getPartialTick(),
                 CANDIDATE_OFFSETS,
-                RecessedLampTargeting::clipLampAt
+                IroriGrillTargeting::clipGrillAt
         );
         if (corrected != current) {
             event.setHitResult(corrected);
         }
     }
 
-    private static @Nullable BlockHitResult clipLampAt(
+    private static @Nullable BlockHitResult clipGrillAt(
             Level level,
-            BlockPos lampPos,
+            BlockPos iroriPos,
             Entity cameraEntity,
             Vec3 from,
             Vec3 to
     ) {
-        BlockState lampState = level.getBlockState(lampPos);
-        if (!(lampState.getBlock() instanceof RecessedLampBlock)) {
+        BlockState state = level.getBlockState(iroriPos);
+        if (!(state.getBlock() instanceof IroriBlock) || !state.getValue(IroriBlock.HAS_GRILL)) {
             return null;
         }
 
-        RecessedLampBlock.Mount mount = lampState.getValue(RecessedLampBlock.MOUNT);
-        if (mount != RecessedLampBlock.Mount.FLOOR_SLAB
-                && mount != RecessedLampBlock.Mount.CEILING_SLAB) {
-            return null;
-        }
-
-        BlockPos immutableLampPos = lampPos.immutable();
-        return lampState.getShape(level, immutableLampPos, CollisionContext.of(cameraEntity))
-                .clip(from, to, immutableLampPos);
+        BlockPos immutablePos = iroriPos.immutable();
+        return state.getShape(level, immutablePos, CollisionContext.of(cameraEntity))
+                .clip(from, to, immutablePos);
     }
 }
