@@ -75,8 +75,17 @@ final class IroriCookingState {
     List<PlacedItem> placedItems() {
         return slots.entrySet().stream()
                 .sorted(Map.Entry.comparingByKey(POSITION_ORDER))
-                .map(entry -> new PlacedItem(entry.getKey(), entry.getValue().item))
+                .map(entry -> new PlacedItem(
+                        entry.getKey(),
+                        entry.getValue().item,
+                        entry.getValue().completed
+                ))
                 .toList();
+    }
+
+    ItemStack itemAt(BlockPos cookingPos) {
+        Slot slot = slots.get(cookingPos);
+        return slot == null ? ItemStack.EMPTY : slot.item.copy();
     }
 
     List<PlacedItem> removeOutside(Set<BlockPos> validPositions) {
@@ -85,7 +94,11 @@ final class IroriCookingState {
             if (validPositions.contains(entry.getKey())) {
                 return false;
             }
-            removed.add(new PlacedItem(entry.getKey(), entry.getValue().item));
+            removed.add(new PlacedItem(
+                    entry.getKey(),
+                    entry.getValue().item,
+                    entry.getValue().completed
+            ));
             return true;
         });
         return List.copyOf(removed);
@@ -164,7 +177,7 @@ final class IroriCookingState {
         }
     }
 
-    record PlacedItem(BlockPos position, ItemStack stack) {
+    record PlacedItem(BlockPos position, ItemStack stack, boolean completed) {
         PlacedItem {
             position = position.immutable();
             stack = stack.copy();

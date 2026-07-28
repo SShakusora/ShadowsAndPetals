@@ -21,6 +21,7 @@ public final class IroriClientEffects {
     private static final double FIREWOOD_EFFECT_Y = 12.0D / 16.0D;
     private static final double FIREWOOD_FLAME_SPREAD = 3.0D / 16.0D;
     private static final double FIREWOOD_SMOKE_SPREAD = 4.0D / 16.0D;
+    private static final double COOKING_ITEM_EFFECT_Y = 21.7D / 16.0D;
 
     private static final Map<IroriBlockEntity, State> STATES = new WeakHashMap<>();
 
@@ -36,6 +37,7 @@ public final class IroriClientEffects {
         state.tickFirewoodAppearAnimation(blockEntity.shouldRenderFirewood());
         state.tickFirewoodModelChangeEffects(blockEntity, level, blockState);
         tickBurningEffects(blockEntity, level, blockState);
+        tickCookingEffects(blockEntity, level, blockState);
     }
 
     public static float getFirewoodAppearProgress(IroriBlockEntity blockEntity, float partialTick) {
@@ -113,6 +115,39 @@ public final class IroriClientEffects {
         double smokeSpreadX = Math.min(FIREWOOD_SMOKE_SPREAD * layout.width(), 0.65D);
         double smokeSpreadZ = Math.min(FIREWOOD_SMOKE_SPREAD * layout.depth(), 0.65D);
         return new FirewoodEffectOrigin(centerX, centerY, centerZ, flameSpreadX, flameSpreadZ, smokeSpreadX, smokeSpreadZ);
+    }
+
+    private static void tickCookingEffects(
+            IroriBlockEntity blockEntity,
+            Level level,
+            BlockState blockState
+    ) {
+        if (blockEntity.getBurnTime() <= 0 || blockState.getValue(IroriBlock.WATERLOGGED)) {
+            return;
+        }
+
+        RandomSource random = level.getRandom();
+        for (IroriBlockEntity.CookingRenderItem item : blockEntity.getCookingRenderItems()) {
+            if (!item.cooking() || random.nextFloat() >= 0.2F) {
+                continue;
+            }
+
+            double x = blockEntity.getBlockPos().getX() + item.offsetX() + 0.5D;
+            double y = blockEntity.getBlockPos().getY() + COOKING_ITEM_EFFECT_Y;
+            double z = blockEntity.getBlockPos().getZ() + item.offsetZ() + 0.5D;
+            int particleCount = random.nextInt(2) + 1;
+            for (int i = 0; i < particleCount; i++) {
+                level.addParticle(
+                        ParticleTypes.SMOKE,
+                        offset(random, x, 0.09D),
+                        y + random.nextDouble() * 0.035D,
+                        offset(random, z, 0.09D),
+                        random.nextGaussian() * 0.003D,
+                        0.012D + random.nextDouble() * 0.009D,
+                        random.nextGaussian() * 0.003D
+                );
+            }
+        }
     }
 
     private static void spawnFirewoodShrinkEffects(Level level, RandomSource random, FirewoodEffectOrigin origin) {

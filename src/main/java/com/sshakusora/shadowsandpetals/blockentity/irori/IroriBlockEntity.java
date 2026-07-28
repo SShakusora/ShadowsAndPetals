@@ -10,6 +10,7 @@ import com.sshakusora.shadowsandpetals.menu.IroriMenu;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -24,12 +25,12 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -44,7 +45,6 @@ import java.util.*;
 
 public class IroriBlockEntity extends BlockEntity implements Container, MenuProvider {
     private static final String MASTER_POS_KEY = "MasterPos";
-    private static final double ASH_DROP_Y = 10.0D / 16.0D + 0.1D;
     private static final FirewoodRenderOffset ZERO_RENDER_OFFSET = new FirewoodRenderOffset(0.0D, 0.0D);
 
     private @Nullable BlockPos masterPos;
@@ -203,26 +203,6 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         master.syncToClient();
     }
 
-    public void dropContentsAndReset() {
-        if (level == null || level.isClientSide()) {
-            return;
-        }
-
-        IroriBlockEntity master = resolveMaster();
-        if (master.fuelState.isFuelEmpty()
-                && master.fuelState.getFirewoodModel() == null
-                && master.cookingState.isEmpty()) {
-            return;
-        }
-
-        Containers.dropContents(level, master.getBlockPos(), master);
-        master.dropCookingContents(false, master.getBlockPos());
-        master.resetStoredState();
-        syncFirewoodLightState(level, IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos()), master.getBlockPos(), false);
-        master.setChanged();
-        master.syncToClient();
-    }
-
     public void dropContentsOnRemoval(BlockPos dropPos) {
         if (level == null || level.isClientSide()) {
             return;
@@ -235,8 +215,8 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             return;
         }
 
-        Containers.dropContents(level, dropPos, master);
-        master.dropCookingContents(true, dropPos);
+        master.dropFuel(dropPos);
+        master.dropCookingContents();
         if (master.fuelState.isBurning() || master.isAshModel()) {
             master.dropAshResults(dropPos);
         }
@@ -244,6 +224,38 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         syncFirewoodLightState(level, IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos()), master.getBlockPos(), false);
         master.setChanged();
         master.syncToClient();
+    }
+
+    /**
+     * Returns defensive copies of contents that must join the normal block loot path when
+     * the master is removed without going through {@link #dropContentsOnRemoval(BlockPos)}.
+     */
+    public List<ItemStack> getStoredDropsForRemoval() {
+        if (level == null || level.isClientSide()) {
+            return List.of();
+        }
+
+        IroriBlockEntity master = resolveMaster();
+        if (master != this) {
+            return master.getStoredDropsForRemoval();
+        }
+
+        List<ItemStack> drops = new ArrayList<>();
+        ItemStack fuel = fuelState.getFuelStack();
+        if (!fuel.isEmpty()) {
+            drops.add(fuel.copy());
+        }
+        for (IroriCookingState.PlacedItem item : cookingState.placedItems()) {
+            drops.add(item.stack());
+        }
+        if (fuelState.isBurning() || isAshModel()) {
+            drops.addAll(IroriApi.getAshDrops(new IroriAshDropContext(
+                    level,
+                    worldPosition,
+                    level.getRandom()
+            )));
+        }
+        return List.copyOf(drops);
     }
 
     public boolean clearAshAndDropResults() {
@@ -345,7 +357,8 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
                         item.stack(),
                         item.position().getX() - worldPosition.getX(),
                         item.position().getZ() - worldPosition.getZ(),
-                        item.position().asLong()
+                        item.position().asLong(),
+                        !item.completed()
                 ))
                 .toList();
     }
@@ -456,14 +469,27 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return cachedComponentWidth > 1 && cachedComponentDepth > 1;
     }
 
-    public static void reelectMaster(Level level, Set<BlockPos> component) {
-        if (component.isEmpty()) {
+    public static void reconcileComponent(ServerLevel level, BlockPos origin) {
+        if (!(level.getBlockState(origin).getBlock() instanceof IroriBlock)) {
             return;
         }
 
+        Set<BlockPos> component = IroriComponentTopology.collectConnectedComponent(level, origin);
+        for (BlockPos componentPos : component) {
+            if (!(level.getBlockEntity(componentPos) instanceof IroriBlockEntity)) {
+                level.scheduleTick(origin, level.getBlockState(origin).getBlock(), 1);
+                return;
+            }
+        }
+
         BlockPos masterPos = IroriComponentTopology.electMaster(component);
-        IroriFuelState.Snapshot carriedState = resolveComponentFuelState(level, component, masterPos);
-        IroriCookingState.Snapshot carriedCookingState = resolveComponentCookingState(level, component, masterPos);
+        if (!(level.getBlockEntity(masterPos) instanceof IroriBlockEntity master)) {
+            level.scheduleTick(masterPos, level.getBlockState(masterPos).getBlock(), 1);
+            return;
+        }
+
+        FuelMergeResult fuelMergeResult = mergeComponentFuelStates(level, component, masterPos);
+        CookingMergeResult cookingMergeResult = mergeComponentCookingStates(level, component, masterPos);
 
         for (BlockPos pos : component) {
             BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -474,25 +500,29 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
                     irori.fuelState.reset();
                     irori.cookingState.reset();
                 }
+                irori.setChanged();
             }
         }
 
-        BlockEntity blockEntity = level.getBlockEntity(masterPos);
-        if (blockEntity instanceof IroriBlockEntity master) {
-            master.fuelState.restore(carriedState);
-            master.cookingState.restore(carriedCookingState);
-            List<IroriCookingState.PlacedItem> removedItems = master.cookingState.removeOutside(
-                    IroriComponentTopology.centerPositions(component, masterPos)
-            );
-            if (!level.isClientSide()) {
-                dropPlacedItems(level, removedItems, false, masterPos);
-            }
-            master.invalidateRenderOffsetCache();
-            master.setChanged();
-            master.refreshGrillState();
+        master.fuelState.restore(fuelMergeResult.snapshot());
+        master.fuelState.onFuelChanged(level.getRandom(), level);
+        master.cookingState.restore(cookingMergeResult.snapshot());
+        List<IroriCookingState.PlacedItem> removedItems = master.cookingState.removeOutside(
+                IroriComponentTopology.centerPositions(component, masterPos)
+        );
+        dropPlacedItems(level, removedItems);
+        dropPlacedItems(level, cookingMergeResult.conflicts());
+        for (ItemStack overflow : fuelMergeResult.overflowFuel()) {
+            dropItemStack(level, masterPos, overflow);
         }
+        for (BlockPos ashDropPos : fuelMergeResult.ashDropPositions()) {
+            master.dropAshResults(ashDropPos);
+        }
+        master.invalidateRenderOffsetCache();
+        master.setChanged();
+        master.refreshGrillState();
 
-        syncFirewoodLightState(level, component, masterPos, carriedState.burnTime() > 0);
+        syncFirewoodLightState(level, component, masterPos, fuelMergeResult.snapshot().burnTime() > 0);
         syncComponentToClient(level, component);
     }
 
@@ -735,20 +765,14 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     }
 
     private void dropAshResults() {
-        FirewoodRenderOffset renderOffset = getFirewoodRenderOffset();
-        spawnAshDrops(
-                worldPosition,
-                worldPosition.getX() + 0.5D + renderOffset.x(),
-                worldPosition.getY() + ASH_DROP_Y,
-                worldPosition.getZ() + 0.5D + renderOffset.z()
-        );
+        spawnAshDrops(worldPosition);
     }
 
     private void dropAshResults(BlockPos dropPos) {
-        spawnAshDrops(dropPos, dropPos.getX() + 0.5D, dropPos.getY() + ASH_DROP_Y, dropPos.getZ() + 0.5D);
+        spawnAshDrops(dropPos);
     }
 
-    private void spawnAshDrops(BlockPos dropPos, double x, double y, double z) {
+    private void spawnAshDrops(BlockPos dropPos) {
         if (level == null) {
             return;
         }
@@ -756,13 +780,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         RandomSource random = level.getRandom();
         IroriAshDropContext context = new IroriAshDropContext(level, dropPos, random);
         for (ItemStack drop : IroriApi.getAshDrops(context)) {
-            ItemEntity itemEntity = new ItemEntity(level, x, y, z, drop);
-            itemEntity.setDeltaMovement(
-                    random.triangle(0.0D, 0.035D),
-                    0.04D,
-                    random.triangle(0.0D, 0.035D)
-            );
-            level.addFreshEntity(itemEntity);
+            dropItemStack(level, dropPos, drop);
         }
     }
 
@@ -777,9 +795,18 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     private void finishCooking(ServerLevel level, List<BlockPos> completedPositions) {
         for (BlockPos completedPos : completedPositions) {
             double x = completedPos.getX() + 0.5D;
-            double y = completedPos.getY() + 0.82D;
+            double y = completedPos.getY() + 1.35D;
             double z = completedPos.getZ() + 0.5D;
-            level.sendParticles(ParticleTypes.SMOKE, x, y, z, 4, 0.15D, 0.04D, 0.15D, 0.01D);
+            ItemStack completedStack = cookingState.itemAt(completedPos);
+            level.sendParticles(ParticleTypes.POOF, x, y, z, 5, 0.14D, 0.035D, 0.14D, 0.025D);
+            level.sendParticles(ParticleTypes.SMOKE, x, y, z, 3, 0.13D, 0.03D, 0.13D, 0.012D);
+            if (!completedStack.isEmpty()) {
+                ItemParticleOption completedItemParticle = new ItemParticleOption(
+                        ParticleTypes.ITEM,
+                        ItemStackTemplate.fromNonEmptyStack(completedStack)
+                );
+                level.sendParticles(completedItemParticle, x, y, z, 9, 0.14D, 0.035D, 0.14D, 0.055D);
+            }
             level.playSound(
                     null,
                     completedPos,
@@ -792,29 +819,39 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
     }
 
-    private void dropCookingContents(boolean atFallbackPosition, BlockPos fallbackPos) {
+    private void dropFuel(BlockPos dropOrigin) {
         if (level == null) {
             return;
         }
-        dropPlacedItems(level, cookingState.takeAll(), atFallbackPosition, fallbackPos);
+        dropItemStack(level, dropOrigin, fuelState.takeFuel());
+    }
+
+    private void dropCookingContents() {
+        if (level == null) {
+            return;
+        }
+        dropPlacedItems(level, cookingState.takeAll());
     }
 
     private static void dropPlacedItems(
             Level level,
-            List<IroriCookingState.PlacedItem> items,
-            boolean atFallbackPosition,
-            BlockPos fallbackPos
+        List<IroriCookingState.PlacedItem> items
     ) {
         for (IroriCookingState.PlacedItem item : items) {
-            BlockPos dropPos = atFallbackPosition ? fallbackPos : item.position();
-            Containers.dropItemStack(
-                    level,
-                    dropPos.getX() + 0.5D,
-                    dropPos.getY() + 0.8D,
-                    dropPos.getZ() + 0.5D,
-                    item.stack()
-            );
+            dropItemStack(level, item.position(), item.stack());
         }
+    }
+
+    private static void dropItemStack(Level level, BlockPos sourcePos, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        BlockState sourceState = level.getBlockState(sourcePos);
+        BlockPos dropPos = sourceState.getBlock() instanceof IroriBlock
+                ? sourcePos.above(sourceState.getValue(IroriBlock.HAS_GRILL) ? 2 : 1)
+                : sourcePos;
+        Containers.dropItemStack(level, dropPos.getX(), dropPos.getY(), dropPos.getZ(), stack);
     }
 
     private void resetStoredState() {
@@ -846,68 +883,175 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return level != null ? level.getRandom() : RandomSource.create(worldPosition.asLong());
     }
 
-    private static IroriFuelState.Snapshot resolveComponentFuelState(Level level, Set<BlockPos> component, BlockPos electedMasterPos) {
-        BlockEntity elected = level.getBlockEntity(electedMasterPos);
-        if (elected instanceof IroriBlockEntity irori) {
-            IroriFuelState.Snapshot electedState = irori.fuelState.snapshot();
-            if (!electedState.isEmpty()) {
-                return electedState;
-            }
+    private static FuelMergeResult mergeComponentFuelStates(
+            Level level,
+            Set<BlockPos> component,
+            BlockPos electedMasterPos
+    ) {
+        List<FuelStateSource> sources = component.stream()
+                .sorted(Comparator.comparingLong(BlockPos::asLong))
+                .map(pos -> {
+                    BlockEntity blockEntity = level.getBlockEntity(pos);
+                    if (!(blockEntity instanceof IroriBlockEntity irori)) {
+                        return null;
+                    }
+                    IroriFuelState.Snapshot snapshot = irori.fuelState.snapshot();
+                    return snapshot.isEmpty() ? null : new FuelStateSource(pos, snapshot);
+                })
+                .filter(Objects::nonNull)
+                .sorted(Comparator
+                        .comparingInt((FuelStateSource source) -> fuelStatePriority(source.snapshot()))
+                        .reversed()
+                        .thenComparing(source -> !source.position().equals(electedMasterPos))
+                        .thenComparingLong(source -> source.position().asLong()))
+                .toList();
+        if (sources.isEmpty()) {
+            return FuelMergeResult.EMPTY;
         }
 
-        for (BlockPos pos : component) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof IroriBlockEntity irori && irori.isValidMaster()) {
-                IroriFuelState.Snapshot state = irori.fuelState.snapshot();
-                if (!state.isEmpty()) {
-                    return state;
-                }
+        FuelStateSource primary = sources.getFirst();
+        ItemStack mergedFuel = primary.snapshot().fuelStack().copy();
+        List<ItemStack> overflowFuel = new ArrayList<>();
+        int mergedBurnTime = 0;
+        int mergedBurnTimeTotal = 0;
+        int mergedBurnCycle = 0;
+
+        for (FuelStateSource source : sources) {
+            IroriFuelState.Snapshot snapshot = source.snapshot();
+            mergedBurnTime = saturatedAdd(mergedBurnTime, snapshot.burnTime());
+            mergedBurnTimeTotal = saturatedAdd(mergedBurnTimeTotal, snapshot.burnTimeTotal());
+            mergedBurnCycle = Math.max(mergedBurnCycle, snapshot.burnCycle());
+            if (source != primary) {
+                mergedFuel = mergeFuelStack(mergedFuel, snapshot.fuelStack(), overflowFuel);
             }
         }
-
-        for (BlockPos pos : component) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof IroriBlockEntity irori) {
-                IroriFuelState.Snapshot state = irori.fuelState.snapshot();
-                if (!state.isEmpty()) {
-                    return state;
-                }
-            }
+        if (mergedBurnTime > 0) {
+            mergedBurnTimeTotal = Math.max(mergedBurnTimeTotal, mergedBurnTime);
         }
 
-        return IroriFuelState.Snapshot.EMPTY;
+        boolean preservePrimaryAsh = mergedBurnTime <= 0
+                && mergedFuel.isEmpty()
+                && primary.snapshot().ashState();
+        List<BlockPos> ashDropPositions = sources.stream()
+                .filter(source -> source.snapshot().ashState())
+                .filter(source -> source != primary || !preservePrimaryAsh)
+                .map(FuelStateSource::position)
+                .toList();
+
+        FirewoodModel firewoodModel = primary.snapshot().firewoodModel();
+        if (firewoodModel == null) {
+            firewoodModel = sources.stream()
+                    .map(FuelStateSource::snapshot)
+                    .map(IroriFuelState.Snapshot::firewoodModel)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        IroriFuelState.Snapshot mergedSnapshot = new IroriFuelState.Snapshot(
+                mergedFuel,
+                firewoodModel,
+                mergedBurnTime,
+                mergedBurnTimeTotal,
+                mergedBurnCycle,
+                preservePrimaryAsh
+        );
+        return new FuelMergeResult(
+                mergedSnapshot,
+                List.copyOf(overflowFuel),
+                List.copyOf(ashDropPositions)
+        );
     }
 
-    private static IroriCookingState.Snapshot resolveComponentCookingState(
+    private static int fuelStatePriority(IroriFuelState.Snapshot snapshot) {
+        if (snapshot.burnTime() > 0) {
+            return 4;
+        }
+        if (!snapshot.fuelStack().isEmpty()) {
+            return 3;
+        }
+        if (snapshot.ashState()) {
+            return 2;
+        }
+        return snapshot.firewoodModel() != null ? 1 : 0;
+    }
+
+    private static ItemStack mergeFuelStack(
+            ItemStack current,
+            ItemStack additional,
+            List<ItemStack> overflow
+    ) {
+        if (additional.isEmpty()) {
+            return current;
+        }
+        if (current.isEmpty()) {
+            return additional.copy();
+        }
+        if (!ItemStack.isSameItemSameComponents(current, additional)) {
+            overflow.add(additional.copy());
+            return current;
+        }
+
+        int inserted = Math.min(additional.getCount(), current.getMaxStackSize() - current.getCount());
+        if (inserted > 0) {
+            current.grow(inserted);
+        }
+        if (inserted < additional.getCount()) {
+            overflow.add(additional.copyWithCount(additional.getCount() - inserted));
+        }
+        return current;
+    }
+
+    private static int saturatedAdd(int first, int second) {
+        long sum = (long) first + second;
+        return sum >= Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) sum;
+    }
+
+    private static CookingMergeResult mergeComponentCookingStates(
             Level level,
             Set<BlockPos> component,
             BlockPos electedMasterPos
     ) {
         Map<BlockPos, IroriCookingState.SlotSnapshot> merged = new LinkedHashMap<>();
-        addCookingSnapshot(level.getBlockEntity(electedMasterPos), merged);
-        for (BlockPos pos : component) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof IroriBlockEntity irori && irori.isValidMaster()) {
-                addCookingSnapshot(irori, merged);
-            }
+        List<IroriCookingState.PlacedItem> conflicts = new ArrayList<>();
+        Set<BlockPos> sourceOrder = new LinkedHashSet<>();
+        sourceOrder.add(electedMasterPos);
+        component.stream()
+                .sorted(Comparator.comparingLong(BlockPos::asLong))
+                .filter(pos -> {
+                    BlockEntity blockEntity = level.getBlockEntity(pos);
+                    return blockEntity instanceof IroriBlockEntity irori && irori.isValidMaster();
+                })
+                .forEach(sourceOrder::add);
+        component.stream()
+                .sorted(Comparator.comparingLong(BlockPos::asLong))
+                .forEach(sourceOrder::add);
+
+        for (BlockPos sourcePos : sourceOrder) {
+            addCookingSnapshot(level.getBlockEntity(sourcePos), merged, conflicts);
         }
-        for (BlockPos pos : component) {
-            addCookingSnapshot(level.getBlockEntity(pos), merged);
-        }
-        return merged.isEmpty()
+        IroriCookingState.Snapshot snapshot = merged.isEmpty()
                 ? IroriCookingState.Snapshot.EMPTY
                 : new IroriCookingState.Snapshot(List.copyOf(merged.values()));
+        return new CookingMergeResult(snapshot, List.copyOf(conflicts));
     }
 
     private static void addCookingSnapshot(
             @Nullable BlockEntity blockEntity,
-            Map<BlockPos, IroriCookingState.SlotSnapshot> merged
+            Map<BlockPos, IroriCookingState.SlotSnapshot> merged,
+            List<IroriCookingState.PlacedItem> conflicts
     ) {
         if (!(blockEntity instanceof IroriBlockEntity irori)) {
             return;
         }
         for (IroriCookingState.SlotSnapshot slot : irori.cookingState.snapshot().slots()) {
-            merged.putIfAbsent(slot.position(), slot);
+            if (merged.putIfAbsent(slot.position(), slot) != null) {
+                conflicts.add(new IroriCookingState.PlacedItem(
+                        slot.position(),
+                        slot.item(),
+                        slot.completed()
+                ));
+            }
         }
     }
 
@@ -950,6 +1094,27 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         );
     }
 
+    private record FuelStateSource(BlockPos position, IroriFuelState.Snapshot snapshot) {
+    }
+
+    private record FuelMergeResult(
+            IroriFuelState.Snapshot snapshot,
+            List<ItemStack> overflowFuel,
+            List<BlockPos> ashDropPositions
+    ) {
+        private static final FuelMergeResult EMPTY = new FuelMergeResult(
+                IroriFuelState.Snapshot.EMPTY,
+                List.of(),
+                List.of()
+        );
+    }
+
+    private record CookingMergeResult(
+            IroriCookingState.Snapshot snapshot,
+            List<IroriCookingState.PlacedItem> conflicts
+    ) {
+    }
+
     public record FirewoodRenderOffset(double x, double z) {
     }
 
@@ -966,7 +1131,13 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     ) {
     }
 
-    public record CookingRenderItem(ItemStack stack, double offsetX, double offsetZ, long seed) {
+    public record CookingRenderItem(
+            ItemStack stack,
+            double offsetX,
+            double offsetZ,
+            long seed,
+            boolean cooking
+    ) {
         public CookingRenderItem {
             stack = stack.copy();
         }
