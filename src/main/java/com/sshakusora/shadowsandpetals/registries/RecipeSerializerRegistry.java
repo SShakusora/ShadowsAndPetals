@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
-import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.recipe.TeapotRecipe;
+import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.registries.builder.RegRecipeBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;

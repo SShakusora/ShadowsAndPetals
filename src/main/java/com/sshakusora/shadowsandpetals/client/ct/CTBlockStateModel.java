@@ -34,18 +34,20 @@ import java.util.Map;
  */
 public final class CTBlockStateModel extends DelegateBlockStateModel implements DynamicBlockStateModel {
 
+    private final CTEntry entry;
     private final Identifier baseTextureId;
-    private final Identifier connectedTextureId;
+    private final List<Identifier> connectedTextureIds;
     private final CTTextureType type;
     private final int padding;
 
     // Lazy-resolved sprites and pre-computed UV deltas
-    private volatile Sprites sprites;
+    private volatile @Nullable Sprites sprites;
 
     public CTBlockStateModel(BlockStateModel delegate, CTEntry entry) {
         super(delegate);
+        this.entry = entry;
         this.baseTextureId = entry.baseTexture();
-        this.connectedTextureId = entry.connectedTexture();
+        this.connectedTextureIds = entry.connectedTextures();
         this.type = entry.type();
         this.padding = entry.padding();
     }
@@ -54,8 +56,14 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
         Object delegateKey = delegate.createGeometryKey(level, pos, state, random);
         Map<Direction, Integer> indices = computeCTIndices(level, pos, state);
+        TextureSelection textureSelection = selectTextures(pos, indices);
         return new GeometryKey(
                 delegateKey,
+                baseTextureId,
+                connectedTextureIds,
+                type,
+                padding,
+                textureSelection,
                 indices.getOrDefault(Direction.DOWN, -1),
                 indices.getOrDefault(Direction.UP, -1),
                 indices.getOrDefault(Direction.NORTH, -1),
@@ -69,13 +77,28 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
                              RandomSource random, List<BlockStateModelPart> parts) {
         Sprites sp = ensureSprites();
         Map<Direction, Integer> ctIndices = computeCTIndices(level, pos, state);
+        TextureSelection textureSelection = selectTextures(pos, ctIndices);
 
         List<BlockStateModelPart> delegateParts = new ArrayList<>();
         delegate.collectParts(level, pos, state, random, delegateParts);
 
         for (BlockStateModelPart part : delegateParts) {
-            parts.add(new CTPart(part, ctIndices, sp, type.getSheetSize(), padding));
+            parts.add(new CTPart(part, ctIndices, sp, textureSelection, type.getSheetSize()));
         }
+    }
+
+    private TextureSelection selectTextures(BlockPos pos, Map<Direction, Integer> ctIndices) {
+        return new TextureSelection(
+                selectTexture(pos, Direction.DOWN, ctIndices),
+                selectTexture(pos, Direction.UP, ctIndices),
+                selectTexture(pos, Direction.NORTH, ctIndices),
+                selectTexture(pos, Direction.SOUTH, ctIndices),
+                selectTexture(pos, Direction.WEST, ctIndices),
+                selectTexture(pos, Direction.EAST, ctIndices));
+    }
+
+    private int selectTexture(BlockPos pos, Direction face, Map<Direction, Integer> ctIndices) {
+        return ctIndices.containsKey(face) ? entry.selectTextureIndex(pos, face) : 0;
     }
 
     private Sprites ensureSprites() {
@@ -87,7 +110,10 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
             TextureAtlas atlas = (TextureAtlas) Minecraft.getInstance()
                     .getTextureManager().getTexture(TextureAtlas.LOCATION_BLOCKS);
             TextureAtlasSprite base = atlas.getSprite(baseTextureId);
-            TextureAtlasSprite connected = atlas.getSprite(connectedTextureId);
+            List<ConnectedSprite> connected = connectedTextureIds.stream()
+                    .map(atlas::getSprite)
+                    .map(sprite -> new ConnectedSprite(sprite, type.getSheetSize(), padding))
+                    .toList();
             sp = new Sprites(base, connected);
             sprites = sp;
             return sp;
@@ -176,28 +202,17 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     private static final class CTPart implements BlockStateModelPart {
         private final BlockStateModelPart delegate;
         private final Map<Direction, Integer> ctIndices;
-        private final Sprites sp;
+        private final Sprites sprites;
+        private final TextureSelection textureSelection;
         private final int sheetSize;
-        private final float tileUStride;
-        private final float tileVStride;
-        private final float tileUContentSize;
-        private final float tileVContentSize;
-        private final float tileUPadding;
-        private final float tileVPadding;
 
         CTPart(BlockStateModelPart delegate, Map<Direction, Integer> ctIndices,
-               Sprites sp, int sheetSize, int padding) {
+               Sprites sprites, TextureSelection textureSelection, int sheetSize) {
             this.delegate = delegate;
             this.ctIndices = ctIndices;
-            this.sp = sp;
+            this.sprites = sprites;
+            this.textureSelection = textureSelection;
             this.sheetSize = sheetSize;
-
-            this.tileUStride = sp.connected.contents().width() / (float) sheetSize;
-            this.tileVStride = sp.connected.contents().height() / (float) sheetSize;
-            this.tileUPadding = Math.min(padding, tileUStride / 2.0F);
-            this.tileVPadding = Math.min(padding, tileVStride / 2.0F);
-            this.tileUContentSize = tileUStride - tileUPadding * 2.0F;
-            this.tileVContentSize = tileVStride - tileVPadding * 2.0F;
         }
 
         @Override
@@ -210,13 +225,14 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
             if (index == null)
                 return quads;
 
+            ConnectedSprite connected = sprites.connected.get(textureSelection.get(direction));
             int col = index % sheetSize;
             int row = index / sheetSize;
 
             List<BakedQuad> result = new ArrayList<>(quads.size());
             for (BakedQuad quad : quads) {
                 if (matchesBaseSprite(quad.materialInfo().sprite())) {
-                    result.add(remapQuad(quad, col, row));
+                    result.add(remapQuad(quad, col, row, connected));
                 } else {
                     result.add(quad);
                 }
@@ -226,22 +242,22 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
 
         /** Robust comparison: same atlas + same UV span = same sprite. */
         private boolean matchesBaseSprite(TextureAtlasSprite sprite) {
-            return sprite.atlasLocation().equals(sp.base.atlasLocation())
-                    && sprite.getU0() == sp.base.getU0()
-                    && sprite.getU1() == sp.base.getU1()
-                    && sprite.getV0() == sp.base.getV0()
-                    && sprite.getV1() == sp.base.getV1();
+            return sprite.atlasLocation().equals(sprites.base.atlasLocation())
+                    && sprite.getU0() == sprites.base.getU0()
+                    && sprite.getU1() == sprites.base.getU1()
+                    && sprite.getV0() == sprites.base.getV0()
+                    && sprite.getV1() == sprites.base.getV1();
         }
 
-        private BakedQuad remapQuad(BakedQuad quad, int col, int row) {
+        private BakedQuad remapQuad(BakedQuad quad, int col, int row, ConnectedSprite connected) {
             long[] newUVs = new long[4];
             for (int v = 0; v < 4; v++) {
                 long packed = quad.packedUV(v);
                 float atlasU = UVPair.unpackU(packed);
                 float atlasV = UVPair.unpackV(packed);
 
-                float targetU = getTargetU(atlasU, col);
-                float targetV = getTargetV(atlasV, row);
+                float targetU = getTargetU(atlasU, col, connected);
+                float targetV = getTargetV(atlasV, row, connected);
 
                 newUVs[v] = UVPair.pack(targetU, targetV);
             }
@@ -251,20 +267,24 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
                     quad.position0(), quad.position1(), quad.position2(), quad.position3(),
                     newUVs[0], newUVs[1], newUVs[2], newUVs[3],
                     quad.direction(),
-                    new BakedQuad.MaterialInfo(sp.connected, mat.layer(), mat.itemRenderType(),
+                    new BakedQuad.MaterialInfo(connected.sprite, mat.layer(), mat.itemRenderType(),
                             mat.tintIndex(), mat.shade(), mat.lightEmission(), mat.ambientOcclusion()));
         }
 
-        private float getTargetU(float atlasU, int tileX) {
-            float localU = getUnInterpolatedU(sp.base, atlasU);
-            float pixelU = tileX * tileUStride + tileUPadding + localU * tileUContentSize;
-            return sp.connected.getU(pixelU / sp.connected.contents().width());
+        private float getTargetU(float atlasU, int tileX, ConnectedSprite connected) {
+            float localU = getUnInterpolatedU(sprites.base, atlasU);
+            float pixelU = tileX * connected.tileUStride
+                    + connected.tileUPadding
+                    + localU * connected.tileUContentSize;
+            return connected.sprite.getU(pixelU / connected.sprite.contents().width());
         }
 
-        private float getTargetV(float atlasV, int tileY) {
-            float localV = getUnInterpolatedV(sp.base, atlasV);
-            float pixelV = tileY * tileVStride + tileVPadding + localV * tileVContentSize;
-            return sp.connected.getV(pixelV / sp.connected.contents().height());
+        private float getTargetV(float atlasV, int tileY, ConnectedSprite connected) {
+            float localV = getUnInterpolatedV(sprites.base, atlasV);
+            float pixelV = tileY * connected.tileVStride
+                    + connected.tileVPadding
+                    + localV * connected.tileVContentSize;
+            return connected.sprite.getV(pixelV / connected.sprite.contents().height());
         }
 
         private static float getUnInterpolatedU(TextureAtlasSprite sprite, float atlasU) {
@@ -285,13 +305,61 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     }
 
     private static final class Sprites {
-        final TextureAtlasSprite base, connected;
+        final TextureAtlasSprite base;
+        final List<ConnectedSprite> connected;
 
-        Sprites(TextureAtlasSprite base, TextureAtlasSprite connected) {
+        Sprites(TextureAtlasSprite base, List<ConnectedSprite> connected) {
             this.base = base;
             this.connected = connected;
         }
     }
 
-    private record GeometryKey(Object delegateKey, int down, int up, int north, int south, int west, int east) {}
+    private static final class ConnectedSprite {
+        final TextureAtlasSprite sprite;
+        final float tileUStride;
+        final float tileVStride;
+        final float tileUContentSize;
+        final float tileVContentSize;
+        final float tileUPadding;
+        final float tileVPadding;
+
+        ConnectedSprite(TextureAtlasSprite sprite, int sheetSize, int padding) {
+            this.sprite = sprite;
+            this.tileUStride = sprite.contents().width() / (float) sheetSize;
+            this.tileVStride = sprite.contents().height() / (float) sheetSize;
+            this.tileUPadding = Math.min(padding, tileUStride / 2.0F);
+            this.tileVPadding = Math.min(padding, tileVStride / 2.0F);
+            this.tileUContentSize = tileUStride - tileUPadding * 2.0F;
+            this.tileVContentSize = tileVStride - tileVPadding * 2.0F;
+        }
+    }
+
+    private record TextureSelection(int down, int up, int north, int south, int west, int east) {
+        int get(Direction face) {
+            return switch (face) {
+                case DOWN -> down;
+                case UP -> up;
+                case NORTH -> north;
+                case SOUTH -> south;
+                case WEST -> west;
+                case EAST -> east;
+            };
+        }
+    }
+
+    private record GeometryKey(
+            @Nullable Object delegateKey,
+            Identifier baseTexture,
+            List<Identifier> connectedTextures,
+            CTTextureType type,
+            int padding,
+            TextureSelection textureSelection,
+            int down,
+            int up,
+            int north,
+            int south,
+            int west,
+            int east
+    ) {
+    }
 }

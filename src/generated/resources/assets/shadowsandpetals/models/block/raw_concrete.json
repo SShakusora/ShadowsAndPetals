@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:block/cube_all",
   "textures": {
-    "all": "shadowsandpetals:block/raw_concrete"
+    "all": "shadowsandpetals:block/raw_concrete/base"
   }
 }

@@ -2,8 +2,8 @@ package com.sshakusora.shadowsandpetals.compat.jei;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
-import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
+import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import mezz.jei.api.IModPlugin;

@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
+import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.ItemDescription;
 import com.sshakusora.shadowsandpetals.data.*;
@@ -61,7 +62,8 @@ public class RegBlockBuilder<B extends Block> {
     private Function<DeferredBlock<B>, Identifier> clientItemModelFactory;
     private Function<DeferredBlock<B>, Identifier> customClientItemTypeFactory;
     private Function<DeferredBlock<B>, Identifier> ctBaseTextureFactory;
-    private Function<DeferredBlock<B>, Identifier> ctConnectedTextureFactory;
+    private Function<DeferredBlock<B>, List<Identifier>> ctConnectedTexturesFactory;
+    private CTTextureSelector ctTextureSelector;
     private CTTextureType ctTextureType;
     private int ctPadding;
     private final List<CreativeTabType> creativeTabs = new ArrayList<>();
@@ -325,7 +327,48 @@ public class RegBlockBuilder<B extends Block> {
             int padding
     ) {
         this.ctBaseTextureFactory = Objects.requireNonNull(baseTextureFactory, "baseTextureFactory");
-        this.ctConnectedTextureFactory = Objects.requireNonNull(connectedTextureFactory, "connectedTextureFactory");
+        Objects.requireNonNull(connectedTextureFactory, "connectedTextureFactory");
+        this.ctConnectedTexturesFactory = block -> List.of(connectedTextureFactory.apply(block));
+        this.ctTextureSelector = CTTextureSelector.FIRST;
+        this.ctTextureType = Objects.requireNonNull(type, "type");
+        this.ctPadding = Math.max(0, padding);
+        return this;
+    }
+
+    /**
+     * Registers multiple connected textures and a position-based rule that
+     * selects their zero-based index.
+     */
+    public RegBlockBuilder<B> connectedTextures(
+            Identifier baseTexture,
+            List<Identifier> connectedTextures,
+            CTTextureSelector textureSelector,
+            CTTextureType type,
+            int padding
+    ) {
+        List<Identifier> textures = List.copyOf(connectedTextures);
+        return connectedTextures(
+                block -> baseTexture,
+                block -> textures,
+                textureSelector,
+                type,
+                padding);
+    }
+
+    /**
+     * Registers multiple connected textures derived from the registered block
+     * and a position-based selection rule.
+     */
+    public RegBlockBuilder<B> connectedTextures(
+            Function<DeferredBlock<B>, Identifier> baseTextureFactory,
+            Function<DeferredBlock<B>, List<Identifier>> connectedTexturesFactory,
+            CTTextureSelector textureSelector,
+            CTTextureType type,
+            int padding
+    ) {
+        this.ctBaseTextureFactory = Objects.requireNonNull(baseTextureFactory, "baseTextureFactory");
+        this.ctConnectedTexturesFactory = Objects.requireNonNull(connectedTexturesFactory, "connectedTexturesFactory");
+        this.ctTextureSelector = Objects.requireNonNull(textureSelector, "textureSelector");
         this.ctTextureType = Objects.requireNonNull(type, "type");
         this.ctPadding = Math.max(0, padding);
         return this;
@@ -539,7 +582,8 @@ public class RegBlockBuilder<B extends Block> {
         CTRegistry.register(
                 block.getId(),
                 ctBaseTextureFactory.apply(typedBlock),
-                ctConnectedTextureFactory.apply(typedBlock),
+                ctConnectedTexturesFactory.apply(typedBlock),
+                ctTextureSelector,
                 ctTextureType,
                 ctPadding);
     }

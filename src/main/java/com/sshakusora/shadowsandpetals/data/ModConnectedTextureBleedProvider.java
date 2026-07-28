@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -34,19 +36,26 @@ public class ModConnectedTextureBleedProvider implements DataProvider {
     @Override
     public CompletableFuture<?> run(CachedOutput cache) {
         List<CompletableFuture<?>> tasks = new ArrayList<>();
+        Set<Identifier> scheduledOutputs = new HashSet<>();
         for (CTRegistry.CTEntry entry : CTRegistry.entries().values()) {
             if (entry.padding() <= 0) {
                 continue;
             }
 
-            Identifier outputTexture = entry.connectedTexture();
-            Identifier sourceTexture = sourceTexture(outputTexture);
-            Path source = sourcePath(sourceTexture);
-            Path output = this.texturePathProvider.file(outputTexture, "png");
-            int sheetSize = entry.type().getSheetSize();
-            int padding = entry.padding();
+            for (Identifier outputTexture : entry.connectedTextures()) {
+                if (!scheduledOutputs.add(outputTexture)) {
+                    continue;
+                }
 
-            tasks.add(CompletableFuture.runAsync(() -> generate(cache, source, output, sourceTexture, sheetSize, padding)));
+                Identifier sourceTexture = sourceTexture(outputTexture);
+                Path source = sourcePath(sourceTexture);
+                Path output = this.texturePathProvider.file(outputTexture, "png");
+                int sheetSize = entry.type().getSheetSize();
+                int padding = entry.padding();
+
+                tasks.add(CompletableFuture.runAsync(
+                        () -> generate(cache, source, output, sourceTexture, sheetSize, padding)));
+            }
         }
         return CompletableFuture.allOf(tasks.toArray(CompletableFuture[]::new));
     }

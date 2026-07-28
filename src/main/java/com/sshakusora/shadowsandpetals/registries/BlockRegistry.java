@@ -9,13 +9,14 @@ import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
+import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
-import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
+import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.particles.ColorParticleOption;
@@ -38,8 +39,9 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-public class BlockRegistry {
+import java.util.List;
 
+public class BlockRegistry {
     public static final WoodSetList WOOD_SETS = new WoodSetList();
 
     public static final WoodSetList.WoodSet SAKURA_SET = WOOD_SETS.get(WoodSetList.Type.SAKURA);
@@ -247,9 +249,18 @@ public class BlockRegistry {
                             "When placed beside itself:", "与同类方块相邻放置时:",
                             "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .blockstate(() -> StandardBlockModels::cubeAll)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
+                    context,
+                    generator,
+                    ShadowsAndPetals.asResource("block/raw_concrete/base")))
             .loot((provider, block) -> provider.dropSelf(block.get()))
-            .connectedTexture(CTTextureType.OMNIDIRECTIONAL)
+            .connectedTextures(
+                    ShadowsAndPetals.asResource("block/raw_concrete/base"),
+                    List.of(
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_bleed"),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_hole_bleed")),
+                    CTTextureSelector.everyNth(2, 0, 1),
+                    CTTextureType.OMNIDIRECTIONAL, 1)
             .recipe((provider, block) -> {
                 provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 8)
                         .define('P', ItemTags.PLANKS)

@@ -1,10 +1,10 @@
 package com.sshakusora.shadowsandpetals.client.ct;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Static registry of connected-texture entries.
@@ -27,13 +27,39 @@ public final class CTRegistry {
      * @param type             how to map connection context → atlas tile index
      */
     public static void register(Identifier blockId, Identifier baseTexture,
-                                 Identifier connectedTexture, CTTextureType type) {
+                                Identifier connectedTexture, CTTextureType type) {
         register(blockId, baseTexture, connectedTexture, type, 0);
     }
 
     public static void register(Identifier blockId, Identifier baseTexture,
                                  Identifier connectedTexture, CTTextureType type, int padding) {
-        ENTRIES.put(blockId, new CTEntry(baseTexture, connectedTexture, type, padding));
+        register(
+                blockId,
+                baseTexture,
+                List.of(connectedTexture),
+                CTTextureSelector.FIRST,
+                type,
+                padding);
+    }
+
+    /**
+     * Registers one or more connected textures and a rule that selects their
+     * zero-based index for each block position.
+     */
+    public static void register(
+            Identifier blockId,
+            Identifier baseTexture,
+            List<Identifier> connectedTextures,
+            CTTextureSelector textureSelector,
+            CTTextureType type,
+            int padding
+    ) {
+        ENTRIES.put(blockId, new CTEntry(
+                baseTexture,
+                connectedTextures,
+                textureSelector,
+                type,
+                padding));
     }
 
     public static Map<Identifier, CTEntry> entries() {
@@ -41,7 +67,37 @@ public final class CTRegistry {
     }
 
     /**
-     * Holds the texture pair and CT type for a single block.
+     * Holds the connected textures, selection rule, and CT type for a single block.
      */
-    public record CTEntry(Identifier baseTexture, Identifier connectedTexture, CTTextureType type, int padding) {}
+    public record CTEntry(
+            Identifier baseTexture,
+            List<Identifier> connectedTextures,
+            CTTextureSelector textureSelector,
+            CTTextureType type,
+            int padding
+    ) {
+        public CTEntry {
+            Objects.requireNonNull(baseTexture, "baseTexture");
+            connectedTextures = List.copyOf(connectedTextures);
+            Objects.requireNonNull(textureSelector, "textureSelector");
+            Objects.requireNonNull(type, "type");
+            if (connectedTextures.isEmpty()) {
+                throw new IllegalArgumentException("At least one connected texture is required");
+            }
+            if (padding < 0) {
+                throw new IllegalArgumentException("Connected-texture padding cannot be negative");
+            }
+        }
+
+        public int selectTextureIndex(BlockPos pos, Direction face) {
+            int index = textureSelector.select(pos, face);
+            if (index < 0 || index >= connectedTextures.size()) {
+                throw new IllegalStateException(
+                        "Connected-texture selector returned index " + index
+                                + " for " + connectedTextures.size() + " textures at " + pos
+                                + " on face " + face);
+            }
+            return index;
+        }
+    }
 }
