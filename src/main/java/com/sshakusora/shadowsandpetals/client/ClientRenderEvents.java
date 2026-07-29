@@ -2,6 +2,8 @@ package com.sshakusora.shadowsandpetals.client;
 
 import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.client.animation.SAPAnimationResources;
+import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
@@ -22,12 +24,14 @@ import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.*;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.neoforged.neoforge.resource.NeoForgeReloadListeners;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
 public class ClientRenderEvents {
@@ -95,6 +99,14 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new HammerClientExtensions(), ItemRegistry.HAMMER.get(), ItemRegistry.CHISEL.get());
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void registerReloadListeners(AddClientReloadListenersEvent event) {
+        SAPAnimations.register();
+        var key = ShadowsAndPetals.asResource("pose_animations");
+        event.addListener(key, SAPAnimationResources.INSTANCE);
+        event.addDependency(NeoForgeReloadListeners.ENTITY_ANIMATIONS, key);
     }
 
     @SubscribeEvent
