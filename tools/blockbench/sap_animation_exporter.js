@@ -183,8 +183,7 @@
             values: ["both", "left", "right"]
         }));
         properties.push(new Property(Group, "vector", "sap_rest_translation", {
-            condition: group => isExportedGroup(group)
-                && !isFirstPersonRuntimeGroup(group),
+            condition: group => isExportedGroup(group),
             default: [0, 0, 0]
         }));
         properties.push(new Property(Group, "vector", "sap_rest_scale", {
@@ -221,6 +220,7 @@
             projectProperty("string", "sap_resource_roots", "");
             projectProperty("boolean", "sap_show_left_hand", true);
             projectProperty("boolean", "sap_show_first_person_hud", true);
+            projectProperty("string", "sap_player_model", "steve");
             projectProperty("string", "sap_transitions", "[]");
         }
 
@@ -698,6 +698,7 @@
         Project.sap_controller_path = controllerPath;
         Project.sap_show_left_hand = options.showLeftHand !== false;
         Project.sap_show_first_person_hud = options.showFirstPersonHud !== false;
+        Project.sap_player_model = playerModel;
         Project.sap_resource_roots = String(options.resourceRoots || "");
         const transitions = typeof options.transitions === "string"
             ? parseJsonArray(options.transitions, "控制器过渡")
@@ -777,6 +778,7 @@
             guide
         );
         rightArm.rotation = rightPose.armRotation.slice();
+        rightArm.sap_rest_translation = rightPose.armTranslation.slice();
         const rightReference = makeGroup(
             "第一人称右臂参考",
             offsetVector(rightArm.origin, [-5, 2, 0]),
@@ -793,6 +795,7 @@
             rightArm
         );
         rightItem.rotation = rightPose.itemRotation.slice();
+        rightItem.sap_rest_translation = rightPose.itemTranslation.slice();
 
         const leftPose = FIRST_PERSON_POSES.left;
         const leftArm = makeGroup(
@@ -802,6 +805,7 @@
             guide
         );
         leftArm.rotation = leftPose.armRotation.slice();
+        leftArm.sap_rest_translation = leftPose.armTranslation.slice();
         const leftReference = makeGroup(
             "第一人称左臂参考",
             offsetVector(leftArm.origin, [5, 2, 0]),
@@ -818,6 +822,7 @@
             leftArm
         );
         leftItem.rotation = leftPose.itemRotation.slice();
+        leftItem.sap_rest_translation = leftPose.itemTranslation.slice();
     }
 
     function createThirdPersonTemplate(slimArms, skinTexture) {
@@ -2276,9 +2281,8 @@
                     const delta = subtractVector(nextTranslation, translation);
                     translateReferenceTree(group, delta);
                     Canvas.updateAll();
-                } else {
-                    group.sap_rest_translation = nextTranslation;
                 }
+                group.sap_rest_translation = nextTranslation;
                 group.sap_rest_scale = [Number(form.scale_x), Number(form.scale_y), Number(form.scale_z)];
                 Undo.finishEdit("编辑 SAP 骨骼静止姿势");
                 dialog.hide();
@@ -2697,6 +2701,17 @@
     function isExportedGroup(group) {
         if (!(group instanceof Group)) return false;
         return group.sap_role === ROLE_ANIMATED_BONE || group.sap_role === ROLE_SOCKET;
+    }
+
+    function inferProfiles() {
+        const names = Group.all.map(group => group.name);
+        const profiles = [];
+        if (names.some(name => name.startsWith("first_person_"))) profiles.push("first_person");
+        if (names.includes("right_arm") && names.includes("left_arm")
+                || names.some(name => name.startsWith("third_person_"))) {
+            profiles.push("third_person");
+        }
+        return profiles.length ? profiles.join(",") : "first_person";
     }
 
     function parseProfiles(value) {
