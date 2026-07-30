@@ -42,5 +42,11 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.COPPER_TEAPOT)
             .register();
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RecessedLampBlockEntity>> RECESSED_LAMP = SAPRegistries
+            .<RecessedLampBlockEntity>blockEntity("recessed_lamp")
+            .factory(RecessedLampBlockEntity::new)
+            .validBlocks(BlockRegistry.RECESSED_LAMP_COMPOSITE)
+            .register();
+
     public static void init() {}
 }

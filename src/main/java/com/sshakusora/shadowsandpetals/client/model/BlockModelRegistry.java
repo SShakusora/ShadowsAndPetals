@@ -12,6 +12,7 @@ import com.sshakusora.shadowsandpetals.client.model.registry.ClientModelRegistry
 import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModel;
 import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModelSet;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeColors;
+import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.ModelState;
@@ -21,11 +22,17 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Declarative client model registrations used by dynamic block and block-entity renderers.
@@ -115,6 +122,27 @@ public final class BlockModelRegistry {
 
     public static void wrapBlockStateModels(ModelEvent.ModifyBakingResult event) {
         BlockStateModelDecoratorRegistry.applyAll(event);
+    }
+
+    public static void wrapRecessedLampCompositeModels(ModelEvent.ModifyBakingResult event) {
+        Map<BlockState, BlockStateModel> bakedModels =
+                Map.copyOf(event.getBakingResult().blockStateModels());
+        Map<BlockState, BlockStateModel> slabModels = new HashMap<>();
+        bakedModels.forEach((state, model) -> {
+            if (state.getBlock() instanceof SlabBlock
+                    && state.hasProperty(BlockStateProperties.SLAB_TYPE)
+                    && state.getValue(BlockStateProperties.SLAB_TYPE) != SlabType.DOUBLE
+                    && !state.hasBlockEntity()) {
+                slabModels.put(state, model);
+            }
+        });
+        Map<BlockState, BlockStateModel> immutableSlabModels = Map.copyOf(slabModels);
+
+        event.getBakingResult().blockStateModels().replaceAll((state, model) ->
+                state.is(BlockRegistry.RECESSED_LAMP_COMPOSITE.get())
+                        ? new RecessedLampCompositeBlockStateModel(model, immutableSlabModels)
+                        : model
+        );
     }
 
     public static @Nullable BlockStateModel getVanityDrawerModel(Block vanityBlock) {

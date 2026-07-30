@@ -14,6 +14,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
+import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
@@ -512,7 +513,7 @@ public class BlockRegistry {
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
-            .withItem()
+            .withCustomItem(RecessedLampBlockItem::new)
             .tooltipDescription(tooltip -> tooltip
                     .summary(
                             "A compact light recessed into a _floor or ceiling_.",
@@ -545,6 +546,19 @@ public class BlockRegistry {
                         .save(provider.output(), provider.id("recessed_lamp_from_aluminum").toString());
             })
             .clientItem(ShadowsAndPetals.asResource("block/recessed_lamp/up_off"))
+            .lang("zh_cn", "嵌灯")
+            .register();
+
+    public static final DeferredBlock<RecessedLampCompositeBlock> RECESSED_LAMP_COMPOSITE = SAPRegistries
+            .block("recessed_lamp_composite", RecessedLampCompositeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .dynamicShape()
+                    .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
+            .blockstate(() -> DecorationBlockModels::recessedLampComposite)
+            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .lang("en_us", "Recessed Lamp")
             .lang("zh_cn", "嵌灯")
             .register();
 

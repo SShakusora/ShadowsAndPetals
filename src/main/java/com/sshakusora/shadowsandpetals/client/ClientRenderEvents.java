@@ -6,6 +6,7 @@ import com.sshakusora.shadowsandpetals.client.animation.SAPAnimationResources;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
+import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
 import com.sshakusora.shadowsandpetals.client.renderer.*;
@@ -89,6 +90,7 @@ public class ClientRenderEvents {
     public static void modifyBakedModels(ModelEvent.ModifyBakingResult event) {
         BlockModelRegistry.wrapBlockStateModels(event);
         CTModelRegistry.wrapModels(event);
+        BlockModelRegistry.wrapRecessedLampCompositeModels(event);
     }
 
     @SubscribeEvent
@@ -99,6 +101,10 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new HammerClientExtensions(), ItemRegistry.HAMMER.get(), ItemRegistry.CHISEL.get());
+        event.registerBlock(
+                new RecessedLampCompositeClientExtensions(),
+                BlockRegistry.RECESSED_LAMP_COMPOSITE.get()
+        );
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)

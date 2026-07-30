@@ -11,11 +11,6 @@ public final class BuiltinLanguageKeys {
             .en_us("%s can be dyed to ")
             .zh_cn("%s 可被染成 ");
 
-    public static final DatagenLangRegistry.TranslationKey RECESSED_LAMP_SPACE_OCCUPIED = DatagenLangRegistry
-            .key("message.shadowsandpetals.recessed_lamp.space_occupied")
-            .en_us("A recessed lamp already occupies this space")
-            .zh_cn("此处已被嵌灯占用");
-
     public static final DatagenLangRegistry.TranslationKey VANITY_CONTAINER_NAME = DatagenLangRegistry
             .key("container.shadowsandpetals.vanity")
             .en_us("Vanity")
@@ -45,6 +40,11 @@ public final class BuiltinLanguageKeys {
             .key("jade.shadowsandpetals.irori.burned_out")
             .en_us("Burned out")
             .zh_cn("已燃尽");
+
+    public static final DatagenLangRegistry.TranslationKey JADE_RECESSED_LAMP_HARVEST_CONFIG = DatagenLangRegistry
+            .key("config.jade.plugin_shadowsandpetals.jade.recessed_lamp_harvest")
+            .en_us("Show recessed lamp slab recovery")
+            .zh_cn("显示嵌灯台阶回收状态");
 
     public static final DatagenLangRegistry.TranslationKey ROCKERY_DIMENSIONS_LABEL = DatagenLangRegistry
             .key("tooltip.shadowsandpetals.rockery.dimensions_label")

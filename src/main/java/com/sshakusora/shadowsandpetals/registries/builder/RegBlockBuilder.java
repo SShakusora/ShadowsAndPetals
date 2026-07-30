@@ -53,7 +53,7 @@ public class RegBlockBuilder<B extends Block> {
     private Function<BlockBehaviour.Properties, B> blockFactory;
     private boolean withItem;
     private Item.Properties itemProperties;
-    private Function<Block, ? extends BlockItem> itemFactory;
+    private BiFunction<Block, Item.Properties, ? extends BlockItem> itemFactory;
     private final Map<String, String> langNames = new LinkedHashMap<>();
     private Supplier<? extends BlockModelCallback<B>> blockStateGenerator;
     private BiConsumer<ModBlockLootProvider, DeferredBlock<B>> blockLootGenerator;
@@ -137,8 +137,16 @@ public class RegBlockBuilder<B extends Block> {
      * Registers a custom {@link BlockItem} implementation for this block.
      */
     public RegBlockBuilder<B> withCustomItem(Function<Block, ? extends BlockItem> factory) {
+        return withCustomItem((block, properties) -> factory.apply(block));
+    }
+
+    /**
+     * Registers a custom {@link BlockItem} implementation with correctly keyed item properties.
+     */
+    public RegBlockBuilder<B> withCustomItem(BiFunction<Block, Item.Properties, ? extends BlockItem> factory) {
         this.withItem = true;
         this.itemFactory = factory;
+        this.itemProperties = new Item.Properties();
         return this;
     }
 
@@ -662,10 +670,13 @@ public class RegBlockBuilder<B extends Block> {
 
     private DeferredItem<BlockItem> registerBlockItem(DeferredBlock<? extends Block> block) {
         DeferredRegister.Items items = SAPRegistries.ITEMS;
-        if (itemFactory != null) {
-            return items.register(name, key -> itemFactory.apply(block.get()));
-        }
         final Item.Properties props = itemProperties;
+        if (itemFactory != null) {
+            return items.register(name, key -> itemFactory.apply(
+                    block.get(),
+                    props.setId(ResourceKey.create(Registries.ITEM, key))
+            ));
+        }
         return items.register(name, key -> new BlockItem(
                 block.get(),
                 props.setId(ResourceKey.create(Registries.ITEM, key))
