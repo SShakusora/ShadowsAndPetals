@@ -222,7 +222,7 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
     }
 
     @Override
-    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData) {
+    public ItemStack getCloneItemStack(LevelReader level, BlockPos pos, BlockState state, boolean includeData, Player player) {
         return new ItemStack(BlockRegistry.RECESSED_LAMP.get());
     }
 
@@ -247,7 +247,7 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
         BlockState storedSlab = getEffectiveStoredSlab(level, pos, state);
         return storedSlab != null
                 ? storedSlab.getExplosionResistance(level, pos, explosion)
-                : super.getExplosionResistance();
+                : super.getExplosionResistance(state, level, pos, explosion);
     }
 
     @Override

@@ -7,6 +7,7 @@ import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
@@ -813,6 +814,23 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::samon)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .lang("zh_cn", "砂纹")
+            .register();
+
+    public static final DeferredBlock<ClamDiggingSandBlock> CLAM_DIGGING_SAND = SAPRegistries
+            .block("clam_digging_sand", ClamDiggingSandBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)
+                    .strength(0.5F)
+                    .sound(SoundType.SAND))
+            .tags(BlockTags.MINEABLE_WITH_SHOVEL)
+            .blockstate(() -> NatureBlockModels::clamDiggingSand)
+            .loot((provider, block) -> provider.addTable(
+                    block.get(),
+                    LootTable.lootTable().withPool(LootPool.lootPool()
+                            .setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(Items.SAND)))
+            ))
+            .lang("en_us", "Clam Digging Sand")
+            .lang("zh_cn", "挖掘中的沙子")
             .register();
 
     public static final DeferredBlock<ShishiOdoshiBlock> SHISHI_ODOSHI = SAPRegistries

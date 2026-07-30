@@ -16,6 +16,7 @@ public class ShadowsAndPetals {
         CustomEventBootstrap.register(modEventBus);
 
         FluidRegistry.init();
+        AttachmentRegistry.init();
         ItemRegistry.init();
         BlockRegistry.init();
         BlockEntityRegistry.init();

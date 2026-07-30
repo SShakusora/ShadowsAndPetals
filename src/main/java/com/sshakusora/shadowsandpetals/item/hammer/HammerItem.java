@@ -130,7 +130,7 @@ public class HammerItem extends Item {
 
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return ItemUseAnimation.NONE;
+        return HammerUseAnimationEnumExtensions.getHammerAndChisel();
     }
 
     @Override

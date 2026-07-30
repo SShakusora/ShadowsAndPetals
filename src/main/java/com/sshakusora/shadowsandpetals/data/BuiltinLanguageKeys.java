@@ -41,6 +41,41 @@ public final class BuiltinLanguageKeys {
             .en_us("Burned out")
             .zh_cn("已燃尽");
 
+    public static final DatagenLangRegistry.TranslationKey JADE_CLAM_COOLDOWN_CONFIG = DatagenLangRegistry
+            .key("config.jade.plugin_shadowsandpetals.jade.clam_cooldown")
+            .en_us("Show clam digging cooldown")
+            .zh_cn("显示蛤蜊挖掘冷却");
+
+    public static final DatagenLangRegistry.TranslationKey JADE_CLAM_COOLDOWN = DatagenLangRegistry
+            .key("jade.shadowsandpetals.clam.cooldown")
+            .en_us("Clams recovering")
+            .zh_cn("蛤蜊恢复中");
+
+    public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_TOP_FACE_REQUIRED = DatagenLangRegistry
+            .key("message.shadowsandpetals.harrow.clam.top_face_required")
+            .en_us("Dig from the top surface of the sand")
+            .zh_cn("需要从沙子的顶面挖掘");
+
+    public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_BLOCKED_ABOVE = DatagenLangRegistry
+            .key("message.shadowsandpetals.harrow.clam.blocked_above")
+            .en_us("Clear the space above the sand first")
+            .zh_cn("需要先清空沙子上方的空间");
+
+    public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_BEACH_REQUIRED = DatagenLangRegistry
+            .key("message.shadowsandpetals.harrow.clam.beach_required")
+            .en_us("Clams can only be dug for on beaches")
+            .zh_cn("只有海滩上的沙子才能挖掘蛤蜊");
+
+    public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_WATER_REQUIRED = DatagenLangRegistry
+            .key("message.shadowsandpetals.harrow.clam.water_required")
+            .en_us("Clam digging requires nearby water")
+            .zh_cn("挖掘蛤蜊需要附近有水");
+
+    public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_COOLDOWN = DatagenLangRegistry
+            .key("message.shadowsandpetals.harrow.clam.cooldown")
+            .en_us("This sand needs %s before it can be dug again")
+            .zh_cn("这块沙子还需 %s 才能再次挖掘");
+
     public static final DatagenLangRegistry.TranslationKey JADE_RECESSED_LAMP_HARVEST_CONFIG = DatagenLangRegistry
             .key("config.jade.plugin_shadowsandpetals.jade.recessed_lamp_harvest")
             .en_us("Show recessed lamp slab recovery")

@@ -17,6 +17,7 @@ import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewRenderer;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryPreviewState;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerClientExtensions;
+import com.sshakusora.shadowsandpetals.item.harrow.HarrowClientExtensions;
 import com.sshakusora.shadowsandpetals.registries.*;
 import com.sshakusora.shadowsandpetals.registries.builder.RegFluidBuilder;
 import com.sshakusora.shadowsandpetals.tooltip.TooltipComponentRegistry;
@@ -52,6 +53,10 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.SEAT.get(), NoopRenderer::new);
+        event.registerBlockEntityRenderer(
+                BlockEntityRegistry.CLAM_DIGGING_SAND.get(),
+                ClamDiggingSandBlockEntityRenderer::new
+        );
         event.registerBlockEntityRenderer(BlockEntityRegistry.IRORI.get(), IroriBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI.get(), ShishiOdoshiBlockEntityRenderer::new);
@@ -101,6 +106,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerClientExtensions(RegisterClientExtensionsEvent event) {
         event.registerItem(new HammerClientExtensions(), ItemRegistry.HAMMER.get(), ItemRegistry.CHISEL.get());
+        event.registerItem(new HarrowClientExtensions(), ItemRegistry.HARROW.get());
         event.registerBlock(
                 new RecessedLampCompositeClientExtensions(),
                 BlockRegistry.RECESSED_LAMP_COMPOSITE.get()

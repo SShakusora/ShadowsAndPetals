@@ -68,10 +68,9 @@ public class RecessedLampBlock extends Block implements SimpleWaterloggedBlock {
         BlockPos pos = context.getClickedPos();
         BlockPos supportPos = pos.relative(clickedFace.getOpposite());
         Mount mount = Mount.forPlacement(clickedFace, context.getLevel().getBlockState(supportPos));
-        BlockState state = defaultBlockState()
+        return defaultBlockState()
                 .setValue(MOUNT, mount)
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(pos).is(Fluids.WATER));
-        return state;
     }
 
     @Override

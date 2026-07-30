@@ -1,8 +1,8 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.item.HarrowItem;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
+import com.sshakusora.shadowsandpetals.item.harrow.HarrowItem;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.SimpleCookingRecipeBuilder;
 import net.minecraft.world.food.FoodProperties;
@@ -70,6 +70,12 @@ public class ItemRegistry {
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
+    public static final DeferredItem<Item> CLAM = SAPRegistries.item("clam")
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang("zh_cn", "蛤蜊")
+            .creativeTab(CreativeTabType.AGRICULTURE)
+            .register();
+
     public static final DeferredItem<Item> CHISEL = SAPRegistries.item("chisel")
             .tooltipDescription(tooltip -> tooltip
                     .summary(
@@ -113,16 +119,20 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<HarrowItem> HARROW = SAPRegistries.item("harrow", HarrowItem::new)
+            .properties(properties -> properties.durability(256))
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A landscaping tool for shaping _gravel gardens_.",
-                            "用于塑造_枯山水庭院_的造景工具。")
+                            "A landscaping and shore-foraging _rake_.",
+                            "可用于造景与海滩采集的_耙子_。")
                     .behaviour(
                             "When Gravel is right-clicked", "右键点击沙砾时",
                             "Rake it into a _Samon block_ that connects to nearby samon.", "将其耙成会与附近砂纹相连的_砂纹方块_。")
                     .behaviour(
                             "When the top of Samon is right-clicked", "右键点击砂纹方块顶部时",
-                            "Cycle through straight and corner _rake patterns_.", "循环切换直线与转角_砂纹样式_。"))
+                            "Cycle through straight and corner _rake patterns_.", "循环切换直线与转角_砂纹样式_。")
+                    .behaviour(
+                            "When Beach Sand beside Water is held", "对邻水海滩沙长按右键时",
+                            "Rake continuously for a chance to uncover a _Clam_.", "持续耙挖，有概率找到_蛤蜊_。"))
             .recipe((provider, item) -> {
                 provider.shaped(RecipeCategory.TOOLS, item.get())
                         .define('B', Items.BAMBOO)

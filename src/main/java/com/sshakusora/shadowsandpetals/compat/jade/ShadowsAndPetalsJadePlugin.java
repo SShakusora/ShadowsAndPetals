@@ -13,12 +13,14 @@ public final class ShadowsAndPetalsJadePlugin implements IWailaPlugin {
     @Override
     public void register(IWailaCommonRegistration registration) {
         registration.registerBlockDataProvider(IroriBurnTimeServerDataProvider.INSTANCE, IroriBlock.class);
+        registration.registerBlockDataProvider(ClamCooldownServerDataProvider.INSTANCE, Block.class);
         registration.registerBlockDataProvider(RockeryHammerProgressServerDataProvider.INSTANCE, Block.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(IroriBurnTimeComponentProvider.INSTANCE, IroriBlock.class);
+        registration.registerBlockComponent(ClamCooldownComponentProvider.INSTANCE, Block.class);
         registration.registerBlockComponent(new RecessedLampHarvestComponentProvider(registration), RecessedLampCompositeBlock.class);
         registration.addTooltipCollectedCallback(RockeryHammerProgressOverlay::onTooltipCollected);
         registration.addAfterRenderCallback(200, RockeryHammerProgressOverlay::afterRender);
