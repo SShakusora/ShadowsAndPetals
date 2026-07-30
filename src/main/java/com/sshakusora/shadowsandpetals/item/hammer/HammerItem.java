@@ -49,10 +49,6 @@ public class HammerItem extends Item {
     private static final int BASE_USE_DURATION = 15;
     private static final int TICKS_PER_PART = 10;
     private static final int LOOK_REFRESH_INTERVAL_TICKS = 5;
-    public static final float HAMMER_STRIKE_PERIOD_TICKS = 10.0F;
-    public static final float HAMMER_IMPACT_PHASE = 0.16F;
-    private static final int HAMMER_STRIKE_PERIOD_TICKS_INT = Math.round(HAMMER_STRIKE_PERIOD_TICKS);
-    private static final int HAMMER_IMPACT_TICK = Math.round(HAMMER_STRIKE_PERIOD_TICKS * HAMMER_IMPACT_PHASE);
     private static final Direction[] DIRECTIONS = Direction.values();
     private static final String TARGET_POS_KEY = "hammer_target";
     private static final String ROOT_KEY = "hammer_root";
@@ -222,13 +218,15 @@ public class HammerItem extends Item {
         // Update destruction crack overlay on all rockery parts
         updateCrackProgress(player, data, serverLevel, usedTicks);
 
-        if (isHammerImpactTick(usedTicks)) {
+        boolean hammerImpact = AnimationTiming.isImpactTick(
+                player.getTicksUsingItem());
+        if (hammerImpact) {
             serverLevel.playSound(null, targetPos,
                     SoundEvents.ANVIL_PLACE, SoundSource.PLAYERS,
                     0.55F, 1.45F + level.getRandom().nextFloat() * 0.25F);
         }
 
-        if (usedTicks > 0 && usedTicks % 6 == 0) {
+        if (hammerImpact) {
             serverLevel.playSound(null, targetPos,
                     SoundEvents.STONE_HIT, SoundSource.PLAYERS,
                     0.7F, 0.8F + level.getRandom().nextFloat() * 0.3F);
@@ -293,10 +291,6 @@ public class HammerItem extends Item {
         endHammerSession(player);
         clearPlacementData(stack);
         player.releaseUsingItem();
-    }
-
-    private static boolean isHammerImpactTick(int usedTicks) {
-        return usedTicks > 0 && usedTicks % HAMMER_STRIKE_PERIOD_TICKS_INT == HAMMER_IMPACT_TICK;
     }
 
     private static int getUsedTicks(ServerLevel level, PlacementData data) {
@@ -618,6 +612,26 @@ public class HammerItem extends Item {
 
         private void setProgress(float progress) {
             this.progress = progress;
+        }
+    }
+
+    static final class AnimationTiming {
+        private static final double TICKS_PER_SECOND = 20.0D;
+        private static final double CLIP_LENGTH_TICKS = 0.79167D * TICKS_PER_SECOND;
+        private static final double IMPACT_TICKS = 0.625D * TICKS_PER_SECOND;
+
+        private AnimationTiming() {
+        }
+
+        static boolean isImpactTick(int usedTicks) {
+            if (usedTicks <= 0) {
+                return false;
+            }
+            double previousImpactCycle = Math.floor(
+                    (usedTicks - 1.0D - IMPACT_TICKS) / CLIP_LENGTH_TICKS);
+            double currentImpactCycle = Math.floor(
+                    (usedTicks - IMPACT_TICKS) / CLIP_LENGTH_TICKS);
+            return currentImpactCycle > previousImpactCycle;
         }
     }
 

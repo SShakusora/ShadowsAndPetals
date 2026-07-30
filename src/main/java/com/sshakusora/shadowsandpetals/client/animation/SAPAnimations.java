@@ -6,15 +6,18 @@ package com.sshakusora.shadowsandpetals.client.animation;
  * selection in their own business logic.
  */
 public final class SAPAnimations {
-    private static boolean registered;
+    public static final UseAnimationProfile HAMMER =
+            SAPAnimationRegistries.useAnimation("hammer")
+                    .firstPerson()
+                    .thirdPerson()
+                    .register();
 
     private SAPAnimations() {
     }
 
-    public static synchronized void register() {
-        if (registered) {
-            return;
-        }
-        registered = true;
+    /**
+     * Triggers static registration before animation resources are reloaded.
+     */
+    public static void init() {
     }
 }

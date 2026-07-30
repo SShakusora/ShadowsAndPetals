@@ -1,0 +1,19 @@
+{
+  "format_version": 1,
+  "rig": "shadowsandpetals:animation/hammer",
+  "initial": "animation/hammer",
+  "states": {
+    "animation/hammer": {
+      "clip": "shadowsandpetals:animation/hammer",
+      "speed": 1,
+      "wrap": "loop",
+      "mask": [
+        "first_person_right_item",
+        "first_person_left_item",
+        "right_arm",
+        "left_arm"
+      ]
+    }
+  },
+  "transitions": []
+}

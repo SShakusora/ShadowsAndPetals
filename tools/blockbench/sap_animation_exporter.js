@@ -207,9 +207,25 @@
                 && group.sap_held_item_hand !== "none",
             default: ""
         }));
+        properties.push(new Property(Group, "vector", "sap_item_display_scale", {
+            condition: group => isSapProject()
+                && group.sap_role === ROLE_REFERENCE
+                && group.sap_held_item_hand !== "none",
+            default: [1, 1, 1]
+        }));
+        properties.push(new Property(Group, "boolean", "sap_item_uses_mesh_scale", {
+            condition: group => isSapProject()
+                && group.sap_role === ROLE_REFERENCE
+                && group.sap_held_item_hand !== "none",
+            default: false
+        }));
         properties.push(new Property(Cube, "boolean", "sap_player_reference", {
             condition: () => isSapProject(),
             default: false
+        }));
+        properties.push(new Property(Cube, "string", "sap_item_element_id", {
+            condition: () => isSapProject(),
+            default: ""
         }));
         if (typeof ModelProject !== "undefined") {
             projectProperty("string", "sap_profiles", "first_person");
@@ -1139,6 +1155,14 @@
                         reference.rotation = transform.rotation;
                         repaired.push(reference);
                     }
+                    if (reference.sap_item_uses_mesh_scale
+                            && !vectorsEqual(
+                                reference.sap_item_display_scale,
+                                transform.scale
+                            )) {
+                        reference.sap_item_display_scale = transform.scale;
+                        repaired.push(reference);
+                    }
                 });
         });
         if (repaired.length) Canvas.updateAll();
@@ -1150,32 +1174,7 @@
             const fs = require("fs");
             const path = require("path");
             if (!modelPath || !fs.existsSync(modelPath)) return null;
-            const inferredRoot = inferResourceRoot(path, modelPath);
-            const roots = configuredRoots(path);
-            if (inferredRoot && !roots.includes(inferredRoot)) roots.unshift(inferredRoot);
-            const namespace = inferNamespace(path, modelPath)
-                || Project.sap_namespace
-                || "minecraft";
-            const flattened = flattenJavaModel(
-                fs,
-                path,
-                roots,
-                readJson(fs, modelPath),
-                modelPath,
-                namespace,
-                new Set()
-            );
-            return {
-                flattened,
-                textures: loadModelTextures(
-                    fs,
-                    path,
-                    roots,
-                    flattened.textures || {},
-                    namespace,
-                    flattened.texture_size
-                )
-            };
+            return loadPreviewItemDefinition(fs, path, modelPath);
         } catch (error) {
             return null;
         }
@@ -1192,16 +1191,16 @@
                 const definition = previewItemDefinition(group.sap_item_source);
                 if (!definition) return;
                 const flattened = definition.flattened;
-                const elements = flattened.elements && flattened.elements.length
-                    ? flattened.elements
-                    : flattened.generated_item
-                        ? generatedItemElements(flattened.textures || {})
-                        : [];
+                const elements = definition.elements;
                 const cubes = collectTreeNodes(group).filter(
                     child => child instanceof Cube
                 );
+                const cubesByElementId = new Map(cubes
+                    .filter(cube => cube.sap_item_element_id)
+                    .map(cube => [cube.sap_item_element_id, cube]));
                 elements.forEach((element, index) => {
-                    const cube = cubes[index];
+                    const elementId = previewElementId(element, index, flattened.bbmodel);
+                    const cube = cubesByElementId.get(elementId) || cubes[index];
                     if (!cube) return;
                     let changed = false;
                     if (cube.box_uv) {
@@ -1217,20 +1216,30 @@
                             const face = cube.faces[direction];
                             if (!face) return;
                             if (Array.isArray(source.uv)) {
-                                const expected = minecraftUvToTextureUv(
-                                    source.uv,
-                                    flattened.texture_size
-                                );
+                                const expected = flattened.bbmodel
+                                    ? numericVector(
+                                        source.uv,
+                                        [0, 0, 0, 0],
+                                        "BBModel UV"
+                                    )
+                                    : minecraftUvToTextureUv(
+                                        source.uv,
+                                        flattened.texture_size
+                                    );
                                 if (!vectorsEqual(face.uv, expected)) {
                                     face.uv = expected;
                                     changed = true;
                                 }
                             }
-                            const textureKey = resolveTextureKey(
-                                flattened.textures || {},
-                                source.texture
-                            );
-                            const expectedTexture = definition.textures[textureKey];
+                            const expectedTexture = flattened.bbmodel
+                                ? bbmodelTexture(
+                                    definition.textures,
+                                    source.texture
+                                )
+                                : definition.textures[resolveTextureKey(
+                                    flattened.textures || {},
+                                    source.texture
+                                )];
                             if (expectedTexture
                                     && face.texture !== expectedTexture.uuid) {
                                 face.texture = expectedTexture.uuid;
@@ -1555,6 +1564,7 @@
     }
 
     function applyThirdPersonPreviewHandedness() {
+        applyPreviewItemDisplayScales();
         const root = Group.all.find(group =>
             group.name === PROFILE_ROOTS.third_person
                 && group.sap_role === ROLE_GUIDE);
@@ -1576,6 +1586,27 @@
             }
         }
         root.mesh.updateMatrixWorld(true);
+    }
+
+    function applyPreviewItemDisplayScales() {
+        Group.all
+            .filter(group => group.sap_role === ROLE_REFERENCE
+                && group.sap_held_item_hand !== "none"
+                && group.sap_item_uses_mesh_scale
+                && group.mesh)
+            .forEach(group => {
+                const scale = vectorOr(
+                    group.sap_item_display_scale,
+                    [1, 1, 1],
+                    `${group.name} 的预览 display 缩放`
+                );
+                group.mesh.scale.set(
+                    scale[0] || 0.001,
+                    scale[1] || 0.001,
+                    scale[2] || 0.001
+                );
+                group.mesh.updateMatrixWorld(true);
+            });
     }
 
     function hideFirstPersonArmsWithHeldItems(visibility) {
@@ -1746,8 +1777,8 @@
                 dialog.hide();
                 Blockbench.import({
                     resource_id: "sap_preview_item",
-                    extensions: ["json"],
-                    type: "Minecraft 物品模型 JSON",
+                    extensions: ["json", "bbmodel"],
+                    type: "Minecraft 物品模型 JSON / Blockbench BBModel",
                     multiple: false
                 }, files => {
                     if (!files || !files.length) return;
@@ -1827,43 +1858,24 @@
                 `当前 SAP 项目没有${handLabel(hand)}预览锚点`
             );
         }
-        const source = readJson(fs, filePath);
-        const inferredRoot = inferResourceRoot(path, filePath);
-        const roots = configuredRoots(path);
-        if (inferredRoot && !roots.includes(inferredRoot)) roots.unshift(inferredRoot);
-        const initialNamespace = inferNamespace(path, filePath) || Project.sap_namespace || "minecraft";
-        let model = source;
-        let modelPath = filePath;
-        if (source.model && typeof source.model === "object") {
-            if (!source.model.model) {
-                throw new Error(
-                    `不支持 MC 26 物品模型分派器 ${source.model.type || "<未知>"}；`
-                    + "请选择一个具体的 models/item 模型 JSON 作为预览"
-                );
-            }
-            const resolved = resolveAsset(path, roots, source.model.model, "models", initialNamespace);
-            if (!resolved) throw new Error(`无法解析物品模型：${source.model.model}`);
-            modelPath = resolved;
-            model = readJson(fs, resolved);
-        }
-        const flattened = flattenJavaModel(fs, path, roots, model, modelPath, initialNamespace, new Set());
-        const elements = flattened.elements && flattened.elements.length
-            ? flattened.elements
-            : flattened.generated_item ? generatedItemElements(flattened.textures || {}) : [];
+        const definition = loadPreviewItemDefinition(
+            fs,
+            path,
+            filePath,
+            false
+        );
+        const {
+            modelPath,
+            flattened,
+            elements
+        } = definition;
         if (!elements.length) {
-            throw new Error(`模型 ${modelPath} 没有可用于预览的 JSON 元素`);
+            throw new Error(`模型 ${modelPath} 没有可用于预览的立方体元素`);
         }
 
         Undo.initEdit({outliner: true, textures: []});
         removePreviewItems(targets, hand);
-        const textures = loadModelTextures(
-            fs,
-            path,
-            roots,
-            flattened.textures || {},
-            initialNamespace,
-            flattened.texture_size
-        );
+        const textures = definition.loadTextures();
         const imported = {};
         targets.forEach(target => {
             imported[target.profile] = instantiatePreviewItem(
@@ -1893,6 +1905,150 @@
             firstPerson: imported.first_person || null,
             thirdPerson: imported.third_person || null,
             roots: Object.values(imported)
+        };
+    }
+
+    function loadPreviewItemDefinition(
+        fs,
+        path,
+        filePath,
+        includeTextures = true
+    ) {
+        const source = readJson(fs, filePath);
+        if (isBbmodelSource(source, path, filePath)) {
+            return loadBbmodelDefinition(
+                fs,
+                path,
+                filePath,
+                source,
+                includeTextures
+            );
+        }
+
+        const inferredRoot = inferResourceRoot(path, filePath);
+        const roots = configuredRoots(path);
+        if (inferredRoot && !roots.includes(inferredRoot)) roots.unshift(inferredRoot);
+        const initialNamespace = inferNamespace(path, filePath)
+            || Project.sap_namespace
+            || "minecraft";
+        let model = source;
+        let modelPath = filePath;
+        if (source.model && typeof source.model === "object") {
+            if (!source.model.model) {
+                throw new Error(
+                    `不支持 MC 26 物品模型分派器 ${source.model.type || "<未知>"}；`
+                    + "请选择一个具体的 models/item 模型 JSON 或 BBModel 作为预览"
+                );
+            }
+            const resolved = resolveAsset(
+                path,
+                roots,
+                source.model.model,
+                "models",
+                initialNamespace
+            );
+            if (!resolved) throw new Error(`无法解析物品模型：${source.model.model}`);
+            modelPath = resolved;
+            model = readJson(fs, resolved);
+        }
+        const flattened = flattenJavaModel(
+            fs,
+            path,
+            roots,
+            model,
+            modelPath,
+            initialNamespace,
+            new Set()
+        );
+        const elements = flattened.elements && flattened.elements.length
+            ? flattened.elements
+            : flattened.generated_item
+                ? generatedItemElements(flattened.textures || {})
+                : [];
+        const loadTextures = () => loadModelTextures(
+            fs,
+            path,
+            roots,
+            flattened.textures || {},
+            initialNamespace,
+            flattened.texture_size
+        );
+        return {
+            modelPath,
+            flattened,
+            elements,
+            textures: includeTextures ? loadTextures() : {},
+            loadTextures
+        };
+    }
+
+    function isBbmodelSource(source, path, filePath) {
+        return path.extname(filePath).toLowerCase() === ".bbmodel"
+            || !!(source
+                && source.meta
+                && source.meta.format_version
+                && Array.isArray(source.elements)
+                && Array.isArray(source.outliner));
+    }
+
+    function loadBbmodelDefinition(
+        fs,
+        path,
+        modelPath,
+        source,
+        includeTextures
+    ) {
+        if (!source.meta || !Array.isArray(source.elements)) {
+            throw new Error(`BBModel ${modelPath} 缺少 meta 或 elements`);
+        }
+        const unsupported = source.elements.filter(element =>
+            element
+                && element.export !== false
+                && element.type
+                && element.type !== "cube"
+        );
+        if (unsupported.length) {
+            const types = [...new Set(unsupported.map(
+                element => String(element.type || "<未知>")
+            ))];
+            throw new Error(
+                `BBModel ${modelPath} 包含不支持的预览元素：${types.join(", ")}；`
+                + "当前仅支持立方体元素"
+            );
+        }
+        const elements = source.elements.filter(element =>
+            element && element.export !== false && (!element.type || element.type === "cube")
+        );
+        const resolution = source.resolution || {};
+        const modelFormat = String(source.meta.model_format || "");
+        const flattened = {
+            bbmodel: true,
+            display: source.display || {},
+            elements,
+            groups: Array.isArray(source.groups) ? source.groups : [],
+            outliner: Array.isArray(source.outliner) ? source.outliner : [],
+            texture_size: [
+                positiveNumber(resolution.width, 16),
+                positiveNumber(resolution.height, 16)
+            ],
+            model_center: modelFormat === "java_block" ? [8, 8, 8] : [0, 0, 0]
+        };
+        const textureEntries = Array.isArray(source.textures)
+            ? source.textures
+            : [];
+        const loadTextures = () => loadBbmodelTextures(
+            fs,
+            path,
+            modelPath,
+            textureEntries,
+            flattened.texture_size
+        );
+        return {
+            modelPath,
+            flattened,
+            elements,
+            textures: includeTextures ? loadTextures() : {},
+            loadTextures
         };
     }
 
@@ -1982,22 +2138,53 @@
         root.sap_held_item_hand = hand;
         root.sap_item_display_context = target.context;
         root.sap_item_source = modelPath;
+        root.sap_item_display_scale = transform.scale;
+        root.sap_item_uses_mesh_scale = true;
         root.rotation = transform.rotation;
+        const geometryTransform = Object.assign({}, transform, {
+            scale: [1, 1, 1]
+        });
+
+        if (flattened.bbmodel) {
+            instantiateBbmodelHierarchy(
+                root,
+                flattened,
+                elements,
+                textures,
+                geometryTransform,
+                pivot,
+                hand
+            );
+            return root;
+        }
 
         elements.forEach((element, index) => {
-            const from = transformPoint(element.from || [0, 0, 0], transform, pivot);
-            const to = transformPoint(element.to || [0, 0, 0], transform, pivot);
+            const from = transformPoint(
+                element.from || [0, 0, 0],
+                geometryTransform,
+                pivot
+            );
+            const to = transformPoint(
+                element.to || [0, 0, 0],
+                geometryTransform,
+                pivot
+            );
             const rotation = element.rotation || {};
             const cube = new Cube({
                 name: element.name || `element_${index}`,
                 from: from.map((value, axis) => Math.min(value, to[axis])),
                 to: to.map((value, axis) => Math.max(value, from[axis])),
-                origin: transformPoint(rotation.origin || [8, 8, 8], transform, pivot),
+                origin: transformPoint(
+                    rotation.origin || [8, 8, 8],
+                    geometryTransform,
+                    pivot
+                ),
                 rotation: axisRotation(rotation.axis, Number(rotation.angle || 0)),
                 box_uv: false,
                 autouv: 0,
                 inflate: Number(element.inflate || 0)
             }).addTo(root).init();
+            cube.sap_item_element_id = previewElementId(element, index, false);
             applyFaces(
                 cube,
                 element.faces || {},
@@ -2008,6 +2195,138 @@
             Cube.preview_controller.updateUV(cube);
         });
         return root;
+    }
+
+    function instantiateBbmodelHierarchy(
+        root,
+        flattened,
+        elements,
+        textures,
+        transform,
+        pivot,
+        hand
+    ) {
+        const elementByUuid = new Map(elements
+            .filter(element => element.uuid)
+            .map(element => [element.uuid, element]));
+        const elementIndices = new Map(elements.map(
+            (element, index) => [element, index]
+        ));
+        const groupByUuid = new Map(flattened.groups
+            .filter(group => group && group.uuid)
+            .map(group => [group.uuid, group]));
+        const instantiated = new Set();
+        const referencedElementUuids = new Set();
+
+        function collectReferencedElements(node) {
+            if (typeof node === "string") {
+                if (elementByUuid.has(node)) referencedElementUuids.add(node);
+                return;
+            }
+            if (!node || typeof node !== "object") return;
+            if (node.uuid && elementByUuid.has(node.uuid)) {
+                referencedElementUuids.add(node.uuid);
+                return;
+            }
+            const template = node.uuid && groupByUuid.get(node.uuid) || node;
+            const children = Array.isArray(node.children)
+                ? node.children
+                : Array.isArray(template.children)
+                    ? template.children
+                    : [];
+            children.forEach(collectReferencedElements);
+        }
+        flattened.outliner.forEach(collectReferencedElements);
+
+        function addElement(element, parent) {
+            if (!element || instantiated.has(element) || element.export === false) return;
+            const index = elementIndices.get(element);
+            const from = transformPoint(
+                element.from || [0, 0, 0],
+                transform,
+                pivot,
+                flattened.model_center
+            );
+            const to = transformPoint(
+                element.to || [0, 0, 0],
+                transform,
+                pivot,
+                flattened.model_center
+            );
+            const cube = new Cube({
+                name: element.name || `element_${index}`,
+                from: from.map((value, axis) => Math.min(value, to[axis])),
+                to: to.map((value, axis) => Math.max(value, from[axis])),
+                origin: transformPoint(
+                    element.origin || flattened.model_center,
+                    transform,
+                    pivot,
+                    flattened.model_center
+                ),
+                rotation: vectorOr(
+                    element.rotation,
+                    [0, 0, 0],
+                    `BBModel 元素 ${element.name || index} 的旋转`
+                ),
+                box_uv: false,
+                autouv: 0,
+                inflate: Number(element.inflate || 0),
+                shade: element.shade !== false
+            }).addTo(parent).init();
+            cube.sap_item_element_id = previewElementId(element, index, true);
+            applyBbmodelFaces(cube, element.faces || {}, textures);
+            Cube.preview_controller.updateUV(cube);
+            instantiated.add(element);
+        }
+
+        function addNode(node, parent) {
+            if (typeof node === "string") {
+                addElement(elementByUuid.get(node), parent);
+                return;
+            }
+            if (!node || typeof node !== "object") return;
+            const element = node.uuid && elementByUuid.get(node.uuid);
+            if (element) {
+                addElement(element, parent);
+                return;
+            }
+            const template = node.uuid && groupByUuid.get(node.uuid) || node;
+            if (template.export === false) return;
+            const group = makeGroup(
+                template.name || "BBModel 组",
+                transformPoint(
+                    template.origin || flattened.model_center,
+                    transform,
+                    pivot,
+                    flattened.model_center
+                ),
+                ROLE_REFERENCE,
+                parent,
+                hand
+            );
+            group.rotation = vectorOr(
+                template.rotation,
+                [0, 0, 0],
+                `BBModel 组 ${template.name || template.uuid || "<未知>"} 的旋转`
+            );
+            const children = Array.isArray(node.children)
+                ? node.children
+                : Array.isArray(template.children)
+                    ? template.children
+                    : [];
+            children.forEach(child => addNode(child, group));
+        }
+
+        flattened.outliner.forEach(node => addNode(node, root));
+        elements
+            .filter(element =>
+                !element.uuid || !referencedElementUuids.has(element.uuid)
+            )
+            .forEach(element => addElement(element, root));
+    }
+
+    function previewElementId(element, index, bbmodel) {
+        return bbmodel && element.uuid ? `bbmodel:${element.uuid}` : `element:${index}`;
     }
 
     function displayForContext(display, context) {
@@ -2064,6 +2383,98 @@
                 south: {uv: [16, 0, 0, 16], texture: layer}
             }
         }];
+    }
+
+    function loadBbmodelTextures(fs, path, modelPath, textureEntries, fallbackSize) {
+        const loaded = {};
+        textureEntries.forEach((entry, index) => {
+            if (!entry || typeof entry !== "object") return;
+            const texturePath = resolveBbmodelTexturePath(
+                fs,
+                path,
+                modelPath,
+                entry
+            );
+            const embeddedSource = typeof entry.source === "string"
+                    && entry.source.startsWith("data:image/")
+                ? entry.source
+                : null;
+            let texture;
+            if (texturePath) {
+                const resolvedPath = path.resolve(texturePath);
+                texture = Texture.all.find(candidate => [
+                    candidate.path,
+                    candidate.relative_path
+                ].some(candidatePath => candidatePath
+                    && path.resolve(candidatePath) === resolvedPath));
+                if (!texture) {
+                    texture = new Texture({
+                        name: entry.name || path.basename(texturePath),
+                        path: texturePath
+                    }).fromPath(texturePath).add(false);
+                }
+            } else if (embeddedSource) {
+                texture = Texture.all.find(
+                    candidate => candidate.source === embeddedSource
+                );
+                if (!texture) {
+                    texture = new Texture({
+                        name: entry.name || `bbmodel_texture_${index}.png`
+                    }).fromDataURL(embeddedSource).add(false);
+                }
+            }
+            if (!texture) return;
+            setTextureUvSize(texture, [
+                positiveNumber(entry.uv_width, fallbackSize[0]),
+                positiveNumber(entry.uv_height, fallbackSize[1])
+            ]);
+            loaded[String(index)] = texture;
+            if (entry.uuid) loaded[entry.uuid] = texture;
+            if (entry.id != null) loaded[String(entry.id)] = texture;
+        });
+        return loaded;
+    }
+
+    function resolveBbmodelTexturePath(fs, path, modelPath, entry) {
+        const candidates = [];
+        if (entry.relative_path) {
+            candidates.push(path.resolve(
+                path.dirname(modelPath),
+                String(entry.relative_path)
+            ));
+        }
+        if (entry.path) {
+            candidates.push(path.isAbsolute(String(entry.path))
+                ? path.resolve(String(entry.path))
+                : path.resolve(path.dirname(modelPath), String(entry.path)));
+        }
+        return candidates.find(candidate => fs.existsSync(candidate)) || null;
+    }
+
+    function applyBbmodelFaces(cube, faces, textures) {
+        cube.box_uv = false;
+        Object.keys(faces).forEach(direction => {
+            if (!cube.faces[direction]) return;
+            const source = faces[direction] || {};
+            if (Array.isArray(source.uv) && source.uv.length === 4) {
+                cube.faces[direction].uv = numericVector(
+                    source.uv,
+                    [0, 0, 0, 0],
+                    `BBModel ${cube.name} 的 ${direction} 面 UV`
+                );
+            }
+            cube.faces[direction].rotation = Number(source.rotation || 0);
+            cube.faces[direction].cullface = source.cullface || "";
+            const texture = bbmodelTexture(textures, source.texture);
+            if (texture) cube.faces[direction].texture = texture.uuid;
+            else if (source.texture === null) cube.faces[direction].texture = null;
+        });
+    }
+
+    function bbmodelTexture(textures, reference) {
+        if (reference === null || reference === false) return null;
+        if (reference == null) return textures["0"] || null;
+        return textures[String(reference)] || null;
     }
 
     function loadModelTextures(
@@ -2206,11 +2617,63 @@
             rightRotation[1] = -rightRotation[1];
             rightRotation[2] = -rightRotation[2];
         }
+        const blockbenchRotation = itemRotationToBlockbench(
+            rotation,
+            rightRotation
+        );
+        const scale = vectorOr(source.scale, [1, 1, 1], "display 缩放");
+        const rotationPivot = vectorOr(
+            source.rotation_pivot,
+            [0, 0, 0],
+            "display 旋转枢轴"
+        ).map(value => value * 16);
+        const scalePivot = vectorOr(
+            source.scale_pivot,
+            [0, 0, 0],
+            "display 缩放枢轴"
+        ).map(value => value * 16);
+        const pivotCorrection = displayPivotCorrection(
+            blockbenchRotation,
+            scale,
+            rotationPivot,
+            scalePivot
+        );
         return {
-            translation,
-            rotation: itemRotationToBlockbench(rotation, rightRotation),
-            scale: vectorOr(source.scale, [1, 1, 1], "display 缩放")
+            translation: offsetVector(translation, pivotCorrection),
+            rotation: blockbenchRotation,
+            scale
         };
+    }
+
+    function displayPivotCorrection(
+        rotation,
+        scale,
+        rotationPivot,
+        scalePivot
+    ) {
+        const rotatedRotationPivot = rotateDisplayVector(
+            rotationPivot,
+            rotation
+        );
+        const rotatedScalePivot = rotateDisplayVector(scalePivot, rotation);
+        return [0, 1, 2].map(axis =>
+            rotationPivot[axis]
+                - rotatedRotationPivot[axis]
+                + rotatedScalePivot[axis] * (1 - Math.abs(scale[axis]))
+        );
+    }
+
+    function rotateDisplayVector(vector, rotation) {
+        const radians = Math.PI / 180;
+        return new THREE.Vector3()
+            .fromArray(vector)
+            .applyEuler(new THREE.Euler(
+                rotation[0] * radians,
+                rotation[1] * radians,
+                rotation[2] * radians,
+                "ZYX"
+            ))
+            .toArray();
     }
 
     function itemRotationToBlockbench(rotation, rightRotation) {
@@ -2234,10 +2697,11 @@
         return [euler.x / radians, euler.y / radians, euler.z / radians];
     }
 
-    function transformPoint(point, transform, pivot) {
+    function transformPoint(point, transform, pivot, center = [8, 8, 8]) {
         const source = vectorOr(point, [0, 0, 0], "模型坐标点");
+        const normalizedCenter = vectorOr(center, [8, 8, 8], "模型中心");
         return source.map((value, axis) =>
-            pivot[axis] + (value - 8) * transform.scale[axis]);
+            pivot[axis] + (value - normalizedCenter[axis]) * transform.scale[axis]);
     }
 
     function axisRotation(axis, angle) {
@@ -2774,7 +3238,11 @@
     }
 
     function vectorOr(value, fallback, description) {
-        const vector = Array.isArray(value) && value.length === 3
+        return numericVector(value, fallback, description);
+    }
+
+    function numericVector(value, fallback, description) {
+        const vector = Array.isArray(value) && value.length === fallback.length
             ? value.map(Number)
             : fallback.slice();
         if (vector.some(component => !Number.isFinite(component))) {

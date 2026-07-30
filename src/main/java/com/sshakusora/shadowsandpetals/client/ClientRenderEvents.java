@@ -103,7 +103,7 @@ public class ClientRenderEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerReloadListeners(AddClientReloadListenersEvent event) {
-        SAPAnimations.register();
+        SAPAnimations.init();
         var key = ShadowsAndPetals.asResource("pose_animations");
         event.addListener(key, SAPAnimationResources.INSTANCE);
         event.addDependency(NeoForgeReloadListeners.ENTITY_ANIMATIONS, key);
