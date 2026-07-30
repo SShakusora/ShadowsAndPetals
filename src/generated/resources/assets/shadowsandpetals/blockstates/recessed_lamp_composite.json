@@ -1,51 +1,99 @@
 {
   "variants": {
-    "lit=false,mount=ceiling,waterlogged=false": {
+    "lit=false,mount=ceiling,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/down_off"
     },
-    "lit=false,mount=ceiling,waterlogged=true": {
+    "lit=false,mount=ceiling,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/down_off"
     },
-    "lit=false,mount=ceiling_slab,waterlogged=false": {
+    "lit=false,mount=ceiling,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_off"
+    },
+    "lit=false,mount=ceiling,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_off"
+    },
+    "lit=false,mount=ceiling_slab,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
     },
-    "lit=false,mount=ceiling_slab,waterlogged=true": {
+    "lit=false,mount=ceiling_slab,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
     },
-    "lit=false,mount=floor,waterlogged=false": {
+    "lit=false,mount=ceiling_slab,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+    },
+    "lit=false,mount=ceiling_slab,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+    },
+    "lit=false,mount=floor,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/up_off"
     },
-    "lit=false,mount=floor,waterlogged=true": {
+    "lit=false,mount=floor,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/up_off"
     },
-    "lit=false,mount=floor_slab,waterlogged=false": {
+    "lit=false,mount=floor,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_off"
+    },
+    "lit=false,mount=floor,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_off"
+    },
+    "lit=false,mount=floor_slab,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
     },
-    "lit=false,mount=floor_slab,waterlogged=true": {
+    "lit=false,mount=floor_slab,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
     },
-    "lit=true,mount=ceiling,waterlogged=false": {
+    "lit=false,mount=floor_slab,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+    },
+    "lit=false,mount=floor_slab,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+    },
+    "lit=true,mount=ceiling,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/down_on"
     },
-    "lit=true,mount=ceiling,waterlogged=true": {
+    "lit=true,mount=ceiling,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/down_on"
     },
-    "lit=true,mount=ceiling_slab,waterlogged=false": {
+    "lit=true,mount=ceiling,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_on"
+    },
+    "lit=true,mount=ceiling,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_on"
+    },
+    "lit=true,mount=ceiling_slab,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
     },
-    "lit=true,mount=ceiling_slab,waterlogged=true": {
+    "lit=true,mount=ceiling_slab,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
     },
-    "lit=true,mount=floor,waterlogged=false": {
+    "lit=true,mount=ceiling_slab,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+    },
+    "lit=true,mount=ceiling_slab,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+    },
+    "lit=true,mount=floor,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/up_on"
     },
-    "lit=true,mount=floor,waterlogged=true": {
+    "lit=true,mount=floor,occludes=false,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/up_on"
     },
-    "lit=true,mount=floor_slab,waterlogged=false": {
+    "lit=true,mount=floor,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_on"
+    },
+    "lit=true,mount=floor,occludes=true,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_on"
+    },
+    "lit=true,mount=floor_slab,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
     },
-    "lit=true,mount=floor_slab,waterlogged=true": {
+    "lit=true,mount=floor_slab,occludes=false,waterlogged=true": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+    },
+    "lit=true,mount=floor_slab,occludes=true,waterlogged=false": {
+      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+    },
+    "lit=true,mount=floor_slab,occludes=true,waterlogged=true": {
       "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
     }
   }

@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.item;
 
 import com.sshakusora.shadowsandpetals.block.decoration.RecessedLampBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.RecessedLampCompositeBlock;
 import com.sshakusora.shadowsandpetals.blockentity.RecessedLampBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.BlockPos;
@@ -52,7 +53,11 @@ public final class RecessedLampBlockItem extends BlockItem {
         BlockState placementState = BlockRegistry.RECESSED_LAMP_COMPOSITE.get()
                 .defaultBlockState()
                 .setValue(RecessedLampBlock.MOUNT, compositeContext.mount)
-                .setValue(RecessedLampBlock.WATERLOGGED, waterlogged);
+                .setValue(RecessedLampBlock.WATERLOGGED, waterlogged)
+                .setValue(
+                        RecessedLampCompositeBlock.OCCLUDES,
+                        RecessedLampCompositeBlock.usesFullSlabOcclusion(replacedState)
+                );
         return canPlace(context, placementState) ? placementState : null;
     }
 

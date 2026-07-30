@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -40,6 +43,7 @@ import java.util.List;
 public final class RecessedLampCompositeBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
     public static final MapCodec<RecessedLampCompositeBlock> CODEC =
             simpleCodec(RecessedLampCompositeBlock::new);
+    public static final BooleanProperty OCCLUDES = BooleanProperty.create("occludes");
 
     private static final VoxelShape BOTTOM_SLAB_SHAPE = box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
     private static final VoxelShape TOP_SLAB_SHAPE = box(0.0, 8.0, 0.0, 16.0, 16.0, 16.0);
@@ -51,7 +55,8 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
         registerDefaultState(defaultBlockState()
                 .setValue(RecessedLampBlock.MOUNT, RecessedLampBlock.Mount.FLOOR_SLAB)
                 .setValue(RecessedLampBlock.LIT, false)
-                .setValue(RecessedLampBlock.WATERLOGGED, false));
+                .setValue(RecessedLampBlock.WATERLOGGED, false)
+                .setValue(OCCLUDES, false));
     }
 
     @Override
@@ -61,7 +66,12 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(RecessedLampBlock.MOUNT, RecessedLampBlock.LIT, RecessedLampBlock.WATERLOGGED);
+        builder.add(
+                RecessedLampBlock.MOUNT,
+                RecessedLampBlock.LIT,
+                RecessedLampBlock.WATERLOGGED,
+                OCCLUDES
+        );
     }
 
     @Override
@@ -119,7 +129,7 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
 
     @Override
     protected VoxelShape getOcclusionShape(BlockState state) {
-        return fallbackSlabShape(state);
+        return state.getValue(OCCLUDES) ? fallbackSlabShape(state) : Shapes.empty();
     }
 
     @Override
@@ -299,6 +309,21 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
             return RecessedLampBlockEntity.applyHostWaterlogged(blockEntity.getStoredSlab(), hostState);
         }
         return null;
+    }
+
+    public static boolean usesFullSlabOcclusion(BlockState slabState) {
+        if (!RecessedLampBlockEntity.isValidStoredSlab(slabState)) {
+            return false;
+        }
+
+        VoxelShape expectedShape = slabState.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.TOP
+                ? TOP_SLAB_SHAPE
+                : BOTTOM_SLAB_SHAPE;
+        return !Shapes.joinIsNotEmpty(
+                slabState.getOcclusionShape(),
+                expectedShape,
+                BooleanOp.NOT_SAME
+        );
     }
 
     private static VoxelShape fallbackSlabShape(BlockState state) {

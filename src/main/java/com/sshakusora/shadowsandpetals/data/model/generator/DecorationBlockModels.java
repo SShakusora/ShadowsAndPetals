@@ -192,6 +192,9 @@ public final class DecorationBlockModels {
                         .select(RecessedLampBlock.Mount.CEILING_SLAB, true, BlockModelGenerators.plainVariant(downSlabOn)))
                 .with(PropertyDispatch.modify(RecessedLampBlock.WATERLOGGED)
                         .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP))
+                .with(PropertyDispatch.modify(RecessedLampCompositeBlock.OCCLUDES)
+                        .select(false, BlockModelGenerators.NOP)
                         .select(true, BlockModelGenerators.NOP)));
     }
 
