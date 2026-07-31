@@ -16,7 +16,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.StringUtil;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySelector;
@@ -103,32 +102,11 @@ public class HarrowItem extends Item {
             return InteractionResult.PASS;
         }
 
-        if (context.getClickedFace() != Direction.UP) {
+        if (context.getClickedFace() != Direction.UP || !isDiggingEnvironment(level, pos)) {
             return failDigging(
                     level,
                     player,
-                    Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_TOP_FACE_REQUIRED.key())
-            );
-        }
-        if (!level.getBlockState(pos.above()).canBeReplaced()) {
-            return failDigging(
-                    level,
-                    player,
-                    Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_BLOCKED_ABOVE.key())
-            );
-        }
-        if (!level.getBiome(pos).is(BiomeTags.IS_BEACH)) {
-            return failDigging(
-                    level,
-                    player,
-                    Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_BEACH_REQUIRED.key())
-            );
-        }
-        if (!hasNearbyWater(level, pos)) {
-            return failDigging(
-                    level,
-                    player,
-                    Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_WATER_REQUIRED.key())
+                    Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_ENVIRONMENT_REQUIRED.key())
             );
         }
 
@@ -136,14 +114,11 @@ public class HarrowItem extends Item {
             ServerLevel serverLevel = (ServerLevel) level;
             long remainingTicks = ClamHarvestData.getRemainingCooldownTicks(serverLevel, pos);
             if (remainingTicks > 0L) {
-                String duration = StringUtil.formatTickDuration(
-                        (int) Math.min(remainingTicks, Integer.MAX_VALUE),
-                        20.0F
-                );
+                long remainingSeconds = Math.ceilDiv(remainingTicks, 20L);
                 return failDigging(
                         level,
                         player,
-                        Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_COOLDOWN.key(), duration)
+                        Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_COOLDOWN.key(), remainingSeconds)
                 );
             }
             level.setBlock(pos, BlockRegistry.CLAM_DIGGING_SAND.get().defaultBlockState(), 3);
