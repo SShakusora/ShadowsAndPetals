@@ -54,8 +54,8 @@ public class ClientRenderEvents {
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(
-                BlockEntityRegistry.CLAM_DIGGING_SAND.get(),
-                ClamDiggingSandBlockEntityRenderer::new
+                BlockEntityRegistry.SAND_EXCAVATION.get(),
+                SandExcavationBlockEntityRenderer::new
         );
         event.registerBlockEntityRenderer(BlockEntityRegistry.IRORI.get(), IroriBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);

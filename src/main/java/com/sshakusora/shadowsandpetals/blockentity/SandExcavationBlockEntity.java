@@ -1,10 +1,9 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
-import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
-import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
-import com.sshakusora.shadowsandpetals.world.clam.ClamHarvestData;
-import com.sshakusora.shadowsandpetals.world.clam.ClamTideRules;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationLootPool;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -28,7 +27,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public final class ClamDiggingSandBlockEntity extends BlockEntity {
+public final class SandExcavationBlockEntity extends BlockEntity {
     public static final int BRUSH_COOLDOWN_TICKS = 10;
     public static final int BRUSH_RESET_TICKS = 40;
     public static final int REQUIRED_BRUSHES_TO_COMPLETE = 10;
@@ -51,8 +50,8 @@ public final class ClamDiggingSandBlockEntity extends BlockEntity {
     private boolean resultResolved;
     private @Nullable Direction hitDirection;
 
-    public ClamDiggingSandBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntityRegistry.CLAM_DIGGING_SAND.get(), pos, state);
+    public SandExcavationBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntityRegistry.SAND_EXCAVATION.get(), pos, state);
     }
 
     public void begin(long gameTime) {
@@ -83,7 +82,7 @@ public final class ClamDiggingSandBlockEntity extends BlockEntity {
 
         int dusted = getDustedState();
         if (previousDusted != dusted) {
-            level.setBlock(worldPosition, getBlockState().setValue(ClamDiggingSandBlock.DUSTED, dusted), 3);
+            level.setBlock(worldPosition, getBlockState().setValue(SandExcavationBlock.DUSTED, dusted), 3);
         }
         level.scheduleTick(worldPosition, getBlockState().getBlock(), 2);
         return false;
@@ -103,7 +102,7 @@ public final class ClamDiggingSandBlockEntity extends BlockEntity {
 
             brushCountResetsAtTick = level.getGameTime() + RESET_STEP_TICKS;
             if (previousDusted != dusted) {
-                level.setBlock(worldPosition, getBlockState().setValue(ClamDiggingSandBlock.DUSTED, dusted), 3);
+                level.setBlock(worldPosition, getBlockState().setValue(SandExcavationBlock.DUSTED, dusted), 3);
             }
         }
 
@@ -119,17 +118,17 @@ public final class ClamDiggingSandBlockEntity extends BlockEntity {
     }
 
     private void complete(ServerLevel level) {
-        boolean foundClam = !item.isEmpty();
-        ClamHarvestData.startCooldown(
+        boolean hasDrop = !item.isEmpty();
+        SandExcavationCooldownData.startCooldown(
                 level,
                 worldPosition,
-                foundClam ? SUCCESS_COOLDOWN_TICKS : EMPTY_COOLDOWN_TICKS
+                hasDrop ? SUCCESS_COOLDOWN_TICKS : EMPTY_COOLDOWN_TICKS
         );
 
         BlockState state = getBlockState();
         level.levelEvent(3008, worldPosition, Block.getId(state));
         level.playSound(null, worldPosition, SoundEvents.BRUSH_SAND_COMPLETED, SoundSource.BLOCKS);
-        if (foundClam) {
+        if (hasDrop) {
             dropContent(level);
         }
         level.setBlock(worldPosition, Blocks.SAND.defaultBlockState(), 3);
@@ -141,9 +140,7 @@ public final class ClamDiggingSandBlockEntity extends BlockEntity {
         }
 
         resultResolved = true;
-        item = ClamTideRules.rollClam(level)
-                ? new ItemStack(ItemRegistry.CLAM.get())
-                : ItemStack.EMPTY;
+        item = SandExcavationLootPool.roll(level).stack();
         setChanged();
         BlockState state = getBlockState();
         level.sendBlockUpdated(worldPosition, state, state, 3);

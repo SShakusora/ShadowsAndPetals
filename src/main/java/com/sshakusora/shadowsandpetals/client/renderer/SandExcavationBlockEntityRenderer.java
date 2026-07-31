@@ -2,8 +2,8 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
-import com.sshakusora.shadowsandpetals.blockentity.ClamDiggingSandBlockEntity;
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
+import com.sshakusora.shadowsandpetals.blockentity.SandExcavationBlockEntity;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LevelRenderer.BrightnessGetter;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -22,13 +22,13 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-public final class ClamDiggingSandBlockEntityRenderer implements BlockEntityRenderer<
-        ClamDiggingSandBlockEntity,
-        ClamDiggingSandBlockEntityRenderer.State
+public final class SandExcavationBlockEntityRenderer implements BlockEntityRenderer<
+        SandExcavationBlockEntity,
+        SandExcavationBlockEntityRenderer.State
 > {
     private final ItemModelResolver itemModelResolver;
 
-    public ClamDiggingSandBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public SandExcavationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         itemModelResolver = context.itemModelResolver();
     }
 
@@ -39,7 +39,7 @@ public final class ClamDiggingSandBlockEntityRenderer implements BlockEntityRend
 
     @Override
     public void extractRenderState(
-            ClamDiggingSandBlockEntity blockEntity,
+            SandExcavationBlockEntity blockEntity,
             State state,
             float partialTicks,
             Vec3 cameraPosition,
@@ -47,7 +47,7 @@ public final class ClamDiggingSandBlockEntityRenderer implements BlockEntityRend
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
         state.hitDirection = blockEntity.getHitDirection();
-        state.dustProgress = blockEntity.getBlockState().getValue(ClamDiggingSandBlock.DUSTED);
+        state.dustProgress = blockEntity.getBlockState().getValue(SandExcavationBlock.DUSTED);
         if (blockEntity.getLevel() != null && state.hitDirection != null) {
             state.lightCoords = LevelRenderer.getLightCoords(
                     BrightnessGetter.DEFAULT,
@@ -99,7 +99,7 @@ public final class ClamDiggingSandBlockEntityRenderer implements BlockEntityRend
     }
 
     @Override
-    public AABB getRenderBoundingBox(ClamDiggingSandBlockEntity blockEntity) {
+    public AABB getRenderBoundingBox(SandExcavationBlockEntity blockEntity) {
         BlockPos pos = blockEntity.getBlockPos();
         return new AABB(
                 pos.getX() - 0.25F,

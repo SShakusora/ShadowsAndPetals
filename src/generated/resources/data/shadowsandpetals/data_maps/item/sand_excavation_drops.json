@@ -1,0 +1,19 @@
+{
+  "values": {
+    "minecraft:flint": {
+      "category": "trash",
+      "weight": 2
+    },
+    "minecraft:gravel": {
+      "category": "trash"
+    },
+    "minecraft:stick": {
+      "category": "trash",
+      "weight": 3
+    },
+    "shadowsandpetals:clam": {
+      "category": "seafood",
+      "weight": 10
+    }
+  }
+}

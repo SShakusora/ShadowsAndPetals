@@ -1,4 +1,4 @@
-// 26.1.2	2026-07-31T02:03:34.7158317	Loot Tables
+// 26.1.2	2026-07-31T19:12:33.3766731	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
 0a94a9b2c72f29e1ba09ce05465f8da88aa3d07b data/shadowsandpetals/loot_table/blocks/aluminum_ingot_pile.json
@@ -28,7 +28,6 @@ f631379b49f775f365ec17a4d879f0434c00667e data/shadowsandpetals/loot_table/blocks
 9a209ce52a4e36aa7f59998c55a63e60c91aba22 data/shadowsandpetals/loot_table/blocks/brown_roof_tile_stairs.json
 7326136eb71a0809f61df7705e71dae1886074d4 data/shadowsandpetals/loot_table/blocks/brown_roof_tile_vertical_slab.json
 6572dd013af92ceaa794b564e3154508187d1470 data/shadowsandpetals/loot_table/blocks/cherry_vanity.json
-46dc83b540f60e2be6aebfcee615741189b0862b data/shadowsandpetals/loot_table/blocks/clam_digging_sand.json
 3aaf14a12c25abe6956b6ae8aab87360b7c16568 data/shadowsandpetals/loot_table/blocks/copper_ingot_pile.json
 168a418eea69e1dbaa6dd8240e30544a033bff57 data/shadowsandpetals/loot_table/blocks/copper_teapot.json
 625430409d3b8c8dd22628cb3c9bc1472c4dd737 data/shadowsandpetals/loot_table/blocks/crimson_vanity.json
@@ -167,6 +166,7 @@ c3069343346c38bdab4e9bf481539673bcfa72b0 data/shadowsandpetals/loot_table/blocks
 5ec56252bb1bf47d40f3890c76d870e980820136 data/shadowsandpetals/loot_table/blocks/sakura_wood.json
 fc762bc05db556105bb50e1501017691d1c17f08 data/shadowsandpetals/loot_table/blocks/sakura_wood_post.json
 5230b8f93d32c14eadd961481d04676fa2a831bc data/shadowsandpetals/loot_table/blocks/samon.json
+9bd05f0b576907c03bfb8c49c25bd67161916fd4 data/shadowsandpetals/loot_table/blocks/sand_excavation.json
 1824cc1da9fd4b781d2a7a4c2f386c6b9e7902a3 data/shadowsandpetals/loot_table/blocks/shishi_odoshi.json
 e095a122f040be4b7863344f5bf74f49b19c6414 data/shadowsandpetals/loot_table/blocks/shishi_odoshi_pipe.json
 a759304f74bb020245542c6f5d2341b191ba2d5f data/shadowsandpetals/loot_table/blocks/spruce_vanity.json

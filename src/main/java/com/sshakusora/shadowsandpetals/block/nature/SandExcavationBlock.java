@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.block.nature;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.blockentity.ClamDiggingSandBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.SandExcavationBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -20,18 +20,18 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 
-public final class ClamDiggingSandBlock extends BaseEntityBlock {
+public final class SandExcavationBlock extends BaseEntityBlock {
     public static final IntegerProperty DUSTED = BlockStateProperties.DUSTED;
-    public static final MapCodec<ClamDiggingSandBlock> CODEC = simpleCodec(ClamDiggingSandBlock::new);
+    public static final MapCodec<SandExcavationBlock> CODEC = simpleCodec(SandExcavationBlock::new);
     private static final int TICK_DELAY = 2;
 
-    public ClamDiggingSandBlock(BlockBehaviour.Properties properties) {
+    public SandExcavationBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any().setValue(DUSTED, 0));
     }
 
     @Override
-    protected MapCodec<? extends ClamDiggingSandBlock> codec() {
+    protected MapCodec<? extends SandExcavationBlock> codec() {
         return CODEC;
     }
 
@@ -67,8 +67,8 @@ public final class ClamDiggingSandBlock extends BaseEntityBlock {
             return;
         }
 
-        if (level.getBlockEntity(pos) instanceof ClamDiggingSandBlockEntity diggingSand) {
-            diggingSand.checkReset(level);
+        if (level.getBlockEntity(pos) instanceof SandExcavationBlockEntity excavation) {
+            excavation.checkReset(level);
         } else {
             level.setBlock(pos, Blocks.SAND.defaultBlockState(), 3);
         }
@@ -76,6 +76,6 @@ public final class ClamDiggingSandBlock extends BaseEntityBlock {
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new ClamDiggingSandBlockEntity(pos, state);
+        return new SandExcavationBlockEntity(pos, state);
     }
 }

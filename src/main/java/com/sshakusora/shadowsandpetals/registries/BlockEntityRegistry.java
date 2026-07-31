@@ -6,10 +6,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class BlockEntityRegistry {
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ClamDiggingSandBlockEntity>> CLAM_DIGGING_SAND =
-            SAPRegistries.<ClamDiggingSandBlockEntity>blockEntity("clam_digging_sand")
-                    .factory(ClamDiggingSandBlockEntity::new)
-                    .validBlocks(BlockRegistry.CLAM_DIGGING_SAND)
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SandExcavationBlockEntity>> SAND_EXCAVATION =
+            SAPRegistries.<SandExcavationBlockEntity>blockEntity("sand_excavation")
+                    .factory(SandExcavationBlockEntity::new)
+                    .validBlocks(BlockRegistry.SAND_EXCAVATION)
                     .register();
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IroriBlockEntity>> IRORI = SAPRegistries

@@ -7,9 +7,9 @@ import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
-import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
@@ -816,20 +816,20 @@ public class BlockRegistry {
             .lang("zh_cn", "砂纹")
             .register();
 
-    public static final DeferredBlock<ClamDiggingSandBlock> CLAM_DIGGING_SAND = SAPRegistries
-            .block("clam_digging_sand", ClamDiggingSandBlock::new)
+    public static final DeferredBlock<SandExcavationBlock> SAND_EXCAVATION = SAPRegistries
+            .block("sand_excavation", SandExcavationBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)
                     .strength(0.5F)
                     .sound(SoundType.SAND))
             .tags(BlockTags.MINEABLE_WITH_SHOVEL)
-            .blockstate(() -> NatureBlockModels::clamDiggingSand)
+            .blockstate(() -> NatureBlockModels::sandExcavation)
             .loot((provider, block) -> provider.addTable(
                     block.get(),
                     LootTable.lootTable().withPool(LootPool.lootPool()
                             .setRolls(ConstantValue.exactly(1.0F))
                             .add(LootItem.lootTableItem(Items.SAND)))
             ))
-            .lang("en_us", "Clam Digging Sand")
+            .lang("en_us", "Sand Excavation")
             .lang("zh_cn", "挖掘中的沙子")
             .register();
 

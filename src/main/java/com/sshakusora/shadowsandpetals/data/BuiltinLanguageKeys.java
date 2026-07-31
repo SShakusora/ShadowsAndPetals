@@ -41,23 +41,23 @@ public final class BuiltinLanguageKeys {
             .en_us("Burned out")
             .zh_cn("已燃尽");
 
-    public static final DatagenLangRegistry.TranslationKey JADE_CLAM_COOLDOWN_CONFIG = DatagenLangRegistry
-            .key("config.jade.plugin_shadowsandpetals.jade.clam_cooldown")
-            .en_us("Show clam digging cooldown")
-            .zh_cn("显示蛤蜊挖掘冷却");
+    public static final DatagenLangRegistry.TranslationKey JADE_SAND_EXCAVATION_COOLDOWN_CONFIG = DatagenLangRegistry
+            .key("config.jade.plugin_shadowsandpetals.jade.sand_excavation_cooldown")
+            .en_us("Show sand excavation cooldown")
+            .zh_cn("显示沙地挖掘冷却");
 
-    public static final DatagenLangRegistry.TranslationKey JADE_CLAM_COOLDOWN = DatagenLangRegistry
-            .key("jade.shadowsandpetals.clam.cooldown")
-            .en_us("Clams recovering")
-            .zh_cn("蛤蜊恢复中");
+    public static final DatagenLangRegistry.TranslationKey JADE_SAND_EXCAVATION_COOLDOWN = DatagenLangRegistry
+            .key("jade.shadowsandpetals.sand_excavation.cooldown")
+            .en_us("Sand recovering")
+            .zh_cn("沙地恢复中");
 
     public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_ENVIRONMENT_REQUIRED = DatagenLangRegistry
-            .key("message.shadowsandpetals.harrow.clam.environment_required")
-            .en_us("Clams can only be dug for from beach sand near water")
+            .key("message.shadowsandpetals.harrow.sand_excavation.environment_required")
+            .en_us("Only beach sand near water can be excavated")
             .zh_cn("只能挖掘海滩附近的沙子");
 
     public static final DatagenLangRegistry.TranslationKey HARROW_DIGGING_COOLDOWN = DatagenLangRegistry
-            .key("message.shadowsandpetals.harrow.clam.cooldown")
+            .key("message.shadowsandpetals.harrow.sand_excavation.cooldown")
             .en_us("This sand has already been dug. %s s remaining")
             .zh_cn("这片沙子已被挖掘，还需 %s 秒");
 

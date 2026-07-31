@@ -1,11 +1,11 @@
 package com.sshakusora.shadowsandpetals.item.harrow;
 
 import com.sshakusora.shadowsandpetals.block.decoration.SamonBlock;
-import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
-import com.sshakusora.shadowsandpetals.blockentity.ClamDiggingSandBlockEntity;
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
+import com.sshakusora.shadowsandpetals.blockentity.SandExcavationBlockEntity;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
-import com.sshakusora.shadowsandpetals.world.clam.ClamHarvestData;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -112,7 +112,7 @@ public class HarrowItem extends Item {
 
         if (!level.isClientSide() && state.is(Blocks.SAND)) {
             ServerLevel serverLevel = (ServerLevel) level;
-            long remainingTicks = ClamHarvestData.getRemainingCooldownTicks(serverLevel, pos);
+            long remainingTicks = SandExcavationCooldownData.getRemainingCooldownTicks(serverLevel, pos);
             if (remainingTicks > 0L) {
                 long remainingSeconds = Math.ceilDiv(remainingTicks, 20L);
                 return failDigging(
@@ -121,9 +121,9 @@ public class HarrowItem extends Item {
                         Component.translatable(BuiltinLanguageKeys.HARROW_DIGGING_COOLDOWN.key(), remainingSeconds)
                 );
             }
-            level.setBlock(pos, BlockRegistry.CLAM_DIGGING_SAND.get().defaultBlockState(), 3);
-            if (level.getBlockEntity(pos) instanceof ClamDiggingSandBlockEntity diggingSand) {
-                diggingSand.begin(level.getGameTime());
+            level.setBlock(pos, BlockRegistry.SAND_EXCAVATION.get().defaultBlockState(), 3);
+            if (level.getBlockEntity(pos) instanceof SandExcavationBlockEntity excavation) {
+                excavation.begin(level.getGameTime());
             }
         }
 
@@ -163,13 +163,13 @@ public class HarrowItem extends Item {
 
         BlockPos pos = blockHit.getBlockPos();
         BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof ClamDiggingSandBlock) || !isDiggingEnvironment(level, pos)) {
+        if (!(state.getBlock() instanceof SandExcavationBlock) || !isDiggingEnvironment(level, pos)) {
             livingEntity.releaseUsingItem();
             return;
         }
 
         int timeElapsed = getUseDuration(stack, livingEntity) - ticksRemaining + 1;
-        if (timeElapsed % ClamDiggingSandBlockEntity.BRUSH_COOLDOWN_TICKS != 5) {
+        if (timeElapsed % SandExcavationBlockEntity.BRUSH_COOLDOWN_TICKS != 5) {
             return;
         }
 
@@ -182,8 +182,8 @@ public class HarrowItem extends Item {
         level.playSound(player, pos, SoundEvents.BRUSH_SAND, SoundSource.BLOCKS);
 
         if (level instanceof ServerLevel serverLevel
-                && level.getBlockEntity(pos) instanceof ClamDiggingSandBlockEntity diggingSand
-                && diggingSand.brush(level.getGameTime(), serverLevel, blockHit.getDirection())) {
+                && level.getBlockEntity(pos) instanceof SandExcavationBlockEntity excavation
+                && excavation.brush(level.getGameTime(), serverLevel, blockHit.getDirection())) {
             EquipmentSlot slot = livingEntity.getUsedItemHand() == InteractionHand.OFF_HAND
                     ? EquipmentSlot.OFFHAND
                     : EquipmentSlot.MAINHAND;
@@ -227,7 +227,7 @@ public class HarrowItem extends Item {
     }
 
     private static boolean isNotDiggableSand(BlockState state) {
-        return !state.is(Blocks.SAND) && !(state.getBlock() instanceof ClamDiggingSandBlock);
+        return !state.is(Blocks.SAND) && !(state.getBlock() instanceof SandExcavationBlock);
     }
 
     private static InteractionResult failDigging(Level level, Player player, Component message) {

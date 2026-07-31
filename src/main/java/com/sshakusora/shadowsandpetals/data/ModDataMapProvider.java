@@ -1,11 +1,16 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.api.excavation.SandExcavationDataMaps;
+import com.sshakusora.shadowsandpetals.api.excavation.SandExcavationDropCategory;
+import com.sshakusora.shadowsandpetals.api.excavation.SandExcavationDropData;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
+import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.DataMapProvider;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -24,11 +29,33 @@ public class ModDataMapProvider extends DataMapProvider {
     protected void gather(HolderLookup.Provider provider) {
         var strippables = builder(NeoForgeDataMaps.STRIPPABLES);
         var furnaceFuels = builder(NeoForgeDataMaps.FURNACE_FUELS);
+        var excavationDrops = builder(SandExcavationDataMaps.DROPS);
 
         BlockRegistry.WOOD_SETS.forEach(woodSet -> {
             addStrippables(strippables, woodSet);
             addWoodFuels(furnaceFuels, woodSet);
         });
+
+        excavationDrops.add(
+                ItemRegistry.CLAM.get().builtInRegistryHolder(),
+                new SandExcavationDropData(SandExcavationDropCategory.SEAFOOD, 10, 1, 1),
+                false
+        );
+        excavationDrops.add(
+                Items.STICK.builtInRegistryHolder(),
+                new SandExcavationDropData(SandExcavationDropCategory.TRASH, 3, 1, 1),
+                false
+        );
+        excavationDrops.add(
+                Items.FLINT.builtInRegistryHolder(),
+                new SandExcavationDropData(SandExcavationDropCategory.TRASH, 2, 1, 1),
+                false
+        );
+        excavationDrops.add(
+                Items.GRAVEL.builtInRegistryHolder(),
+                new SandExcavationDropData(SandExcavationDropCategory.TRASH, 1, 1, 1),
+                false
+        );
     }
 
     private static void addStrippables(Builder<Strippable, Block> strippables, WoodSetList.WoodSet woodSet) {

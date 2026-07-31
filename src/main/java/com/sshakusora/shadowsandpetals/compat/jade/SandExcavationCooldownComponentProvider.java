@@ -14,13 +14,13 @@ import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.JadeUI;
 import snownee.jade.api.view.ProgressView;
 
-public final class ClamCooldownComponentProvider implements IBlockComponentProvider {
-    public static final ClamCooldownComponentProvider INSTANCE = new ClamCooldownComponentProvider();
+public final class SandExcavationCooldownComponentProvider implements IBlockComponentProvider {
+    public static final SandExcavationCooldownComponentProvider INSTANCE = new SandExcavationCooldownComponentProvider();
     private static final int BAR_WIDTH = 100;
     private static final int BAR_HEIGHT = 6;
-    private static final Identifier PROGRESS_UID = ShadowsAndPetals.asResource("jade.clam_cooldown.progress");
+    private static final Identifier PROGRESS_UID = ShadowsAndPetals.asResource("jade.sand_excavation_cooldown.progress");
 
-    private ClamCooldownComponentProvider() {
+    private SandExcavationCooldownComponentProvider() {
     }
 
     @Override
@@ -30,10 +30,10 @@ public final class ClamCooldownComponentProvider implements IBlockComponentProvi
         }
 
         long cooldownEndTick = accessor.getServerData()
-                .getLong(ClamCooldownServerDataProvider.COOLDOWN_END_TICK_KEY)
+                .getLong(SandExcavationCooldownServerDataProvider.COOLDOWN_END_TICK_KEY)
                 .orElse(0L);
         long cooldownDuration = accessor.getServerData()
-                .getLong(ClamCooldownServerDataProvider.COOLDOWN_DURATION_KEY)
+                .getLong(SandExcavationCooldownServerDataProvider.COOLDOWN_DURATION_KEY)
                 .orElse(0L);
         long remainingTicks = cooldownEndTick - accessor.getLevel().getGameTime();
         if (remainingTicks <= 0L || cooldownDuration <= 0L) {
@@ -52,13 +52,13 @@ public final class ClamCooldownComponentProvider implements IBlockComponentProvi
                 JadeUI.progressStyle().canDecrease(true),
                 BoxStyle.nestedBox()
         );
-        tooltip.add(Component.translatable(BuiltinLanguageKeys.JADE_CLAM_COOLDOWN.key())
+        tooltip.add(Component.translatable(BuiltinLanguageKeys.JADE_SAND_EXCAVATION_COOLDOWN.key())
                 .withStyle(ChatFormatting.GRAY));
         tooltip.add(JadeUI.progress(view, BAR_WIDTH, BAR_HEIGHT).tag(PROGRESS_UID));
     }
 
     @Override
     public Identifier getUid() {
-        return ShadowsAndPetals.asResource("jade.clam_cooldown");
+        return ShadowsAndPetals.asResource("jade.sand_excavation_cooldown");
     }
 }

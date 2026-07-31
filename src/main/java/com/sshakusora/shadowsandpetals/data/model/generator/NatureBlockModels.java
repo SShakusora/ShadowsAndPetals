@@ -3,8 +3,8 @@ package com.sshakusora.shadowsandpetals.data.model.generator;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.HedgeBlock;
-import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.data.model.*;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
@@ -27,12 +27,12 @@ public final class NatureBlockModels {
     private NatureBlockModels() {
     }
 
-    public static void clamDiggingSand(
-            BlockModelContext<? extends ClamDiggingSandBlock> context,
+    public static void sandExcavation(
+            BlockModelContext<? extends SandExcavationBlock> context,
             SAPBlockModelGenerator generator
     ) {
         generator.blockState(MultiVariantGenerator.dispatch(context.get())
-                .with(PropertyDispatch.initial(ClamDiggingSandBlock.DUSTED)
+                .with(PropertyDispatch.initial(SandExcavationBlock.DUSTED)
                         .select(0, BlockModelGenerators.plainVariant(generator.mcLoc("block/suspicious_sand_0")))
                         .select(1, BlockModelGenerators.plainVariant(generator.mcLoc("block/suspicious_sand_1")))
                         .select(2, BlockModelGenerators.plainVariant(generator.mcLoc("block/suspicious_sand_2")))

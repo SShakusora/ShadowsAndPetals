@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.world.clam;
+package com.sshakusora.shadowsandpetals.world.excavation;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -12,25 +12,25 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class ClamHarvestData {
+public final class SandExcavationCooldownData {
     private static final Codec<CooldownEntry> ENTRY_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.LONG.fieldOf("pos").forGetter(CooldownEntry::pos),
             Codec.LONG.fieldOf("available_at").forGetter(CooldownEntry::availableAt),
             Codec.LONG.optionalFieldOf("duration", 0L).forGetter(CooldownEntry::duration)
     ).apply(instance, CooldownEntry::new));
 
-    public static final MapCodec<ClamHarvestData> CODEC = ENTRY_CODEC.listOf().fieldOf("cooldowns").xmap(
-            ClamHarvestData::new,
-            ClamHarvestData::entries
+    public static final MapCodec<SandExcavationCooldownData> CODEC = ENTRY_CODEC.listOf().fieldOf("cooldowns").xmap(
+            SandExcavationCooldownData::new,
+            SandExcavationCooldownData::entries
     );
 
     private final Long2LongOpenHashMap cooldowns = new Long2LongOpenHashMap();
     private final Long2LongOpenHashMap cooldownDurations = new Long2LongOpenHashMap();
 
-    public ClamHarvestData() {
+    public SandExcavationCooldownData() {
     }
 
-    private ClamHarvestData(List<CooldownEntry> entries) {
+    private SandExcavationCooldownData(List<CooldownEntry> entries) {
         for (CooldownEntry entry : entries) {
             cooldowns.put(entry.pos(), entry.availableAt());
             if (entry.duration() > 0L) {
@@ -46,7 +46,9 @@ public final class ClamHarvestData {
 
     public static Cooldown getCooldown(ServerLevel level, BlockPos pos) {
         LevelChunk chunk = level.getChunkAt(pos);
-        ClamHarvestData data = chunk.getExistingDataOrNull(AttachmentRegistry.CLAM_HARVEST.get());
+        SandExcavationCooldownData data = chunk.getExistingDataOrNull(
+                AttachmentRegistry.SAND_EXCAVATION_COOLDOWNS.get()
+        );
         if (data == null) {
             return Cooldown.NONE;
         }
@@ -70,7 +72,7 @@ public final class ClamHarvestData {
         data.cooldowns.remove(packedPos);
         data.cooldownDurations.remove(packedPos);
         if (data.cooldowns.isEmpty()) {
-            chunk.removeData(AttachmentRegistry.CLAM_HARVEST.get());
+            chunk.removeData(AttachmentRegistry.SAND_EXCAVATION_COOLDOWNS.get());
         } else {
             chunk.markUnsaved();
         }
@@ -79,7 +81,7 @@ public final class ClamHarvestData {
 
     public static void startCooldown(ServerLevel level, BlockPos pos, long durationTicks) {
         LevelChunk chunk = level.getChunkAt(pos);
-        ClamHarvestData data = chunk.getData(AttachmentRegistry.CLAM_HARVEST.get());
+        SandExcavationCooldownData data = chunk.getData(AttachmentRegistry.SAND_EXCAVATION_COOLDOWNS.get());
         long packedPos = pos.asLong();
         data.cooldowns.put(packedPos, level.getGameTime() + durationTicks);
         data.cooldownDurations.put(packedPos, durationTicks);
