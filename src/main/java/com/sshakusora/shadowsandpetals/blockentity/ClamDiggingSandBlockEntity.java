@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.block.nature.ClamDiggingSandBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import com.sshakusora.shadowsandpetals.world.clam.ClamHarvestData;
+import com.sshakusora.shadowsandpetals.world.clam.ClamTideRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -140,7 +141,7 @@ public final class ClamDiggingSandBlockEntity extends BlockEntity {
         }
 
         resultResolved = true;
-        item = level.getRandom().nextInt(4) == 0
+        item = ClamTideRules.rollClam(level)
                 ? new ItemStack(ItemRegistry.CLAM.get())
                 : ItemStack.EMPTY;
         setChanged();
