@@ -54,8 +54,8 @@ neoForge {
 
         client2 {
             client()
-            gameDirectory = project.file('run2')
-            programArguments = ['--username', 'Dev2']
+            gameDirectory = project.file('run')
+            programArguments = ['--username', 'SShakusora']
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
@@ -139,17 +139,16 @@ tasks.register('installClientShaderpacks', Copy) {
     into layout.projectDirectory.dir('run/shaderpacks')
 }
 
-tasks.register('installClient2Shaderpacks', Copy) {
-    group = 'shadowsandpetals'
-    description = 'Installs shader packs into the second client run directory.'
-    from configurations.shaderpacks
-    into layout.projectDirectory.dir('run2/shaderpacks')
-}
-
 tasks.register('installShaderpacks') {
     group = 'shadowsandpetals'
-    description = 'Installs all development shader packs into client run directories.'
-    dependsOn tasks.named('installClientShaderpacks'), tasks.named('installClient2Shaderpacks')
+    description = 'Installs development shader packs into the shared client run directory.'
+    dependsOn tasks.named('installClientShaderpacks')
+}
+
+tasks.register('cleanRunLogs', Delete) {
+    group = 'shadowsandpetals'
+    description = 'Deletes logs and crash reports from the shared client run directory.'
+    delete layout.projectDirectory.dir('run/logs'), layout.projectDirectory.dir('run/crash-reports')
 }
 
 tasks.named('runClient') {
@@ -157,7 +156,7 @@ tasks.named('runClient') {
 }
 
 tasks.named('runClient2') {
-    dependsOn tasks.named('installClient2Shaderpacks')
+    dependsOn tasks.named('installClientShaderpacks')
 }
 
 tasks.named('runStructureEditor') {
