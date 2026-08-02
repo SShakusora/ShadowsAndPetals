@@ -145,6 +145,12 @@ tasks.register('installShaderpacks') {
     dependsOn tasks.named('installClientShaderpacks')
 }
 
+tasks.register('cleanRunLogs', Delete) {
+    group = 'shadowsandpetals'
+    description = 'Deletes logs and crash reports from the shared client run directory.'
+    delete layout.projectDirectory.dir('run/logs'), layout.projectDirectory.dir('run/crash-reports')
+}
+
 tasks.named('runClient') {
     dependsOn tasks.named('installClientShaderpacks')
 }
