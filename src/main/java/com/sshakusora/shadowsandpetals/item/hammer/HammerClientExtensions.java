@@ -2,10 +2,13 @@ package com.sshakusora.shadowsandpetals.item.hammer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
+import com.sshakusora.shadowsandpetals.client.animation.UseAnimationPlaybackManager;
 import com.sshakusora.shadowsandpetals.client.animation.UseAnimationPlayer;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -14,21 +17,26 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class HammerClientExtensions implements IClientItemExtensions {
     private static final float TICKS_PER_SECOND = 20.0F;
 
     @Override
     public HumanoidModel.@Nullable ArmPose getArmPose(LivingEntity entity, InteractionHand hand, ItemStack stack) {
-        if (!(stack.getItem() instanceof HammerItem)) {
+        if (!(stack.getItem() instanceof HammerItem) || hand != InteractionHand.MAIN_HAND) {
             return null;
         }
-        if (hand != InteractionHand.MAIN_HAND || !entity.isUsingItem() || entity.getUsedItemHand() != hand) {
-            return null;
-        }
-        if (!entity.getOffhandItem().is(ItemRegistry.CHISEL.get())) {
-            return null;
-        }
-        return HammerArmPoseEnumExtensions.getHammerAndChiselPose();
+        var playback = UseAnimationPlaybackManager.INSTANCE.observe(
+                entity.getId(),
+                SAPAnimations.HAMMER,
+                isHammerAndChiselUse(entity),
+                entity.getMainArm(),
+                absoluteTime(entity, 0.0F));
+        return playback == null
+                ? null
+                : HammerArmPoseEnumExtensions.getHammerAndChiselPose();
     }
 
     @Override
@@ -41,36 +49,76 @@ public class HammerClientExtensions implements IClientItemExtensions {
             float equipProcess,
             float swingProcess) {
 
-        if (!isHammerAndChiselUse(player)) {
-            return false;
-        }
         if (!(itemInHand.getItem() instanceof HammerItem) && !itemInHand.is(ItemRegistry.CHISEL.get())) {
             return false;
         }
 
-        float localTimeSeconds = (player.getTicksUsingItem() + partialTick) / TICKS_PER_SECOND;
+        float nowSeconds = absoluteTime(player, partialTick);
+        var playback = UseAnimationPlaybackManager.INSTANCE.observe(
+                player.getId(),
+                SAPAnimations.HAMMER,
+                isHammerAndChiselUse(player),
+                player.getMainArm(),
+                nowSeconds);
+        if (playback == null) {
+            return false;
+        }
         return UseAnimationPlayer.applyFirstPerson(
                 SAPAnimations.HAMMER,
                 poseStack,
                 player,
                 arm,
-                player.getMainArm(),
-                localTimeSeconds);
+                playback.actualUseArm(),
+                playback.sample(nowSeconds));
     }
 
-    private static boolean isHammerAndChiselUse(LocalPlayer player) {
-        return player.isUsingItem()
-                && player.getUsedItemHand() == InteractionHand.MAIN_HAND
-                && player.getMainHandItem().getItem() instanceof HammerItem
-                && player.getOffhandItem().is(ItemRegistry.CHISEL.get());
+    private static boolean isHammerAndChiselUse(LivingEntity entity) {
+        return entity.isUsingItem()
+                && entity.getUsedItemHand() == InteractionHand.MAIN_HAND
+                && entity.getMainHandItem().getItem() instanceof HammerItem
+                && entity.getOffhandItem().is(ItemRegistry.CHISEL.get());
     }
 
     static void applyThirdPersonHammerPose(HumanoidModel<?> model, HumanoidRenderState state, HumanoidArm arm) {
+        if (!(state instanceof AvatarRenderState avatarState)) {
+            return;
+        }
+        float nowSeconds = state.ageInTicks / TICKS_PER_SECOND;
+        var playback = UseAnimationPlaybackManager.INSTANCE.find(
+                avatarState.id, SAPAnimations.HAMMER, nowSeconds);
+        if (playback == null) {
+            return;
+        }
         UseAnimationPlayer.applyThirdPerson(
                 SAPAnimations.HAMMER,
                 model,
                 state,
-                arm,
-                state.ticksUsingItem(arm) / TICKS_PER_SECOND);
+                playback.actualUseArm(),
+                playback.sample(nowSeconds));
+    }
+
+    public static void clientTick() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            UseAnimationPlaybackManager.INSTANCE.clear();
+            return;
+        }
+
+        Set<Integer> livePlayerIds = new HashSet<>();
+        for (var player : minecraft.level.players()) {
+            livePlayerIds.add(player.getId());
+            UseAnimationPlaybackManager.INSTANCE.observe(
+                    player.getId(),
+                    SAPAnimations.HAMMER,
+                    isHammerAndChiselUse(player),
+                    player.getMainArm(),
+                    absoluteTime(player, 0.0F));
+        }
+        UseAnimationPlaybackManager.INSTANCE.retainEntities(
+                SAPAnimations.HAMMER, livePlayerIds);
+    }
+
+    private static float absoluteTime(LivingEntity entity, float partialTick) {
+        return (entity.tickCount + partialTick) / TICKS_PER_SECOND;
     }
 }

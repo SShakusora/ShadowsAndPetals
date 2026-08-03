@@ -1,5 +1,5 @@
 {
-  "length": 0.79167,
+  "length": 0.75,
   "loop": true,
   "animations": [
     {
@@ -446,6 +446,15 @@
             -3.061462
           ],
           "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.75,
+          "target": [
+            -1.105914,
+            -1.137994,
+            -3.061462
+          ],
+          "interpolation": "minecraft:linear"
         }
       ]
     },
@@ -482,6 +491,15 @@
         },
         {
           "timestamp": 0.66667,
+          "target": [
+            -67.0754,
+            26.3405,
+            10.7542
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.75,
           "target": [
             -67.0754,
             26.3405,

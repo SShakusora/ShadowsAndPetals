@@ -65,6 +65,34 @@ public final class UseAnimationPlayer {
 
         RigPose pose = AnimationControllerEvaluator.sample(
                 state, requireTime(localTimeSeconds));
+        return applyFirstPerson(
+                profile, poseStack, player, renderedArm, actualUseArm, pose);
+    }
+
+    public static boolean applyFirstPerson(
+            UseAnimationProfile profile,
+            PoseStack poseStack,
+            LocalPlayer player,
+            HumanoidArm renderedArm,
+            HumanoidArm actualUseArm,
+            RigPose pose
+    ) {
+        Objects.requireNonNull(profile, "profile");
+        Objects.requireNonNull(pose, "pose");
+        Objects.requireNonNull(poseStack, "poseStack");
+        Objects.requireNonNull(player, "player");
+        Objects.requireNonNull(renderedArm, "renderedArm");
+        Objects.requireNonNull(actualUseArm, "actualUseArm");
+
+        UseAnimationProfile.FirstPersonBinding binding = profile.firstPerson();
+        if (binding == null) {
+            return false;
+        }
+        UseAnimationProfile.ResolvedSocket resolved =
+                binding.resolve(renderedArm, actualUseArm);
+        if (resolved == null) {
+            return false;
+        }
         PoseStackRigBinder.apply(
                 poseStack, pose, resolved.socket(), resolved.mirrorX());
         return true;
@@ -108,6 +136,27 @@ public final class UseAnimationPlayer {
 
         RigPose pose = AnimationControllerEvaluator.sample(
                 state, requireTime(localTimeSeconds));
+        return applyThirdPerson(
+                profile, model, renderState, actualUseArm, pose);
+    }
+
+    public static boolean applyThirdPerson(
+            UseAnimationProfile profile,
+            HumanoidModel<?> model,
+            HumanoidRenderState renderState,
+            HumanoidArm actualUseArm,
+            RigPose pose
+    ) {
+        Objects.requireNonNull(profile, "profile");
+        Objects.requireNonNull(model, "model");
+        Objects.requireNonNull(renderState, "renderState");
+        Objects.requireNonNull(actualUseArm, "actualUseArm");
+        Objects.requireNonNull(pose, "pose");
+
+        UseAnimationProfile.ThirdPersonBinding binding = profile.thirdPerson();
+        if (binding == null) {
+            return false;
+        }
         for (UseAnimationProfile.HumanoidBone renderedBone
                 : UseAnimationProfile.HumanoidBone.values()) {
             UseAnimationProfile.ResolvedBone resolved =

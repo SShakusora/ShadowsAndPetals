@@ -7,7 +7,7 @@
     const ROLE_SOCKET = "socket";
     const ROLE_REFERENCE = "reference";
     const ROLE_GUIDE = "guide";
-    const PLUGIN_VERSION = "1.0.0";
+    const PLUGIN_VERSION = "1.1.0";
     const PROFILES = ["first_person", "third_person"];
     const PROFILE_ROOTS = {
         first_person: "SAP 第一人称",
@@ -72,6 +72,13 @@
     let firstPersonHudStyle;
     const firstPersonHudOverlays = new Map();
     let parsedRefreshToken = 0;
+
+    if (typeof Plugin === "undefined") {
+        if (typeof module !== "undefined" && module.exports) {
+            module.exports = {inferUseSequence, useSequenceTransitions};
+        }
+        return;
+    }
 
     Plugin.register(PLUGIN_ID, {
         title: "Shadows And Petals 动画制作器",
@@ -3000,13 +3007,46 @@
             if (events.length) state.events = events;
             states[statePath] = state;
         }
+        const configuredTransitions = parseJsonArray(
+            Project.sap_transitions || "[]", "控制器过渡");
+        const sequence = configuredTransitions.length === 0
+            ? inferUseSequence(Object.keys(states))
+            : null;
         return {
             format_version: 1,
             rig: `${namespace}:${rigPath}`,
-            initial: cleanPath(animations[0].name),
+            initial: sequence ? sequence.intro : cleanPath(animations[0].name),
             states,
-            transitions: parseJsonArray(Project.sap_transitions || "[]", "控制器过渡")
+            transitions: sequence
+                ? useSequenceTransitions(sequence)
+                : configuredTransitions
         };
+    }
+
+    function inferUseSequence(statePaths) {
+        const states = new Set(statePaths);
+        const candidates = statePaths
+            .filter(path => path.endsWith("_intro"))
+            .map(intro => {
+                const loop = intro.slice(0, -"_intro".length);
+                return {
+                    intro,
+                    loop,
+                    outro: `${loop}_outro`
+                };
+            })
+            .filter(sequence => states.has(sequence.loop)
+                && states.has(sequence.outro));
+        return candidates.length === 1 ? candidates[0] : null;
+    }
+
+    function useSequenceTransitions(sequence) {
+        return [
+            {from: sequence.intro, to: sequence.loop, duration: 0},
+            {from: sequence.intro, to: sequence.outro, duration: 0.08},
+            {from: sequence.loop, to: sequence.outro, duration: 0.08},
+            {from: sequence.outro, to: sequence.intro, duration: 0.08}
+        ];
     }
 
 

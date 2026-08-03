@@ -38,6 +38,11 @@ import net.neoforged.neoforge.resource.NeoForgeReloadListeners;
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
 public class ClientRenderEvents {
     @SubscribeEvent
+    public static void onClientTick(ClientTickEvent.Post event) {
+        HammerClientExtensions.clientTick();
+    }
+
+    @SubscribeEvent
     public static void registerParticleProviders(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ParticleRegistry.GINKGO.get(), FallingLeafParticle.GinkgoProvider::new);
         event.registerSpriteSet(ParticleRegistry.MAPLE.get(), FallingLeafParticle.MapleProvider::new);
@@ -53,10 +58,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.SEAT.get(), NoopRenderer::new);
-        event.registerBlockEntityRenderer(
-                BlockEntityRegistry.SAND_EXCAVATION.get(),
-                SandExcavationBlockEntityRenderer::new
-        );
+        event.registerBlockEntityRenderer(BlockEntityRegistry.SAND_EXCAVATION.get(), SandExcavationBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.IRORI.get(), IroriBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI.get(), ShishiOdoshiBlockEntityRenderer::new);

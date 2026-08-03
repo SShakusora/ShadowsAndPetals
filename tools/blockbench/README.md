@@ -206,7 +206,7 @@ Catmull-Rom 会导出为 `minecraft:catmullrom`，其他插值类型一律导出
 - 动画片段资源路径；
 - 动画片段 ID 的 path 部分。
 
-控制器的 `initial` 是本次导出列表中的第一个动画。只导出当前动画时，该动画会成为初始 state。
+通常，控制器的 `initial` 是本次导出列表中的第一个动画。如果没有配置自定义过渡，并且导出器恰好找到一组完整的 `base_intro`、`base`、`base_outro` 动画，则会自动以 intro 作为 initial，并生成标准使用动画过渡。只导出当前动画时，该动画会成为初始 state。
 
 ### 7.3 动画自定义属性
 
@@ -264,6 +264,8 @@ Catmull-Rom 会导出为 `minecraft:catmullrom`，其他插值类型一律导出
 `from` 和 `to` 必须是规范化后的动画/state 名称，`duration` 为非负秒数。同一方向的 state 对不能重复。
 
 过渡配置只提供两个 state 之间的混合时长，不会根据条件自动切换 state。state 选择仍由物品或其他运行时代码负责。
+
+对于约定的 `intro -> loop -> outro` 工作流，三个动画应使用同一基础名称，例如 `use/hammer_intro`、`use/hammer`、`use/hammer_outro`。将自定义过渡 JSON 留空时，导出器会自动生成 intro 到 loop、intro/loop 到 outro，以及快速重用时 outro 到 intro 的过渡。只要填写了任意自定义过渡，就会关闭自动推断并原样导出配置。
 
 ### 7.5 静止姿势
 
@@ -353,57 +355,31 @@ state:      use/hammer
 
 ## 10. Java 运行时接入
 
-导出资源不会自动注册。应在 `SAPAnimations.register()` 中创建并注册一个 `UseAnimationProfile`。下面是第一与第三人称同时启用的简化示例：
+导出资源不会自动注册。应在 `SAPAnimations` 中通过 builder 创建并注册一个 `UseAnimationProfile`。下面是第一与第三人称同时启用的三段动画示例：
 
 ```java
-var rig = new AnimationResourceRef.Rig(
-        ShadowsAndPetals.asResource("animation/hammer"));
-var controller = new AnimationResourceRef.Controller(
-        ShadowsAndPetals.asResource("animation/hammer"));
-var clip = new AnimationResourceRef.Clip(
-        ShadowsAndPetals.asResource("use/hammer"));
-var state = new AnimationResourceRef.State(controller, "use/hammer");
-
-SAPAnimationRegistry.register(new UseAnimationProfile(
-        ShadowsAndPetals.asResource("hammer_use"),
-        rig,
-        controller,
-        Set.of(clip),
-        state,
-        new UseAnimationProfile.FirstPersonBinding(
-                HumanoidArm.RIGHT,
-                UseAnimationProfile.MirrorPolicy.MIRROR_TO_USE_ARM,
-                Map.of(
-                        HumanoidArm.RIGHT,
-                        new AnimationResourceRef.Socket(
-                                rig, "first_person_right_item"),
-                        HumanoidArm.LEFT,
-                        new AnimationResourceRef.Socket(
-                                rig, "first_person_left_item")
-                )
-        ),
-        new UseAnimationProfile.ThirdPersonBinding(
-                HumanoidArm.RIGHT,
-                UseAnimationProfile.MirrorPolicy.MIRROR_TO_USE_ARM,
-                ModelPartRigBinder.RotationMode.REPLACE,
-                Map.of(
-                        UseAnimationProfile.HumanoidBone.RIGHT_ARM,
-                        new AnimationResourceRef.Bone(rig, "right_arm"),
-                        UseAnimationProfile.HumanoidBone.LEFT_ARM,
-                        new AnimationResourceRef.Bone(rig, "left_arm")
-                )
-        )
-));
+public static final UseAnimationProfile HAMMER =
+        SAPAnimationRegistries.useAnimation("hammer")
+                .clip("use/hammer_intro")
+                .clip("use/hammer")
+                .clip("use/hammer_outro")
+                .sequence(
+                        "use/hammer_intro",
+                        "use/hammer",
+                        "use/hammer_outro")
+                .firstPerson()
+                .thirdPerson()
+                .register();
 ```
 
-注册时使用的 rig、controller、clip、state、bone 和 socket 名称必须与导出结果完全一致。只需要某一个人称时，可将另一个 binding 设为 `null`。
+注册时使用的 rig、controller、clip、state、bone 和 socket 名称必须与导出结果完全一致。只需要某一个人称时，仅调用对应的 binding 方法。
 
 物品渲染代码负责：
 
 - 判断动画是否应当播放；
-- 选择 controller state；
-- 计算从 0 开始的本地动画时间；
-- 调用 `UseAnimationPlayer.applyFirstPerson(...)` 或 `UseAnimationPlayer.applyThirdPerson(...)`；
+- 在客户端 tick 中把使用状态交给 `UseAnimationPlaybackManager`；
+- 从第一、第三人称渲染入口读取同一个 playback；
+- 将 playback 采样的 `RigPose` 交给 `UseAnimationPlayer`；
 - 根据需要消费 controller 事件。
 
 资源在客户端资源重载时加载并校验。缺失文件、未注册 clip、错误 bone/socket、非法 state 或非法过渡都会使资源重载失败，并在日志中给出原因。
@@ -683,7 +659,7 @@ Normalized names must be unique. The normalized name becomes:
 - the clip resource path;
 - the path component of the clip ID.
 
-The controller `initial` field is the first animation in the current export set. When exporting only the selected animation, that animation becomes the initial state.
+Normally, the controller `initial` field is the first animation in the current export set. When the exporter finds exactly one complete `base_intro`, `base`, and `base_outro` triplet and no custom transitions are configured, it emits an automatic use sequence: intro is initial, intro advances to loop, release can blend from intro or loop into outro, and rapid reuse blends from outro back to intro. When exporting only the selected animation, that animation becomes the initial state.
 
 ### 7.3 Custom animation properties
 
@@ -734,6 +710,8 @@ Enter transition JSON under “控制器过渡 JSON” in “工具 → 配置 S
 `from` and `to` must match normalized state names. `duration` is a non-negative number of seconds. Duplicate directional state pairs are invalid.
 
 Transitions only provide a blend duration between two named states. They do not automatically select or switch states; item or other runtime code owns that decision.
+
+For the conventional `intro -> loop -> outro` workflow, name the animations with one shared base, for example `use/hammer_intro`, `use/hammer`, and `use/hammer_outro`. Leave the custom transition JSON empty to generate the standard transitions automatically. Supplying any custom transition entries disables this inference and exports those entries unchanged.
 
 ### 7.5 Rest pose
 
@@ -810,16 +788,16 @@ The runtime loader additionally requires strictly increasing, non-duplicate keyf
 
 ## 10. Java runtime integration
 
-Exported resources are not registered automatically. Create and register a `UseAnimationProfile` from `SAPAnimations.register()`. The complete bilingual example is in [Java 运行时接入](#10-java-运行时接入) above.
+Exported resources are not registered automatically. Create and register a `UseAnimationProfile` in `SAPAnimations` with `SAPAnimationRegistries.useAnimation(...)`. The complete sequence builder example is in [Java 运行时接入](#10-java-运行时接入) above.
 
 The registered rig, controller, clip, state, bone, and socket names must exactly match the exported resources. Set an unused perspective binding to `null`.
 
 Item rendering code remains responsible for:
 
 - deciding when playback is active;
-- selecting a controller state;
-- computing non-negative local animation time;
-- calling `UseAnimationPlayer.applyFirstPerson(...)` or `UseAnimationPlayer.applyThirdPerson(...)`;
+- observing use state through `UseAnimationPlaybackManager` on client ticks;
+- resolving the same playback from first- and third-person render paths;
+- applying its sampled `RigPose` through `UseAnimationPlayer`;
 - consuming controller events when required.
 
 Resources are loaded and validated during client resource reload. Missing files, unregistered clips, invalid bones/sockets, invalid states, or invalid transitions cause reload failure with a diagnostic in the log.

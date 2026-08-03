@@ -17,6 +17,7 @@ public record UseAnimationProfile(
         AnimationResourceRef.Controller controller,
         Set<AnimationResourceRef.Clip> clips,
         AnimationResourceRef.State defaultState,
+        @Nullable UseAnimationSequence sequence,
         @Nullable FirstPersonBinding firstPerson,
         @Nullable ThirdPersonBinding thirdPerson
 ) {
@@ -35,6 +36,14 @@ public record UseAnimationProfile(
                     "Use-animation profile " + id
                             + " uses a default state from another controller");
         }
+        if (sequence != null
+                && (!sequence.intro().controller().equals(controller)
+                || !sequence.loop().controller().equals(controller)
+                || !sequence.outro().controller().equals(controller))) {
+            throw new IllegalArgumentException(
+                    "Use-animation profile " + id
+                            + " uses a sequence from another controller");
+        }
         if (firstPerson == null && thirdPerson == null) {
             throw new IllegalArgumentException(
                     "Use-animation profile " + id
@@ -48,6 +57,19 @@ public record UseAnimationProfile(
             throw new IllegalArgumentException(
                     "Third-person binding for " + id + " uses another rig");
         }
+    }
+
+    public UseAnimationProfile(
+            Identifier id,
+            AnimationResourceRef.Rig rig,
+            AnimationResourceRef.Controller controller,
+            Set<AnimationResourceRef.Clip> clips,
+            AnimationResourceRef.State defaultState,
+            @Nullable FirstPersonBinding firstPerson,
+            @Nullable ThirdPersonBinding thirdPerson
+    ) {
+        this(id, rig, controller, clips, defaultState, null,
+                firstPerson, thirdPerson);
     }
 
     public Set<SAPAnimationRegistry.Target> targets() {

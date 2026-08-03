@@ -617,20 +617,22 @@ public class HammerItem extends Item {
 
     static final class AnimationTiming {
         private static final double TICKS_PER_SECOND = 20.0D;
-        private static final double CLIP_LENGTH_TICKS = 0.79167D * TICKS_PER_SECOND;
-        private static final double IMPACT_TICKS = 0.625D * TICKS_PER_SECOND;
+        private static final double INTRO_TICKS = 0.45833D * TICKS_PER_SECOND;
+        private static final double LOOP_LENGTH_TICKS = 0.75D * TICKS_PER_SECOND;
+        private static final double FIRST_IMPACT_TICKS =
+                INTRO_TICKS + 0.625D * TICKS_PER_SECOND;
 
         private AnimationTiming() {
         }
 
         static boolean isImpactTick(int usedTicks) {
-            if (usedTicks <= 0) {
+            if (usedTicks < FIRST_IMPACT_TICKS) {
                 return false;
             }
             double previousImpactCycle = Math.floor(
-                    (usedTicks - 1.0D - IMPACT_TICKS) / CLIP_LENGTH_TICKS);
+                    (usedTicks - 1.0D - FIRST_IMPACT_TICKS) / LOOP_LENGTH_TICKS);
             double currentImpactCycle = Math.floor(
-                    (usedTicks - IMPACT_TICKS) / CLIP_LENGTH_TICKS);
+                    (usedTicks - FIRST_IMPACT_TICKS) / LOOP_LENGTH_TICKS);
             return currentImpactCycle > previousImpactCycle;
         }
     }

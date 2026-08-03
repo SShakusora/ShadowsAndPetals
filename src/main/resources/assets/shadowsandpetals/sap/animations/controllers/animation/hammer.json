@@ -1,10 +1,10 @@
 {
   "format_version": 1,
   "rig": "shadowsandpetals:animation/hammer",
-  "initial": "animation/hammer",
+  "initial": "use/hammer_intro",
   "states": {
-    "animation/hammer": {
-      "clip": "shadowsandpetals:animation/hammer",
+    "use/hammer": {
+      "clip": "shadowsandpetals:use/hammer",
       "speed": 1,
       "wrap": "loop",
       "mask": [
@@ -13,7 +13,50 @@
         "right_arm",
         "left_arm"
       ]
+    },
+    "use/hammer_intro": {
+      "clip": "shadowsandpetals:use/hammer_intro",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "first_person_right_item",
+        "first_person_left_item",
+        "right_arm",
+        "left_arm"
+      ]
+    },
+    "use/hammer_outro": {
+      "clip": "shadowsandpetals:use/hammer_outro",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "first_person_right_item",
+        "first_person_left_item",
+        "right_arm",
+        "left_arm"
+      ]
     }
   },
-  "transitions": []
+  "transitions": [
+    {
+      "from": "use/hammer_intro",
+      "to": "use/hammer",
+      "duration": 0
+    },
+    {
+      "from": "use/hammer_intro",
+      "to": "use/hammer_outro",
+      "duration": 0.08
+    },
+    {
+      "from": "use/hammer",
+      "to": "use/hammer_outro",
+      "duration": 0.08
+    },
+    {
+      "from": "use/hammer_outro",
+      "to": "use/hammer_intro",
+      "duration": 0.08
+    }
+  ]
 }

@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.client.animation.AnimationResourceRef;
 import com.sshakusora.shadowsandpetals.client.animation.ModelPartRigBinder;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimationRegistry;
 import com.sshakusora.shadowsandpetals.client.animation.UseAnimationProfile;
+import com.sshakusora.shadowsandpetals.client.animation.UseAnimationSequence;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 
@@ -24,6 +25,9 @@ public final class RegUseAnimationBuilder {
     private AnimationResourceRef.Controller controller;
     private final Set<AnimationResourceRef.Clip> clips = new LinkedHashSet<>();
     private String defaultState;
+    private String introState;
+    private String loopState;
+    private String outroState;
     private FirstPersonBindingBuilder firstPerson;
     private ThirdPersonBindingBuilder thirdPerson;
     private boolean registered;
@@ -83,6 +87,20 @@ public final class RegUseAnimationBuilder {
      */
     public RegUseAnimationBuilder defaultState(String name) {
         this.defaultState = requireName(name, "default state");
+        return this;
+    }
+
+    /**
+     * Configures an intro -> loop -> outro lifecycle for this profile.
+     */
+    public RegUseAnimationBuilder sequence(
+            String introState,
+            String loopState,
+            String outroState
+    ) {
+        this.introState = requireName(introState, "intro state");
+        this.loopState = requireName(loopState, "loop state");
+        this.outroState = requireName(outroState, "outro state");
         return this;
     }
 
@@ -157,13 +175,19 @@ public final class RegUseAnimationBuilder {
                 : Set.copyOf(clips);
         String resolvedDefaultState = defaultState != null
                 ? defaultState
-                : conventionalResourceId.getPath();
+                : loopState != null ? loopState : conventionalResourceId.getPath();
         if (firstPerson == null && thirdPerson == null) {
             throw new IllegalStateException(
                     "Use-animation profile " + profileId
                             + " needs a first- or third-person binding");
         }
 
+        UseAnimationSequence sequence = introState == null
+                ? null
+                : new UseAnimationSequence(
+                        new AnimationResourceRef.State(resolvedController, introState),
+                        new AnimationResourceRef.State(resolvedController, loopState),
+                        new AnimationResourceRef.State(resolvedController, outroState));
         UseAnimationProfile profile = new UseAnimationProfile(
                 profileId,
                 resolvedRig,
@@ -171,6 +195,7 @@ public final class RegUseAnimationBuilder {
                 resolvedClips,
                 new AnimationResourceRef.State(
                         resolvedController, resolvedDefaultState),
+                sequence,
                 firstPerson == null ? null : firstPerson.build(resolvedRig),
                 thirdPerson == null ? null : thirdPerson.build(resolvedRig));
         UseAnimationProfile registeredProfile = SAPAnimationRegistry.register(profile);

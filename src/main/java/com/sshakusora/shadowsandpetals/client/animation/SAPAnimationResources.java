@@ -78,6 +78,30 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
         return clipIds;
     }
 
+    public float stateDurationSeconds(AnimationResourceRef.State stateRef) {
+        Objects.requireNonNull(stateRef, "stateRef");
+        AnimationControllerDefinition.State state =
+                controller(stateRef.controller().id()).state(stateRef.name());
+        if (state.clip() == null || state.speed() <= 0.0F) {
+            throw new IllegalArgumentException(
+                    "Animation state " + stateRef.name()
+                            + " must have a clip and positive speed");
+        }
+        AnimationDefinition clip = AnimationLoader.INSTANCE.getAnimation(state.clip());
+        if (clip == null) {
+            throw new IllegalArgumentException(
+                    "Animation state " + stateRef.name()
+                            + " references missing clip " + state.clip());
+        }
+        float duration = clip.lengthInSeconds() / state.speed();
+        if (!Float.isFinite(duration) || duration <= 0.0F) {
+            throw new IllegalArgumentException(
+                    "Animation state " + stateRef.name()
+                            + " has invalid effective duration " + duration);
+        }
+        return duration;
+    }
+
     @Override
     public CompletableFuture<Void> reload(
             PreparableReloadListener.SharedState currentReload,
@@ -133,6 +157,7 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
         rigs = prepared.rigs();
         controllers = prepared.controllers();
         clipIds = prepared.clipIds();
+        UseAnimationPlaybackManager.INSTANCE.clear();
         LOGGER.info(
                 "Loaded {} SAP animation rigs and {} controllers; discovered {} entity clips",
                 rigs.size(), controllers.size(), clipIds.size());
@@ -320,13 +345,15 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
                 }
             }
         }
-        validateProfiles(registrations.profiles(), rigs, controllers);
+        validateProfiles(
+                registrations.profiles(), rigs, controllers, pendingAnimations);
     }
 
     private static void validateProfiles(
             Set<UseAnimationProfile> profiles,
             Map<Identifier, RigDefinition> rigs,
-            Map<Identifier, AnimationControllerDefinition> controllers
+            Map<Identifier, AnimationControllerDefinition> controllers,
+            AnimationLoader.PendingAnimations pendingAnimations
     ) {
         for (UseAnimationProfile profile : profiles) {
             RigDefinition rig = rigs.get(profile.rig().id());
@@ -345,6 +372,26 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
             }
             controller.state(profile.defaultState().name());
 
+            UseAnimationSequence sequence = profile.sequence();
+            if (sequence != null) {
+                requireTimedSequenceState(
+                        profile, controller, sequence.intro(), pendingAnimations);
+                AnimationControllerDefinition.State loop =
+                        requireTimedSequenceState(
+                                profile, controller, sequence.loop(), pendingAnimations);
+                requireTimedSequenceState(
+                        profile, controller, sequence.outro(), pendingAnimations);
+                AnimationDefinition loopClip = pendingAnimations.get(loop.clip());
+                boolean looping = loop.wrap() == ClipWrap.LOOP
+                        || loop.wrap() == ClipWrap.DEFINITION && loopClip.looping();
+                if (!looping) {
+                    throw new IllegalArgumentException(
+                            "Use-animation profile " + profile.id()
+                                    + " sequence loop state " + sequence.loop().name()
+                                    + " does not loop");
+                }
+            }
+
             UseAnimationProfile.FirstPersonBinding firstPerson =
                     profile.firstPerson();
             if (firstPerson != null) {
@@ -362,6 +409,35 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
                 }
             }
         }
+    }
+
+    private static AnimationControllerDefinition.State requireTimedSequenceState(
+            UseAnimationProfile profile,
+            AnimationControllerDefinition controller,
+            AnimationResourceRef.State stateRef,
+            AnimationLoader.PendingAnimations pendingAnimations
+    ) {
+        if (!stateRef.controller().equals(profile.controller())) {
+            throw new IllegalArgumentException(
+                    "Use-animation profile " + profile.id()
+                            + " has a sequence state from another controller");
+        }
+        AnimationControllerDefinition.State state = controller.state(stateRef.name());
+        if (state.clip() == null || state.speed() <= 0.0F) {
+            throw new IllegalArgumentException(
+                    "Use-animation profile " + profile.id()
+                            + " sequence state " + stateRef.name()
+                            + " must have a clip and positive speed");
+        }
+        AnimationDefinition clip = pendingAnimations.get(state.clip());
+        if (clip == null || !Float.isFinite(clip.lengthInSeconds())
+                || clip.lengthInSeconds() <= 0.0F) {
+            throw new IllegalArgumentException(
+                    "Use-animation profile " + profile.id()
+                            + " sequence state " + stateRef.name()
+                            + " has no valid clip");
+        }
+        return state;
     }
 
     private static void requireRigEntry(

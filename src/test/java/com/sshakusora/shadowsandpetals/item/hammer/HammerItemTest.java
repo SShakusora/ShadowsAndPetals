@@ -18,7 +18,7 @@ class HammerItemTest {
         }
 
         assertEquals(
-                List.of(13, 29, 45, 61, 76, 92, 108),
+                List.of(22, 37, 52, 67, 82, 97),
                 impactTicks);
     }
 }

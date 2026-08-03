@@ -8,6 +8,13 @@ package com.sshakusora.shadowsandpetals.client.animation;
 public final class SAPAnimations {
     public static final UseAnimationProfile HAMMER =
             SAPAnimationRegistries.useAnimation("hammer")
+                    .clip("use/hammer_intro")
+                    .clip("use/hammer")
+                    .clip("use/hammer_outro")
+                    .sequence(
+                            "use/hammer_intro",
+                            "use/hammer",
+                            "use/hammer_outro")
                     .firstPerson()
                     .thirdPerson()
                     .register();

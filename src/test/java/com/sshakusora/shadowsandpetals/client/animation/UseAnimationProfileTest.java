@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.client.animation;
 
+import com.sshakusora.shadowsandpetals.client.animation.builder.RegUseAnimationBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 import org.junit.jupiter.api.Test;
@@ -138,6 +139,60 @@ class UseAnimationProfileTest {
                         STATE,
                         null,
                         null));
+    }
+
+    @Test
+    void rejectsASequenceFromAnotherController() {
+        var otherController = new AnimationResourceRef.Controller(
+                id("other_controller"));
+        var sequence = new UseAnimationSequence(
+                new AnimationResourceRef.State(otherController, "intro"),
+                new AnimationResourceRef.State(otherController, "loop"),
+                new AnimationResourceRef.State(otherController, "outro"));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new UseAnimationProfile(
+                        id("foreign_sequence"),
+                        RIG,
+                        CONTROLLER,
+                        Set.of(CLIP),
+                        STATE,
+                        sequence,
+                        new UseAnimationProfile.FirstPersonBinding(
+                                HumanoidArm.RIGHT,
+                                UseAnimationProfile.MirrorPolicy.NONE,
+                                Map.of(HumanoidArm.RIGHT, RIGHT_SOCKET)),
+                        null));
+    }
+
+    @Test
+    void builderRegistersAnIntroLoopOutroSequenceAndDefaultsToLoop() {
+        var profileId = id("sequence_builder_profile");
+        var controller = new AnimationResourceRef.Controller(
+                id("animation/sequence_builder_profile"));
+        var profile = new RegUseAnimationBuilder(profileId)
+                .clip(id("sequence_intro_clip"))
+                .clip(id("sequence_loop_clip"))
+                .clip(id("sequence_outro_clip"))
+                .sequence("use/intro", "use/loop", "use/outro")
+                .firstPerson()
+                .register();
+
+        assertEquals(
+                new AnimationResourceRef.Rig(
+                        id("animation/sequence_builder_profile")),
+                profile.rig());
+        assertEquals(controller, profile.controller());
+        assertEquals(
+                new AnimationResourceRef.State(controller, "use/loop"),
+                profile.defaultState());
+        assertEquals(
+                new UseAnimationSequence(
+                        new AnimationResourceRef.State(controller, "use/intro"),
+                        new AnimationResourceRef.State(controller, "use/loop"),
+                        new AnimationResourceRef.State(controller, "use/outro")),
+                profile.sequence());
     }
 
     private static UseAnimationProfile profile(Identifier id) {
