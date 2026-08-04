@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import java.util.Optional;
 
@@ -71,6 +72,19 @@ public final class StandardBlockModels {
     ) {
         simpleBlock(context, generator, modelId);
         parentBlockItem(context.get(), generator, modelId);
+    }
+
+    public static void simpleWaterloggedBlockWithItem(
+            BlockModelContext<? extends Block> context,
+            SAPBlockModelGenerator generator,
+            Identifier modelId
+    ) {
+        Block block = context.get();
+        generator.blockState(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(BlockStateProperties.WATERLOGGED)
+                        .select(false, BlockModelGenerators.plainVariant(modelId))
+                        .select(true, BlockModelGenerators.plainVariant(modelId))));
+        parentBlockItem(block, generator, modelId);
     }
 
     public static void horizontalFacingCubeAll(

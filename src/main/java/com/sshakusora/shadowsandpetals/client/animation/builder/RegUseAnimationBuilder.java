@@ -1,11 +1,7 @@
 package com.sshakusora.shadowsandpetals.client.animation.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.client.animation.AnimationResourceRef;
-import com.sshakusora.shadowsandpetals.client.animation.ModelPartRigBinder;
-import com.sshakusora.shadowsandpetals.client.animation.SAPAnimationRegistry;
-import com.sshakusora.shadowsandpetals.client.animation.UseAnimationProfile;
-import com.sshakusora.shadowsandpetals.client.animation.UseAnimationSequence;
+import com.sshakusora.shadowsandpetals.client.animation.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 

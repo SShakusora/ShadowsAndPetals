@@ -713,6 +713,24 @@ public class BlockRegistry {
             .lang("zh_cn", woodType.getZhName() + "梳妆台")
             .register());
 
+    public static final DeferredBlock<RedLacqueredWoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
+            .block("red_lacquered_wood_pillar", RedLacqueredWoodPillarBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleWaterloggedBlockWithItem(
+                    context,
+                    generator,
+                    generator.modLoc("block/red_lacquered_wood_pillar")
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang("zh_cn", "红漆木圆柱")
+            .register();
+
 //    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
 //            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
 //            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)

@@ -1,4 +1,4 @@
-// 26.1.2	2026-07-31T19:12:33.3766731	Loot Tables
+// 26.1.2	2026-08-04T14:18:57.2999392	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
 0a94a9b2c72f29e1ba09ce05465f8da88aa3d07b data/shadowsandpetals/loot_table/blocks/aluminum_ingot_pile.json
@@ -137,6 +137,7 @@ d2b8602dec8ce101c04818afb1b1c87182025c04 data/shadowsandpetals/loot_table/blocks
 5ba536cf7064db2f165243a307b363f88768aa4e data/shadowsandpetals/loot_table/blocks/recessed_lamp.json
 574db72cdd9b64b4cc0b68914c98699dd6c05d50 data/shadowsandpetals/loot_table/blocks/recessed_lamp_composite.json
 c53958c300e2d20dc52cc427b82989f194c08f66 data/shadowsandpetals/loot_table/blocks/red_cafe_chair.json
+b4f67dc85a095fb812ed33fd3795de8a2635291c data/shadowsandpetals/loot_table/blocks/red_lacquered_wood_pillar.json
 601d7cb322a459dd3f4626d54faf278ea874e74e data/shadowsandpetals/loot_table/blocks/red_roof_tile.json
 ac70abd58aed0b9a13335e1d602f63acc0963dcd data/shadowsandpetals/loot_table/blocks/red_roof_tile_slab.json
 e00dd7267420d4fbd2e3e122bc350f5af329a586 data/shadowsandpetals/loot_table/blocks/red_roof_tile_stairs.json

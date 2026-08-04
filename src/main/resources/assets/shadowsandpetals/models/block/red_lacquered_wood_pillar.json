@@ -2,7 +2,8 @@
 	"format_version": "1.21.11",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"2": "wooden_pillar"
+		"2": "shadowsandpetals:block/red_lacquered_wood_pillar",
+		"particle": "minecraft:block/red_concrete_powder"
 	},
 	"elements": [
 		{

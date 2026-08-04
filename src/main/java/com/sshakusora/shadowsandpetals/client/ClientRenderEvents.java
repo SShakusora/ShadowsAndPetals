@@ -2,12 +2,15 @@ package com.sshakusora.shadowsandpetals.client;
 
 import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimationResources;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import com.sshakusora.shadowsandpetals.client.outline.BlockOutlineRegistry;
+import com.sshakusora.shadowsandpetals.client.outline.BlockOutlineRenderer;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
 import com.sshakusora.shadowsandpetals.client.renderer.*;
 import com.sshakusora.shadowsandpetals.client.screen.IroriScreen;
@@ -22,6 +25,7 @@ import com.sshakusora.shadowsandpetals.registries.*;
 import com.sshakusora.shadowsandpetals.registries.builder.RegFluidBuilder;
 import com.sshakusora.shadowsandpetals.tooltip.TooltipComponentRegistry;
 import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.entity.NoopRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
@@ -65,6 +69,26 @@ public class ClientRenderEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.COPPER_TEAPOT.get(), CopperTeapotBlockEntityRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void extractBlockOutline(ExtractBlockOutlineRenderStateEvent event) {
+        var context = new BlockOutlineContext(
+                event.getBlockPos(),
+                event.getHitResult(),
+                event.getCollisionContext()
+        );
+        var geometry = BlockOutlineRegistry.createGeometry(event.getBlockState(), context);
+        if (geometry == null) {
+            return;
+        }
+
+        float lineWidth = Minecraft.getInstance()
+                .gameRenderer
+                .getGameRenderState()
+                .windowRenderState
+                .appropriateLineWidth;
+        event.addCustomRenderer(new BlockOutlineRenderer(geometry, lineWidth));
     }
 
     @SubscribeEvent

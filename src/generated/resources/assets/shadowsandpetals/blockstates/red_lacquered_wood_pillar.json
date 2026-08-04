@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "waterlogged=false": {
+      "model": "shadowsandpetals:block/red_lacquered_wood_pillar"
+    },
+    "waterlogged=true": {
+      "model": "shadowsandpetals:block/red_lacquered_wood_pillar"
+    }
+  }
+}
