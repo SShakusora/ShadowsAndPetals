@@ -19,6 +19,10 @@ repositories {
         name = "Modrinth"
         url = "https://api.modrinth.com/maven"
     }
+    maven {
+        name = "Forge"
+        url = "https://maven.minecraftforge.net"
+    }
 }
 
 configurations {
@@ -184,6 +188,9 @@ dependencies {
 
     // Jade
     implementation "maven.modrinth:jade:26.0.10+neoforge"
+
+    // Serene Seasons
+    implementation "com.github.glitchfiend:SereneSeasons-neoforge:26.1.2-26.1.2.0.4"
 
     // Shader development runtime
     runtimeOnly "maven.modrinth:sodium:mc26.1.2-0.9.1-neoforge"

@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.properties.SlabType;
 
 public class CompatInfo {
     public static final String CHINJUFU_MOD = "chinjufumod";
+    public static final String SERENE_SEASONS = "sereneseasons";
 
     public static String getDyedBlockAlias(DyeColor color, String prefix) {
         String colorName = switch (color) {

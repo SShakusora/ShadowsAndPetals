@@ -29,11 +29,10 @@ public final class SandExcavationChanceRules {
     }
 
     public static float getSeafoodChance(ServerLevel level) {
-        if (!supportsLunarTides(level)) {
-            return MINIMUM_SEAFOOD_CHANCE;
-        }
-
-        return getSeafoodChance(getEffectiveMoonPhase(level));
+        float lunarChance = supportsLunarTides(level)
+                ? getSeafoodChance(getEffectiveMoonPhase(level))
+                : MINIMUM_SEAFOOD_CHANCE;
+        return SandExcavationSeasonCompat.modifySeafoodChance(level, lunarChance);
     }
 
     static float getSeafoodChance(MoonPhase phase) {
