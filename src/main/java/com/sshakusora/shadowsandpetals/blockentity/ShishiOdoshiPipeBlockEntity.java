@@ -17,6 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
 public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
@@ -30,7 +31,6 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
     private long nextLengthCheckTick = Long.MIN_VALUE;
     private long nextLightCheckTick = Long.MIN_VALUE;
     private long lastSplashTick = Long.MIN_VALUE;
-    private int cachedLightEmission = Integer.MIN_VALUE;
 
     public ShishiOdoshiPipeBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), pos, blockState);
@@ -121,13 +121,14 @@ public class ShishiOdoshiPipeBlockEntity extends BlockEntity {
         }
 
         nextLightCheckTick = gameTime + ShishiOdoshiPipeBlock.CONNECTION_RECHECK_INTERVAL_TICKS;
-        int lightEmission = ShishiOdoshiPipeBlock.getSuppliedFluidLightEmission(state, level, pos);
-        if (lightEmission == cachedLightEmission) {
-            return;
+        Direction facing = state.getValue(ShishiOdoshiPipeBlock.FACING);
+        BlockPos sourcePos = pos.relative(facing.getOpposite());
+        var fluid = ShishiOdoshiFluidRegistry.findSourceFluid(level, sourcePos);
+        int lightEmission = fluid != null ? fluid.getFluidType().getLightLevel() : 0;
+        AuxiliaryLightManager lightManager = level.getAuxLightManager(pos);
+        if (lightManager != null) {
+            lightManager.setLightAt(pos, lightEmission);
         }
-
-        cachedLightEmission = lightEmission;
-        level.getLightEngine().checkBlock(pos);
     }
 
     private @Nullable Vec3 findFallbackImpactPosition(Level level) {

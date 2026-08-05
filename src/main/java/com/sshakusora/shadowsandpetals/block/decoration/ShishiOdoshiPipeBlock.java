@@ -1,7 +1,6 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiPipeBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -166,16 +166,8 @@ public class ShishiOdoshiPipeBlock extends BaseEntityBlock implements SimpleWate
 
     @Override
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
-        return getSuppliedFluidLightEmission(state, level, pos);
-    }
-
-    public static int getSuppliedFluidLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
-        Direction facing = state.getValue(FACING);
-        BlockPos sourcePos = pos.relative(facing.getOpposite());
-        var fluid = ShishiOdoshiFluidRegistry.findSourceFluid(level, sourcePos);
-        return fluid == null
-                ? 0
-                : fluid.defaultFluidState().createLegacyBlock().getLightEmission(level, sourcePos);
+        AuxiliaryLightManager lightManager = level.getAuxLightManager(pos);
+        return lightManager != null ? lightManager.getLightAt(pos) : 0;
     }
 
     @Override
