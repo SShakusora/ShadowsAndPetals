@@ -89,13 +89,21 @@ public class ClientRockeryTooltip implements ClientTooltipComponent {
         }
 
         public static MutableComponent dimensionLabel(RockeryDimensions dimensions) {
+            return dimensionLabel(dimensions, ChatFormatting.GRAY, ChatFormatting.DARK_GRAY);
+        }
+
+        public static MutableComponent dimensionLabel(
+                RockeryDimensions dimensions,
+                ChatFormatting labelColor,
+                ChatFormatting separatorColor
+        ) {
             return Component.empty()
                     .append(Component.translatable(BuiltinLanguageKeys.ROCKERY_DIMENSIONS_LABEL.key())
-                            .withStyle(ChatFormatting.GRAY))
+                            .withStyle(labelColor))
                     .append(Component.literal(Integer.toString(dimensions.width())).withStyle(ChatFormatting.RED))
-                    .append(Component.literal("×").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(Component.literal("×").withStyle(separatorColor))
                     .append(Component.literal(Integer.toString(dimensions.height())).withStyle(ChatFormatting.GREEN))
-                    .append(Component.literal("×").withStyle(ChatFormatting.DARK_GRAY))
+                    .append(Component.literal("×").withStyle(separatorColor))
                     .append(Component.literal(Integer.toString(dimensions.depth())).withStyle(ChatFormatting.BLUE));
         }
     }

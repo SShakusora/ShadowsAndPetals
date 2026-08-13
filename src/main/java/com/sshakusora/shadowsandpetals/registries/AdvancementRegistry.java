@@ -29,13 +29,13 @@ public final class AdvancementRegistry {
             ))
             .lang(
                     DatagenLangRegistry.DEFAULT_LOCALE,
-                    "Shadows And Petals",
-                    "Encounter an item from Shadows And Petals for the first time."
+                    "“Shadows and Petals: A Collection of Verse”",
+                    "Discover the world of Shadows And Petals."
             )
             .lang(
                     DatagenLangRegistry.ZH_CN,
-                    "织影落花",
-                    "第一次接触到属于织影落花的物品。"
+                    "『织影落花集』",
+                    "接触织影落花的世界。"
             )
             .register();
 

@@ -16,6 +16,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.navigation.ScreenPosition;
@@ -43,6 +44,9 @@ public class RockeryRecipeCategory implements IRecipeCategory<RockeryInfoRecipe>
     private static final int CENTER_X = WIDTH / 2;
     private static final int TOOL_Y = 11;
     private static final int ARROW_Y = 35;
+    private static final int ARROW_BACKGROUND_COLOR = 0xFF_AAAAAA;
+    private static final int ARROW_PROGRESS_COLOR = 0xFF_666666;
+    private static final long NANOS_PER_TICK = 50_000_000L;
     private static final int BOOKMARK_OUTPUT_SLOT_X = -1000;
 
     private final IDrawable icon;
@@ -100,6 +104,7 @@ public class RockeryRecipeCategory implements IRecipeCategory<RockeryInfoRecipe>
         private static final float DRAG_SENSITIVITY = 1.5F;
 
         private final RockeryInfoRecipe recipe;
+        private final long animationStartNanos = System.nanoTime();
         private float yawDegrees;
 
         private RockeryPreviewWidget(RockeryInfoRecipe recipe) {
@@ -169,22 +174,62 @@ public class RockeryRecipeCategory implements IRecipeCategory<RockeryInfoRecipe>
             var font = Minecraft.getInstance().font;
             int arrowStart = INPUT_PIP_X + PIP_SIZE + 4;
             int arrowEnd = OUTPUT_PIP_X - 4;
-            int arrowColor = 0xFF_AAAAAA;
-            guiGraphics.fill(arrowStart, ARROW_Y - 1, arrowEnd - 5, ARROW_Y + 1, arrowColor);
-            guiGraphics.fill(arrowEnd - 6, ARROW_Y - 5, arrowEnd - 4, ARROW_Y + 6, arrowColor);
-            guiGraphics.fill(arrowEnd - 4, ARROW_Y - 3, arrowEnd - 2, ARROW_Y + 4, arrowColor);
-            guiGraphics.fill(arrowEnd - 2, ARROW_Y - 1, arrowEnd, ARROW_Y + 2, arrowColor);
-
             int durationTicks = HammerItem.getEffectiveUseDuration(recipe.dimensions());
+            drawProgressArrow(guiGraphics, arrowStart, arrowEnd, durationTicks);
+
             String seconds = String.format(Locale.ROOT, "%.2f", durationTicks / 20.0F);
             Component timeLabel = Component.translatable(
                     BuiltinLanguageKeys.JEI_ROCKERY_HAMMERING_TIME.key(), seconds);
             int labelX = CENTER_X - font.width(timeLabel) / 2;
-            guiGraphics.text(font, timeLabel, labelX, ARROW_Y + 10, 0xFF_777777);
+            guiGraphics.text(font, timeLabel, labelX, ARROW_Y + 10, 0xFF_000000, false);
 
-            Component dimensions = RockeryPreviewText.dimensionLabel(recipe.dimensions());
+            Component dimensions = RockeryPreviewText.dimensionLabel(
+                    recipe.dimensions(), ChatFormatting.BLACK, ChatFormatting.BLACK);
             int dimensionsX = CENTER_X - font.width(dimensions) / 2;
-            guiGraphics.text(font, dimensions, dimensionsX, HEIGHT - font.lineHeight - 2, 0xFFFFFFFF);
+            guiGraphics.text(font, dimensions, dimensionsX, HEIGHT - font.lineHeight - 2, 0xFFFFFFFF, false);
+        }
+
+        private void drawProgressArrow(
+                GuiGraphicsExtractor guiGraphics,
+                int arrowStart,
+                int arrowEnd,
+                int durationTicks
+        ) {
+            drawArrow(guiGraphics, arrowStart, arrowEnd, ARROW_BACKGROUND_COLOR, arrowEnd);
+
+            long durationNanos = Math.max(1, durationTicks) * NANOS_PER_TICK;
+            long elapsedNanos = Math.max(0L, System.nanoTime() - animationStartNanos);
+            float progress = (elapsedNanos % durationNanos) / (float) durationNanos;
+            int progressEnd = arrowStart + (int) Math.ceil((arrowEnd - arrowStart) * progress);
+            drawArrow(guiGraphics, arrowStart, arrowEnd, ARROW_PROGRESS_COLOR, progressEnd);
+        }
+
+        private static void drawArrow(
+                GuiGraphicsExtractor guiGraphics,
+                int arrowStart,
+                int arrowEnd,
+                int color,
+                int clipEnd
+        ) {
+            fillClipped(guiGraphics, arrowStart, ARROW_Y - 1, arrowEnd - 5, ARROW_Y + 1, color, clipEnd);
+            fillClipped(guiGraphics, arrowEnd - 6, ARROW_Y - 5, arrowEnd - 4, ARROW_Y + 6, color, clipEnd);
+            fillClipped(guiGraphics, arrowEnd - 4, ARROW_Y - 3, arrowEnd - 2, ARROW_Y + 4, color, clipEnd);
+            fillClipped(guiGraphics, arrowEnd - 2, ARROW_Y - 1, arrowEnd, ARROW_Y + 2, color, clipEnd);
+        }
+
+        private static void fillClipped(
+                GuiGraphicsExtractor guiGraphics,
+                int x0,
+                int y0,
+                int x1,
+                int y1,
+                int color,
+                int clipEnd
+        ) {
+            int clippedX1 = Math.min(x1, clipEnd);
+            if (clippedX1 > x0) {
+                guiGraphics.fill(x0, y0, clippedX1, y1, color);
+            }
         }
 
         private int findHoveredStone(double mouseX, double mouseY) {
