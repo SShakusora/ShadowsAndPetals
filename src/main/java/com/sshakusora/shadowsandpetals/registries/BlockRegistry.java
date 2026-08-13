@@ -92,7 +92,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
                     context, generator, generator.modLoc("block/bauxite_ore/bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
@@ -107,7 +107,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
                     context, generator, generator.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
@@ -122,7 +122,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.RAW_BAUXITE.get(), "raw_bauxite_from_block"))
@@ -137,7 +137,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
@@ -166,7 +166,7 @@ public class BlockRegistry {
                             "Right-click", "右键点击",
                             "_Ring_ the wind chime.", "_敲响_风铃。"))
             .tooltipModifier(new WindChimeTooltipModifier())
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> WindChimeModels::block)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, windChime) -> {
@@ -211,7 +211,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.REQUIRES_IRORI_GRILL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .tooltipDescription(tooltip -> tooltip
                     .summary(
                             "A _decorative copper teapot_ that can hold fluids.",
@@ -251,7 +251,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When placed beside itself:", "与同类方块相邻放置时:",
                             "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
                     context,
                     generator,
@@ -287,7 +287,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_pile"))
@@ -303,7 +303,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.IRON_INGOT, "iron_ingot_from_pile"))
@@ -319,7 +319,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.COPPER_INGOT, "copper_ingot_from_pile"))
@@ -335,7 +335,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.GOLD_INGOT, "gold_ingot_from_pile"))
@@ -351,7 +351,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
@@ -395,7 +395,7 @@ public class BlockRegistry {
                     .action(
                             "Shift Right-click:", "Shift+右键：",
                             "Open the master hearth _menu_.", "打开主围炉_界面_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::irori)
             .loot((provider, irori) -> provider.dropSelf(irori.get()))
             .recipe((provider, irori) -> provider.shaped(RecipeCategory.DECORATIONS, irori.get())
@@ -426,7 +426,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::bedroomLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
@@ -455,7 +455,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::wallLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
@@ -483,7 +483,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::emergencyLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .recipe((provider, lamp) -> {
@@ -523,7 +523,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::recessedLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .recipe((provider, lamp) -> {
@@ -579,7 +579,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When right-clicked:", "右键点击时:",
                             "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::deskLamp)
             .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
             .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
@@ -600,7 +600,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> RoofTileModels.base(
                     context,
                     generator,
@@ -628,7 +628,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> RoofTileModels.shapes(context, generator, color))
             .loot((provider, block) -> provider.dropSlab(block.get()))
             .recipe((provider, block) -> {
@@ -646,7 +646,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .clientItem(block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath()))
             .loot((provider, block) -> provider.dropSlab(block.get()))
             .recipe((provider, block) -> {
@@ -675,7 +675,7 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> {
                 provider.stairsFromBase(block.get(), ROOF_TILES.get(color).get());
@@ -700,7 +700,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When the front is obstructed:", "前方被阻挡时:",
                             "The drawer _cannot open_.", "抽屉_无法打开_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::vanity)
             .clientItem(ShadowsAndPetals.asResource("item/vanity/" + woodType.getName()))
             .recipe((provider, vanity) -> provider.shaped(RecipeCategory.DECORATIONS, vanity.get())
@@ -722,7 +722,7 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> StandardBlockModels.simpleWaterloggedBlockWithItem(
                     context,
                     generator,
@@ -806,7 +806,7 @@ public class BlockRegistry {
                     .action(
                             "Right-click with Dye:", "手持染料右键点击:",
                             "_Recolor_ the chair.", "为椅子_重新染色_。"))
-            .creativeTab(CreativeTabType.MAIN)
+            .creativeTab(CreativeTabKey.MAIN)
             .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "咖啡椅")
             .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
                     context,
@@ -867,7 +867,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When supplied by a Pipe above:", "由上方竹管供液时:",
                             "Fill with the pipe's fluid, then pour and _strike_ in a repeating cycle.", "蓄入竹管提供的流体，随后倾倒并循环_敲击_。"))
-            .creativeTab(CreativeTabType.NATURE)
+            .creativeTab(CreativeTabKey.NATURE)
             .blockstate(() -> DecorationBlockModels::shishiOdoshi)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
@@ -895,7 +895,7 @@ public class BlockRegistry {
                     .behaviour(
                             "When attached to a compatible fluid source:", "连接兼容的流体源时:",
                             "Feed fluid into a _Shishi-Odoshi directly below_.", "向_正下方的添水_持续供液。"))
-            .creativeTab(CreativeTabType.NATURE)
+            .creativeTab(CreativeTabKey.NATURE)
             .blockstate(() -> DecorationBlockModels::shishiOdoshiPipe)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
@@ -946,7 +946,7 @@ public class BlockRegistry {
                 .tooltipComponent(
                         (rockery, stack) -> new RockeryTooltipComponent(rockery, dims),
                         100)
-                .creativeTab(CreativeTabType.NATURE)
+                .creativeTab(CreativeTabKey.NATURE)
                 .tags(BlockTags.MINEABLE_WITH_PICKAXE)
                 .blockstate(() -> (context, generator) -> NatureBlockModels.rockery(context, generator, dims))
                 .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))

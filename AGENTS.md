@@ -10,23 +10,23 @@ Root package: `com.sshakusora.shadowsandpetals`.
 ```bash
 ./gradlew build          # Build the mod JAR
 ./gradlew runClient      # Launch main client instance (auto-installs shaderpacks first)
-./gradlew runClient2     # Launch second client (run2 dir, username Dev2)
+./gradlew runClient2     # Launch second client (shared `run` dir, username SShakusora)
 ./gradlew runServer      # Launch server instance
 ./gradlew runData        # Run data generators -> src/generated/resources/
 ./gradlew runStructureEditor # Launch the structure-editor void world
 ./gradlew runGameTestServer  # Runs gametests then exits (will crash - none exist)
-./gradlew installShaderpacks # Only copy shader packs into run/run2 shaderpacks dirs
+./gradlew installShaderpacks # Only copy shader packs into run/shaderpacks
 ```
 
 - Data generation outputs to `src/generated/resources/`, included in the `main` source set. Commit generated files.
-- No tests exist — no `src/test/`, no gametest files.
-- `runClient` / `runClient2` / `runStructureEditor` depend on `installClientShaderpacks` / `installClient2Shaderpacks`, which copy 5 dev shader packs (Complementary Reimagined/Unbound, BSL, Photon, Makeup) from the `shaderpacks` configuration into `run*/shaderpacks`. Sodium + Iris are `runtimeOnly` deps, so shaders are active in every client run.
+- JUnit 5 tests exist in `src/test/java/` (run with `./gradlew test`); no gametest files.
+- `runClient` / `runClient2` / `runStructureEditor` depend on `installClientShaderpacks`, which copies 5 dev shader packs (Complementary Reimagined/Unbound, BSL, Photon, Makeup) from the `shaderpacks` configuration into `run/shaderpacks`. Sodium + Iris are `runtimeOnly` deps, so shaders are active in every client run.
 - `runStructureEditor` also depends on `prepareStructureEditorWorld` (`dev/StructureEditorWorldBootstrap`), which creates `run/saves/sap_structure_editor`, junctions its `generated/shadowsandpetals/structure/` dir to `src/main/resources/data/shadowsandpetals/structure/`, and requests a layout rebuild on each run.
 
 ## Architecture
 
-- **Entrypoint**: `ShadowsAndPetals.java` — `@Mod(MOD_ID)` class. Constructor order: `SAPRegistries.register(modEventBus)` → `CustomEventBootstrap.register(modEventBus)` → `FluidRegistry.init()`, `ItemRegistry.init()`, `BlockRegistry.init()`, `BlockEntityRegistry.init()`, `MenuRegistry.init()`, `EntityRegistry.init()`, `ParticleRegistry.init()`, `SoundRegistry.init()`, `RecipeSerializerRegistry.init()`, `CreativeTabRegistry.init()`, `SAPFeatures.init()`.
-- **Registries**: `SAPRegistries` holds 13 `DeferredRegister` instances: `BLOCKS`, `ITEMS`, `FLUID_TYPES`, `FLUIDS`, `CREATIVE_TABS`, `ENTITIES`, `BLOCK_ENTITIES`, `PARTICLES`, `FEATURES`, `SOUNDS`, `MENUS`, `RECIPE_SERIALIZERS`, `RECIPE_TYPES`. Use the fluent builder factory methods (`SAPRegistries.block(...)`, `.item(...)`, `.fluid(...)`, `.recipe(...)`, etc.) instead of touching `DeferredRegister` directly.
+- **Entrypoint**: `ShadowsAndPetals.java` — `@Mod(MOD_ID)` class. Constructor order: `SAPRegistries.register(modEventBus)` → `CustomEventBootstrap.register(modEventBus)` → `SandExcavationDataMaps.register(modEventBus)` → `FluidRegistry.init()`, `AttachmentRegistry.init()`, `ItemRegistry.init()`, `BlockRegistry.init()`, `BlockEntityRegistry.init()`, `MenuRegistry.init()`, `EntityRegistry.init()`, `ParticleRegistry.init()`, `SoundRegistry.init()`, `RecipeSerializerRegistry.init()`, `CreativeTabRegistry.init()`, `TriggerRegistry.init()`, `AdvancementRegistry.init()`, `SAPFeatures.init()`.
+- **Registries**: `SAPRegistries` holds 15 `DeferredRegister` instances: `BLOCKS`, `ITEMS`, `FLUID_TYPES`, `FLUIDS`, `CREATIVE_TABS`, `ENTITIES`, `BLOCK_ENTITIES`, `PARTICLES`, `FEATURES`, `SOUNDS`, `MENUS`, `RECIPE_SERIALIZERS`, `RECIPE_TYPES`, `ATTACHMENT_TYPES`, `TRIGGER_TYPES`. Use the fluent builder factory methods (`SAPRegistries.block(...)`, `.item(...)`, `.fluid(...)`, `.recipe(...)`, `.advancement(...)`, `.trigger(...)`, etc.) instead of touching `DeferredRegister` directly.
 - **`init()` methods are empty** — side effects happen during static initialization (builder chains at field declaration time). Registration order in the entrypoint matters only for cross-registry static references.
 
 ## Registration Conventions
@@ -39,6 +39,7 @@ All content is registered through fluent builders in `registries/builder/`:
 - `RegFluidBuilder` — fluids (FluidType + Fluid + flowing/block forms)
 - `RegRecipeBuilder` — recipe serializer + recipe type pairs
 - `RegCreativeTabBuilder`, `RegEntityBuilder`/`MobBuilder`, `RegParticleBuilder`, `RegSoundBuilder`
+- `RegAdvancementBuilder` (advancements), `RegCriterionTriggerBuilder` (custom criterion triggers)
 
 Canonical block chain (order is flexible; see `BlockRegistry.java`):
 `.block(...)` → `.properties(...)` → `.tags(...)` → `.withItem()` → `.creativeTab(...)` → `.blockstate(...)` → `.loot(...)` → `.recipe(...)` → `.lang(...)` → `.register()`
@@ -57,7 +58,7 @@ Multi-variant helpers:
 
 ## Data Generation
 
-- `ModDataGenerator.gatherData()` wires 12 providers via `@EventBusSubscriber` on `GatherDataEvent.Client`: models, rockery models, connected-texture bleed, en_us + zh_cn lang, recipes, block loot, block tags, item tags, data maps, sound definitions, worldgen.
+- `ModDataGenerator.gatherData()` wires providers via `@EventBusSubscriber` on `GatherDataEvent.Client`: models, rockery models, connected-texture bleed, en_us + zh_cn lang, advancements, recipes, block loot, block tags, item tags, data maps, sound definitions, worldgen.
 - **Content flows from builders only** — `.blockstate()`, `.recipe()`, `.loot()`, `.lang()` on builders auto-wire to datagen registries (`DatagenBlockLootRegistry`, `DatagenRecipeRegistry`, `DatagenLangRegistry`, `DatagenSoundRegistry`). Do not edit provider classes directly.
 - Block tags live in `BlockTagRegistry`; use `.tags(...)` on blocks and `BlockTagRegistry.include(...)` for nested tag references.
 - Languages: default English (auto-generated from ids) + `zh_cn` (manual via `.lang("zh_cn", "...")`).
@@ -69,7 +70,7 @@ Multi-variant helpers:
 1. Create the block class in `block/decoration/`, `block/nature/`, or `block/agriculture/`.
 2. Add a `SAPRegistries.block("id", BlockClass::new)` chain in `BlockRegistry`.
 3. Use `.withItem()` if it has an item form.
-4. Assign `.creativeTab(CreativeTabType.MAIN)` / `.NATURE` / `.AGRICULTURE`.
+4. Assign `.creativeTab(CreativeTabKey.MAIN)` / `.NATURE` / `.AGRICULTURE`.
 5. Add `.tags(...)` for mining/tool tags.
 6. Add `.loot(...)` or rely on defaults.
 7. Add `.recipe(...)` using `DatagenRecipeFactory` helpers where possible.
@@ -84,12 +85,11 @@ Add to `ItemRegistry` using `SAPRegistries.item("id")` chain: `.model(...)` / `.
 
 ## Creative Tabs
 
-Three tabs in `CreativeTabType` (each carries en + zh_cn display names):
-- `MAIN` — general blocks/items; icon `ItemRegistry.HAMMER`
-- `NATURE` — nature blocks; icon `BlockRegistry.MAPLE_SET.sapling()`
-- `AGRICULTURE` — agriculture content; icon `ItemRegistry.ORANGE_SEED`
+Three tabs, keyed by the `CreativeTabKey` enum (`MAIN` / `NATURE` / `AGRICULTURE`). The actual `CreativeModeTab` holders — display names (en + zh_cn) and icons — are declared in `CreativeTabRegistry`. Content is populated via `CreativeTabContentsRegistry` and sorted by `CreativeTabOrder`. Blocks/items opt in with `.creativeTab(CreativeTabKey.X)`.
 
-Content is populated via `CreativeTabContentsRegistry` and sorted by `CreativeTabOrder`.
+## Advancements
+
+Declared in `AdvancementRegistry` via `SAPRegistries.advancement("...")` (see `RegAdvancementBuilder`). Custom criterion triggers are registered in `TriggerRegistry` via `SAPRegistries.trigger(...)` (e.g. `ShishiOdoshiFluidPouredTrigger`). Generated by `ModAdvancementProvider` during `runData`.
 
 ## Legacy Compatibility
 
@@ -113,6 +113,8 @@ Migration from old `chinjufumod`, split across two packages:
 Public behavior-API for other mods/scripts lives in `api/`:
 - `api/irori/` — `RegisterIroriBehaviorsEvent`, `IroriCookingProvider`, `IroriFuelRule`, `IroriGrillRule`, `IroriIgnitionBehavior`, etc.
 - `api/shishiOdoshi/` — `RegisterShishiOdoshiFluidsEvent`, `ShishiOdoshiFluidRegistry`.
+- `api/excavation/` — `SandExcavationDataMaps` (data-map driven excavation drops; registered in the entrypoint via `SandExcavationDataMaps.register(...)`).
+- `api/outline/` — `BlockOutlineProvider` / `OutlineGeometry` (custom block outlines; rendered by `client/outline/`).
 
 Defaults are wired in `registries/event/` (`IroriBehaviorRegistry`, `ShishiOdoshiFluidBehaviorRegistry`) and fired by `CustomEventBootstrap` during mod construction. Add new default behaviors there, not in block classes.
 
@@ -121,7 +123,7 @@ Defaults are wired in `registries/event/` (`IroriBehaviorRegistry`, `ShishiOdosh
 - `IroriBlockEntity` — has renderer, menu (`IroriMenu`), and screen (`IroriScreen`).
 - `VanityBlockEntity` — registered per wood type via `WoodBlockList`; has renderer.
 - `ShishiOdoshiBlockEntity` / `ShishiOdoshiPipeBlockEntity` — have renderers; fluid capabilities registered in `registries/CapabilityRegistry` (`RegisterCapabilitiesEvent`).
-- `WindChimeBlockEntity`, `CopperTeapotBlockEntity` — additional renderers in `client/renderer/`.
+- `WindChimeBlockEntity`, `CopperTeapotBlockEntity`, `RecessedLampBlockEntity`, `SandExcavationBlockEntity` — additional renderers/behaviour (see `blockentity/`).
 - `SeatEntity` — invisible sit entity, non-summonable, 0.01×0.01, rendered with `NoopRenderer`.
 - `event/` (top-level) — game-event handlers: `IroriPhantomRepellent`, `IroriSurfacePlacementEvents`.
 
@@ -130,25 +132,28 @@ Defaults are wired in `registries/event/` (`IroriBehaviorRegistry`, `ShishiOdosh
 - `client/ClientRenderEvents` — hooks particle providers, entity/block entity renderers, model events.
 - `client/ct/` — connected texture system (see `client/ct/NOTICE.md` for licensing).
 - `client/model/` — `WoodPostBlockStateModel` custom baked model + loader registration (`model/registry/`, `model/builder/`).
-- `client/interaction/` — `RecessedLampTargeting` (raycast correction for recessed lamps; driven by `LocalPlayerMixin`).
+- `client/animation/` — animation + use-animation system (`SAPAnimations`, `UseAnimationPlayer`, `RegUseAnimationBuilder`).
+- `client/outline/` — custom block outlines (`BlockOutlineRegistry`, `BlockOutlineRenderer`), backed by `api/outline`.
 - `client/effect/`, `client/particle/` (`FallingLeafParticle` per-tree variants), `client/renderer/`, `client/screen/` (`IroriScreen`), `client/tooltip/` (Rockery tooltip rendering).
 - Top-level `tooltip/` package holds the shared tooltip pipeline (`TooltipComponentRegistry`, `TooltipModifier`).
-- Hammer arm pose `SHADOWSANDPETALS_HAMMER_AND_CHISEL` added via `META-INF/enumextensions.json` (declared in `neoforge.mods.toml` template).
+- Extra `ItemUseAnimation`/`ArmPose` enums (hammer `SHADOWSANDPETALS_HAMMER_AND_CHISEL`, harrow `SHADOWSANDPETALS_HARROW_DIGGING`) added via `META-INF/enumextensions.json` (declared in `neoforge.mods.toml` template).
 
 ## Access Transformers & Mixins
 
 - `src/main/resources/META-INF/accesstransformer.cfg` has 7 entries. The `accessTransformers.add(...)` line in `build.gradle` is commented out because moddev auto-detects AT files declared in `neoforge.mods.toml`.
-- `shadowsandpetals.mixins.json` registers one client mixin: `LocalPlayerMixin` (injects into `LocalPlayer.raycastHitResult` to correct recessed-lamp targeting). `overwrites.requireAnnotations=true`.
+- `shadowsandpetals.mixins.json` currently declares **no mixins** (`mixins` and `client` arrays are empty) but keeps `overwrites.requireAnnotations=true`. The former `LocalPlayerMixin` / `RecessedLampTargeting` raycast correction was removed.
 
 ## Dependencies
 
 - JEI: `compileOnly` for `jei-26.1.2-common-api:29.5.0.28` + `jei-26.1.2-neoforge-api:29.5.0.28`; `runtimeOnly` for `jei-26.1.2-neoforge:29.5.0.28`
 - Jade: `implementation` via `maven.modrinth:jade:26.0.10+neoforge` — plugin + providers in `compat/jade/`
+- Serene Seasons: `implementation` via `com.github.glitchfiend:SereneSeasons-neoforge:26.1.2-26.1.2.0.4` — compat in `compat/sereneseasons/`
 - Shader dev runtime: `runtimeOnly` Sodium (`mc26.1.2-0.9.1-neoforge`) + Iris (`1.11.2+26.1-neoforge`); 5 shader packs via the custom `shaderpacks` configuration (see Build & Run)
+- Tests: JUnit 5 (`testImplementation`), run with `./gradlew test`
 
 ## Notes
 
 - `generateModMetadata` expands `gradle.properties` into `src/main/templates/META-INF/neoforge.mods.toml` and runs on IDE sync (`neoForge.ideSyncTask`).
 - `org.jspecify.annotations.Nullable` is used for nullability.
-- No README, no `opencode.json`, no `.cursorrules`, no root `.github/` workflows.
+- No README, no `opencode.json`, no `.cursorrules`. CI: `.github/workflows/build-latest-jar.yml` builds on push to the `26.1.2/Teacon` branch and publishes `ShadowsAndPetals-latest.jar` to a GitHub `latest-build` release.
 - `.gitignore` excludes: `build/`, `run*/`, `logs/`, `.idea/`, `.gradle/`, `docs/`, `.omo/`, `reference/` (note: `.codegraph/` is **not** gitignored).

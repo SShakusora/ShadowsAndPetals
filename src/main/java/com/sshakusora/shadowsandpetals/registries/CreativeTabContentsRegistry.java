@@ -8,21 +8,21 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public final class CreativeTabContentsRegistry {
-    private static final Map<CreativeTabType, List<Entry>> CONTENTS = new EnumMap<>(CreativeTabType.class);
+    private static final Map<CreativeTabKey, List<Entry>> CONTENTS = new EnumMap<>(CreativeTabKey.class);
 
     private record Entry(Supplier<? extends ItemLike> supplier, CreativeTabOrder order) {}
 
     private CreativeTabContentsRegistry() {}
 
-    public static void add(CreativeTabType tab, Supplier<? extends ItemLike> supplier) {
+    public static void add(CreativeTabKey tab, Supplier<? extends ItemLike> supplier) {
         add(tab, supplier, CreativeTabOrder.DEFAULT);
     }
 
-    public static void add(CreativeTabType tab, Supplier<? extends ItemLike> supplier, CreativeTabOrder order) {
+    public static void add(CreativeTabKey tab, Supplier<? extends ItemLike> supplier, CreativeTabOrder order) {
         CONTENTS.computeIfAbsent(tab, ignored -> new ArrayList<>()).add(new Entry(supplier, order));
     }
 
-    public static Consumer<CreativeModeTab.Output> generator(CreativeTabType tab) {
+    public static Consumer<CreativeModeTab.Output> generator(CreativeTabKey tab) {
         return output -> {
             List<Entry> entries = new ArrayList<>(CONTENTS.getOrDefault(tab, List.of()));
             entries.sort(Comparator.comparingInt(entry -> entry.order().ordinal()));
