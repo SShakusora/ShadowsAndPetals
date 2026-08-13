@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.registries;
 
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.entity.SeatEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -13,7 +14,7 @@ public class EntityRegistry {
             .clientTrackingRange(8)
             .updateInterval(1)
             .summonable(false)
-            .lang("zh_cn", "座位")
+            .lang(DatagenLangRegistry.ZH_CN, "座位")
             .register();
 
     public static void init() {}

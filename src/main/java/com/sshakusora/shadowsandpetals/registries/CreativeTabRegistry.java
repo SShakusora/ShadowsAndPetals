@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.RegCreativeTabBuilder;
 import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -14,7 +15,7 @@ public class CreativeTabRegistry {
         RegCreativeTabBuilder builder = SAPRegistries
                 .creativeTab(type.getName())
                 .lang(type.getLangName())
-                .lang("zh_cn", type.getZhCnLangName())
+                .lang(DatagenLangRegistry.ZH_CN, type.getZhCnLangName())
                 .icon(type.getIcon())
                 .addItems(CreativeTabContentsRegistry.generator(type));
 

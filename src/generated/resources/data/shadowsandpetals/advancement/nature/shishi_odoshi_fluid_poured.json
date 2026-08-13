@@ -1,0 +1,25 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "fluid_poured": {
+      "trigger": "shadowsandpetals:shishi_odoshi_fluid_poured"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.nature.shishi_odoshi_fluid_poured.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:shishi_odoshi"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.nature.shishi_odoshi_fluid_poured.title"
+    }
+  },
+  "requirements": [
+    [
+      "fluid_poured"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

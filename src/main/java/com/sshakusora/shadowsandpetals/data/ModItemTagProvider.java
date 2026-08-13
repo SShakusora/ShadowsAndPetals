@@ -1,6 +1,9 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
+import com.sshakusora.shadowsandpetals.registries.ItemTagRegistry;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
@@ -23,6 +26,9 @@ public class ModItemTagProvider extends BlockTagCopyingItemTagProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        tag(ItemTagRegistry.MOD_ITEMS).addAll(
+                ModelDatagenRegistry.knownItems().map(Holder::value)
+        );
         copy(BlockTags.LOGS, ItemTags.LOGS);
         copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);
         copy(BlockTags.PLANKS, ItemTags.PLANKS);

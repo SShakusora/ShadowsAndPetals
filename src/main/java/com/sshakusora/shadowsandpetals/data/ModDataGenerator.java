@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.data.model.ModModelProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.advancements.AdvancementProvider;
 import net.minecraft.data.loot.LootTableProvider;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -28,6 +29,9 @@ public class ModDataGenerator {
         generator.addProvider(true, new ModConnectedTextureBleedProvider(output));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.DEFAULT_LOCALE));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.ZH_CN));
+        generator.addProvider(true, new AdvancementProvider(output, lookupProvider, List.of(
+                new ModAdvancementProvider()
+        )));
         generator.addProvider(true, new ModRecipeProvider.Runner(output, lookupProvider));
         generator.addProvider(true, new LootTableProvider(output, Set.of(), List.of(
                 new LootTableProvider.SubProviderEntry(ModBlockLootProvider::new, LootContextParamSets.BLOCK)

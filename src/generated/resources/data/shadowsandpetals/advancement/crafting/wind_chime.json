@@ -1,0 +1,28 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "crafted_wind_chime": {
+      "conditions": {
+        "recipe_id": "shadowsandpetals:wind_chime"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.crafting.wind_chime.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:wind_chime"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.crafting.wind_chime.title"
+    }
+  },
+  "requirements": [
+    [
+      "crafted_wind_chime"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

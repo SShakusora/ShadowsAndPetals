@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.registries;
 
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.RegFluidBuilder;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -22,7 +23,7 @@ public final class FluidRegistry {
                     0xFFCCC957
             )
             .lang("Tea")
-            .lang("zh_cn", "茶")
+            .lang(DatagenLangRegistry.ZH_CN, "茶")
             .register();
 
     public static final DeferredHolder<FluidType, FluidType> TEA_TYPE = TEA_FLUID.type();

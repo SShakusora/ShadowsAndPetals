@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.item.harrow.HarrowItem;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -21,7 +22,7 @@ public class ItemRegistry {
             )
             .properties(properties -> properties.craftRemainder(Items.BUCKET).stacksTo(1))
             .customClientItem(ShadowsAndPetals.asResource("tea_bucket"))
-            .lang("zh_cn", "茶桶")
+            .lang(DatagenLangRegistry.ZH_CN, "茶桶")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
@@ -30,7 +31,7 @@ public class ItemRegistry {
                     properties -> new BlockItem(BlockRegistry.ORANGE_TREE.get(), properties)
             )
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
-            .lang("zh_cn", "蜜柑种子")
+            .lang(DatagenLangRegistry.ZH_CN, "蜜柑种子")
             .creativeTab(CreativeTabType.AGRICULTURE)
             .register();
 
@@ -46,13 +47,13 @@ public class ItemRegistry {
                         .unlockedBy(provider.hasName(orange.get()), provider.hasItem(orange.get()))
                         .save(provider.output());
             })
-            .lang("zh_cn", "蜜柑")
+            .lang(DatagenLangRegistry.ZH_CN, "蜜柑")
             .creativeTab(CreativeTabType.AGRICULTURE)
             .register();
 
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
-            .lang("zh_cn", "粗矾土")
+            .lang(DatagenLangRegistry.ZH_CN, "粗矾土")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
@@ -66,13 +67,13 @@ public class ItemRegistry {
                         .unlockedBy(provider.hasName(RAW_BAUXITE.get()), provider.hasItem(RAW_BAUXITE.get()))
                         .save(provider.output(), provider.id("aluminum_ingot_from_blasting").toString());
             })
-            .lang("zh_cn", "铝锭")
+            .lang(DatagenLangRegistry.ZH_CN, "铝锭")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
     public static final DeferredItem<Item> CLAM = SAPRegistries.item("clam")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
-            .lang("zh_cn", "蛤蜊")
+            .lang(DatagenLangRegistry.ZH_CN, "蛤蜊")
             .creativeTab(CreativeTabType.AGRICULTURE)
             .register();
 
@@ -92,7 +93,7 @@ public class ItemRegistry {
                         .unlockedBy(provider.hasName(ALUMINUM_INGOT.get()), provider.hasItem(ALUMINUM_INGOT.get()))
                         .save(provider.output());
             })
-            .lang("zh_cn", "凿子")
+            .lang(DatagenLangRegistry.ZH_CN, "凿子")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
@@ -114,7 +115,7 @@ public class ItemRegistry {
                         .unlockedBy(provider.hasName(ALUMINUM_INGOT.get()), provider.hasItem(ALUMINUM_INGOT.get()))
                         .save(provider.output());
             })
-            .lang("zh_cn", "锤子")
+            .lang(DatagenLangRegistry.ZH_CN, "锤子")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 
@@ -142,7 +143,7 @@ public class ItemRegistry {
                         .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
                         .save(provider.output());
             })
-            .lang("zh_cn", "耙子")
+            .lang(DatagenLangRegistry.ZH_CN, "耙子")
             .creativeTab(CreativeTabType.MAIN)
             .register();
 

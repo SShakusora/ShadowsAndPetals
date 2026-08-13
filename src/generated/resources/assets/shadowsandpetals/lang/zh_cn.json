@@ -1,4 +1,10 @@
 {
+  "advancements.shadowsandpetals.crafting.wind_chime.description": "第一次制作出风铃。",
+  "advancements.shadowsandpetals.crafting.wind_chime.title": "无心檐下铃，闲声入耳伴惬景，何用问罡风",
+  "advancements.shadowsandpetals.nature.shishi_odoshi_fluid_poured.description": "第一次让添水成功流出流体。",
+  "advancements.shadowsandpetals.nature.shishi_odoshi_fluid_poured.title": "我知这世间，再无新声惊日月，然而，然而",
+  "advancements.shadowsandpetals.root.description": "第一次接触到属于织影落花的物品。",
+  "advancements.shadowsandpetals.root.title": "织影落花",
   "block.shadowsandpetals.acacia_vanity": "金合欢木梳妆台",
   "block.shadowsandpetals.aluminum_block": "铝块",
   "block.shadowsandpetals.aluminum_ingot_pile": "铝锭堆",

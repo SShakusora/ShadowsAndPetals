@@ -13,6 +13,7 @@ import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
 import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
@@ -95,7 +96,7 @@ public class BlockRegistry {
             .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
                     context, generator, generator.modLoc("block/bauxite_ore/bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
-            .lang("zh_cn", "矾土矿石")
+            .lang(DatagenLangRegistry.ZH_CN, "矾土矿石")
             .register();
 
     public static final DeferredBlock<DropExperienceBlock> DEEPSLATE_BAUXITE_ORE = SAPRegistries
@@ -110,7 +111,7 @@ public class BlockRegistry {
             .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
                     context, generator, generator.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
-            .lang("zh_cn", "深层矾土矿石")
+            .lang(DatagenLangRegistry.ZH_CN, "深层矾土矿石")
             .register();
 
     public static final DeferredBlock<Block> RAW_BAUXITE_BLOCK = SAPRegistries
@@ -125,7 +126,7 @@ public class BlockRegistry {
             .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.RAW_BAUXITE.get(), "raw_bauxite_from_block"))
-            .lang("zh_cn", "粗矾土块")
+            .lang(DatagenLangRegistry.ZH_CN, "粗矾土块")
             .register();
 
     public static final DeferredBlock<Block> ALUMINUM_BLOCK = SAPRegistries
@@ -140,7 +141,7 @@ public class BlockRegistry {
             .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
-            .lang("zh_cn", "铝块")
+            .lang(DatagenLangRegistry.ZH_CN, "铝块")
             .register();
 
     public static final DeferredBlock<WindChimeBlock> WIND_CHIME = SAPRegistries
@@ -198,7 +199,7 @@ public class BlockRegistry {
             })
             .itemModel(() -> WindChimeModels::item)
             .customClientItem(ShadowsAndPetals.asResource("wind_chime"))
-            .lang("zh_cn", "风铃")
+            .lang(DatagenLangRegistry.ZH_CN, "风铃")
             .register();
 
     public static final DeferredBlock<CopperTeapotBlock> COPPER_TEAPOT = SAPRegistries
@@ -232,7 +233,7 @@ public class BlockRegistry {
                         .save(provider.output());
             })
             .clientItem(ShadowsAndPetals.asResource("item/teapot/copper"))
-            .lang("zh_cn", "铜茶壶")
+            .lang(DatagenLangRegistry.ZH_CN, "铜茶壶")
             .register();
 
     public static final DeferredBlock<Block> RAW_CONCRETE = SAPRegistries
@@ -274,7 +275,7 @@ public class BlockRegistry {
                         .save(provider.output());
                 provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, Blocks.WHITE_CONCRETE);
             })
-            .lang("zh_cn", "清水混凝土")
+            .lang(DatagenLangRegistry.ZH_CN, "清水混凝土")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = SAPRegistries
@@ -290,7 +291,7 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_pile"))
-            .lang("zh_cn", "铝锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "铝锭堆")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = SAPRegistries
@@ -306,7 +307,7 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.IRON_INGOT, "iron_ingot_from_pile"))
-            .lang("zh_cn", "铁锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "铁锭堆")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = SAPRegistries
@@ -322,7 +323,7 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.COPPER_INGOT, "copper_ingot_from_pile"))
-            .lang("zh_cn", "铜锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "铜锭堆")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = SAPRegistries
@@ -338,7 +339,7 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.GOLD_INGOT, "gold_ingot_from_pile"))
-            .lang("zh_cn", "金锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "金锭堆")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = SAPRegistries
@@ -354,7 +355,7 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
-            .lang("zh_cn", "下界合金锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "下界合金锭堆")
             .register();
 
     public static final DeferredBlock<IroriBlock> IRORI = SAPRegistries
@@ -406,7 +407,7 @@ public class BlockRegistry {
                     .pattern("BBB")
                     .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
                     .save(provider.output()))
-            .lang("zh_cn", "日式围炉")
+            .lang(DatagenLangRegistry.ZH_CN, "日式围炉")
             .register();
 
     public static final DeferredBlock<BedroomLampBlock> BEDROOM_LAMP = SAPRegistries
@@ -435,7 +436,7 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
                     .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/bedroom_lamp/off"))
-            .lang("zh_cn", "卧室台灯")
+            .lang(DatagenLangRegistry.ZH_CN, "卧室台灯")
             .register();
 
     public static final DeferredBlock<WallLampBlock> WALL_LAMP = SAPRegistries
@@ -464,7 +465,7 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
                     .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/wall_lamp/off"))
-            .lang("zh_cn", "壁灯")
+            .lang(DatagenLangRegistry.ZH_CN, "壁灯")
             .register();
 
     public static final DeferredBlock<EmergencyLampBlock> EMERGENCY_LAMP = SAPRegistries
@@ -503,7 +504,7 @@ public class BlockRegistry {
                         .save(provider.output(), provider.id("emergency_lamp_from_aluminum").toString());
             })
             .clientItem(ShadowsAndPetals.asResource("block/emergency_lamp/off"))
-            .lang("zh_cn", "防爆灯")
+            .lang(DatagenLangRegistry.ZH_CN, "防爆灯")
             .register();
 
     public static final DeferredBlock<RecessedLampBlock> RECESSED_LAMP = SAPRegistries
@@ -547,7 +548,7 @@ public class BlockRegistry {
                         .save(provider.output(), provider.id("recessed_lamp_from_aluminum").toString());
             })
             .clientItem(ShadowsAndPetals.asResource("block/recessed_lamp/up_off"))
-            .lang("zh_cn", "嵌灯")
+            .lang(DatagenLangRegistry.ZH_CN, "嵌灯")
             .register();
 
     public static final DeferredBlock<RecessedLampCompositeBlock> RECESSED_LAMP_COMPOSITE = SAPRegistries
@@ -560,7 +561,7 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::recessedLampComposite)
             .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
             .lang("en_us", "Recessed Lamp")
-            .lang("zh_cn", "嵌灯")
+            .lang(DatagenLangRegistry.ZH_CN, "嵌灯")
             .register();
 
     public static final DeferredBlock<DeskLampBlock> DESK_LAMP = SAPRegistries
@@ -588,7 +589,7 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
                     .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
-            .lang("zh_cn", "台灯")
+            .lang(DatagenLangRegistry.ZH_CN, "台灯")
             .register();
 
     public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
@@ -616,7 +617,7 @@ public class BlockRegistry {
                         .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
                         .save(provider.output());
             })
-            .lang("zh_cn", DyedBlockList.zhName(color) + "瓦")
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦")
             .register());
 
     public static final DyedBlockList<RoofTileSlabBlock> ROOF_TILE_SLABS = new DyedBlockList<>(color -> SAPRegistries
@@ -634,7 +635,7 @@ public class BlockRegistry {
                 provider.slabFromBase(RecipeCategory.BUILDING_BLOCKS, block.get(), ROOF_TILES.get(color).get());
                 provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
             })
-            .lang("zh_cn", DyedBlockList.zhName(color) + "瓦台阶")
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦台阶")
             .register());
 
     public static final DyedBlockList<RoofTileVerticalSlabBlock> ROOF_TILE_VERTICAL_SLABS = new DyedBlockList<>(color -> SAPRegistries
@@ -663,7 +664,7 @@ public class BlockRegistry {
                         .save(provider.output(), provider.id(color.getName() + "_roof_tile_vertical_slab_revert").toString());
                 provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
             })
-            .lang("zh_cn", "竖直" + DyedBlockList.zhName(color) + "瓦台阶")
+            .lang(DatagenLangRegistry.ZH_CN, "竖直" + DyedBlockList.zhName(color) + "瓦台阶")
             .register());
 
     public static final DyedBlockList<StairBlock> ROOF_TILE_STAIRS = new DyedBlockList<>(color -> SAPRegistries
@@ -680,7 +681,7 @@ public class BlockRegistry {
                 provider.stairsFromBase(block.get(), ROOF_TILES.get(color).get());
                 provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, ROOF_TILES.get(color).get());
             })
-            .lang("zh_cn", DyedBlockList.zhName(color) + "瓦楼梯")
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦楼梯")
             .register());
 
     public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
@@ -710,7 +711,7 @@ public class BlockRegistry {
                     .pattern("SSS")
                     .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
                     .save(provider.output()))
-            .lang("zh_cn", woodType.getZhName() + "梳妆台")
+            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "梳妆台")
             .register());
 
     public static final DeferredBlock<RedLacqueredWoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
@@ -728,7 +729,7 @@ public class BlockRegistry {
                     generator.modLoc("block/red_lacquered_wood_pillar")
             ))
             .loot((provider, block) -> provider.dropSelf(block.get()))
-            .lang("zh_cn", "红漆木圆柱")
+            .lang(DatagenLangRegistry.ZH_CN, "红漆木圆柱")
             .register();
 
 //    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
@@ -739,7 +740,7 @@ public class BlockRegistry {
 //                    .noOcclusion())
 //            .withItem()
 //            .creativeTab(CreativeTabType.MAIN)
-//            .lang("zh_cn", woodType.getZhName() + "书桌")
+//            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "书桌")
 //            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
 //                    .define('W', woodType.getSlab())
 //                    .pattern("WWW")
@@ -757,7 +758,7 @@ public class BlockRegistry {
 //                    .noOcclusion())
 //            .withItem()
 //            .creativeTab(CreativeTabType.MAIN)
-//            .lang("zh_cn", woodType.getZhName() + "咖啡桌")
+//            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "咖啡桌")
 //            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
 //                    .define('W', woodType.getSlab())
 //                    .define('S', Items.STICK)
@@ -776,7 +777,7 @@ public class BlockRegistry {
 //                    .noOcclusion())
 //            .withItem()
 //            .creativeTab(CreativeTabType.MAIN)
-//            .lang("zh_cn", woodType.getZhName() + "餐椅")
+//            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "餐椅")
 //            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
 //                    .define('W', woodType.getSlab())
 //                    .define('S', Items.STICK)
@@ -806,7 +807,7 @@ public class BlockRegistry {
                             "Right-click with Dye:", "手持染料右键点击:",
                             "_Recolor_ the chair.", "为椅子_重新染色_。"))
             .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", DyedBlockList.zhName(color) + "咖啡椅")
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "咖啡椅")
             .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
                     context,
                     generator,
@@ -831,7 +832,7 @@ public class BlockRegistry {
             .withItem()
             .blockstate(() -> DecorationBlockModels::samon)
             .loot((provider, block) -> provider.dropSelf(block.get()))
-            .lang("zh_cn", "砂纹")
+            .lang(DatagenLangRegistry.ZH_CN, "砂纹")
             .register();
 
     public static final DeferredBlock<SandExcavationBlock> SAND_EXCAVATION = SAPRegistries
@@ -848,7 +849,7 @@ public class BlockRegistry {
                             .add(LootItem.lootTableItem(Items.SAND)))
             ))
             .lang("en_us", "Sand Excavation")
-            .lang("zh_cn", "挖掘中的沙子")
+            .lang(DatagenLangRegistry.ZH_CN, "挖掘中的沙子")
             .register();
 
     public static final DeferredBlock<ShishiOdoshiBlock> SHISHI_ODOSHI = SAPRegistries
@@ -876,7 +877,7 @@ public class BlockRegistry {
                     .pattern("SSS")
                     .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
                     .save(provider.output()))
-            .lang("zh_cn", "添水")
+            .lang(DatagenLangRegistry.ZH_CN, "添水")
             .register();
 
     public static final DeferredBlock<ShishiOdoshiPipeBlock> SHISHI_ODOSHI_PIPE = SAPRegistries
@@ -903,7 +904,7 @@ public class BlockRegistry {
                     .pattern("B")
                     .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
                     .save(provider.output()))
-            .lang("zh_cn", "添水竹管")
+            .lang(DatagenLangRegistry.ZH_CN, "添水竹管")
             .register();
 
     public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
@@ -922,7 +923,7 @@ public class BlockRegistry {
                             .setRolls(ConstantValue.exactly(1.0F))
                             .add(LootItem.lootTableItem(ItemRegistry.ORANGE_SEED.get())))
             ))
-            .lang("zh_cn", "蜜柑树")
+            .lang(DatagenLangRegistry.ZH_CN, "蜜柑树")
             .register();
 
     public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x1 = registerRockery(1, 1, 1);
@@ -951,7 +952,7 @@ public class BlockRegistry {
                 .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))
                 .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
                 .lang("en_us", "rockery")
-                .lang("zh_cn", "石山")
+                .lang(DatagenLangRegistry.ZH_CN, "石山")
                 .register();
 
         HammerItem.registerRockery(result, dims);

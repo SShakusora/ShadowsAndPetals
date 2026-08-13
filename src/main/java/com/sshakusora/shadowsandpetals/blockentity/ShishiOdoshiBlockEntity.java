@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.ShishiOdoshiPipeBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.SoundRegistry;
+import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,6 +15,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -229,6 +231,9 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
                 && previousAnimationTick < POUR_START_TICK
                 && animationTick >= POUR_START_TICK) {
             pourTick = animationTick - POUR_START_TICK;
+            if (level instanceof ServerLevel serverLevel && fluid != Fluids.EMPTY) {
+                TriggerRegistry.SHISHI_ODOSHI_FLUID_POURED.get().triggerNearby(serverLevel, worldPosition);
+            }
         } else if (pourTick >= 0.0F && pourTick < POUR_DURATION) {
             pourTick += flowSpeed;
         }

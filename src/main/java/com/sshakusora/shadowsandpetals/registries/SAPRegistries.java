@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.model.generator.StandardBlockModels;
 import com.sshakusora.shadowsandpetals.legacy.BlockEntityAliasRegistry;
 import com.sshakusora.shadowsandpetals.registries.builder.*;
+import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.Registries;
@@ -48,6 +49,7 @@ public class SAPRegistries {
     public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(Registries.RECIPE_SERIALIZER, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(Registries.RECIPE_TYPE, ShadowsAndPetals.MOD_ID);
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, ShadowsAndPetals.MOD_ID);
+    public static final DeferredRegister<CriterionTrigger<?>> TRIGGER_TYPES = DeferredRegister.create(Registries.TRIGGER_TYPE, ShadowsAndPetals.MOD_ID);
 
     public static void register(IEventBus modEventBus) {
         BLOCKS.register(modEventBus);
@@ -64,6 +66,7 @@ public class SAPRegistries {
         RECIPE_SERIALIZERS.register(modEventBus);
         RECIPE_TYPES.register(modEventBus);
         ATTACHMENT_TYPES.register(modEventBus);
+        TRIGGER_TYPES.register(modEventBus);
     }
 
     // Block helpers
@@ -113,6 +116,19 @@ public class SAPRegistries {
     ) {
         return new RegRecipeBuilder<R>(RECIPE_SERIALIZERS, RECIPE_TYPES, name)
                 .serializer(serializerFactory);
+    }
+
+    // Advancement helpers
+
+    public static RegAdvancementBuilder advancement(String name) {
+        return new RegAdvancementBuilder(name);
+    }
+
+    public static <T extends CriterionTrigger<?>> RegCriterionTriggerBuilder<T> trigger(
+            String name,
+            Supplier<T> factory
+    ) {
+        return new RegCriterionTriggerBuilder<>(TRIGGER_TYPES, name, factory);
     }
 
     // CreativeTab helpers

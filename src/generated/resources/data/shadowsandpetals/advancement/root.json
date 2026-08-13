@@ -1,0 +1,32 @@
+{
+  "criteria": {
+    "mod_item": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#shadowsandpetals:mod_items"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "display": {
+    "background": "shadowsandpetals:block/maple_planks",
+    "description": {
+      "translate": "advancements.shadowsandpetals.root.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:maple_sapling"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "mod_item"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

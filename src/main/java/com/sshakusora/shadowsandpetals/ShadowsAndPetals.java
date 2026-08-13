@@ -28,6 +28,8 @@ public class ShadowsAndPetals {
         SoundRegistry.init();
         RecipeSerializerRegistry.init();
         CreativeTabRegistry.init();
+        TriggerRegistry.init();
+        AdvancementRegistry.init();
         SAPFeatures.init();
     }
 

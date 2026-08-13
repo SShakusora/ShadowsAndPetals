@@ -54,6 +54,7 @@ neoForge {
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.disableGlValidation', 'true'
         }
 
         client2 {
@@ -61,6 +62,7 @@ neoForge {
             gameDirectory = project.file('run')
             programArguments = ['--username', 'SShakusora']
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            systemProperty 'neoforge.disableGlValidation', 'true'
         }
 
         structureEditor {
