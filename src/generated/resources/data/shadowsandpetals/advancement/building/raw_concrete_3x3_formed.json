@@ -1,0 +1,25 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "formed_raw_concrete_surface": {
+      "trigger": "shadowsandpetals:raw_concrete_3x3_formed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.building.raw_concrete_3x3_formed.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:raw_concrete"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.building.raw_concrete_3x3_formed.title"
+    }
+  },
+  "requirements": [
+    [
+      "formed_raw_concrete_surface"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

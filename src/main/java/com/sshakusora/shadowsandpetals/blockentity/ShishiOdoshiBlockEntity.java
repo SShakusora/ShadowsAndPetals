@@ -8,6 +8,7 @@ import com.sshakusora.shadowsandpetals.registries.SoundRegistry;
 import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -16,6 +17,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -33,6 +35,8 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
+import java.util.UUID;
+
 public class ShishiOdoshiBlockEntity extends BlockEntity {
     private static final String FLUID_AMOUNT_KEY = "WaterAmount";
     private static final String FLUID_KEY = "Fluid";
@@ -40,6 +44,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     private static final String ANIMATION_TICK_KEY = "AnimationTickMilli";
     private static final String LEGACY_ANIMATION_TICK_KEY = "AnimationTick";
     private static final String POUR_TICK_KEY = "PourTickMilli";
+    private static final String OWNER_KEY = "Owner";
 
     public static final int WATER_CAPACITY = 100;
     public static final int TIPPING_DURATION = 24;
@@ -59,6 +64,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
     private boolean clientSplashSpawned;
     private @Nullable BlockPos cachedPipePos;
     private long nextPipeCheckTick = Long.MIN_VALUE;
+    private @Nullable UUID ownerUuid;
 
     public ShishiOdoshiBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.SHISHI_ODOSHI.get(), pos, blockState);
@@ -71,6 +77,11 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
 
     public Fluid getFluid() {
         return fluid;
+    }
+
+    public void setOwner(UUID ownerUuid) {
+        this.ownerUuid = ownerUuid;
+        setChanged();
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, ShishiOdoshiBlockEntity blockEntity) {
@@ -232,7 +243,12 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
                 && animationTick >= POUR_START_TICK) {
             pourTick = animationTick - POUR_START_TICK;
             if (level instanceof ServerLevel serverLevel && fluid != Fluids.EMPTY) {
-                TriggerRegistry.SHISHI_ODOSHI_FLUID_POURED.get().triggerNearby(serverLevel, worldPosition);
+                ServerPlayer owner = ownerUuid == null
+                        ? null
+                        : serverLevel.getServer().getPlayerList().getPlayer(ownerUuid);
+                if (owner != null) {
+                    TriggerRegistry.SHISHI_ODOSHI_FLUID_POURED.get().trigger(owner);
+                }
             }
         } else if (pourTick >= 0.0F && pourTick < POUR_DURATION) {
             pourTick += flowSpeed;
@@ -287,6 +303,9 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         if (pourTick >= 0.0F) {
             output.putInt(POUR_TICK_KEY, Math.round(pourTick * 1000.0F));
         }
+        if (ownerUuid != null) {
+            output.store(OWNER_KEY, UUIDUtil.CODEC, ownerUuid);
+        }
     }
 
     @Override
@@ -314,6 +333,7 @@ public class ShishiOdoshiBlockEntity extends BlockEntity {
         pourTick = input.getInt(POUR_TICK_KEY)
                 .map(value -> value / 1000.0F)
                 .orElseGet(this::getLegacyPourTick);
+        ownerUuid = input.read(OWNER_KEY, UUIDUtil.CODEC).orElse(null);
     }
 
     private static int getPhaseDuration(AnimationPhase phase) {

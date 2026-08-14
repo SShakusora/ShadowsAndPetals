@@ -1,0 +1,25 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "opened_vanity_drawer": {
+      "trigger": "shadowsandpetals:vanity_drawer_opened"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.decorations.vanity_drawer_opened.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:maple_vanity"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.decorations.vanity_drawer_opened.title"
+    }
+  },
+  "requirements": [
+    [
+      "opened_vanity_drawer"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

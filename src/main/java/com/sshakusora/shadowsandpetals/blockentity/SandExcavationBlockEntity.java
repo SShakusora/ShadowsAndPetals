@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationLootPool;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -42,12 +43,14 @@ public final class SandExcavationBlockEntity extends BlockEntity {
     private static final String HIT_DIRECTION_KEY = "hit_direction";
     private static final String ITEM_KEY = "item";
     private static final String RESULT_RESOLVED_KEY = "result_resolved";
+    private static final String RESULT_CATEGORY_KEY = "result_category";
 
     private int brushCount;
     private long brushCountResetsAtTick;
     private long coolDownEndsAtTick;
     private ItemStack item = ItemStack.EMPTY;
     private boolean resultResolved;
+    private SandExcavationResult.Category resultCategory = SandExcavationResult.Category.EMPTY;
     private @Nullable Direction hitDirection;
 
     public SandExcavationBlockEntity(BlockPos pos, BlockState state) {
@@ -140,7 +143,9 @@ public final class SandExcavationBlockEntity extends BlockEntity {
         }
 
         resultResolved = true;
-        item = SandExcavationLootPool.roll(level).stack();
+        SandExcavationResult result = SandExcavationLootPool.roll(level);
+        resultCategory = result.category();
+        item = result.stack();
         setChanged();
         BlockState state = getBlockState();
         level.sendBlockUpdated(worldPosition, state, state, 3);
@@ -172,6 +177,10 @@ public final class SandExcavationBlockEntity extends BlockEntity {
         return item;
     }
 
+    public SandExcavationResult.Category getResultCategory() {
+        return resultCategory;
+    }
+
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
@@ -197,6 +206,8 @@ public final class SandExcavationBlockEntity extends BlockEntity {
         coolDownEndsAtTick = input.getLongOr(COOLDOWN_END_KEY, 0L);
         item = input.read(ITEM_KEY, ItemStack.CODEC).orElse(ItemStack.EMPTY);
         resultResolved = input.getBooleanOr(RESULT_RESOLVED_KEY, false);
+        resultCategory = input.read(RESULT_CATEGORY_KEY, SandExcavationResult.Category.CODEC)
+                .orElse(SandExcavationResult.Category.EMPTY);
         hitDirection = input.read(HIT_DIRECTION_KEY, Direction.CODEC).orElse(null);
     }
 
@@ -212,6 +223,9 @@ public final class SandExcavationBlockEntity extends BlockEntity {
             output.store(ITEM_KEY, ItemStack.CODEC, item);
         }
         output.putBoolean(RESULT_RESOLVED_KEY, resultResolved);
+        if (resultResolved) {
+            output.store(RESULT_CATEGORY_KEY, SandExcavationResult.Category.CODEC, resultCategory);
+        }
         output.storeNullable(HIT_DIRECTION_KEY, Direction.CODEC, hitDirection);
     }
 

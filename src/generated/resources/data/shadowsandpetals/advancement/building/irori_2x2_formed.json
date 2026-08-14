@@ -1,0 +1,25 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "formed_irori_2x2": {
+      "trigger": "shadowsandpetals:irori_2x2_formed"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.building.irori_2x2_formed.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:irori"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.building.irori_2x2_formed.title"
+    }
+  },
+  "requirements": [
+    [
+      "formed_irori_2x2"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
+import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -284,6 +285,9 @@ public class HammerItem extends Item {
         placement.place(level);
         if (level instanceof ServerLevel serverLevel) {
             placement.playEffects(serverLevel, data.clickedPos());
+            if (player instanceof ServerPlayer serverPlayer) {
+                TriggerRegistry.ROCKERY_CARVED.get().trigger(serverPlayer);
+            }
         }
     }
 

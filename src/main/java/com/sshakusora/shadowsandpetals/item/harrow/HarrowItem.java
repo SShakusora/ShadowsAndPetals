@@ -5,13 +5,16 @@ import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.blockentity.SandExcavationBlockEntity;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
+import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BiomeTags;
@@ -74,6 +77,9 @@ public class HarrowItem extends Item {
                         0.3,
                         0.1
                 );
+                if (context.getPlayer() instanceof ServerPlayer serverPlayer) {
+                    TriggerRegistry.GRAVEL_EXCAVATED.get().trigger(serverPlayer);
+                }
             }
             return InteractionResult.SUCCESS;
         }
@@ -184,6 +190,10 @@ public class HarrowItem extends Item {
         if (level instanceof ServerLevel serverLevel
                 && level.getBlockEntity(pos) instanceof SandExcavationBlockEntity excavation
                 && excavation.brush(level.getGameTime(), serverLevel, blockHit.getDirection())) {
+            if (excavation.getResultCategory() == SandExcavationResult.Category.SEAFOOD
+                    && player instanceof ServerPlayer serverPlayer) {
+                TriggerRegistry.SEAFOOD_EXCAVATED.get().trigger(serverPlayer);
+            }
             EquipmentSlot slot = livingEntity.getUsedItemHand() == InteractionHand.OFF_HAND
                     ? EquipmentSlot.OFFHAND
                     : EquipmentSlot.MAINHAND;

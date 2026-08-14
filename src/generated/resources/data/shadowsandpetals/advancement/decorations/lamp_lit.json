@@ -1,0 +1,25 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "lit_lamp": {
+      "trigger": "shadowsandpetals:lamp_lit"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.decorations.lamp_lit.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:bedroom_lamp"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.decorations.lamp_lit.title"
+    }
+  },
+  "requirements": [
+    [
+      "lit_lamp"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

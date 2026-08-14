@@ -5,8 +5,6 @@ import com.sshakusora.shadowsandpetals.blockentity.RecessedLampBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -187,14 +185,7 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
             Player player,
             BlockHitResult hitResult
     ) {
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-
-        boolean lit = !state.getValue(RecessedLampBlock.LIT);
-        level.setBlock(pos, state.setValue(RecessedLampBlock.LIT, lit), Block.UPDATE_ALL);
-        level.playSound(null, pos, SoundEvents.LEVER_CLICK, SoundSource.BLOCKS, 0.3F, lit ? 0.6F : 0.5F);
-        return InteractionResult.SUCCESS;
+        return LampToggle.toggle(state, level, pos, player, RecessedLampBlock.LIT);
     }
 
     @Override

@@ -3,9 +3,11 @@ package com.sshakusora.shadowsandpetals.blockentity;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
+import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -182,6 +184,9 @@ public class VanityBlockEntity extends RandomizableContainerBlockEntity {
                     this.getBlockState(),
                     containerUser.getContainerInteractionRange()
             );
+            if (containerUser.getLivingEntity() instanceof ServerPlayer serverPlayer) {
+                TriggerRegistry.VANITY_DRAWER_OPENED.get().trigger(serverPlayer);
+            }
         }
     }
 

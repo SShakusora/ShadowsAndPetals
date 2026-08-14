@@ -1,4 +1,11 @@
-// 26.1.2	2026-08-13T10:23:16.7883634	Advancements
+// 26.1.2	2026-08-14T14:28:03.8165145	Advancements
+c63a524372f7dd620487885dc5acceb2e89e97e1 data/shadowsandpetals/advancement/building/irori_2x2_formed.json
+8756a1e6617eb780281aeb3aadf05d9923573150 data/shadowsandpetals/advancement/building/raw_concrete_3x3_formed.json
+05225412a69a66b6a1e3bd9f5b6efc0166afe615 data/shadowsandpetals/advancement/crafting/rockery_carved.json
 2d12baa92ebaaf7c4a85ae927c4508913bc7dabf data/shadowsandpetals/advancement/crafting/wind_chime.json
+2710d2ff2540f2b5b22e9677332c233a94a90585 data/shadowsandpetals/advancement/decorations/lamp_lit.json
+eea6cf7c94a62f7438787b1192670cbf1d8a0354 data/shadowsandpetals/advancement/decorations/vanity_drawer_opened.json
+2db4a3573fa22f2d6c37bd3c4de458bf172f82db data/shadowsandpetals/advancement/nature/gravel_excavated.json
+587a4c14519f4da8157c34c733b89e1163e33254 data/shadowsandpetals/advancement/nature/seafood_excavated.json
 cf24794bdd5fc53b1c4e086df0751ff629087a4a data/shadowsandpetals/advancement/nature/shishi_odoshi_fluid_poured.json
 08a3f8211754cf4c6487b64fcd2f475a8b99c929 data/shadowsandpetals/advancement/root.json

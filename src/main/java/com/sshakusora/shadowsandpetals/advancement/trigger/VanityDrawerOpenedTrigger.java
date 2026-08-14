@@ -10,9 +10,9 @@ import net.minecraft.server.level.ServerPlayer;
 
 import java.util.Optional;
 
-/** Triggered when a shishi-odoshi starts pouring a non-empty fluid. */
-public final class ShishiOdoshiFluidPouredTrigger
-        extends SimpleCriterionTrigger<ShishiOdoshiFluidPouredTrigger.TriggerInstance> {
+/** Triggered when a player successfully opens a vanity drawer. */
+public final class VanityDrawerOpenedTrigger
+        extends SimpleCriterionTrigger<VanityDrawerOpenedTrigger.TriggerInstance> {
     @Override
     public Codec<TriggerInstance> codec() {
         return TriggerInstance.CODEC;
@@ -22,7 +22,7 @@ public final class ShishiOdoshiFluidPouredTrigger
         trigger(player, ignored -> true);
     }
 
-    public Criterion<TriggerInstance> fluidPoured() {
+    public Criterion<TriggerInstance> vanityDrawerOpened() {
         return createCriterion(TriggerInstance.any());
     }
 

@@ -1,0 +1,25 @@
+{
+  "parent": "shadowsandpetals:root",
+  "criteria": {
+    "carved_rockery": {
+      "trigger": "shadowsandpetals:rockery_carved"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.shadowsandpetals.crafting.rockery_carved.description"
+    },
+    "icon": {
+      "id": "shadowsandpetals:rockery_1_1_1"
+    },
+    "title": {
+      "translate": "advancements.shadowsandpetals.crafting.rockery_carved.title"
+    }
+  },
+  "requirements": [
+    [
+      "carved_rockery"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
