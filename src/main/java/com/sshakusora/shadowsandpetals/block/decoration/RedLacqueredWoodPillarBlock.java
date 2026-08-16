@@ -52,6 +52,16 @@ public class RedLacqueredWoodPillarBlock extends Block implements BlockOutlinePr
     }
 
     @Override
+    protected VoxelShape getOcclusionShape(BlockState state) {
+        return SHAPE;
+    }
+
+    @Override
+    protected boolean useShapeForLightOcclusion(BlockState state) {
+        return true;
+    }
+
+    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return defaultBlockState().setValue(
                 WATERLOGGED,
