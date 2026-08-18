@@ -722,11 +722,7 @@ public class BlockRegistry {
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
             .creativeTab(CreativeTabKey.MAIN)
-            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleWaterloggedBlockWithItem(
-                    context,
-                    generator,
-                    generator.modLoc("block/red_lacquered_wood_pillar")
-            ))
+            .blockstate(() -> AxisAlignedPillarBlockModels::withItem)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .lang(DatagenLangRegistry.ZH_CN, "红漆木圆柱")
             .register();

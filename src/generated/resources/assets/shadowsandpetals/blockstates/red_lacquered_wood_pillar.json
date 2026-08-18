@@ -1,10 +1,16 @@
 {
   "variants": {
-    "waterlogged=false": {
+    "axis=x": {
+      "model": "shadowsandpetals:block/red_lacquered_wood_pillar",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
       "model": "shadowsandpetals:block/red_lacquered_wood_pillar"
     },
-    "waterlogged=true": {
-      "model": "shadowsandpetals:block/red_lacquered_wood_pillar"
+    "axis=z": {
+      "model": "shadowsandpetals:block/red_lacquered_wood_pillar",
+      "x": 90
     }
   }
 }

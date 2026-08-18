@@ -1,4 +1,4 @@
-// 26.1.2	2026-08-04T15:39:27.7783691	Model Definitions - shadowsandpetals
+// 26.1.2	2026-08-18T19:11:25.6721221	Model Definitions - shadowsandpetals
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
 6ceb0929c2fdf5c397f687894087d0d843142290 assets/shadowsandpetals/blockstates/aluminum_ingot_pile.json
@@ -137,7 +137,7 @@ d814199aa5f8f1ba70698efba9bf79e6b319a401 assets/shadowsandpetals/blockstates/raw
 73a73fda0970de60047fe6f252b3c5c5f8ebc357 assets/shadowsandpetals/blockstates/recessed_lamp.json
 3bf12bd077c982138a7aafb7e860012a00666eec assets/shadowsandpetals/blockstates/recessed_lamp_composite.json
 bffa7296c31eafb1747621ba4b92156030d56033 assets/shadowsandpetals/blockstates/red_cafe_chair.json
-6a8c5f3593fa42b1f50e6d4d35d07a246905560b assets/shadowsandpetals/blockstates/red_lacquered_wood_pillar.json
+d30d4058fcdf8f3d9f9d7adc05b006acaa8876b2 assets/shadowsandpetals/blockstates/red_lacquered_wood_pillar.json
 75afc98519d9b9d0a61ec800139ed89ff1e3c605 assets/shadowsandpetals/blockstates/red_roof_tile.json
 e2dc0d9ca8908e5e24773d1274622f97398215f9 assets/shadowsandpetals/blockstates/red_roof_tile_slab.json
 b55abdf2c4b9639ad93136a69b28599ed5a6d001 assets/shadowsandpetals/blockstates/red_roof_tile_stairs.json
