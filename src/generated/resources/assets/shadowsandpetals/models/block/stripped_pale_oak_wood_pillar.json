@@ -1,0 +1,11 @@
+{
+  "parent": "shadowsandpetals:block/template/wood_pillar",
+  "flip_v": true,
+  "loader": "neoforge:obj",
+  "model": "shadowsandpetals:models/block/wood_pillar/stripped_wood_pillar.obj",
+  "textures": {
+    "particle": "minecraft:block/stripped_pale_oak_log",
+    "side": "minecraft:block/stripped_pale_oak_log",
+    "top": "minecraft:block/stripped_pale_oak_log_top"
+  }
+}

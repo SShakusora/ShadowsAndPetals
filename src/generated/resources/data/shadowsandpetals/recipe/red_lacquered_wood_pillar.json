@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "#shadowsandpetals:stripped_wood_pillars",
+    "minecraft:red_dye"
+  ],
+  "result": {
+    "id": "shadowsandpetals:red_lacquered_wood_pillar"
+  }
+}

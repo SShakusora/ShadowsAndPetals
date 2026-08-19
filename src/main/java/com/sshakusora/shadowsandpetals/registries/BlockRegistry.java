@@ -714,18 +714,47 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "梳妆台")
             .register());
 
-    public static final DeferredBlock<RedLacqueredWoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
-            .block("red_lacquered_wood_pillar", RedLacqueredWoodPillarBlock::new)
+    public static final DeferredBlock<WoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
+            .block("red_lacquered_wood_pillar", WoodPillarBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD))
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
-            .creativeTab(CreativeTabKey.MAIN)
-            .blockstate(() -> AxisAlignedPillarBlockModels::withItem)
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_PILLARS)
+            .blockstate(() -> (context, generator) -> AxisAlignedPillarBlockModels.withItem(
+                    context,
+                    generator,
+                    ShadowsAndPetals.asResource("block/wood_pillar/red_lacquered_wood_pillar")
+            ))
             .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shapeless(RecipeCategory.DECORATIONS, block.get())
+                    .requires(provider.ingredient(ItemTagRegistry.STRIPPED_WOOD_PILLARS))
+                    .requires(Items.RED_DYE)
+                    .unlockedBy(
+                            provider.hasName(ItemTagRegistry.STRIPPED_WOOD_PILLARS),
+                            provider.hasTag(ItemTagRegistry.STRIPPED_WOOD_PILLARS)
+                    )
+                    .save(provider.output()))
             .lang(DatagenLangRegistry.ZH_CN, "红漆木圆柱")
             .register();
+
+    public static final WoodBlockList<WoodPillarBlock> STRIPPED_WOOD_PILLARS = new WoodBlockList<>(woodType -> SAPRegistries
+            .block("stripped_" + woodType.getName() + "_wood_pillar", WoodPillarBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getStrippedLog())
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.WOOD))
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_PILLARS)
+            .blockstate(() -> (context, generator) -> WoodPillarBlockModels.strippedWoodPillar(
+                    context,
+                    generator,
+                    woodType
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "去皮" + woodType.getZhName() + "木圆柱")
+            .register());
 
 //    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
 //            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)

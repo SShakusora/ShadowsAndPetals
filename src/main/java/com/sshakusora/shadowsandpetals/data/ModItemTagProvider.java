@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
+import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.registries.ItemTagRegistry;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -9,6 +10,7 @@ import net.minecraft.data.PackOutput;
 import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.common.data.BlockTagCopyingItemTagProvider;
 
@@ -28,6 +30,11 @@ public class ModItemTagProvider extends BlockTagCopyingItemTagProvider {
     protected void addTags(HolderLookup.Provider provider) {
         tag(ItemTagRegistry.MOD_ITEMS).addAll(
                 ModelDatagenRegistry.knownItems().map(Holder::value)
+        );
+        tag(ItemTagRegistry.STRIPPED_WOOD_PILLARS).add(
+                BlockRegistry.STRIPPED_WOOD_PILLARS.stream()
+                        .map(block -> block.get().asItem())
+                        .toArray(Item[]::new)
         );
         copy(BlockTags.LOGS, ItemTags.LOGS);
         copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);

@@ -15,7 +15,15 @@ public final class AxisAlignedPillarBlockModels {
             SAPBlockModelGenerator generator
     ) {
         Block block = context.get();
-        Identifier modelId = generator.blockModelId(block);
+        withItem(context, generator, generator.blockModelId(block));
+    }
+
+    public static void withItem(
+            BlockModelContext<? extends Block> context,
+            SAPBlockModelGenerator generator,
+            Identifier modelId
+    ) {
+        Block block = context.get();
         generator.blockState(BlockModelGenerators.createAxisAlignedPillarBlock(
                 block,
                 BlockModelGenerators.plainVariant(modelId)

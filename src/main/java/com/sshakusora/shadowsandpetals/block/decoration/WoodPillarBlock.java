@@ -25,8 +25,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class RedLacqueredWoodPillarBlock extends RotatedPillarBlock implements BlockOutlineProvider, SimpleWaterloggedBlock {
-    public static final MapCodec<RedLacqueredWoodPillarBlock> CODEC = simpleCodec(RedLacqueredWoodPillarBlock::new);
+public class WoodPillarBlock extends RotatedPillarBlock implements BlockOutlineProvider, SimpleWaterloggedBlock {
+    public static final MapCodec<WoodPillarBlock> CODEC = simpleCodec(WoodPillarBlock::new);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     private static final double CENTER = 8.0D;
@@ -47,7 +47,7 @@ public class RedLacqueredWoodPillarBlock extends RotatedPillarBlock implements B
     private static final OutlineGeometry X_OUTLINE = rotateOutline(Direction.Axis.X);
     private static final OutlineGeometry Z_OUTLINE = rotateOutline(Direction.Axis.Z);
 
-    public RedLacqueredWoodPillarBlock(Properties properties) {
+    public WoodPillarBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
                 .setValue(WATERLOGGED, false)
@@ -55,7 +55,7 @@ public class RedLacqueredWoodPillarBlock extends RotatedPillarBlock implements B
     }
 
     @Override
-    public MapCodec<RedLacqueredWoodPillarBlock> codec() {
+    public MapCodec<? extends RotatedPillarBlock> codec() {
         return CODEC;
     }
 

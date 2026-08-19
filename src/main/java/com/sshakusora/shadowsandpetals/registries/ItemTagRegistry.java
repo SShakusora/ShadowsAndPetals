@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 
 public final class ItemTagRegistry {
     public static final TagKey<Item> MOD_ITEMS = create("mod_items");
+    public static final TagKey<Item> STRIPPED_WOOD_PILLARS = create("stripped_wood_pillars");
 
     private ItemTagRegistry() {
     }

@@ -1,6 +1,6 @@
 {
   "loader": "neoforge:obj",
-  "model": "shadowsandpetals:models/block/red_lacquered_wood_pillar.obj",
+  "model": "shadowsandpetals:models/block/wood_pillar/red_lacquered_wood_pillar.obj",
   "flip_v": true,
   "textures": {
     "texture": "shadowsandpetals:block/red_lacquered_wood_pillar",
