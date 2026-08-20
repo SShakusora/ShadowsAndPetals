@@ -1,4 +1,4 @@
-// 26.1.2	2026-08-20T15:32:48.1497673	Model Definitions - shadowsandpetals
+// 26.1.2	2026-08-20T17:14:34.2120356	Model Definitions - shadowsandpetals
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 e3f2affd1947cb46b6877cd6437913977743c8c1 assets/shadowsandpetals/blockstates/acacia_window_pane.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
@@ -873,7 +873,7 @@ f8631eb962cb90188afad5247e5c7fba39f0eda8 assets/shadowsandpetals/models/block/wi
 b6f7f0eb05a63e825aa15ca1f1650eb8dcea1bfd assets/shadowsandpetals/models/block/window_pane/maple.json
 12ffdb1a1748dcf4b1ca9b59674562efe9afa9bd assets/shadowsandpetals/models/block/window_pane/oak.json
 fd14751df38ff42914ce9e8c0b7aa7913c392b3a assets/shadowsandpetals/models/block/window_pane/pale_oak.json
-5465e0bdea30a06301a7b04e5f325ef1f3d01f13 assets/shadowsandpetals/models/block/window_pane/red.json
+0543ea1526a95e359098da3473e0061997b2486b assets/shadowsandpetals/models/block/window_pane/red.json
 6446d883c0f146c7d7fdd66faf1284ec859c7b2b assets/shadowsandpetals/models/block/window_pane/sakura.json
 9be1f06f8f20ad0fc26fb59e23038fba4e686c6e assets/shadowsandpetals/models/block/window_pane/spruce.json
 2a6609f5e34d8d641d63cabd950ad38df70d5ac3 assets/shadowsandpetals/models/block/window_pane/warped.json

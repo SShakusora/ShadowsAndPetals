@@ -41,7 +41,7 @@ public final class WindowPaneModels {
         Identifier modelId = generator.modLoc("block/window_pane/red");
         generator.jsonModel(modelId, childModel(
                 generator.modLoc("block/window_pane/window_pane"),
-                generator.modLoc("block/window_frames/red")
+                generator.modLoc("block/window_pane/red")
         ));
         registerBlockState(block, generator, modelId);
         StandardBlockModels.parentBlockItem(block, generator, modelId);
