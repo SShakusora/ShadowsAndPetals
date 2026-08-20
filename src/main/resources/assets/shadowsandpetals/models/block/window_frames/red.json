@@ -1,0 +1,8 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"parent": "shadowsandpetals:block/window_frames/window_frames",
+	"textures": {
+		"windowframes": "shadowsandpetals:block/window_frames/red"
+	}
+}
