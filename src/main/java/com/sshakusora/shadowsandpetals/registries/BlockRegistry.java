@@ -714,6 +714,27 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "梳妆台")
             .register());
 
+    public static final DeferredBlock<WindowPaneBlock> RED_LACQUERED_WINDOW_PANE = SAPRegistries
+            .block("red_lacquered_window_pane", WindowPaneBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_WINDOW_PANES)
+            .blockstate(() -> WindowPaneModels::redLacquered)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "红漆窗格")
+            .register();
+
+    public static final WoodBlockList<WindowPaneBlock> WINDOW_PANES = new WoodBlockList<>(woodType ->
+            registerWindowPane(
+                    woodType.getName() + "_window_pane",
+                    woodType,
+                    woodType.getName(),
+                    woodType.getZhName() + "窗格"
+            ));
+
     public static final DeferredBlock<WoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
             .block("red_lacquered_wood_pillar", WoodPillarBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
@@ -981,6 +1002,31 @@ public class BlockRegistry {
 
         HammerItem.registerRockery(result, dims);
         return result;
+    }
+
+    private static DeferredBlock<WindowPaneBlock> registerWindowPane(
+            String id,
+            WoodBlockList.WoodType woodType,
+            String modelName,
+            String zhName
+    ) {
+        return SAPRegistries
+                .block(id, WindowPaneBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
+                        .sound(SoundType.WOOD)
+                        .noOcclusion())
+                .tags(BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_WINDOW_PANES)
+                .blockstate(() -> (context, generator) -> WindowPaneModels.block(
+                        context,
+                        generator,
+                        modelName,
+                        woodType.getPlanks()
+                ))
+                .loot((provider, block) -> provider.dropSelf(block.get()))
+                .lang(DatagenLangRegistry.ZH_CN, zhName)
+                .register();
     }
 
     public static void init() {}

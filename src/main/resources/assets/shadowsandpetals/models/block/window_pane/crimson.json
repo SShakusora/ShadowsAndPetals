@@ -1,8 +1,0 @@
-{
-	"format_version": "1.21.11",
-	"credit": "Made with Blockbench",
-	"parent": "shadowsandpetals:block/window_pane/window_pane",
-	"textures": {
-		"windowframes": "block/crimson_planks"
-	}
-}

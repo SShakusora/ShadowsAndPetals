@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,waterlogged=false": {
+      "model": "shadowsandpetals:block/window_pane/oak",
+      "y": 90
+    },
+    "facing=east,waterlogged=true": {
+      "model": "shadowsandpetals:block/window_pane/oak",
+      "y": 90
+    },
+    "facing=north,waterlogged=false": {
+      "model": "shadowsandpetals:block/window_pane/oak"
+    },
+    "facing=north,waterlogged=true": {
+      "model": "shadowsandpetals:block/window_pane/oak"
+    },
+    "facing=south,waterlogged=false": {
+      "model": "shadowsandpetals:block/window_pane/oak",
+      "y": 180
+    },
+    "facing=south,waterlogged=true": {
+      "model": "shadowsandpetals:block/window_pane/oak",
+      "y": 180
+    },
+    "facing=west,waterlogged=false": {
+      "model": "shadowsandpetals:block/window_pane/oak",
+      "y": 270
+    },
+    "facing=west,waterlogged=true": {
+      "model": "shadowsandpetals:block/window_pane/oak",
+      "y": 270
+    }
+  }
+}

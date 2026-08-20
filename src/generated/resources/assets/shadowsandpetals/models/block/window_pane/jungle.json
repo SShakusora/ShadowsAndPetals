@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/window_pane/window_pane",
+  "textures": {
+    "particle": "minecraft:block/jungle_planks",
+    "windowframes": "minecraft:block/jungle_planks"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/window_pane/window_pane",
+  "textures": {
+    "particle": "minecraft:block/dark_oak_planks",
+    "windowframes": "minecraft:block/dark_oak_planks"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/window_pane/window_pane",
+  "textures": {
+    "particle": "shadowsandpetals:block/ginkgo_planks",
+    "windowframes": "shadowsandpetals:block/ginkgo_planks"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/window_pane/window_pane",
+  "textures": {
+    "particle": "shadowsandpetals:block/window_frames/red",
+    "windowframes": "shadowsandpetals:block/window_frames/red"
+  }
+}

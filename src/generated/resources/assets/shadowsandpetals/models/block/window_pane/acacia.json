@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/window_pane/window_pane",
+  "textures": {
+    "particle": "minecraft:block/acacia_planks",
+    "windowframes": "minecraft:block/acacia_planks"
+  }
+}
