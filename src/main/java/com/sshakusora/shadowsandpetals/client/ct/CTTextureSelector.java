@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.client.ct;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Selects one connected-texture atlas for a block position.
@@ -11,9 +12,9 @@ import net.minecraft.core.Direction;
 @FunctionalInterface
 public interface CTTextureSelector {
 
-    CTTextureSelector FIRST = (pos, face) -> 0;
+    CTTextureSelector FIRST = (state, pos, face) -> 0;
 
-    int select(BlockPos pos, Direction face);
+    int select(BlockState state, BlockPos pos, Direction face);
 
     /**
      * Selects {@code periodicTextureIndex} at every {@code interval}-by-{@code interval}
@@ -31,7 +32,7 @@ public interface CTTextureSelector {
             throw new IllegalArgumentException("Connected-texture indices must be non-negative");
         }
 
-        return (pos, face) -> {
+        return (state, pos, face) -> {
             int first;
             int second;
             switch (face.getAxis()) {

@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.ct;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
 
@@ -89,8 +90,8 @@ public final class CTRegistry {
             }
         }
 
-        public int selectTextureIndex(BlockPos pos, Direction face) {
-            int index = textureSelector.select(pos, face);
+        public int selectTextureIndex(BlockState state, BlockPos pos, Direction face) {
+            int index = textureSelector.select(state, pos, face);
             if (index < 0 || index >= connectedTextures.size()) {
                 throw new IllegalStateException(
                         "Connected-texture selector returned index " + index

@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.registries;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
+import com.sshakusora.shadowsandpetals.block.RawConcreteBlock;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
@@ -10,7 +11,6 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
-import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
@@ -236,8 +236,8 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "铜茶壶")
             .register();
 
-    public static final DeferredBlock<Block> RAW_CONCRETE = SAPRegistries
-            .block("raw_concrete")
+    public static final DeferredBlock<RawConcreteBlock> RAW_CONCRETE = SAPRegistries
+            .block("raw_concrete", RawConcreteBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.STONE)
@@ -261,8 +261,9 @@ public class BlockRegistry {
                     ShadowsAndPetals.asResource("block/raw_concrete/base"),
                     List.of(
                             ShadowsAndPetals.asResource("block/raw_concrete/connected_bleed"),
-                            ShadowsAndPetals.asResource("block/raw_concrete/connected_hole_bleed")),
-                    CTTextureSelector.everyNth(2, 0, 1),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_hole_bleed"),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_dense_hole_bleed")),
+                    RawConcreteBlock::selectTextureIndex,
                     CTTextureType.OMNIDIRECTIONAL, 1)
             .recipe((provider, block) -> {
                 provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 8)

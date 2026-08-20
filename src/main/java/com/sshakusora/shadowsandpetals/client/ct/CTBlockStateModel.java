@@ -56,7 +56,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
         Object delegateKey = delegate.createGeometryKey(level, pos, state, random);
         Map<Direction, Integer> indices = computeCTIndices(level, pos, state);
-        TextureSelection textureSelection = selectTextures(pos, indices);
+        TextureSelection textureSelection = selectTextures(state, pos, indices);
         return new GeometryKey(
                 delegateKey,
                 baseTextureId,
@@ -77,7 +77,7 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
                              RandomSource random, List<BlockStateModelPart> parts) {
         Sprites sp = ensureSprites();
         Map<Direction, Integer> ctIndices = computeCTIndices(level, pos, state);
-        TextureSelection textureSelection = selectTextures(pos, ctIndices);
+        TextureSelection textureSelection = selectTextures(state, pos, ctIndices);
 
         List<BlockStateModelPart> delegateParts = new ArrayList<>();
         delegate.collectParts(level, pos, state, random, delegateParts);
@@ -87,18 +87,18 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         }
     }
 
-    private TextureSelection selectTextures(BlockPos pos, Map<Direction, Integer> ctIndices) {
+    private TextureSelection selectTextures(BlockState state, BlockPos pos, Map<Direction, Integer> ctIndices) {
         return new TextureSelection(
-                selectTexture(pos, Direction.DOWN, ctIndices),
-                selectTexture(pos, Direction.UP, ctIndices),
-                selectTexture(pos, Direction.NORTH, ctIndices),
-                selectTexture(pos, Direction.SOUTH, ctIndices),
-                selectTexture(pos, Direction.WEST, ctIndices),
-                selectTexture(pos, Direction.EAST, ctIndices));
+                selectTexture(state, pos, Direction.DOWN, ctIndices),
+                selectTexture(state, pos, Direction.UP, ctIndices),
+                selectTexture(state, pos, Direction.NORTH, ctIndices),
+                selectTexture(state, pos, Direction.SOUTH, ctIndices),
+                selectTexture(state, pos, Direction.WEST, ctIndices),
+                selectTexture(state, pos, Direction.EAST, ctIndices));
     }
 
-    private int selectTexture(BlockPos pos, Direction face, Map<Direction, Integer> ctIndices) {
-        return ctIndices.containsKey(face) ? entry.selectTextureIndex(pos, face) : 0;
+    private int selectTexture(BlockState state, BlockPos pos, Direction face, Map<Direction, Integer> ctIndices) {
+        return ctIndices.containsKey(face) ? entry.selectTextureIndex(state, pos, face) : 0;
     }
 
     private Sprites ensureSprites() {

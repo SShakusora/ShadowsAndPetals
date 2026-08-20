@@ -26,7 +26,7 @@ public class ModDataGenerator {
 
         generator.addProvider(true, new ModModelProvider(output));
         generator.addProvider(true, new ModRockeryModelProvider(output));
-        generator.addProvider(true, new ModConnectedTextureBleedProvider(output));
+        generator.addProvider(true, new ModConnectedTextureProvider(output));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.DEFAULT_LOCALE));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.ZH_CN));
         generator.addProvider(true, new AdvancementProvider(output, lookupProvider, List.of(

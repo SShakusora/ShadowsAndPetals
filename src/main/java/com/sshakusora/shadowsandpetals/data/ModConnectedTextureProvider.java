@@ -20,11 +20,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-public class ModConnectedTextureBleedProvider implements DataProvider {
+public class ModConnectedTextureProvider implements DataProvider {
     private final PackOutput.PathProvider texturePathProvider;
     private final Path sourceTextureRoot;
 
-    public ModConnectedTextureBleedProvider(PackOutput output) {
+    public ModConnectedTextureProvider(PackOutput output) {
         this.texturePathProvider = output.createPathProvider(PackOutput.Target.RESOURCE_PACK, "textures");
         Path projectRoot = output.getOutputFolder().toAbsolutePath().normalize()
                 .getParent()
@@ -37,9 +37,20 @@ public class ModConnectedTextureBleedProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cache) {
         List<CompletableFuture<?>> tasks = new ArrayList<>();
         Set<Identifier> scheduledOutputs = new HashSet<>();
+        Set<Identifier> scheduledBaseOutputs = new HashSet<>();
         for (CTRegistry.CTEntry entry : CTRegistry.entries().values()) {
             if (entry.padding() <= 0) {
                 continue;
+            }
+
+            Identifier baseTexture = entry.baseTexture();
+            if (scheduledBaseOutputs.add(baseTexture)) {
+                Identifier sourceTexture = sourceTexture(entry.connectedTextures().getFirst());
+                Path source = sourcePath(sourceTexture);
+                Path output = this.texturePathProvider.file(baseTexture, "png");
+                int sheetSize = entry.type().getSheetSize();
+                tasks.add(CompletableFuture.runAsync(
+                        () -> generateBase(cache, source, output, sourceTexture, sheetSize)));
             }
 
             for (Identifier outputTexture : entry.connectedTextures()) {
@@ -62,7 +73,27 @@ public class ModConnectedTextureBleedProvider implements DataProvider {
 
     @Override
     public String getName() {
-        return "ShadowsAndPetals Connected Texture Bleed";
+        return "ShadowsAndPetals Connected Textures";
+    }
+
+    private static void generateBase(CachedOutput cache, Path source, Path output,
+                                     Identifier sourceTexture, int sheetSize) {
+        try {
+            if (!Files.isRegularFile(source)) {
+                throw new IOException("Missing connected texture source: " + source);
+            }
+
+            BufferedImage sourceImage = ImageIO.read(source.toFile());
+            if (sourceImage == null) {
+                throw new IOException("Unsupported image: " + source);
+            }
+
+            BufferedImage baseImage = cropFirstTile(sourceImage, sourceTexture, sheetSize);
+            byte[] png = encodePng(baseImage);
+            cache.writeIfNeeded(output, png, Hashing.sha256().hashBytes(png));
+        } catch (IOException e) {
+            throw new CompletionException(e);
+        }
     }
 
     private static void generate(CachedOutput cache, Path source, Path output, Identifier sourceTexture,
@@ -104,6 +135,25 @@ public class ModConnectedTextureBleedProvider implements DataProvider {
             }
         }
 
+        return result;
+    }
+
+    static BufferedImage cropFirstTile(BufferedImage source, Identifier sourceTexture, int sheetSize) {
+        if (source.getWidth() != source.getHeight()) {
+            throw new IllegalArgumentException(sourceTexture + " must be square, got "
+                    + source.getWidth() + "x" + source.getHeight());
+        }
+        if (source.getWidth() % sheetSize != 0) {
+            throw new IllegalArgumentException(sourceTexture + " width must be divisible by sheet size " + sheetSize);
+        }
+
+        int tileSize = source.getWidth() / sheetSize;
+        BufferedImage result = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < tileSize; y++) {
+            for (int x = 0; x < tileSize; x++) {
+                result.setRGB(x, y, source.getRGB(x, y));
+            }
+        }
         return result;
     }
 

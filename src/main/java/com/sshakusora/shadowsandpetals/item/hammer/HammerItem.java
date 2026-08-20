@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.item.hammer;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.RawConcreteBlock;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
@@ -158,14 +159,35 @@ public class HammerItem extends Item {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
-        if (player == null
-                || context.getHand() != InteractionHand.MAIN_HAND
-                || !player.getOffhandItem().is(ItemRegistry.CHISEL.get())) {
+        if (player == null || context.getHand() != InteractionHand.MAIN_HAND) {
             return InteractionResult.PASS;
         }
 
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
+        BlockState clickedState = level.getBlockState(clickedPos);
+        if (clickedState.getBlock() instanceof RawConcreteBlock
+                && RawConcreteBlock.isHolePosition(clickedPos, context.getClickedFace())) {
+            if (!level.isClientSide()
+                    && level.setBlock(
+                    clickedPos,
+                    clickedState.cycle(RawConcreteBlock.DENSE),
+                    Block.UPDATE_CLIENTS)) {
+                level.playSound(
+                        null,
+                        clickedPos,
+                        SoundEvents.STONE_HIT,
+                        SoundSource.BLOCKS,
+                        0.7F,
+                        clickedState.getValue(RawConcreteBlock.DENSE) ? 0.65F : 0.8F);
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        if (!player.getOffhandItem().is(ItemRegistry.CHISEL.get())) {
+            return InteractionResult.PASS;
+        }
+
         if (!level.getBlockState(clickedPos).is(Blocks.STONE)) {
             return InteractionResult.PASS;
         }
