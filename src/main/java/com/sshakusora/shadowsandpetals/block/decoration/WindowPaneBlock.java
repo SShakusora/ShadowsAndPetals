@@ -5,9 +5,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -16,17 +19,23 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public class WindowPaneBlock extends HorizontalDirectionalBlock implements SimpleWaterloggedBlock {
+public class WindowPaneBlock extends Block implements SimpleWaterloggedBlock {
     public static final MapCodec<WindowPaneBlock> CODEC = simpleCodec(WindowPaneBlock::new);
-    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
+    private static final VoxelShape X_SHAPE = box(7.375D, 0.0D, 0.0D, 8.625D, 16.0D, 16.0D);
+    private static final VoxelShape Y_SHAPE = box(0.0D, 7.375D, 0.0D, 16.0D, 8.625D, 16.0D);
+    private static final VoxelShape Z_SHAPE = box(0.0D, 0.0D, 7.375D, 16.0D, 16.0D, 8.625D);
 
     public WindowPaneBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
-                .setValue(FACING, Direction.NORTH)
+                .setValue(AXIS, Direction.Axis.Z)
                 .setValue(WATERLOGGED, false));
     }
 
@@ -36,16 +45,41 @@ public class WindowPaneBlock extends HorizontalDirectionalBlock implements Simpl
     }
 
     @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(AXIS)) {
+            case X -> X_SHAPE;
+            case Y -> Y_SHAPE;
+            case Z -> Z_SHAPE;
+        };
+    }
+
+    @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos pos = context.getClickedPos();
         return defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(AXIS, context.getNearestLookingDirection().getAxis())
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(pos).is(Fluids.WATER));
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED);
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        if (rotation == Rotation.CLOCKWISE_90 || rotation == Rotation.COUNTERCLOCKWISE_90) {
+            Direction.Axis axis = state.getValue(AXIS);
+            if (axis.isHorizontal()) {
+                return state.setValue(AXIS, axis == Direction.Axis.X ? Direction.Axis.Z : Direction.Axis.X);
+            }
+        }
+        return state;
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(AXIS, WATERLOGGED);
     }
 
     @Override
@@ -71,4 +105,5 @@ public class WindowPaneBlock extends HorizontalDirectionalBlock implements Simpl
                 ? Fluids.WATER.getSource(false)
                 : super.getFluidState(state);
     }
+
 }

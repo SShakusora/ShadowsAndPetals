@@ -54,8 +54,8 @@ public final class WindowPaneModels {
             Identifier modelId
     ) {
         generator.blockState(MultiVariantGenerator.dispatch(block)
-                .with(PropertyDispatch.initial(WindowPaneBlock.FACING, WindowPaneBlock.WATERLOGGED)
-                        .generate((facing, waterlogged) -> facingVariant(modelId, facing))));
+                .with(PropertyDispatch.initial(WindowPaneBlock.AXIS, WindowPaneBlock.WATERLOGGED)
+                        .generate((axis, waterlogged) -> axisVariant(modelId, axis))));
     }
 
     private static JsonObject childModel(Identifier parent, Identifier texture) {
@@ -76,13 +76,12 @@ public final class WindowPaneModels {
         );
     }
 
-    private static MultiVariant facingVariant(Identifier modelId, Direction facing) {
+    private static MultiVariant axisVariant(Identifier modelId, Direction.Axis axis) {
         MultiVariant variant = BlockModelGenerators.plainVariant(modelId);
-        return switch (facing) {
-            case EAST -> variant.with(BlockModelGenerators.Y_ROT_90);
-            case SOUTH -> variant.with(BlockModelGenerators.Y_ROT_180);
-            case WEST -> variant.with(BlockModelGenerators.Y_ROT_270);
-            default -> variant;
+        return switch (axis) {
+            case X -> variant.with(BlockModelGenerators.Y_ROT_90);
+            case Y -> variant.with(BlockModelGenerators.X_ROT_90);
+            case Z -> variant;
         };
     }
 }

@@ -1,34 +1,26 @@
 {
   "variants": {
-    "facing=east,waterlogged=false": {
+    "axis=x,waterlogged=false": {
       "model": "shadowsandpetals:block/window_pane/warped",
       "y": 90
     },
-    "facing=east,waterlogged=true": {
+    "axis=x,waterlogged=true": {
       "model": "shadowsandpetals:block/window_pane/warped",
       "y": 90
     },
-    "facing=north,waterlogged=false": {
+    "axis=y,waterlogged=false": {
+      "model": "shadowsandpetals:block/window_pane/warped",
+      "x": 90
+    },
+    "axis=y,waterlogged=true": {
+      "model": "shadowsandpetals:block/window_pane/warped",
+      "x": 90
+    },
+    "axis=z,waterlogged=false": {
       "model": "shadowsandpetals:block/window_pane/warped"
     },
-    "facing=north,waterlogged=true": {
+    "axis=z,waterlogged=true": {
       "model": "shadowsandpetals:block/window_pane/warped"
-    },
-    "facing=south,waterlogged=false": {
-      "model": "shadowsandpetals:block/window_pane/warped",
-      "y": 180
-    },
-    "facing=south,waterlogged=true": {
-      "model": "shadowsandpetals:block/window_pane/warped",
-      "y": 180
-    },
-    "facing=west,waterlogged=false": {
-      "model": "shadowsandpetals:block/window_pane/warped",
-      "y": 270
-    },
-    "facing=west,waterlogged=true": {
-      "model": "shadowsandpetals:block/window_pane/warped",
-      "y": 270
     }
   }
 }

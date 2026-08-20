@@ -1,11 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.DyedBlockList;
-import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
-import com.sshakusora.shadowsandpetals.block.RawConcreteBlock;
-import com.sshakusora.shadowsandpetals.block.WoodBlockList;
-import com.sshakusora.shadowsandpetals.block.WoodSetList;
+import com.sshakusora.shadowsandpetals.block.*;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;

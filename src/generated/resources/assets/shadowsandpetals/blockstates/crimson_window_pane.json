@@ -1,34 +1,26 @@
 {
   "variants": {
-    "facing=east,waterlogged=false": {
+    "axis=x,waterlogged=false": {
       "model": "shadowsandpetals:block/window_pane/crimson",
       "y": 90
     },
-    "facing=east,waterlogged=true": {
+    "axis=x,waterlogged=true": {
       "model": "shadowsandpetals:block/window_pane/crimson",
       "y": 90
     },
-    "facing=north,waterlogged=false": {
+    "axis=y,waterlogged=false": {
+      "model": "shadowsandpetals:block/window_pane/crimson",
+      "x": 90
+    },
+    "axis=y,waterlogged=true": {
+      "model": "shadowsandpetals:block/window_pane/crimson",
+      "x": 90
+    },
+    "axis=z,waterlogged=false": {
       "model": "shadowsandpetals:block/window_pane/crimson"
     },
-    "facing=north,waterlogged=true": {
+    "axis=z,waterlogged=true": {
       "model": "shadowsandpetals:block/window_pane/crimson"
-    },
-    "facing=south,waterlogged=false": {
-      "model": "shadowsandpetals:block/window_pane/crimson",
-      "y": 180
-    },
-    "facing=south,waterlogged=true": {
-      "model": "shadowsandpetals:block/window_pane/crimson",
-      "y": 180
-    },
-    "facing=west,waterlogged=false": {
-      "model": "shadowsandpetals:block/window_pane/crimson",
-      "y": 270
-    },
-    "facing=west,waterlogged=true": {
-      "model": "shadowsandpetals:block/window_pane/crimson",
-      "y": 270
     }
   }
 }
