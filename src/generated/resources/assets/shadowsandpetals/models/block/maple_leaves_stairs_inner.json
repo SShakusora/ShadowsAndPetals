@@ -2,8 +2,8 @@
   "parent": "minecraft:block/inner_stairs",
   "render_type": "cutout_mipped",
   "textures": {
-    "bottom": "shadowsandpetals:block/maple_leaves",
-    "side": "shadowsandpetals:block/maple_leaves",
-    "top": "shadowsandpetals:block/maple_leaves"
+    "bottom": "shadowsandpetals:block/maple_leaves_0",
+    "side": "shadowsandpetals:block/maple_leaves_0",
+    "top": "shadowsandpetals:block/maple_leaves_0"
   }
 }

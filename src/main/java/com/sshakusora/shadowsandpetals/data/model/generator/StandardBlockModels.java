@@ -125,6 +125,16 @@ public final class StandardBlockModels {
             Block doubleBlock,
             boolean cutoutMipped
     ) {
+        verticalSlab(context, generator, texture, generator.blockModelId(doubleBlock), cutoutMipped);
+    }
+
+    public static void verticalSlab(
+            BlockModelContext<? extends VerticalSlabBlock> context,
+            SAPBlockModelGenerator generator,
+            Identifier texture,
+            Identifier doubleModel,
+            boolean cutoutMipped
+    ) {
         VerticalSlabBlock block = context.get();
         TextureMapping mapping = shapeTextureMapping(texture);
         Identifier modelId = cutoutMipped
@@ -139,7 +149,7 @@ public final class StandardBlockModels {
                         .select(VerticalSlabBlock.VerticalSlabType.WEST, model.with(BlockModelGenerators.Y_ROT_270))
                         .select(
                                 VerticalSlabBlock.VerticalSlabType.DOUBLE,
-                                BlockModelGenerators.plainVariant(generator.blockModelId(doubleBlock))
+                                BlockModelGenerators.plainVariant(doubleModel)
                         )));
         parentBlockItem(block, generator, modelId);
     }

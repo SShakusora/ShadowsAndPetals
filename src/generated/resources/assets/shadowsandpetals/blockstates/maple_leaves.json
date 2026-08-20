@@ -1,7 +1,18 @@
 {
   "variants": {
-    "": {
-      "model": "shadowsandpetals:block/maple_leaves"
-    }
+    "": [
+      {
+        "model": "shadowsandpetals:block/maple_leaves_0"
+      },
+      {
+        "model": "shadowsandpetals:block/maple_leaves_1"
+      },
+      {
+        "model": "shadowsandpetals:block/maple_leaves_2"
+      },
+      {
+        "model": "shadowsandpetals:block/maple_leaves_3"
+      }
+    ]
   }
 }

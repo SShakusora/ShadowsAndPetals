@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "shadowsandpetals:block/autumn_oak_leaves_3"
+  }
+}

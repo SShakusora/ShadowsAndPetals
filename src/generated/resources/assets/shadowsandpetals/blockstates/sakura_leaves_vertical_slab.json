@@ -1,7 +1,7 @@
 {
   "variants": {
     "type=double": {
-      "model": "shadowsandpetals:block/sakura_leaves"
+      "model": "shadowsandpetals:block/sakura_leaves_0"
     },
     "type=east": {
       "model": "shadowsandpetals:block/sakura_leaves_vertical_slab",

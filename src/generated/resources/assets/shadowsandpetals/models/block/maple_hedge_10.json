@@ -90,7 +90,7 @@
   ],
   "render_type": "cutout_mipped",
   "textures": {
-    "all": "shadowsandpetals:block/maple_leaves",
-    "particle": "shadowsandpetals:block/maple_leaves"
+    "all": "shadowsandpetals:block/maple_leaves_0",
+    "particle": "shadowsandpetals:block/maple_leaves_0"
   }
 }

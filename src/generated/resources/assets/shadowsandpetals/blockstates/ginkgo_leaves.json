@@ -1,7 +1,18 @@
 {
   "variants": {
-    "": {
-      "model": "shadowsandpetals:block/ginkgo_leaves"
-    }
+    "": [
+      {
+        "model": "shadowsandpetals:block/ginkgo_leaves_0"
+      },
+      {
+        "model": "shadowsandpetals:block/ginkgo_leaves_1"
+      },
+      {
+        "model": "shadowsandpetals:block/ginkgo_leaves_2"
+      },
+      {
+        "model": "shadowsandpetals:block/ginkgo_leaves_3"
+      }
+    ]
   }
 }

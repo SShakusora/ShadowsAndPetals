@@ -117,7 +117,7 @@
   ],
   "render_type": "cutout_mipped",
   "textures": {
-    "all": "shadowsandpetals:block/sakura_leaves",
-    "particle": "shadowsandpetals:block/sakura_leaves"
+    "all": "shadowsandpetals:block/sakura_leaves_0",
+    "particle": "shadowsandpetals:block/sakura_leaves_0"
   }
 }

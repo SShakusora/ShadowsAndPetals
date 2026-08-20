@@ -1,7 +1,7 @@
 {
   "variants": {
     "type=double": {
-      "model": "shadowsandpetals:block/maple_leaves"
+      "model": "shadowsandpetals:block/maple_leaves_0"
     },
     "type=east": {
       "model": "shadowsandpetals:block/maple_leaves_vertical_slab",

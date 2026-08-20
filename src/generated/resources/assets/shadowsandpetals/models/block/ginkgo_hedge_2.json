@@ -63,7 +63,7 @@
   ],
   "render_type": "cutout_mipped",
   "textures": {
-    "all": "shadowsandpetals:block/ginkgo_leaves",
-    "particle": "shadowsandpetals:block/ginkgo_leaves"
+    "all": "shadowsandpetals:block/ginkgo_leaves_0",
+    "particle": "shadowsandpetals:block/ginkgo_leaves_0"
   }
 }

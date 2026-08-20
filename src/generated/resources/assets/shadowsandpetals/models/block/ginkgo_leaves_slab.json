@@ -2,8 +2,8 @@
   "parent": "minecraft:block/slab",
   "render_type": "cutout_mipped",
   "textures": {
-    "bottom": "shadowsandpetals:block/ginkgo_leaves",
-    "side": "shadowsandpetals:block/ginkgo_leaves",
-    "top": "shadowsandpetals:block/ginkgo_leaves"
+    "bottom": "shadowsandpetals:block/ginkgo_leaves_0",
+    "side": "shadowsandpetals:block/ginkgo_leaves_0",
+    "top": "shadowsandpetals:block/ginkgo_leaves_0"
   }
 }

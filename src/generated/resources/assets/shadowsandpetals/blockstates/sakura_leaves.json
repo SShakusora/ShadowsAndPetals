@@ -1,7 +1,18 @@
 {
   "variants": {
-    "": {
-      "model": "shadowsandpetals:block/sakura_leaves"
-    }
+    "": [
+      {
+        "model": "shadowsandpetals:block/sakura_leaves_0"
+      },
+      {
+        "model": "shadowsandpetals:block/sakura_leaves_1"
+      },
+      {
+        "model": "shadowsandpetals:block/sakura_leaves_2"
+      },
+      {
+        "model": "shadowsandpetals:block/sakura_leaves_3"
+      }
+    ]
   }
 }

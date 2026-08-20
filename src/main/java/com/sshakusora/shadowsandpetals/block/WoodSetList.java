@@ -530,7 +530,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .blockstate(() -> (context, generator) -> NatureBlockModels.leavesSlab(
                         context,
                         generator,
-                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath() + "_0")
                 ))
                 .loot((provider, slab) -> provider.dropSlab(slab.get()))
                 .recipe((provider, slab) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, slab.get(), 6)
@@ -562,8 +562,8 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .blockstate(() -> (context, generator) -> StandardBlockModels.verticalSlab(
                         context,
                         generator,
-                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath()),
-                        leaves.get(),
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath() + "_0"),
+                        generator.blockModelId(leaves.get()).withSuffix("_0"),
                         true
                 ))
                 .loot((provider, verticalSlab) -> provider.dropSlab(verticalSlab.get()))
@@ -599,7 +599,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .blockstate(() -> (context, generator) -> NatureBlockModels.leavesStairs(
                         context,
                         generator,
-                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath() + "_0")
                 ))
                 .loot((provider, stairs) -> provider.dropSelf(stairs.get()))
                 .recipe((provider, stairs) -> provider.shaped(RecipeCategory.BUILDING_BLOCKS, stairs.get(), 4)
@@ -628,7 +628,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .blockstate(() -> (context, generator) -> NatureBlockModels.hedge(
                         context,
                         generator,
-                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath() + "_0")
                 ))
                 .loot((provider, hedge) -> provider.dropSelf(hedge.get()))
                 .recipe((provider, hedge) -> provider.shaped(RecipeCategory.DECORATIONS, hedge.get(), 6)

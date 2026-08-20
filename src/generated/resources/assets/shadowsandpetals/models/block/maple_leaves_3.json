@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/leaves",
+  "textures": {
+    "all": "shadowsandpetals:block/maple_leaves_3"
+  }
+}

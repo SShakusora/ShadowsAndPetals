@@ -2,8 +2,8 @@
   "parent": "minecraft:block/stairs",
   "render_type": "cutout_mipped",
   "textures": {
-    "bottom": "shadowsandpetals:block/sakura_leaves",
-    "side": "shadowsandpetals:block/sakura_leaves",
-    "top": "shadowsandpetals:block/sakura_leaves"
+    "bottom": "shadowsandpetals:block/sakura_leaves_0",
+    "side": "shadowsandpetals:block/sakura_leaves_0",
+    "top": "shadowsandpetals:block/sakura_leaves_0"
   }
 }

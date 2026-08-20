@@ -44,7 +44,26 @@ public final class NatureBlockModels {
             SAPBlockModelGenerator generator,
             Identifier texture
     ) {
-        StandardBlockModels.cubeAll(context, generator, texture);
+        LeavesBlock block = context.get();
+        Identifier baseModelId = generator.blockModelId(block);
+        for (int index = 0; index < 4; index++) {
+            Identifier modelId = baseModelId.withSuffix("_" + index);
+            generator.create(
+                    ModelTemplates.LEAVES,
+                    modelId,
+                    new TextureMapping().put(TextureSlot.ALL, new Material(texture.withSuffix("_" + index)))
+            );
+        }
+        generator.blockState(BlockModelGenerators.createSimpleBlock(
+                block,
+                BlockModelGenerators.variants(
+                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_0")),
+                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_1")),
+                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_2")),
+                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_3"))
+                )
+        ));
+        StandardBlockModels.parentBlockItem(block, generator, baseModelId.withSuffix("_0"));
     }
 
     public static void leavesSlab(

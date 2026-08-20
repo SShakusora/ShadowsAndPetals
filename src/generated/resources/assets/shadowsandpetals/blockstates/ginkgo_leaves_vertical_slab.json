@@ -1,7 +1,7 @@
 {
   "variants": {
     "type=double": {
-      "model": "shadowsandpetals:block/ginkgo_leaves"
+      "model": "shadowsandpetals:block/ginkgo_leaves_0"
     },
     "type=east": {
       "model": "shadowsandpetals:block/ginkgo_leaves_vertical_slab",
