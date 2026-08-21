@@ -54,15 +54,16 @@ public final class NatureBlockModels {
                     new TextureMapping().put(TextureSlot.ALL, new Material(texture.withSuffix("_" + index)))
             );
         }
-        generator.blockState(BlockModelGenerators.createSimpleBlock(
-                block,
-                BlockModelGenerators.variants(
-                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_0")),
-                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_1")),
-                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_2")),
-                        BlockModelGenerators.plainModel(baseModelId.withSuffix("_3"))
-                )
-        ));
+        MultiVariant randomizedModels = BlockModelGenerators.variants(
+                BlockModelGenerators.plainModel(baseModelId.withSuffix("_0")),
+                BlockModelGenerators.plainModel(baseModelId.withSuffix("_1")),
+                BlockModelGenerators.plainModel(baseModelId.withSuffix("_2")),
+                BlockModelGenerators.plainModel(baseModelId.withSuffix("_3"))
+        );
+        generator.blockState(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(LeavesBlock.PERSISTENT)
+                        .select(false, randomizedModels)
+                        .select(true, BlockModelGenerators.plainVariant(baseModelId.withSuffix("_0")))));
         StandardBlockModels.parentBlockItem(block, generator, baseModelId.withSuffix("_0"));
     }
 

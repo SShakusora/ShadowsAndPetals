@@ -1,6 +1,6 @@
 {
   "variants": {
-    "": [
+    "persistent=false": [
       {
         "model": "shadowsandpetals:block/sakura_leaves_0"
       },
@@ -13,6 +13,9 @@
       {
         "model": "shadowsandpetals:block/sakura_leaves_3"
       }
-    ]
+    ],
+    "persistent=true": {
+      "model": "shadowsandpetals:block/sakura_leaves_0"
+    }
   }
 }
