@@ -7,6 +7,7 @@ import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationDemoSettings;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -213,6 +214,11 @@ public class HarrowItem extends Item {
         BlockState state = level.getBlockState(pos);
         if (isNotDiggableSand(state)) {
             return false;
+        }
+        // Temporary showcase override. Disable SandExcavationDemoSettings.ENABLED
+        // to restore the replaceable-above, beach-biome, and nearby-water checks.
+        if (SandExcavationDemoSettings.ENABLED) {
+            return true;
         }
         if (!level.getBlockState(pos.above()).canBeReplaced()) {
             return false;
