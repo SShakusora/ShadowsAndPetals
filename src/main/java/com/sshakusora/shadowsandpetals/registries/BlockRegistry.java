@@ -27,9 +27,11 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
@@ -56,28 +58,33 @@ public class BlockRegistry {
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
             "秋橡树树叶",
-            () -> ColorParticleOption.create(ParticleTypes.TINTED_LEAVES, ARGB.color(255, 176, 106, 45))
+            () -> ColorParticleOption.create(ParticleTypes.TINTED_LEAVES, ARGB.color(255, 176, 106, 45)),
+            MapColor.COLOR_ORANGE
     );
     public static final DeferredBlock<SlabBlock> AUTUMN_OAK_LEAVES_SLAB = WoodSetList.treeLeavesSlab(
             "autumn_oak_leaves_slab",
             AUTUMN_OAK_LEAVES,
-            "秋橡树树叶台阶"
+            "秋橡树树叶台阶",
+            MapColor.COLOR_ORANGE
     );
     public static final DeferredBlock<LeavesVerticalSlabBlock> AUTUMN_OAK_LEAVES_VERTICAL_SLAB = WoodSetList.treeLeavesVerticalSlab(
             "autumn_oak_leaves_vertical_slab",
             AUTUMN_OAK_LEAVES_SLAB,
             AUTUMN_OAK_LEAVES,
-            "竖直秋橡树树叶台阶"
+            "竖直秋橡树树叶台阶",
+            MapColor.COLOR_ORANGE
     );
     public static final DeferredBlock<StairBlock> AUTUMN_OAK_LEAVES_STAIRS = WoodSetList.treeLeavesStairs(
             "autumn_oak_leaves_stairs",
             AUTUMN_OAK_LEAVES,
-            "秋橡树树叶楼梯"
+            "秋橡树树叶楼梯",
+            MapColor.COLOR_ORANGE
     );
     public static final DeferredBlock<HedgeBlock> AUTUMN_OAK_HEDGE = WoodSetList.treeHedge(
             "autumn_oak_hedge",
             AUTUMN_OAK_LEAVES,
-            "秋橡树树篱"
+            "秋橡树树篱",
+            MapColor.COLOR_ORANGE
     );
 
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
@@ -115,6 +122,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK)
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.STONE)
+                    .mapColor(MapColor.DIRT)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
@@ -145,6 +153,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(1.0F)
                     .sound(SoundType.GLASS)
+                    .mapColor(MapColor.NONE)
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.WOOD_POST_HANGING_CONNECTIONS)
             .withItem()
@@ -237,6 +246,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.STONE)
+                    .mapColor(MapColor.CLAY)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
@@ -411,7 +421,8 @@ public class BlockRegistry {
             .block("bedroom_lamp", BedroomLampBlock::new)
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(BedroomLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
@@ -441,6 +452,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(WallLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
@@ -470,6 +482,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(EmergencyLampBlock.LIT) ? 10 : 0))
             .withItem()
@@ -509,6 +522,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -553,6 +567,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
                     .dynamicShape()
                     .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
             .blockstate(() -> DecorationBlockModels::recessedLampComposite)
@@ -566,6 +581,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
                     .noOcclusion()
                     .lightLevel(state -> state.getValue(DeskLampBlock.LIT) ? 10 : 0))
             .withItem()
@@ -594,6 +610,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICKS)
                     .strength(1.5F, 6.0F)
                     .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
@@ -622,6 +639,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_SLAB)
                     .strength(1.5F, 6.0F)
                     .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
             .withItem()
@@ -640,6 +658,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_SLAB)
                     .strength(1.5F, 6.0F)
                     .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
@@ -669,6 +688,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_STAIRS)
                     .strength(1.5F, 6.0F)
                     .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
             .withItem()
@@ -715,6 +735,7 @@ public class BlockRegistry {
             .block("red_lacquered_window_pane", WindowPaneBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .sound(SoundType.WOOD)
+                    .mapColor(DyeColor.RED)
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
@@ -736,7 +757,8 @@ public class BlockRegistry {
             .block("red_lacquered_wood_pillar", WoodPillarBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD))
+                    .sound(SoundType.WOOD)
+                    .mapColor(DyeColor.RED))
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
             .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_PILLARS)
@@ -835,6 +857,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
+                    .mapColor(color)
                     .noOcclusion())
             .withItem()
             .tooltipDescription(tooltip -> tooltip
@@ -869,7 +892,8 @@ public class BlockRegistry {
             .block("samon", SamonBlock::new)
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(0.7F)
-                    .sound(SoundType.STONE))
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.SAND))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
             .blockstate(() -> DecorationBlockModels::samon)
@@ -899,6 +923,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.BAMBOO)
+                    .mapColor(MapColor.STONE)
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
@@ -927,6 +952,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.of()
                     .strength(1.0F, 1.5F)
                     .sound(SoundType.BAMBOO)
+                    .mapColor(MapColor.PLANT)
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
@@ -982,6 +1008,7 @@ public class BlockRegistry {
                 .properties(p -> BlockBehaviour.Properties.of()
                         .strength(1.5F, 6.0F)
                         .sound(SoundType.STONE)
+                        .mapColor(MapColor.STONE)
                         .noOcclusion()
                         .requiresCorrectToolForDrops())
                 .withItem()
