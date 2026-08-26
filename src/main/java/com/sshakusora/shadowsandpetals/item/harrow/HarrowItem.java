@@ -45,7 +45,7 @@ import net.neoforged.neoforge.common.ItemAbility;
 public class HarrowItem extends Item {
     private static final int USE_DURATION = 200;
     private static final int DIGGING_ANIMATION_LOOP_TICKS = 20;
-    private static final int INWARD_PARTICLE_TICK = 15;
+    private static final int INWARD_EFFECT_TICK = 15;
     private static final double DUST_PARTICLE_SPEED = 3.0;
     private static final Direction[] FACINGS = {
             Direction.NORTH,
@@ -185,7 +185,9 @@ public class HarrowItem extends Item {
         if (state.shouldSpawnTerrainParticles() && state.getRenderShape() != RenderShape.INVISIBLE) {
             spawnDustParticles(level, blockHit, state, livingEntity.getViewVector(0.0F), timeElapsed);
         }
-        level.playSound(player, pos, SoundEvents.BRUSH_SAND, SoundSource.BLOCKS);
+        if (isInwardEffectTick(timeElapsed)) {
+            level.playSound(player, pos, SoundEvents.BRUSH_SAND, SoundSource.BLOCKS);
+        }
 
         if (level instanceof ServerLevel serverLevel
                 && level.getBlockEntity(pos) instanceof SandExcavationBlockEntity excavation
@@ -263,7 +265,7 @@ public class HarrowItem extends Item {
             Vec3 viewVector,
             int timeElapsed
     ) {
-        if (timeElapsed % DIGGING_ANIMATION_LOOP_TICKS != INWARD_PARTICLE_TICK) {
+        if (!isInwardEffectTick(timeElapsed)) {
             return;
         }
 
@@ -284,6 +286,10 @@ public class HarrowItem extends Item {
                     inwardDirection.z * speed
             );
         }
+    }
+
+    private static boolean isInwardEffectTick(int timeElapsed) {
+        return timeElapsed % DIGGING_ANIMATION_LOOP_TICKS == INWARD_EFFECT_TICK;
     }
 
     private static int indexOf(Direction direction) {
