@@ -1,9 +1,13 @@
 package com.sshakusora.shadowsandpetals.item.harrow;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
+import com.sshakusora.shadowsandpetals.client.animation.UseAnimationPlaybackManager;
+import com.sshakusora.shadowsandpetals.client.animation.UseAnimationPlayer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
@@ -12,7 +16,12 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public final class HarrowClientExtensions implements IClientItemExtensions {
+    private static final float TICKS_PER_SECOND = 20.0F;
+
     @Override
     public HumanoidModel.@Nullable ArmPose getArmPose(
             LivingEntity entity,
@@ -20,11 +29,18 @@ public final class HarrowClientExtensions implements IClientItemExtensions {
             ItemStack stack
     ) {
         if (!(stack.getItem() instanceof HarrowItem)
-                || !entity.isUsingItem()
                 || entity.getUsedItemHand() != hand) {
             return null;
         }
-        return HarrowArmPoseEnumExtensions.getHarrowDiggingPose();
+        var playback = UseAnimationPlaybackManager.INSTANCE.observe(
+                entity.getId(),
+                SAPAnimations.HARROW,
+                isHarrowDiggingUse(entity),
+                usedArm(entity),
+                absoluteTime(entity, 0.0F));
+        return playback == null
+                ? null
+                : HarrowArmPoseEnumExtensions.getHarrowDiggingPose();
     }
 
     @Override
@@ -38,13 +54,27 @@ public final class HarrowClientExtensions implements IClientItemExtensions {
             float swingProcess
     ) {
         if (!(itemInHand.getItem() instanceof HarrowItem)
-                || !player.isUsingItem()
                 || player.getUsedItemHand() != handForArm(player, arm)) {
             return false;
         }
 
-        applyFirstPersonHarrowPose(poseStack, player, arm, partialTick, equipProcess);
-        return true;
+        float nowSeconds = absoluteTime(player, partialTick);
+        var playback = UseAnimationPlaybackManager.INSTANCE.observe(
+                player.getId(),
+                SAPAnimations.HARROW,
+                isHarrowDiggingUse(player),
+                usedArm(player),
+                nowSeconds);
+        if (playback == null) {
+            return false;
+        }
+        return UseAnimationPlayer.applyFirstPerson(
+                SAPAnimations.HARROW,
+                poseStack,
+                player,
+                arm,
+                playback.actualUseArm(),
+                playback.sample(nowSeconds));
     }
 
     private static InteractionHand handForArm(LocalPlayer player, HumanoidArm arm) {
@@ -56,38 +86,58 @@ public final class HarrowClientExtensions implements IClientItemExtensions {
             HumanoidRenderState state,
             HumanoidArm arm
     ) {
-        if (!state.isUsingItem) {
+        if (!(state instanceof AvatarRenderState avatarState)) {
             return;
         }
-        var modelArm = model.getArm(arm);
-        modelArm.xRot = modelArm.xRot * 0.5F - (float) (Math.PI / 5.0);
-        modelArm.yRot = 0.0F;
+        float nowSeconds = state.ageInTicks / TICKS_PER_SECOND;
+        var playback = UseAnimationPlaybackManager.INSTANCE.find(
+                avatarState.id, SAPAnimations.HARROW, nowSeconds);
+        if (playback == null) {
+            return;
+        }
+        UseAnimationPlayer.applyThirdPerson(
+                SAPAnimations.HARROW,
+                model,
+                state,
+                playback.actualUseArm(),
+                playback.sample(nowSeconds));
     }
 
-    private static void applyFirstPersonHarrowPose(
-            PoseStack poseStack,
-            LocalPlayer player,
-            HumanoidArm arm,
-            float partialTick,
-            float equipProcess
-    ) {
-        int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
-        poseStack.translate(direction * 0.56F, -0.52F + equipProcess * -0.6F, -0.72F);
+    private static boolean isHarrowDiggingUse(LivingEntity entity) {
+        return entity.isUsingItem()
+                && entity.getUseItem().getItem() instanceof HarrowItem
+                && entity.getUseItem().getUseAnimation()
+                == HarrowUseAnimationEnumExtensions.getHarrowDigging();
+    }
 
-        float remainingTicks = player.getUseItemRemainingTicks() % 10;
-        float cycleProgress = 1.0F - (remainingTicks - partialTick + 1.0F) / 10.0F;
-        float swipeAngle = -15.0F + 75.0F * (float) Math.cos(cycleProgress * 2.0F * Math.PI);
-        if (arm == HumanoidArm.LEFT) {
-            poseStack.translate(0.1F, 0.83F, 0.35F);
-            poseStack.mulPose(Axis.XP.rotationDegrees(-80.0F));
-            poseStack.mulPose(Axis.YP.rotationDegrees(-90.0F));
-            poseStack.mulPose(Axis.XP.rotationDegrees(swipeAngle));
-            poseStack.translate(-0.3F, 0.22F, 0.35F);
-        } else {
-            poseStack.translate(-0.25F, 0.22F, 0.35F);
-            poseStack.mulPose(Axis.XP.rotationDegrees(-80.0F));
-            poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
-            poseStack.mulPose(Axis.XP.rotationDegrees(swipeAngle));
+    private static HumanoidArm usedArm(LivingEntity entity) {
+        return entity.getUsedItemHand() == InteractionHand.MAIN_HAND
+                ? entity.getMainArm()
+                : entity.getMainArm().getOpposite();
+    }
+
+    public static void clientTick() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            UseAnimationPlaybackManager.INSTANCE.clear();
+            return;
         }
+
+        Set<Integer> livePlayerIds = new HashSet<>();
+        for (var player : minecraft.level.players()) {
+            livePlayerIds.add(player.getId());
+            UseAnimationPlaybackManager.INSTANCE.observe(
+                    player.getId(),
+                    SAPAnimations.HARROW,
+                    isHarrowDiggingUse(player),
+                    usedArm(player),
+                    absoluteTime(player, 0.0F));
+        }
+        UseAnimationPlaybackManager.INSTANCE.retainEntities(
+                SAPAnimations.HARROW, livePlayerIds);
+    }
+
+    private static float absoluteTime(LivingEntity entity, float partialTick) {
+        return (entity.tickCount + partialTick) / TICKS_PER_SECOND;
     }
 }

@@ -19,6 +19,19 @@ public final class SAPAnimations {
                     .thirdPerson()
                     .register();
 
+    public static final UseAnimationProfile HARROW =
+            SAPAnimationRegistries.useAnimation("harrow")
+                    .clip("use/harrow_intro")
+                    .clip("use/harrow")
+                    .clip("use/harrow_outro")
+                    .sequence(
+                            "use/harrow_intro",
+                            "use/harrow",
+                            "use/harrow_outro")
+                    .firstPerson()
+                    .thirdPerson()
+                    .register();
+
     private SAPAnimations() {
     }
 

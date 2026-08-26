@@ -44,6 +44,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         HammerClientExtensions.clientTick();
+        HarrowClientExtensions.clientTick();
     }
 
     @SubscribeEvent

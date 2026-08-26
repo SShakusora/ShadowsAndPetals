@@ -1,0 +1,447 @@
+{
+  "length": 1,
+  "loop": true,
+  "animations": [
+    {
+      "bone": "first_person_right_item",
+      "target": "minecraft:position",
+      "keyframes": [
+        {
+          "timestamp": 0,
+          "target": [
+            -2.199884,
+            1.409539,
+            -1.47435
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.20833,
+          "target": [
+            -1.79,
+            1.99,
+            -1.52
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.29167,
+          "target": [
+            -1.485316,
+            2.431608,
+            -1.559684
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.375,
+          "target": [
+            -0.867599,
+            2.479675,
+            -1.316292
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.41667,
+          "target": [
+            -2.04277,
+            1.634754,
+            -1.48973
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.5,
+          "target": [
+            -2.101245,
+            1.54994,
+            -1.481255
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.58333,
+          "target": [
+            -2.201301,
+            1.406915,
+            -1.468699
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.70833,
+          "target": [
+            -3.200558,
+            -0.020252,
+            -1.344442
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.95833,
+          "target": [
+            -2.342821,
+            1.205217,
+            -1.456413
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 1,
+          "target": [
+            -2.199884,
+            1.409539,
+            -1.47435
+          ],
+          "interpolation": "minecraft:linear"
+        }
+      ]
+    },
+    {
+      "bone": "first_person_right_item",
+      "target": "minecraft:rotation",
+      "keyframes": [
+        {
+          "timestamp": 0,
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.125,
+          "target": [
+            13.9275,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.20833,
+          "target": [
+            0.71,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.29167,
+          "target": [
+            -42.5,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.375,
+          "target": [
+            -85,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.41667,
+          "target": [
+            -84.25,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.5,
+          "target": [
+            -92.5,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.58333,
+          "target": [
+            -92.5,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.625,
+          "target": [
+            -88.75,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.70833,
+          "target": [
+            -87.5,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.95833,
+          "target": [
+            2.5,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 1,
+          "target": [
+            0,
+            0,
+            0
+          ],
+          "interpolation": "minecraft:linear"
+        }
+      ]
+    },
+    {
+      "bone": "right_arm",
+      "target": "minecraft:position",
+      "keyframes": [
+        {
+          "timestamp": 0,
+          "target": [
+            0,
+            0,
+            0.5
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.20833,
+          "target": [
+            0,
+            0,
+            -1.5
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.5,
+          "target": [
+            0,
+            -0.425,
+            -1.435
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.70833,
+          "target": [
+            0,
+            -0.425,
+            0.215
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 1,
+          "target": [
+            0,
+            0,
+            0.5
+          ],
+          "interpolation": "minecraft:linear"
+        }
+      ]
+    },
+    {
+      "bone": "right_arm",
+      "target": "minecraft:rotation",
+      "keyframes": [
+        {
+          "timestamp": 0,
+          "target": [
+            -73.5297,
+            -24.0928,
+            -6.8818
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.20833,
+          "target": [
+            -60.7656,
+            -19.9267,
+            -10.9828
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.375,
+          "target": [
+            -20.5763,
+            -9.3072,
+            -23.3068
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.5,
+          "target": [
+            -42.835,
+            -16.2305,
+            -17.2309
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.70833,
+          "target": [
+            -42.835,
+            -16.2305,
+            -17.2309
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 1,
+          "target": [
+            -73.5297,
+            -24.0928,
+            -6.8818
+          ],
+          "interpolation": "minecraft:linear"
+        }
+      ]
+    },
+    {
+      "bone": "left_arm",
+      "target": "minecraft:position",
+      "keyframes": [
+        {
+          "timestamp": 0,
+          "target": [
+            0,
+            0,
+            -2.45
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.20833,
+          "target": [
+            0,
+            0,
+            -3.06
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.375,
+          "target": [
+            0,
+            0,
+            -0.55
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.5,
+          "target": [
+            0,
+            0,
+            -2.155
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.70833,
+          "target": [
+            0,
+            0,
+            -0.705
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 1,
+          "target": [
+            0,
+            0,
+            -2.45
+          ],
+          "interpolation": "minecraft:linear"
+        }
+      ]
+    },
+    {
+      "bone": "left_arm",
+      "target": "minecraft:rotation",
+      "keyframes": [
+        {
+          "timestamp": 0,
+          "target": [
+            -67.6901,
+            25.7154,
+            10.0953
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.20833,
+          "target": [
+            -59.1607,
+            21.8755,
+            12.749
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.375,
+          "target": [
+            -20.1742,
+            10.1779,
+            25.6846
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.5,
+          "target": [
+            -34.4604,
+            15.1578,
+            21.3909
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 0.70833,
+          "target": [
+            -34.4604,
+            15.1578,
+            21.3909
+          ],
+          "interpolation": "minecraft:linear"
+        },
+        {
+          "timestamp": 1,
+          "target": [
+            -67.6901,
+            25.7154,
+            10.0953
+          ],
+          "interpolation": "minecraft:linear"
+        }
+      ]
+    }
+  ]
+}
