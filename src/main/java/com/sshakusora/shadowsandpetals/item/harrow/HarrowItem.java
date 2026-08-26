@@ -24,7 +24,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -45,6 +44,9 @@ import net.neoforged.neoforge.common.ItemAbility;
 
 public class HarrowItem extends Item {
     private static final int USE_DURATION = 200;
+    private static final int DIGGING_ANIMATION_LOOP_TICKS = 20;
+    private static final int INWARD_PARTICLE_TICK = 15;
+    private static final double DUST_PARTICLE_SPEED = 3.0;
     private static final Direction[] FACINGS = {
             Direction.NORTH,
             Direction.EAST,
@@ -180,11 +182,8 @@ public class HarrowItem extends Item {
             return;
         }
 
-        HumanoidArm arm = livingEntity.getUsedItemHand() == InteractionHand.MAIN_HAND
-                ? player.getMainArm()
-                : player.getMainArm().getOpposite();
         if (state.shouldSpawnTerrainParticles() && state.getRenderShape() != RenderShape.INVISIBLE) {
-            spawnDustParticles(level, blockHit, state, livingEntity.getViewVector(0.0F), arm);
+            spawnDustParticles(level, blockHit, state, livingEntity.getViewVector(0.0F), timeElapsed);
         }
         level.playSound(player, pos, SoundEvents.BRUSH_SAND, SoundSource.BLOCKS);
 
@@ -262,22 +261,27 @@ public class HarrowItem extends Item {
             BlockHitResult hitResult,
             BlockState state,
             Vec3 viewVector,
-            HumanoidArm arm
+            int timeElapsed
     ) {
-        int flip = arm == HumanoidArm.RIGHT ? 1 : -1;
+        if (timeElapsed % DIGGING_ANIMATION_LOOP_TICKS != INWARD_PARTICLE_TICK) {
+            return;
+        }
+
         Vec3 hit = hitResult.getLocation();
+        Vec3 inwardDirection = new Vec3(-viewVector.x, 0.0, -viewVector.z).normalize();
         BlockParticleOption particle = new BlockParticleOption(ParticleTypes.BLOCK, state);
         int count = level.getRandom().nextInt(7, 12);
 
         for (int i = 0; i < count; i++) {
+            double speed = DUST_PARTICLE_SPEED * level.getRandom().nextDouble();
             level.addParticle(
                     particle,
                     hit.x,
                     hit.y,
                     hit.z,
-                    viewVector.z() * flip * 3.0 * level.getRandom().nextDouble(),
+                    inwardDirection.x * speed,
                     0.0,
-                    -viewVector.x() * flip * 3.0 * level.getRandom().nextDouble()
+                    inwardDirection.z * speed
             );
         }
     }
