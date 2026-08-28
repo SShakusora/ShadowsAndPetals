@@ -57,6 +57,7 @@ import java.util.List;
  * part destroys the entire rockery.
  */
 public class RockeryBlock extends Block implements BlockOutlineProvider, SimpleWaterloggedBlock {
+    private static final String OBJ_COLLISION_KEY = ShadowsAndPetals.MOD_ID + ":collision";
     public static final MapCodec<RockeryBlock> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     ExtraCodecs.NON_NEGATIVE_INT.fieldOf("width").forGetter(b -> b.dimensions.width()),
@@ -364,6 +365,9 @@ public class RockeryBlock extends Block implements BlockOutlineProvider, SimpleW
     }
 
     private static VoxelShape shapeFromModel(JsonObject model) {
+        if (model.has(OBJ_COLLISION_KEY)) {
+            return shapeFromCollisionMetadata(model.get(OBJ_COLLISION_KEY));
+        }
         if (!model.has("elements") || !model.get("elements").isJsonArray()) {
             return Shapes.block();
         }
@@ -385,6 +389,41 @@ public class RockeryBlock extends Block implements BlockOutlineProvider, SimpleW
             shape = Shapes.or(shape, box(bounds.minX(), bounds.minY(), bounds.minZ(), bounds.maxX(), bounds.maxY(), bounds.maxZ()));
         }
         return shape.isEmpty() ? Shapes.block() : shape.optimize();
+    }
+
+    private static VoxelShape shapeFromCollisionMetadata(JsonElement metadata) {
+        if (!metadata.isJsonArray()) {
+            return Shapes.block();
+        }
+
+        VoxelShape shape = Shapes.empty();
+        for (JsonElement element : metadata.getAsJsonArray()) {
+            if (!element.isJsonObject()) {
+                continue;
+            }
+            JsonObject box = element.getAsJsonObject();
+            if (!box.has("from") || !box.has("to")
+                    || !box.get("from").isJsonArray() || !box.get("to").isJsonArray()) {
+                continue;
+            }
+            JsonArray from = box.getAsJsonArray("from");
+            JsonArray to = box.getAsJsonArray("to");
+            if (from.size() < 3 || to.size() < 3) {
+                continue;
+            }
+
+            double minX = Math.clamp(from.get(0).getAsDouble(), 0.0D, 16.0D);
+            double minY = Math.clamp(from.get(1).getAsDouble(), 0.0D, 16.0D);
+            double minZ = Math.clamp(from.get(2).getAsDouble(), 0.0D, 16.0D);
+            double maxX = Math.clamp(to.get(0).getAsDouble(), 0.0D, 16.0D);
+            double maxY = Math.clamp(to.get(1).getAsDouble(), 0.0D, 16.0D);
+            double maxZ = Math.clamp(to.get(2).getAsDouble(), 0.0D, 16.0D);
+            if (maxX - minX <= 1.0E-6D || maxY - minY <= 1.0E-6D || maxZ - minZ <= 1.0E-6D) {
+                continue;
+            }
+            shape = Shapes.or(shape, box(minX, minY, minZ, maxX, maxY, maxZ));
+        }
+        return shape.isEmpty() ? Shapes.empty() : shape.optimize();
     }
 
     private static VoxelShape rotateClockwise(VoxelShape shape) {

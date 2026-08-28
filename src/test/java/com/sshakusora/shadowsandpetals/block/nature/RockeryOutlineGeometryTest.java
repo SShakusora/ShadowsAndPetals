@@ -290,6 +290,31 @@ class RockeryOutlineGeometryTest {
         }
     }
 
+    @Test
+    void prefersExactObjOutlineOverCollisionMetadata() throws IOException {
+        ClassLoader classLoader = RockeryOutlineGeometryTest.class.getClassLoader();
+        JsonObject model;
+        try (InputStream stream = classLoader.getResourceAsStream(
+                "assets/shadowsandpetals/models/block/rock/1x2x2/0_0_0.json"
+        )) {
+            assertNotNull(stream);
+            model = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8))
+                    .getAsJsonObject();
+        }
+
+        OutlineGeometry exact = RockeryOutlineGeometry.fromModel(model);
+        assertNotNull(exact);
+
+        JsonObject withDistractor = model.deepCopy();
+        withDistractor.getAsJsonArray("shadowsandpetals:collision").add(JsonParser.parseString("""
+                {"from": [-100, -100, -100], "to": [-90, -90, -90]}
+                """));
+        OutlineGeometry stillExact = RockeryOutlineGeometry.fromModel(withDistractor);
+
+        assertNotNull(stillExact);
+        assertEquals(exact.lines(), stillExact.lines());
+    }
+
     private static boolean isPoint(Vec3 actual, double x, double y, double z) {
         return Math.abs(actual.x - x) <= EPSILON
                 && Math.abs(actual.y - y) <= EPSILON

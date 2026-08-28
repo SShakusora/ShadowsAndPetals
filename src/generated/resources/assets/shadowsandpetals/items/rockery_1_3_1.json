@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "shadowsandpetals:block/rock/1_1_1"
+    "model": "shadowsandpetals:block/rock/1x1x1/0_0_0"
   }
 }

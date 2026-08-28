@@ -1018,7 +1018,7 @@ public class BlockRegistry {
                 .creativeTab(CreativeTabKey.NATURE)
                 .tags(BlockTags.MINEABLE_WITH_PICKAXE)
                 .blockstate(() -> (context, generator) -> NatureBlockModels.rockery(context, generator, dims))
-                .clientItem(ShadowsAndPetals.asResource("block/rock/1_1_1"))
+                .clientItem(ShadowsAndPetals.asResource("block/rock/1x1x1/0_0_0"))
                 .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
                 .lang("en_us", "rockery")
                 .lang(DatagenLangRegistry.ZH_CN, "石山")

@@ -1,68 +1,17 @@
 {
-  "credit": "Made with Blockbench",
-  "elements": [
+  "parent": "shadowsandpetals:block/rock/obj_parent",
+  "automatic_culling": false,
+  "flip_v": true,
+  "loader": "neoforge:obj",
+  "model": "shadowsandpetals:models/block/rock/1x2x1/0_1_0.obj",
+  "shade_quads": true,
+  "shadowsandpetals:collision": [
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            0,
-            0,
-            1,
-            1.875
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            2.25,
-            0,
-            3.125,
-            1.875
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            3.25,
-            0,
-            4.125,
-            1.875
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            1.625,
-            8,
-            0.75,
-            7
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            1.125,
-            0,
-            2.125,
-            1.875
-          ]
-        }
-      },
       "from": [
         5,
         0,
         4
       ],
-      "rotation": {
-        "angle": 0,
-        "axis": "y",
-        "origin": [
-          9,
-          -16,
-          2
-        ]
-      },
       "to": [
         12,
         15,
@@ -70,267 +19,56 @@
       ]
     },
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            2.25,
-            4,
-            3.125,
-            5.25
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            5.5,
-            6,
-            6,
-            7.25
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            6.125,
-            6,
-            6.625,
-            7.25
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            8,
-            8.5,
-            7.5,
-            7.625
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            3.25,
-            4,
-            4.125,
-            5.25
-          ]
-        }
-      },
       "from": [
-        11,
+        9.913322429539168,
         0,
         5.75
       ],
-      "rotation": {
-        "angle": 2.5,
-        "axis": "z",
-        "origin": [
-          15,
-          -15,
-          4.75
-        ]
-      },
       "to": [
         15,
-        10,
+        9.976205539546445,
         12.75
       ]
     },
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            0,
-            4,
-            1,
-            5
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            5.5,
-            0,
-            6.125,
-            1
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            5.5,
-            3,
-            6.125,
-            4
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            7.375,
-            8.25,
-            6.75,
-            7.25
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            1.125,
-            4,
-            2.125,
-            5
-          ]
-        }
-      },
       "from": [
         0,
         0,
         3
       ],
-      "rotation": {
-        "angle": -5,
-        "axis": "z",
-        "origin": [
-          0,
-          -15,
-          3
-        ]
-      },
       "to": [
-        5,
-        8,
+        6.985555573654866,
+        7.912478056110146,
         11
       ]
     },
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            6.25,
-            0,
-            6.875,
-            0.5
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            4.25,
-            2.25,
-            5.125,
-            2.75
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            8.375,
-            7.5,
-            7.5,
-            6.875
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            6.25,
-            2.5,
-            6.875,
-            3
-          ]
-        }
-      },
       "from": [
         4,
         0,
-        11
+        9.363067397335767
       ],
-      "rotation": {
-        "angle": -5,
-        "axis": "x",
-        "origin": [
-          8,
-          -15,
-          16
-        ]
-      },
       "to": [
         11,
-        4,
+        3.9276992637431647,
         16
       ]
     },
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            4.25,
-            6.625,
-            4.875,
-            6.875
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            4.25,
-            0,
-            5.375,
-            0.25
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            2.875,
-            7.875,
-            1.75,
-            7.25
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x2x1",
-          "uv": [
-            6.75,
-            5,
-            7.375,
-            5.25
-          ]
-        }
-      },
       "from": [
         4,
         0,
         0
       ],
-      "rotation": {
-        "angle": 5,
-        "axis": "x",
-        "origin": [
-          9,
-          -15,
-          0
-        ]
-      },
       "to": [
         13,
-        2,
-        5
+        1.935309867559674,
+        6.462621117168917
       ]
     }
   ],
-  "format_version": "1.21.11",
-  "texture_size": [
-    128,
-    128
-  ],
   "textures": {
     "particle": "minecraft:block/stone",
-    "rockery1x2x1": "shadowsandpetals:block/rock/1_2_1"
+    "texture": "shadowsandpetals:block/rock/1_2_1"
   }
 }

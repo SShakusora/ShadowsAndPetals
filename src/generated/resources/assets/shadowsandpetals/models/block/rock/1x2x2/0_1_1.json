@@ -1,268 +1,74 @@
 {
-  "credit": "Made with Blockbench",
-  "elements": [
+  "parent": "shadowsandpetals:block/rock/obj_parent",
+  "automatic_culling": false,
+  "flip_v": true,
+  "loader": "neoforge:obj",
+  "model": "shadowsandpetals:models/block/rock/1x2x2/0_1_1.obj",
+  "shade_quads": true,
+  "shadowsandpetals:collision": [
     {
-      "faces": {
-        "east": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            1.125,
-            0,
-            2.125,
-            1.25
-          ]
-        },
-        "north": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            0,
-            0,
-            1,
-            1.25
-          ]
-        },
-        "south": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            2.25,
-            0,
-            3.25,
-            1.25
-          ]
-        },
-        "up": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            9.125,
-            2.375,
-            8.125,
-            1.375
-          ]
-        },
-        "west": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            0,
-            3.375,
-            1,
-            4.625
-          ]
-        }
-      },
       "from": [
         4,
         0,
-        0
+        1
       ],
-      "rotation": {
-        "angle": 0,
-        "axis": "y",
-        "origin": [
-          8,
-          -16,
-          -2
-        ]
-      },
       "to": [
         12,
         10,
-        8
-      ]
-    },
-    {
-      "faces": {
-        "east": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            4.75,
-            2.875,
-            5.875,
-            3.25
-          ]
-        },
-        "north": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            6,
-            4.75,
-            6.75,
-            5.125
-          ]
-        },
-        "south": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            1.125,
-            6.25,
-            1.875,
-            6.625
-          ]
-        },
-        "up": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            9,
-            1.125,
-            8.25,
-            0
-          ]
-        }
-      },
-      "from": [
-        10,
-        0,
-        0.75
-      ],
-      "rotation": {
-        "angle": 7.5,
-        "axis": "z",
-        "origin": [
-          16,
-          -15,
-          -4.25
-        ]
-      },
-      "to": [
-        16,
-        3,
-        9.75
-      ]
-    },
-    {
-      "faces": {
-        "north": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            6,
-            7.125,
-            6.5,
-            7.5
-          ]
-        },
-        "south": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            8,
-            5,
-            8.5,
-            5.375
-          ]
-        },
-        "up": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            8.625,
-            9.75,
-            8.125,
-            8.625
-          ]
-        },
-        "west": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            4.75,
-            5.25,
-            5.875,
-            5.625
-          ]
-        }
-      },
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "rotation": {
-        "angle": -7.5,
-        "axis": "z",
-        "origin": [
-          0,
-          -15,
-          -7
-        ]
-      },
-      "to": [
-        4,
-        3,
         9
       ]
     },
     {
-      "faces": {
-        "east": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            3.375,
-            0,
-            4.5,
-            0.7565050000000001
-          ]
-        },
-        "north": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            3.625,
-            2.875,
-            4.625,
-            3.631505
-          ]
-        },
-        "south": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            4.625,
-            0,
-            5.625,
-            0.7565050000000001
-          ]
-        },
-        "up": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            9,
-            8.5,
-            8,
-            7.375
-          ]
-        },
-        "west": {
-          "texture": "#rockey1x2x2",
-          "uv": [
-            1.125,
-            3.375,
-            2.25,
-            4.131505
-          ]
-        }
-      },
+      "from": [
+        7.7018593717962105,
+        0,
+        1.75
+      ],
+      "to": [
+        16,
+        2.846007504728586,
+        10.75
+      ]
+    },
+    {
+      "from": [
+        2.75,
+        0,
+        0
+      ],
+      "to": [
+        11.75,
+        5.696158743935509,
+        4.351424179757924
+      ]
+    },
+    {
+      "from": [
+        0,
+        0,
+        1
+      ],
+      "to": [
+        6.315250905456169,
+        2.846007504728586,
+        10
+      ]
+    },
+    {
       "from": [
         2.5,
         0,
-        6.213339999999999
+        2.451668493361737
       ],
-      "rotation": {
-        "angle": -12.5,
-        "axis": "x",
-        "origin": [
-          2.5,
-          -15.94796,
-          6.213339999999999
-        ]
-      },
       "to": [
         10.5,
-        6.052040000000002,
-        15.213339999999999
+        7.478508682081458,
+        16
       ]
     }
   ],
-  "format_version": "1.21.11",
-  "texture_size": [
-    128,
-    128
-  ],
   "textures": {
     "particle": "minecraft:block/stone",
-    "rockey1x2x2": "shadowsandpetals:block/rock/1_2_2"
+    "texture": "shadowsandpetals:block/rock/1_2_2"
   }
 }

@@ -1,53 +1,24 @@
 {
-  "elements": [
+  "parent": "shadowsandpetals:block/rock/obj_parent",
+  "automatic_culling": false,
+  "flip_v": true,
+  "loader": "neoforge:obj",
+  "model": "shadowsandpetals:models/block/rock/1x3x1/0_2_0.obj",
+  "shade_quads": true,
+  "shadowsandpetals:collision": [
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            1,
-            0,
-            2,
-            1.75
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            0,
-            0,
-            1,
-            1.75
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            2,
-            0,
-            3,
-            1.75
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            8.75,
-            1,
-            7.75,
-            0
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            3,
-            0,
-            4,
-            1.75
-          ]
-        }
-      },
+      "from": [
+        10.37232258763223,
+        0,
+        5.75
+      ],
+      "to": [
+        14.45897540044421,
+        4.994517025630088,
+        12.75
+      ]
+    },
+    {
       "from": [
         4,
         0,
@@ -60,148 +31,20 @@
       ]
     },
     {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            5,
-            0,
-            5.875,
-            0.625
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            5.875,
-            4,
-            6.375,
-            4.625
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            6.375,
-            4,
-            6.875,
-            4.625
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            8.625,
-            8.5,
-            8.125,
-            7.625
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            5,
-            4.5,
-            5.875,
-            5.125
-          ]
-        }
-      },
       "from": [
-        11,
-        0,
-        5.75
-      ],
-      "rotation": {
-        "angle": 1,
-        "axis": "z",
-        "origin": [
-          15,
-          -31,
-          4.75
-        ]
-      },
-      "to": [
-        15,
-        5,
-        12.75
-      ]
-    },
-    {
-      "faces": {
-        "east": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            4,
-            0,
-            5,
-            0.125
-          ]
-        },
-        "north": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            3.375,
-            5.75,
-            4,
-            5.875
-          ]
-        },
-        "south": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            5.875,
-            0,
-            6.5,
-            0.125
-          ]
-        },
-        "up": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            8.75,
-            6.625,
-            8.125,
-            5.625
-          ]
-        },
-        "west": {
-          "texture": "#rockery1x3x1",
-          "uv": [
-            4,
-            4,
-            5,
-            4.125
-          ]
-        }
-      },
-      "from": [
-        0,
+        1.352201008325416,
         0,
         3
       ],
-      "rotation": {
-        "angle": -2.5,
-        "axis": "z",
-        "origin": [
-          0,
-          -31,
-          3
-        ]
-      },
       "to": [
-        5,
-        1,
+        6.39106150360004,
+        0.9695430906194531,
         11
       ]
     }
   ],
-  "texture_size": [
-    128,
-    128
-  ],
   "textures": {
     "particle": "minecraft:block/stone",
-    "rockery1x3x1": "shadowsandpetals:block/rock/1_3_1"
+    "texture": "shadowsandpetals:block/rock/1_3_1"
   }
 }

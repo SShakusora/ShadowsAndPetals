@@ -7,7 +7,10 @@ import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Extracts the boundary of the union of the cuboids used by a rockery model.
@@ -22,6 +25,8 @@ import java.util.*;
  * operation, even when no source cuboid has an edge at that location.</p>
  */
 final class RockeryOutlineGeometry {
+    private static final String OBJ_COLLISION_KEY = "shadowsandpetals:collision";
+    private static final String OBJ_OUTLINE_KEY = "shadowsandpetals:outline";
     private static final double EDGE_EPSILON = 1.0E-6D;
     private static final double PLANE_EPSILON = 1.0E-5D;
     private static final double CLIP_EPSILON = 1.0E-7D;
@@ -51,21 +56,48 @@ final class RockeryOutlineGeometry {
             return null;
         }
 
+        boolean hasObjOutline = modelParts.stream()
+                .map(ModelPart::model)
+                .anyMatch(RockeryOutlineGeometry::hasExactObjOutline);
         List<Cuboid> cuboids = new ArrayList<>();
         for (ModelPart modelPart : modelParts) {
             Objects.requireNonNull(modelPart, "modelPart");
             JsonObject model = modelPart.model();
-            if (!model.has("elements") || !model.get("elements").isJsonArray()) {
-                continue;
-            }
-
-            for (JsonElement elementValue : model.getAsJsonArray("elements")) {
-                if (!elementValue.isJsonObject()) {
-                    continue;
+            if (hasObjOutline && hasExactObjOutline(model)) {
+                JsonObject outline = model.getAsJsonObject(OBJ_OUTLINE_KEY);
+                JsonArray outlineCuboids = outline.getAsJsonArray("cuboids");
+                for (JsonElement cuboidValue : outlineCuboids) {
+                    if (!cuboidValue.isJsonObject()) {
+                        continue;
+                    }
+                    Cuboid cuboid = Cuboid.fromOutline(cuboidValue.getAsJsonObject(), modelPart.offset());
+                    if (cuboid != null) {
+                        cuboids.add(cuboid);
+                    }
                 }
-                Cuboid cuboid = Cuboid.fromElement(elementValue.getAsJsonObject(), modelPart.offset());
-                if (cuboid != null) {
-                    cuboids.add(cuboid);
+            } else if (!hasObjOutline && model.has("elements") && model.get("elements").isJsonArray()) {
+                for (JsonElement elementValue : model.getAsJsonArray("elements")) {
+                    if (!elementValue.isJsonObject()) {
+                        continue;
+                    }
+                    Cuboid cuboid = Cuboid.fromElement(elementValue.getAsJsonObject(), modelPart.offset());
+                    if (cuboid != null) {
+                        cuboids.add(cuboid);
+                    }
+                }
+            } else if (!hasObjOutline && model.has(OBJ_COLLISION_KEY)
+                    && model.get(OBJ_COLLISION_KEY).isJsonArray()) {
+                for (JsonElement collisionValue : model.getAsJsonArray(OBJ_COLLISION_KEY)) {
+                    if (!collisionValue.isJsonObject()) {
+                        continue;
+                    }
+                    Cuboid cuboid = Cuboid.fromElement(
+                            collisionElement(collisionValue.getAsJsonObject()),
+                            modelPart.offset()
+                    );
+                    if (cuboid != null) {
+                        cuboids.add(cuboid);
+                    }
                 }
             }
         }
@@ -76,7 +108,7 @@ final class RockeryOutlineGeometry {
 
         List<Surface> surfaces = new ArrayList<>();
         for (Cuboid cuboid : cuboids) {
-            for (Face face : cuboid.declaredFaces) {
+            for (CuboidFace face : cuboid.declaredFaces) {
                 surfaces.add(new Surface(cuboid, face, PlaneFrame.of(cuboid, face)));
             }
         }
@@ -134,6 +166,29 @@ final class RockeryOutlineGeometry {
 
         List<OutlineGeometry.Line> lines = boundaries.lines();
         return lines.isEmpty() ? null : OutlineGeometry.of(lines);
+    }
+
+    private static boolean hasExactObjOutline(JsonObject model) {
+        if (!model.has(OBJ_OUTLINE_KEY) || !model.get(OBJ_OUTLINE_KEY).isJsonObject()) {
+            return false;
+        }
+        JsonObject outline = model.getAsJsonObject(OBJ_OUTLINE_KEY);
+        return outline.has("cuboids") && outline.get("cuboids").isJsonArray();
+    }
+
+    private static JsonObject collisionElement(JsonObject collision) {
+        if (!collision.has("from") || !collision.has("to")) {
+            return new JsonObject();
+        }
+        JsonObject element = new JsonObject();
+        element.add("from", collision.get("from").deepCopy());
+        element.add("to", collision.get("to").deepCopy());
+        JsonObject faces = new JsonObject();
+        for (String direction : List.of("north", "east", "south", "west", "up", "down")) {
+            faces.add(direction, new JsonObject());
+        }
+        element.add("faces", faces);
+        return element;
     }
 
     private static boolean sameSurface(PlaneFrame frame, VisibleFragment other) {
@@ -257,7 +312,7 @@ final class RockeryOutlineGeometry {
         );
     }
 
-    private record Surface(Cuboid cuboid, Face face, PlaneFrame frame) {
+    private record Surface(Cuboid cuboid, CuboidFace face, PlaneFrame frame) {
         private double area() {
             return Math.abs(Polygon2.signedArea(frame.project(cuboid.faceVertices(face)).points()));
         }
@@ -277,7 +332,14 @@ final class RockeryOutlineGeometry {
         }
     }
 
-    private enum Face {
+    private interface CuboidFace {
+        int[] corners();
+
+        @Nullable
+        Vec3 expectedNormal(Cuboid cuboid);
+    }
+
+    private enum Face implements CuboidFace {
         DOWN("down", new int[]{0, 1, 2, 3}, new Vec3(0.0D, -1.0D, 0.0D)),
         UP("up", new int[]{4, 5, 6, 7}, new Vec3(0.0D, 1.0D, 0.0D)),
         NORTH("north", new int[]{0, 4, 5, 1}, new Vec3(0.0D, 0.0D, -1.0D)),
@@ -294,6 +356,23 @@ final class RockeryOutlineGeometry {
             this.corners = corners;
             this.localNormal = localNormal;
         }
+
+        @Override
+        public int[] corners() {
+            return corners;
+        }
+
+        @Override
+        public Vec3 expectedNormal(Cuboid cuboid) {
+            return cuboid.transform.applyDirection(localNormal);
+        }
+    }
+
+    private record OutlineFace(int[] corners) implements CuboidFace {
+        @Override
+        public @Nullable Vec3 expectedNormal(Cuboid cuboid) {
+            return null;
+        }
     }
 
     private static final class Cuboid {
@@ -303,24 +382,21 @@ final class RockeryOutlineGeometry {
                 {0, 4}, {1, 5}, {2, 6}, {3, 7}
         };
 
-        private final double[] min;
-        private final double[] max;
         private final Vec3[] vertices;
         private final ElementTransform transform;
-        private final EnumSet<Face> declaredFaces;
+        private final List<CuboidFace> declaredFaces;
+        private final List<int[]> edges;
 
         private Cuboid(
-                double[] min,
-                double[] max,
                 ElementTransform transform,
                 Vec3[] vertices,
-                EnumSet<Face> declaredFaces
+                List<CuboidFace> declaredFaces,
+                List<int[]> edges
         ) {
-            this.min = min;
-            this.max = max;
             this.transform = transform;
             this.vertices = vertices;
-            this.declaredFaces = declaredFaces;
+            this.declaredFaces = List.copyOf(declaredFaces);
+            this.edges = List.copyOf(edges);
         }
 
         private static @Nullable Cuboid fromElement(JsonObject element, Vec3 offset) {
@@ -359,7 +435,7 @@ final class RockeryOutlineGeometry {
                     toWorld(transform, min[0], max[1], max[2], offset)
             };
 
-            EnumSet<Face> declaredFaces = EnumSet.noneOf(Face.class);
+            List<CuboidFace> declaredFaces = new ArrayList<>();
             if (element.has("faces") && element.get("faces").isJsonObject()) {
                 JsonObject faces = element.getAsJsonObject("faces");
                 for (Face face : Face.values()) {
@@ -371,15 +447,106 @@ final class RockeryOutlineGeometry {
             if (declaredFaces.isEmpty()) {
                 return null;
             }
-            return new Cuboid(min, max, transform, vertices, declaredFaces);
+            return new Cuboid(transform, vertices, declaredFaces, edgeList(EDGES));
+        }
+
+        private static @Nullable Cuboid fromOutline(JsonObject outline, Vec3 offset) {
+            if (!outline.has("vertices") || !outline.get("vertices").isJsonArray()
+                    || !outline.has("faces") || !outline.get("faces").isJsonArray()
+                    || !outline.has("edges") || !outline.get("edges").isJsonArray()) {
+                return null;
+            }
+
+            JsonArray sourceVertices = outline.getAsJsonArray("vertices");
+            if (sourceVertices.size() != 8) {
+                return null;
+            }
+            Vec3[] vertices = new Vec3[sourceVertices.size()];
+            for (int index = 0; index < sourceVertices.size(); index++) {
+                JsonElement value = sourceVertices.get(index);
+                if (!value.isJsonArray() || value.getAsJsonArray().size() < 3) {
+                    return null;
+                }
+                JsonArray point = value.getAsJsonArray();
+                vertices[index] = new Vec3(
+                        point.get(0).getAsDouble(),
+                        point.get(1).getAsDouble(),
+                        point.get(2).getAsDouble()
+                ).add(offset);
+            }
+
+            JsonArray sourceFaces = outline.getAsJsonArray("faces");
+            if (sourceFaces.size() == 0) {
+                return null;
+            }
+            List<CuboidFace> faces = new ArrayList<>(sourceFaces.size());
+            for (JsonElement value : sourceFaces) {
+                if (!value.isJsonArray() || value.getAsJsonArray().size() != 4) {
+                    return null;
+                }
+                JsonArray indices = value.getAsJsonArray();
+                int[] corners = new int[4];
+                for (int index = 0; index < corners.length; index++) {
+                    corners[index] = indices.get(index).getAsInt();
+                    if (corners[index] < 0 || corners[index] >= vertices.length) {
+                        return null;
+                    }
+                    for (int previous = 0; previous < index; previous++) {
+                        if (corners[previous] == corners[index]) {
+                            return null;
+                        }
+                    }
+                }
+                faces.add(new OutlineFace(corners));
+            }
+
+            JsonArray sourceEdges = outline.getAsJsonArray("edges");
+            if (sourceEdges.size() != EDGES.length) {
+                return null;
+            }
+            List<int[]> edges = new ArrayList<>(sourceEdges.size());
+            for (JsonElement value : sourceEdges) {
+                if (!value.isJsonArray() || value.getAsJsonArray().size() != 2) {
+                    return null;
+                }
+                JsonArray indices = value.getAsJsonArray();
+                int first = indices.get(0).getAsInt();
+                int second = indices.get(1).getAsInt();
+                if (first < 0 || first >= vertices.length || second < 0
+                        || second >= vertices.length || first == second) {
+                    return null;
+                }
+                edges.add(new int[]{first, second});
+            }
+            return new Cuboid(ElementTransform.identity(), vertices, faces, edges);
+        }
+
+        private static List<int[]> edgeList(int[][] source) {
+            List<int[]> edges = new ArrayList<>(source.length);
+            for (int[] edge : source) {
+                edges.add(edge.clone());
+            }
+            return edges;
+        }
+
+        private static Vec3 average(Vec3[] points) {
+            double x = 0.0D;
+            double y = 0.0D;
+            double z = 0.0D;
+            for (Vec3 point : points) {
+                x += point.x;
+                y += point.y;
+                z += point.z;
+            }
+            return new Vec3(x / points.length, y / points.length, z / points.length);
         }
 
         private static Vec3 toWorld(ElementTransform transform, double x, double y, double z, Vec3 offset) {
             return transform.apply(new Vec3(x, y, z)).add(offset);
         }
 
-        private Vec3[] faceVertices(Face face) {
-            int[] corners = face.corners;
+        private Vec3[] faceVertices(CuboidFace face) {
+            int[] corners = face.corners();
             return new Vec3[]{
                     vertices[corners[0]],
                     vertices[corners[1]],
@@ -388,11 +555,14 @@ final class RockeryOutlineGeometry {
             };
         }
 
-        private Vec3 faceNormal(Face face) {
+        private Vec3 faceNormal(CuboidFace face) {
             Vec3[] faceVertices = faceVertices(face);
             Vec3 cross = faceVertices[1].subtract(faceVertices[0])
                     .cross(faceVertices[2].subtract(faceVertices[0]));
-            Vec3 expected = transform.applyDirection(face.localNormal);
+            Vec3 expected = face.expectedNormal(this);
+            if (expected == null) {
+                expected = average(faceVertices).subtract(average(vertices));
+            }
             if (cross.dot(expected) < 0.0D) {
                 cross = cross.scale(-1.0D);
             }
@@ -409,7 +579,7 @@ final class RockeryOutlineGeometry {
     }
 
     private record PlaneFrame(Vec3 origin, Vec3 normal, Vec3 u, Vec3 v) {
-        private static PlaneFrame of(Cuboid cuboid, Face face) {
+        private static PlaneFrame of(Cuboid cuboid, CuboidFace face) {
             Vec3[] vertices = cuboid.faceVertices(face);
             Vec3 normal = cuboid.faceNormal(face);
             Vec3 u = vertices[1].subtract(vertices[0]).normalize();
@@ -448,7 +618,7 @@ final class RockeryOutlineGeometry {
                 }
             }
 
-            for (int[] edge : Cuboid.EDGES) {
+            for (int[] edge : cuboid.edges) {
                 Vec3 first = cuboid.vertex(edge[0]);
                 Vec3 second = cuboid.vertex(edge[1]);
                 double firstDistance = signedDistance(first);

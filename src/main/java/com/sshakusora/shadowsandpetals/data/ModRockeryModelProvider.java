@@ -1,10 +1,12 @@
 package com.sshakusora.shadowsandpetals.data;
 
+import com.google.common.hash.Hashing;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.rockery.obj.*;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.PackOutput;
@@ -16,12 +18,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ModRockeryModelProvider implements DataProvider {
-    private static final Pattern SOURCE_MODEL_NAME = Pattern.compile("^(\\d+)_(\\d+)_(\\d+)\\.(json|bbmodel)$");
+    private static final Pattern SOURCE_MODEL_NAME = Pattern.compile("^(\\d+)_(\\d+)_(\\d+)\\.(json|bbmodel|obj)$");
     private static final String PARTICLE_TEXTURE = Identifier.withDefaultNamespace("block/stone").toString();
+    private static final String OBJ_PARENT = ShadowsAndPetals.MOD_ID + ":block/rock/obj_parent";
+    private static final String OBJ_OUTLINE_KEY = ShadowsAndPetals.MOD_ID + ":outline";
+    private static final String OBJ_COLLISION_KEY = ShadowsAndPetals.MOD_ID + ":collision";
     private static final double BLOCK_SIZE = 16.0D;
     private static final double EPSILON = 1.0E-6D;
 
@@ -48,6 +54,10 @@ public class ModRockeryModelProvider implements DataProvider {
     public CompletableFuture<?> run(CachedOutput cache) {
         List<CompletableFuture<?>> tasks = new ArrayList<>();
         for (SourceModel source : findSourceModels()) {
+            if (source.extension().equals("obj")) {
+                tasks.addAll(generateObjParts(cache, source, readObjModel(source)));
+                continue;
+            }
             RockeryModel model = readSourceModel(source);
             for (int x = 0; x < source.width(); x++) {
                 for (int y = 0; y < source.height(); y++) {
@@ -75,12 +85,24 @@ public class ModRockeryModelProvider implements DataProvider {
         }
 
         try (var paths = Files.list(this.sourceDir)) {
-            return paths
+            List<SourceModel> models = paths
                     .filter(Files::isRegularFile)
                     .map(this::sourceModel)
                     .filter(Objects::nonNull)
                     .sorted(Comparator.comparing(SourceModel::path))
                     .toList();
+            Map<String, SourceModel> byDimensions = new LinkedHashMap<>();
+            for (SourceModel model : models) {
+                String dimensions = model.width() + "x" + model.height() + "x" + model.depth();
+                SourceModel previous = byDimensions.putIfAbsent(dimensions, model);
+                if (previous != null) {
+                    throw new IllegalStateException(
+                            "Multiple rockery source models for " + dimensions + ": "
+                                    + previous.path() + " and " + model.path()
+                    );
+                }
+            }
+            return models;
         } catch (IOException e) {
             throw new IllegalStateException("Failed to scan rockery source models in " + this.sourceDir, e);
         }
@@ -101,6 +123,9 @@ public class ModRockeryModelProvider implements DataProvider {
     }
 
     private RockeryModel readSourceModel(SourceModel source) {
+        if (source.extension().equals("obj")) {
+            throw new IllegalArgumentException("OBJ source models must use the OBJ generation path: " + source.path());
+        }
         try (Reader reader = Files.newBufferedReader(source.path())) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             return switch (source.extension()) {
@@ -111,6 +136,155 @@ public class ModRockeryModelProvider implements DataProvider {
         } catch (IOException e) {
             throw new IllegalStateException("Failed to read rockery source model " + source.path(), e);
         }
+    }
+
+    private ObjModel readObjModel(SourceModel source) {
+        try {
+            return ObjModelParser.parse(source.path());
+        } catch (IOException | IllegalArgumentException e) {
+            throw new IllegalStateException("Failed to read OBJ rockery model " + source.path(), e);
+        }
+    }
+
+    private List<CompletableFuture<?>> generateObjParts(
+            CachedOutput cache,
+            SourceModel source,
+            ObjModel model
+    ) {
+        ObjModelCutter.CutModel cut = ObjModelCutter.cut(
+                model,
+                source.width(),
+                source.height(),
+                source.depth()
+        );
+        List<ObjModelOutline.Cuboid> outlineCuboids = ObjModelOutline.extract(cut.normalizedModel());
+        String modelDirectory = source.width() + "x" + source.height() + "x" + source.depth();
+        List<CompletableFuture<?>> tasks = new ArrayList<>();
+
+        Identifier materialId = ShadowsAndPetals.asResource("block/rock/" + modelDirectory + "/material");
+        tasks.add(writeBytes(cache, rawPath(modelPathProvider.json(materialId), ".mtl"), ObjModelWriter.writeMtl()));
+
+        for (ObjModelCutter.Part part : cut.parts()) {
+            String partName = part.x() + "_" + part.y() + "_" + part.z();
+            Identifier modelId = ShadowsAndPetals.asResource("block/rock/" + modelDirectory + "/" + partName);
+            Path jsonPath = modelPathProvider.json(modelId);
+            tasks.add(writeBytes(cache, rawPath(jsonPath, ".obj"), ObjModelWriter.writeObj(part)));
+            tasks.add(DataProvider.saveStable(
+                    cache,
+                    objWrapper(source, modelDirectory, partName, part, outlineCuboids),
+                    jsonPath
+            ));
+        }
+
+        return tasks;
+    }
+
+    private JsonObject objWrapper(
+            SourceModel source,
+            String modelDirectory,
+            String partName,
+            ObjModelCutter.Part part,
+            List<ObjModelOutline.Cuboid> outlineCuboids
+    ) {
+        JsonObject model = new JsonObject();
+        model.addProperty("parent", OBJ_PARENT);
+        model.addProperty("loader", "neoforge:obj");
+        model.addProperty(
+                "model",
+                ShadowsAndPetals.asResource(
+                        "models/block/rock/" + modelDirectory + "/" + partName + ".obj"
+                ).toString()
+        );
+        model.addProperty("flip_v", true);
+        model.addProperty("automatic_culling", false);
+        model.addProperty("shade_quads", true);
+
+        JsonObject textures = new JsonObject();
+        textures.addProperty("texture", ShadowsAndPetals.asResource(
+                "block/rock/" + source.width() + "_" + source.height() + "_" + source.depth()
+        ).toString());
+        textures.addProperty("particle", PARTICLE_TEXTURE);
+        model.add("textures", textures);
+
+        JsonArray collision = new JsonArray();
+        for (ObjModel.Bounds bounds : part.collisionBoxes()) {
+            JsonObject box = new JsonObject();
+            box.add("from", vector(
+                    bounds.minX() * BLOCK_SIZE,
+                    bounds.minY() * BLOCK_SIZE,
+                    bounds.minZ() * BLOCK_SIZE
+            ));
+            box.add("to", vector(
+                    bounds.maxX() * BLOCK_SIZE,
+                    bounds.maxY() * BLOCK_SIZE,
+                    bounds.maxZ() * BLOCK_SIZE
+            ));
+            collision.add(box);
+        }
+        model.add(OBJ_COLLISION_KEY, collision);
+        if (part.x() == 0 && part.y() == 0 && part.z() == 0) {
+            model.add(OBJ_OUTLINE_KEY, outlineMetadata(outlineCuboids));
+        }
+        return model;
+    }
+
+    private JsonObject outlineMetadata(List<ObjModelOutline.Cuboid> cuboids) {
+        JsonObject outline = new JsonObject();
+        outline.addProperty("space", "structure");
+        JsonArray cuboidArray = new JsonArray();
+        for (ObjModelOutline.Cuboid cuboid : cuboids) {
+            JsonObject serialized = new JsonObject();
+            JsonArray vertices = new JsonArray();
+            for (ObjModel.ObjVector3 vertex : cuboid.vertices()) {
+                vertices.add(vector(
+                        vertex.x() * BLOCK_SIZE,
+                        vertex.y() * BLOCK_SIZE,
+                        vertex.z() * BLOCK_SIZE
+                ));
+            }
+            serialized.add("vertices", vertices);
+
+            JsonArray faces = new JsonArray();
+            for (ObjModelOutline.Face face : cuboid.faces()) {
+                JsonArray indices = new JsonArray();
+                indices.add(face.first());
+                indices.add(face.second());
+                indices.add(face.third());
+                indices.add(face.fourth());
+                faces.add(indices);
+            }
+            serialized.add("faces", faces);
+
+            JsonArray edges = new JsonArray();
+            for (ObjModelOutline.Edge edge : cuboid.edges()) {
+                JsonArray indices = new JsonArray();
+                indices.add(edge.first());
+                indices.add(edge.second());
+                edges.add(indices);
+            }
+            serialized.add("edges", edges);
+            cuboidArray.add(serialized);
+        }
+        outline.add("cuboids", cuboidArray);
+        return outline;
+    }
+
+    private static CompletableFuture<?> writeBytes(CachedOutput cache, Path path, byte[] bytes) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                cache.writeIfNeeded(path, bytes, Hashing.sha256().hashBytes(bytes));
+            } catch (IOException e) {
+                throw new CompletionException(e);
+            }
+        });
+    }
+
+    private static Path rawPath(Path jsonPath, String extension) {
+        String fileName = jsonPath.getFileName().toString();
+        if (!fileName.endsWith(".json")) {
+            throw new IllegalArgumentException("Expected a JSON model path: " + jsonPath);
+        }
+        return jsonPath.resolveSibling(fileName.substring(0, fileName.length() - ".json".length()) + extension);
     }
 
     private RockeryModel readVanillaModel(JsonObject json) {
