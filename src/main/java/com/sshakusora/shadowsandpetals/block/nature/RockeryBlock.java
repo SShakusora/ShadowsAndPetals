@@ -7,6 +7,9 @@ import com.google.gson.JsonParser;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
+import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineProvider;
+import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -32,6 +35,7 @@ import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,6 +45,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,7 +56,7 @@ import java.util.List;
  * Only part 0 (the block clicked by the player) drops loot; breaking any
  * part destroys the entire rockery.
  */
-public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
+public class RockeryBlock extends Block implements BlockOutlineProvider, SimpleWaterloggedBlock {
     public static final MapCodec<RockeryBlock> CODEC = RecordCodecBuilder.mapCodec(
             instance -> instance.group(
                     ExtraCodecs.NON_NEGATIVE_INT.fieldOf("width").forGetter(b -> b.dimensions.width()),
@@ -68,6 +73,7 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
 
     private final RockeryDimensions dimensions;
     private volatile @Nullable VoxelShape[][] shapeCache;
+    private volatile @Nullable OutlineGeometry[][] outlineCache;
 
     public RockeryBlock(int width, int height, int depth, BlockBehaviour.Properties properties) {
         this(new RockeryDimensions(width, height, depth), properties);
@@ -207,6 +213,21 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
+    public @Nullable OutlineGeometry getOutline(BlockState state, BlockOutlineContext context) {
+        int part = state.getValue(PART);
+        if (part >= dimensions.partCount()) {
+            return null;
+        }
+
+        OutlineGeometry[][] cache = outlineCache;
+        if (cache == null) {
+            cache = buildOutlineCache();
+            outlineCache = cache;
+        }
+        return cache[state.getValue(FACING).ordinal()][part];
+    }
+
+    @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(FACING, PART, WATERLOGGED);
     }
@@ -272,20 +293,73 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
         return shapes;
     }
 
+    private OutlineGeometry[][] buildOutlineCache() {
+        OutlineGeometry[][] geometries = new OutlineGeometry[Direction.values().length][MAX_PARTS];
+        List<RockeryOutlineGeometry.ModelPart> modelParts = new ArrayList<>(dimensions.partCount());
+        for (int part = 0; part < dimensions.partCount(); part++) {
+            JsonObject model = loadPartModel(part);
+            if (model == null) {
+                continue;
+            }
+
+            Vec3i local = dimensions.localPos(part);
+            modelParts.add(new RockeryOutlineGeometry.ModelPart(
+                    model,
+                    new Vec3(local.getX() * 16.0D, local.getY() * 16.0D, local.getZ() * 16.0D)
+            ));
+        }
+
+        OutlineGeometry complete = RockeryOutlineGeometry.fromModels(modelParts);
+        if (complete == null) {
+            return geometries;
+        }
+
+        // The complete geometry is rooted at PART 0. Return it relative to
+        // whichever PART was selected, then apply the block's horizontal
+        // facing just as the model renderer does.
+        for (int part = 0; part < dimensions.partCount(); part++) {
+            Vec3i local = dimensions.localPos(part);
+            OutlineGeometry southGeometry = RockeryOutlineGeometry.translate(
+                    complete,
+                    -local.getX() * 16.0D,
+                    -local.getY() * 16.0D,
+                    -local.getZ() * 16.0D
+            );
+            geometries[Direction.SOUTH.ordinal()][part] = southGeometry;
+            geometries[Direction.WEST.ordinal()][part] = RockeryOutlineGeometry.rotateClockwise(southGeometry);
+            geometries[Direction.NORTH.ordinal()][part] = RockeryOutlineGeometry.rotateClockwise(
+                    geometries[Direction.WEST.ordinal()][part]
+            );
+            geometries[Direction.EAST.ordinal()][part] = RockeryOutlineGeometry.rotateClockwise(
+                    geometries[Direction.NORTH.ordinal()][part]
+            );
+        }
+        return geometries;
+    }
+
     private VoxelShape loadPartShape(int part) {
         String resourcePath = "assets/" + ShadowsAndPetals.MOD_ID + "/models/" + dimensions.modelPath(part) + ".json";
+        JsonObject model = loadPartModel(resourcePath);
+        return model == null ? Shapes.block() : shapeFromModel(model);
+    }
+
+    private @Nullable JsonObject loadPartModel(int part) {
+        return loadPartModel("assets/" + ShadowsAndPetals.MOD_ID + "/models/"
+                + dimensions.modelPath(part) + ".json");
+    }
+
+    private @Nullable JsonObject loadPartModel(String resourcePath) {
         ClassLoader classLoader = RockeryBlock.class.getClassLoader();
         try (InputStream stream = classLoader.getResourceAsStream(resourcePath)) {
             if (stream == null) {
-                return Shapes.block();
+                return null;
             }
 
             try (InputStreamReader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-                JsonObject model = JsonParser.parseReader(reader).getAsJsonObject();
-                return shapeFromModel(model);
+                return JsonParser.parseReader(reader).getAsJsonObject();
             }
-        } catch (IOException | IllegalStateException e) {
-            return Shapes.block();
+        } catch (IOException | RuntimeException e) {
+            return null;
         }
     }
 
