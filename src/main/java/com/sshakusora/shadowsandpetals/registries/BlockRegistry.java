@@ -18,10 +18,14 @@ import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -86,6 +90,58 @@ public class BlockRegistry {
             "秋橡树树篱",
             MapColor.COLOR_ORANGE
     );
+
+    public static final DeferredBlock<BonsaiBlock> BONSAI = SAPRegistries
+            .block("bonsai", BonsaiBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(0.5F)
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.STONE)
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.MAIN)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A _decorative pot_ that can display miniature trees.",
+                            "可以展示微缩树木的_装饰盆栽_。")
+                    .behaviour(
+                            "Right-click with a _Sapling_:", "手持_树苗_右键：",
+                            "Plant a bonsai tree with the sapling's _trunk and leaves_.",
+                            "种下带有该树苗_树干与树叶_的盆景。")
+                    .behaviour(
+                            "Right-click with _Dead Bush_:", "手持_枯死的灌木_右键：",
+                            "Plant a _dead tree_ bonsai (no leaves).",
+                            "种下_枯树_盆景（无树叶）。")
+                    .behaviour(
+                            "Empty-hand Right-click (planted):", "空手右键（已种植）：",
+                            "_Cycle_ through four bonsai shapes.", "在四种盆景造型间_轮换_。")
+                    .action(
+                            "Right-click with _Shears_ (living):", "手持_剪刀_右键（活树）：",
+                            "Strip leaves to create a _dead tree_.", "剪去树叶变为_枯树_。")
+                    .action(
+                            "Right-click with _Shears_ (dead):", "手持_剪刀_右键（枯树）：",
+                            "Clear back to an _empty pot_.", "清空回到_空盆栽_。")
+                    .action(
+                            "Sneak + Right-click (empty hand):", "蹲下右键（空手）：",
+                            "Rotate the pot in 22.5° steps.", "以 22.5° 步进旋转花盆。"))
+            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get(), 3)
+                    .define('A', ItemRegistry.ALUMINUM_INGOT.get())
+                    .pattern("A A")
+                    .pattern(" A ")
+                    .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
+                    .save(provider.output()))
+            .blockstate(() -> (context, generator) -> {
+                Identifier model = ShadowsAndPetals.asResource("block/bonsai/bonsai");
+                generator.blockState(MultiVariantGenerator.dispatch(context.get())
+                        .with(PropertyDispatch.initial(BonsaiBlock.ROTATION)
+                                .generate(rotation -> BlockModelGenerators.plainVariant(model))));
+                StandardBlockModels.parentBlockItem(context.get(), generator, model);
+            })
+            .lang(DatagenLangRegistry.ZH_CN, "盆栽")
+            .register();
 
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
             .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))

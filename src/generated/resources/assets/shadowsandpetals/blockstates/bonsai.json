@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "rotation=0": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=1": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=10": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=11": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=12": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=13": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=14": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=15": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=2": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=3": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=4": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=5": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=6": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=7": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=8": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    },
+    "rotation=9": {
+      "model": "shadowsandpetals:block/bonsai/bonsai"
+    }
+  }
+}
