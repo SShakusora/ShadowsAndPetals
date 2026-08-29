@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.block.nature;
 
 import com.google.gson.JsonParser;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
+import com.sshakusora.shadowsandpetals.client.outline.RockeryOutlineGeometry;
 import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
