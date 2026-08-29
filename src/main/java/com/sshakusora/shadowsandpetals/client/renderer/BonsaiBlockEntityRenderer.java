@@ -40,6 +40,9 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Renders bonsai pots with dynamic trunk/leaf textures.
@@ -68,7 +71,13 @@ public class BonsaiBlockEntityRenderer implements
     private @Nullable TextureAtlasSprite baseLeavesSprite;
     private @Nullable TextureAtlasSprite basePotSprite;
 
+    /** Wrapped parts per render configuration; invalidated on resource reload. */
+    private final Map<BonsaiPartCacheKey, CachedParts> partCache = new ConcurrentHashMap<>();
+    /** Resolved particle sprites per block id; invalidated on resource reload. */
+    private final Map<Identifier, @Nullable TextureAtlasSprite> spriteCache = new ConcurrentHashMap<>();
+
     public BonsaiBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        INSTANCES.add(this);
     }
 
     @Override
@@ -89,13 +98,6 @@ public class BonsaiBlockEntityRenderer implements
 
         state.planted = blockEntity.isPlanted();
 
-        // Resolve trunk/leaf sprites from the stored block IDs
-        state.trunkSprite = resolveSprite(blockEntity.getTrunkBlockId());
-        state.leavesSprite = blockEntity.isDead()
-                ? null
-                : resolveSprite(blockEntity.getLeavesBlockId());
-
-        // Collect model parts
         BlockAndTintGetter level = (BlockAndTintGetter) blockEntity.getLevel();
         if (level == null) {
             state.modelParts = List.of();
@@ -122,26 +124,45 @@ public class BonsaiBlockEntityRenderer implements
             return;
         }
 
+        BonsaiPartCacheKey key = new BonsaiPartCacheKey(
+                blockEntity.getShape(), blockEntity.isDead(),
+                blockEntity.getTrunkBlockId(), blockEntity.getLeavesBlockId());
+        CachedParts cached = partCache.computeIfAbsent(key, k -> buildParts(model, level, pos, blockState, k));
+        state.modelParts = cached.parts();
+        state.hasTranslucency = cached.hasTranslucency();
+    }
+
+    private CachedParts buildParts(
+            BlockStateModel model,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            BlockState blockState,
+            BonsaiPartCacheKey key
+    ) {
         List<BlockStateModelPart> rawParts = new ArrayList<>();
         PART_RANDOM.setSeed(42L);
         model.collectParts(level, pos, blockState, PART_RANDOM, rawParts);
-        state.hasTranslucency = model.hasMaterialFlag(
+        boolean hasTranslucency = model.hasMaterialFlag(
                 level, pos, blockState, BakedQuad.FLAG_TRANSLUCENT
         );
 
-        // Wrap parts with texture-remapping if planted
-        if (state.planted && state.trunkSprite != null) {
-            TextureAtlasSprite baseLog = getBaseLogSprite();
-            TextureAtlasSprite baseLeaves = getBaseLeavesSprite();
-            List<BlockStateModelPart> wrapped = new ArrayList<>(rawParts.size());
-            for (BlockStateModelPart part : rawParts) {
-                wrapped.add(new BonsaiPart(part, state.trunkSprite, state.leavesSprite,
-                        baseLog, baseLeaves));
-            }
-            state.modelParts = List.copyOf(wrapped);
-        } else {
-            state.modelParts = List.copyOf(rawParts);
+        TextureAtlasSprite trunkSprite = resolveSprite(key.trunkBlockId());
+        TextureAtlasSprite leavesSprite = key.dead() ? null : resolveSprite(key.leavesBlockId());
+        if (trunkSprite == null) {
+            // Nothing to remap onto (unplanted pot or unresolved sprite) —
+            // keep the raw parts, exactly like the pre-cache behaviour.
+            return new CachedParts(List.copyOf(rawParts), hasTranslucency);
         }
+        TextureAtlasSprite baseLog = getBaseLogSprite();
+        TextureAtlasSprite baseLeaves = getBaseLeavesSprite();
+        List<BlockStateModelPart> wrapped = new ArrayList<>(rawParts.size());
+        for (BlockStateModelPart part : rawParts) {
+            wrapped.add(new BonsaiPart(part, trunkSprite, leavesSprite, baseLog, baseLeaves));
+        }
+        return new CachedParts(List.copyOf(wrapped), hasTranslucency);
+    }
+
+    private record CachedParts(List<BlockStateModelPart> parts, boolean hasTranslucency) {
     }
 
     @Override
@@ -171,9 +192,15 @@ public class BonsaiBlockEntityRenderer implements
         );
         poseStack.popPose();
     }
+
     @Override
     public AABB getRenderBoundingBox(BonsaiBlockEntity blockEntity) {
         BlockPos pos = blockEntity.getBlockPos();
+        if (!blockEntity.isPlanted()) {
+            // The empty pot model is fully contained in the block.
+            return new AABB(pos.getX(), pos.getY(), pos.getZ(),
+                    pos.getX() + 1.0D, pos.getY() + 1.0D, pos.getZ() + 1.0D);
+        }
         // The rendered tree extends well outside the block (up to ~2 blocks up
         // and ~1 block sideways); expand so it is not frustum-culled.
         return new AABB(
@@ -183,15 +210,14 @@ public class BonsaiBlockEntityRenderer implements
     }
 
     /**
-     * Wraps a {@link BlockStateModelPart} and remaps quads from the base
-     * log/leaves sprites to the resolved tree's sprites at render time.
+     * Wraps a {@link BlockStateModelPart} with quads remapped from the base
+     * log/leaves sprites to the resolved tree's sprites. Remapping happens
+     * once in the constructor; {@link #getQuads} returns the baked lists.
      */
     private static final class BonsaiPart implements BlockStateModelPart {
         private final BlockStateModelPart delegate;
-        private final TextureAtlasSprite trunkSprite;
-        private final @Nullable TextureAtlasSprite leavesSprite;
-        private final TextureAtlasSprite baseLogSprite;
-        private final TextureAtlasSprite baseLeavesSprite;
+        private final List<BakedQuad>[] quadsByDirection;
+        private final List<BakedQuad> generalQuads;
 
         BonsaiPart(
                 BlockStateModelPart delegate,
@@ -201,23 +227,17 @@ public class BonsaiBlockEntityRenderer implements
                 TextureAtlasSprite baseLeavesSprite
         ) {
             this.delegate = delegate;
-            this.trunkSprite = trunkSprite;
-            this.leavesSprite = leavesSprite;
-            this.baseLogSprite = baseLogSprite;
-            this.baseLeavesSprite = baseLeavesSprite;
+            this.quadsByDirection = new List[6];
+            for (Direction direction : Direction.values()) {
+                this.quadsByDirection[direction.get3DDataValue()] =
+                        remapQuads(delegate.getQuads(direction), trunkSprite, leavesSprite, baseLogSprite, baseLeavesSprite);
+            }
+            this.generalQuads = remapQuads(delegate.getQuads(null), trunkSprite, leavesSprite, baseLogSprite, baseLeavesSprite);
         }
 
         @Override
         public List<BakedQuad> getQuads(@Nullable Direction direction) {
-            List<BakedQuad> quads = delegate.getQuads(direction);
-            if (quads.isEmpty()) {
-                return quads;
-            }
-            List<BakedQuad> result = new ArrayList<>(quads.size());
-            for (BakedQuad quad : quads) {
-                result.add(remapQuad(quad));
-            }
-            return result;
+            return direction == null ? generalQuads : quadsByDirection[direction.get3DDataValue()];
         }
 
         @Override
@@ -240,7 +260,24 @@ public class BonsaiBlockEntityRenderer implements
             return delegate.materialFlags();
         }
 
-        private BakedQuad remapQuad(BakedQuad quad) {
+        private List<BakedQuad> remapQuads(List<BakedQuad> quads, TextureAtlasSprite trunkSprite, @Nullable TextureAtlasSprite leavesSprite, TextureAtlasSprite baseLogSprite, TextureAtlasSprite baseLeavesSprite) {
+            if (quads.isEmpty()) {
+                return quads;
+            }
+            List<BakedQuad> result = new ArrayList<>(quads.size());
+            for (BakedQuad quad : quads) {
+                result.add(remapQuad(quad, trunkSprite, leavesSprite, baseLogSprite, baseLeavesSprite));
+            }
+            return result;
+        }
+
+        private static BakedQuad remapQuad(
+                BakedQuad quad,
+                TextureAtlasSprite trunkSprite,
+                @Nullable TextureAtlasSprite leavesSprite,
+                TextureAtlasSprite baseLogSprite,
+                TextureAtlasSprite baseLeavesSprite
+        ) {
             TextureAtlasSprite quadSprite = quad.materialInfo().sprite();
 
             TextureAtlasSprite targetSprite;
@@ -251,7 +288,7 @@ public class BonsaiBlockEntityRenderer implements
                 sourceSprite = baseLogSprite;
             } else if (spritesMatch(quadSprite, baseLeavesSprite)) {
                 if (leavesSprite == null) {
-                    // Dead tree — skip leaves quads entirely
+                    // Dead tree — leaves quads keep the base sprite (model has none)
                     return quad;
                 }
                 targetSprite = leavesSprite;
@@ -260,7 +297,6 @@ public class BonsaiBlockEntityRenderer implements
                 // Pot or other texture — leave as-is
                 return quad;
             }
-
             return remapQuadSprite(quad, sourceSprite, targetSprite);
         }
 
@@ -323,6 +359,10 @@ public class BonsaiBlockEntityRenderer implements
         if (blockId == null) {
             return null;
         }
+        return spriteCache.computeIfAbsent(blockId, this::resolveSpriteUncached);
+    }
+
+    private @Nullable TextureAtlasSprite resolveSpriteUncached(Identifier blockId) {
         Block block = BuiltInRegistries.BLOCK.getValue(blockId);
         if (block == Blocks.AIR) {
             return null;
@@ -361,11 +401,25 @@ public class BonsaiBlockEntityRenderer implements
         return atlas.getSprite(textureId);
     }
 
+    /**
+     * Drops all cached parts and sprites. Called when models are re-baked
+     * (resource reload), since baked quads and atlas sprites are replaced.
+     */
+    public static void invalidateCaches() {
+        for (BonsaiBlockEntityRenderer renderer : INSTANCES) {
+            renderer.partCache.clear();
+            renderer.spriteCache.clear();
+            renderer.baseLogSprite = null;
+            renderer.baseLeavesSprite = null;
+            renderer.basePotSprite = null;
+        }
+    }
+
+    private static final List<BonsaiBlockEntityRenderer> INSTANCES = new CopyOnWriteArrayList<>();
+
     public static class State extends BlockEntityRenderState {
         public boolean planted = false;
         public int rotation = 0;
-        public @Nullable TextureAtlasSprite trunkSprite;
-        public @Nullable TextureAtlasSprite leavesSprite;
         public List<BlockStateModelPart> modelParts = List.of();
         public boolean hasTranslucency = false;
     }

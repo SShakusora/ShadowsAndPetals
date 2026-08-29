@@ -129,6 +129,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void cacheStandaloneModels(ModelEvent.BakingCompleted event) {
         BlockModelRegistry.cacheBakedModels(event);
+        BonsaiBlockEntityRenderer.invalidateCaches();
     }
 
     @SubscribeEvent
