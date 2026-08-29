@@ -54,5 +54,11 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.RECESSED_LAMP_COMPOSITE)
             .register();
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BonsaiBlockEntity>> BONSAI = SAPRegistries
+            .<BonsaiBlockEntity>blockEntity("bonsai")
+            .factory(BonsaiBlockEntity::new)
+            .validBlocks(BlockRegistry.BONSAI)
+            .register();
+
     public static void init() {}
 }

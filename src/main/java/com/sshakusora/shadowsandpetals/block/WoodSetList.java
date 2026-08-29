@@ -82,6 +82,9 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             this.planksColor = planksColor;
             this.leavesColor = leavesColor;
         }
+        public String getName() {
+            return name;
+        }
     }
 
     public record WoodSet(

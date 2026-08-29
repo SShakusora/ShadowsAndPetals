@@ -1,4 +1,4 @@
-// 26.1.2	2026-08-20T15:34:28.842741	Tags for minecraft:item mod id shadowsandpetals
+// 26.1.2	2026-08-29T20:24:35.1398855	Tags for minecraft:item mod id shadowsandpetals
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/item/fence_gates.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/item/logs.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/item/logs_that_burn.json
@@ -9,5 +9,5 @@
 21ae918c7f6060df9d0283ddc26fad549e75f5b6 data/minecraft/tags/item/wooden_pressure_plates.json
 6bc11a2d4177a0d9611945df44d13193b6a789ff data/minecraft/tags/item/wooden_slabs.json
 9644ee46dbcf0b61308350c014ab90f94fb07807 data/minecraft/tags/item/wooden_stairs.json
-0094fa2d2a4c8d601608ac62792bd8c65c009742 data/shadowsandpetals/tags/item/mod_items.json
+2dbbbddce1393fc2d27f29d7086885a4f6d0a5b4 data/shadowsandpetals/tags/item/mod_items.json
 829ed52dfdc8ea0a8f2001a92ac21176bcccf5d2 data/shadowsandpetals/tags/item/stripped_wood_pillars.json

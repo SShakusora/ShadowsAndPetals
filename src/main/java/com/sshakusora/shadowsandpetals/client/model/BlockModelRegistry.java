@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState;
 import com.sshakusora.shadowsandpetals.client.model.registry.BlockStateModelDecoratorRegistry;
@@ -99,6 +100,23 @@ public final class BlockModelRegistry {
             .blockState("copper_teapot_lid")
             .model(ShadowsAndPetals.asResource("block/teapot/copper/lid"))
             .register();
+
+    public static final StandaloneBlockModel BONSAI_EMPTY_POT = ClientModelRegistry
+            .blockState("bonsai_empty_pot")
+            .model(ShadowsAndPetals.asResource("block/bonsai/bonsai"))
+            .register();
+
+    public static final StandaloneBlockModelSet<BonsaiBlockEntity.Shape> BONSAI_SHAPES =
+            ClientModelRegistry.enumBlockStateSet("bonsai_shape", BonsaiBlockEntity.Shape.class)
+                    .keyPath(BonsaiBlockEntity.Shape::getSerializedName)
+                    .model(shape -> ShadowsAndPetals.asResource("block/bonsai/bonsai_" + shape.getSerializedName()))
+                    .register();
+
+    public static final StandaloneBlockModelSet<BonsaiBlockEntity.Shape> BONSAI_DEAD_SHAPES =
+            ClientModelRegistry.enumBlockStateSet("bonsai_shape_dead", BonsaiBlockEntity.Shape.class)
+                    .keyPath(BonsaiBlockEntity.Shape::getSerializedName)
+                    .model(shape -> ShadowsAndPetals.asResource("block/bonsai/bonsai_" + shape.getSerializedName() + "_dead"))
+                    .register();
 
     static {
         BlockStateModelDecoratorRegistry.forBlock(IroriBlock.class)
