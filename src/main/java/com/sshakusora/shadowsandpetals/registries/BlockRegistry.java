@@ -18,10 +18,14 @@ import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.blockstates.PropertyDispatch;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -118,7 +122,10 @@ public class BlockRegistry {
                             "Strip leaves to create a _dead tree_.", "剪去树叶变为_枯树_。")
                     .action(
                             "Right-click with _Shears_ (dead):", "手持_剪刀_右键（枯树）：",
-                            "Clear back to an _empty pot_.", "清空回到_空盆栽_。"))
+                            "Clear back to an _empty pot_.", "清空回到_空盆栽_。")
+                    .action(
+                            "Sneak + Right-click (empty hand):", "蹲下右键（空手）：",
+                            "Rotate the pot in 22.5° steps.", "以 22.5° 步进旋转花盆。"))
             .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
             .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get(), 3)
                     .define('A', ItemRegistry.ALUMINUM_INGOT.get())
@@ -126,8 +133,13 @@ public class BlockRegistry {
                     .pattern(" A ")
                     .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
                     .save(provider.output()))
-            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
-                    context, generator, ShadowsAndPetals.asResource("block/bonsai/bonsai")))
+            .blockstate(() -> (context, generator) -> {
+                Identifier model = ShadowsAndPetals.asResource("block/bonsai/bonsai");
+                generator.blockState(MultiVariantGenerator.dispatch(context.get())
+                        .with(PropertyDispatch.initial(BonsaiBlock.ROTATION)
+                                .generate(rotation -> BlockModelGenerators.plainVariant(model))));
+                StandardBlockModels.parentBlockItem(context.get(), generator, model);
+            })
             .lang(DatagenLangRegistry.ZH_CN, "盆栽")
             .register();
 

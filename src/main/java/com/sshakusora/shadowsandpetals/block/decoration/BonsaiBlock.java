@@ -4,7 +4,6 @@ import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -20,16 +19,17 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -49,7 +49,7 @@ import java.util.List;
 public final class BonsaiBlock extends BaseEntityBlock {
     public static final MapCodec<BonsaiBlock> CODEC = simpleCodec(BonsaiBlock::new);
 
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
 
     private static final VoxelShape SHAPE = Block.box(3.0, 0.0, 2.0, 13.0, 7.0, 14.0);
     private static final VoxelShape SHAPE_ROT90 = Block.box(2.0, 0.0, 3.0, 14.0, 7.0, 13.0);
@@ -65,30 +65,32 @@ public final class BonsaiBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(ROTATION);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(ROTATION, RotationSegment.convertToSegment(context.getRotation()));
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(ROTATION, rotation.rotate(state.getValue(ROTATION), 16));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(ROTATION, mirror.mirror(state.getValue(ROTATION), 16));
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        // The model-space pot's long axis runs along Z (see the renderer's
-        // MODEL_AUTHORING_ROTATION_DEGREES); the compensation rotation puts it
-        // on X, so facings on the Z axis get the Z-long shape and vice versa.
-        return state.getValue(FACING).getAxis() == Direction.Axis.X ? SHAPE : SHAPE_ROT90;
+        // Net yaw = 90° - 22.5° * segment (renderer compensation included); the
+        // pot's long axis lands on X for segments 0-3, Z for 4-7, alternating
+        // every quarter turn. Bucket to the nearest 90° orientation.
+        int segment = state.getValue(ROTATION);
+        boolean longOnX = ((segment >> 2) & 1) == 0;
+        return longOnX ? SHAPE_ROT90 : SHAPE;
     }
 
     @Override
@@ -203,6 +205,11 @@ public final class BonsaiBlock extends BaseEntityBlock {
             BlockHitResult hitResult
     ) {
         if (level.isClientSide()) {
+            // Match the server: sneak always rotates; otherwise shape cycling
+            // only when planted. Client-side SUCCESS enables arm swing.
+            if (player.isSecondaryUseActive()) {
+                return InteractionResult.SUCCESS;
+            }
             BlockEntity be = level.getBlockEntity(pos);
             return be instanceof BonsaiBlockEntity bonsai && bonsai.isPlanted()
                     ? InteractionResult.SUCCESS
@@ -212,6 +219,14 @@ public final class BonsaiBlock extends BaseEntityBlock {
         BlockEntity be = level.getBlockEntity(pos);
         if (!(be instanceof BonsaiBlockEntity bonsai)) {
             return InteractionResult.PASS;
+        }
+
+        if (player.isSecondaryUseActive()) {
+            // Sneak right-click → rotate one 22.5° segment clockwise (wraps)
+            int rotation = (state.getValue(ROTATION) + 1) & 15;
+            level.setBlock(pos, state.setValue(ROTATION, rotation), Block.UPDATE_ALL);
+            level.playSound(null, pos, SoundEvents.WOODEN_TRAPDOOR_OPEN, SoundSource.BLOCKS, 0.5F, 1.4F);
+            return InteractionResult.SUCCESS_SERVER;
         }
 
         if (bonsai.isPlanted()) {

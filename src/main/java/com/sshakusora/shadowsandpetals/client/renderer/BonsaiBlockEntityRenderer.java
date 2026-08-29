@@ -33,6 +33,7 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
@@ -103,7 +104,7 @@ public class BonsaiBlockEntityRenderer implements
         }
 
         BlockState blockState = blockEntity.getBlockState();
-        state.facing = blockState.getValue(BonsaiBlock.FACING);
+        state.rotation = blockState.getValue(BonsaiBlock.ROTATION);
         BlockPos pos = blockEntity.getBlockPos();
 
         BlockStateModel model;
@@ -156,7 +157,7 @@ public class BonsaiBlockEntityRenderer implements
 
         poseStack.pushPose();
         poseStack.translate(0.5F, 0.0F, 0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-state.facing.getOpposite().toYRot()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-RotationSegment.convertToDegrees(state.rotation)));
         poseStack.mulPose(Axis.YP.rotationDegrees(MODEL_AUTHORING_ROTATION_DEGREES));
         poseStack.translate(-0.5F, 0.0F, -0.5F);
         submitNodeCollector.submitMultiLayerBlockModel(
@@ -362,7 +363,7 @@ public class BonsaiBlockEntityRenderer implements
 
     public static class State extends BlockEntityRenderState {
         public boolean planted = false;
-        public Direction facing = Direction.NORTH;
+        public int rotation = 0;
         public @Nullable TextureAtlasSprite trunkSprite;
         public @Nullable TextureAtlasSprite leavesSprite;
         public List<BlockStateModelPart> modelParts = List.of();
