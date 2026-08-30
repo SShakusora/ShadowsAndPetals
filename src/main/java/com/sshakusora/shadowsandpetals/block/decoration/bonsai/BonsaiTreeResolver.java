@@ -37,7 +37,8 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
     private static final Logger LOGGER = LogUtils.getLogger();
     private static final Identifier DEFAULT_LEAVES = Identifier.withDefaultNamespace("oak_leaves");
     private static final FileToIdConverter FILES = FileToIdConverter.json("bonsai_trees");
-    private static final Codec<Definition> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+    /** Codec shared by the runtime reload listener and the data generator. */
+    public static final Codec<Definition> DEFINITION_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Identifier.CODEC.fieldOf("sapling").forGetter(Definition::sapling),
             Identifier.CODEC.fieldOf("trunk").forGetter(Definition::trunk),
             Identifier.CODEC.optionalFieldOf("leaves").forGetter(Definition::leaves)
@@ -50,7 +51,7 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
     private volatile Map<Identifier, Definition> dataMappings = Map.of();
 
     private BonsaiTreeResolver() {
-        super(CODEC, FILES);
+        super(DEFINITION_CODEC, FILES);
     }
 
     /**
