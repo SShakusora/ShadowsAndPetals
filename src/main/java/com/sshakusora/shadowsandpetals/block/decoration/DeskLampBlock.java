@@ -27,7 +27,15 @@ public class DeskLampBlock extends HorizontalDirectionalBlock {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
     private static final VoxelShape SHAPE = Shapes.or(
-            box(5, 1, 5, 11, 13, 11)
+            box(5, 0, 5, 11, 1, 11),
+            box(7, 1, 8, 9, 2, 10),
+            box(7.5, 2, 8.5, 8.5, 8, 9.5),
+            box(7.5, 7.29289622, 3.85025193, 8.5, 12.94975047, 9.50710618),
+            box(7, 8.46446609, 0.96447137, 9, 12.70710678, 5.20711206),
+            box(5.63423345, 7.31779993, -0.18219493, 7.47628841, 12.35354827, 4.85355348),
+            box(8.54740215, 7.31963053, -0.18036434, 10.38945643, 12.35537889, 4.85538403),
+            box(6.5, 9.38093385, -0.65410802, 9.5, 12.37352373, 3.25675737),
+            box(6.5, 6.85866458, 1.86095666, 9.5, 10.76952997, 4.85354654)
     ).optimize();
 
     private static final Map<Direction, VoxelShape> SHAPES = VoxelShapeUtils.rotateHorizontal(SHAPE);

@@ -9,9 +9,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
-import com.sshakusora.shadowsandpetals.client.outline.BlockOutlineRegistry;
-import com.sshakusora.shadowsandpetals.client.outline.BlockOutlineRenderer;
-import com.sshakusora.shadowsandpetals.client.outline.LampOutlineCache;
+import com.sshakusora.shadowsandpetals.client.outline.*;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
 import com.sshakusora.shadowsandpetals.client.renderer.*;
 import com.sshakusora.shadowsandpetals.client.screen.IroriScreen;
@@ -156,6 +154,8 @@ public class ClientRenderEvents {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerReloadListeners(AddClientReloadListenersEvent event) {
         LampOutlineCache.register(event);
+        TeapotOutlineCache.register(event);
+        VanityOutlineCache.register(event);
         SAPAnimations.init();
         var key = ShadowsAndPetals.asResource("pose_animations");
         event.addListener(key, SAPAnimationResources.INSTANCE);
