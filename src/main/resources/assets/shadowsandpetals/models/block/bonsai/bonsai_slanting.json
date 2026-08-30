@@ -2,9 +2,9 @@
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
 	"textures": {
-		"particle": "shadowsandpetals:block/bonsai_pot",
 		"log": "shadowsandpetals:block/maple_log",
-		"leaves": "shadowsandpetals:block/maple_leaves_0"
+		"leaves": "shadowsandpetals:block/maple_leaves_0",
+		"particle": "shadowsandpetals:block/bonsai_pot"
 	},
 	"elements": [
 		{
@@ -358,23 +358,33 @@
 		},
 		"firstperson_righthand": {
 			"rotation": [0, 45, 0],
+			"translation": [0, 3.75, 0],
 			"scale": [0.4, 0.4, 0.4]
 		},
 		"firstperson_lefthand": {
 			"rotation": [0, -135, 0],
+			"translation": [0, 3.75, 0],
 			"scale": [0.4, 0.4, 0.4]
 		},
 		"ground": {
-			"translation": [0, 3, 0],
-			"scale": [0.25, 0.25, 0.25]
+			"translation": [0, 2.25, 0],
+			"scale": [0.5, 0.5, 0.5]
 		},
 		"gui": {
-			"rotation": [30, 69, 0],
-			"translation": [-1, -2.5, 0],
+			"rotation": [30, 45, 0],
+			"translation": [1, -2.25, 0],
 			"scale": [0.5, 0.5, 0.5]
 		},
+		"head": {
+			"translation": [0, 14.25, 0]
+		},
 		"fixed": {
+			"rotation": [0, 90, 0],
+			"translation": [0, -1, 0],
 			"scale": [0.5, 0.5, 0.5]
+		},
+		"on_shelf": {
+			"translation": [0, 0, -3]
 		}
 	},
 	"groups": [
