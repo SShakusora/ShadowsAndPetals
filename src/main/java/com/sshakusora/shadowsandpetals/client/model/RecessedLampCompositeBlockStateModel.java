@@ -8,6 +8,7 @@ import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
@@ -16,14 +17,18 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("ConstantConditions")
 public final class RecessedLampCompositeBlockStateModel extends DelegateBlockStateModel implements DynamicBlockStateModel {
+    private final Block expectedBlock;
     private final Map<BlockState, BlockStateModel> slabModels;
 
     public RecessedLampCompositeBlockStateModel(
+            Block expectedBlock,
             BlockStateModel lampModel,
             Map<BlockState, BlockStateModel> slabModels
     ) {
         super(lampModel);
+        this.expectedBlock = expectedBlock;
         this.slabModels = slabModels;
     }
 
@@ -34,6 +39,10 @@ public final class RecessedLampCompositeBlockStateModel extends DelegateBlockSta
             BlockState state,
             RandomSource random
     ) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            return new GeometryKey(state == null ? expectedBlock : state.getBlock(), null, null);
+        }
+
         long seed = random.nextLong();
         random.setSeed(seed);
         Object lampKey = delegate.createGeometryKey(level, pos, state, random);
@@ -62,6 +71,11 @@ public final class RecessedLampCompositeBlockStateModel extends DelegateBlockSta
             RandomSource random,
             List<BlockStateModelPart> parts
     ) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            delegate.collectParts(random, parts);
+            return;
+        }
+
         long seed = random.nextLong();
         random.setSeed(seed);
         delegate.collectParts(level, pos, state, random, parts);
@@ -80,6 +94,10 @@ public final class RecessedLampCompositeBlockStateModel extends DelegateBlockSta
             BlockPos pos,
             BlockState state
     ) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            return delegate.particleMaterial();
+        }
+
         BlockState storedSlab = getStoredSlab(level, pos);
         BlockStateModel slabModel = storedSlab != null ? slabModels.get(storedSlab) : null;
         return slabModel != null
@@ -94,6 +112,10 @@ public final class RecessedLampCompositeBlockStateModel extends DelegateBlockSta
             BlockPos pos,
             BlockState state
     ) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            return delegate.materialFlags();
+        }
+
         int flags = delegate.materialFlags(level, pos, state);
         BlockState storedSlab = getStoredSlab(level, pos);
         BlockStateModel slabModel = storedSlab != null ? slabModels.get(storedSlab) : null;

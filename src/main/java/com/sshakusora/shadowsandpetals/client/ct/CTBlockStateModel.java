@@ -32,8 +32,10 @@ import java.util.Map;
  * remaps quad UVs at render time so they sample the correct tile from a
  * {@code _connected.png} sprite-sheet atlas.
  */
+@SuppressWarnings("ConstantConditions")
 public final class CTBlockStateModel extends DelegateBlockStateModel implements DynamicBlockStateModel {
 
+    private final Block expectedBlock;
     private final CTEntry entry;
     private final Identifier baseTextureId;
     private final List<Identifier> connectedTextureIds;
@@ -43,8 +45,9 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     // Lazy-resolved sprites and pre-computed UV deltas
     private volatile @Nullable Sprites sprites;
 
-    public CTBlockStateModel(BlockStateModel delegate, CTEntry entry) {
+    public CTBlockStateModel(Block expectedBlock, BlockStateModel delegate, CTEntry entry) {
         super(delegate);
+        this.expectedBlock = expectedBlock;
         this.entry = entry;
         this.baseTextureId = entry.baseTexture();
         this.connectedTextureIds = entry.connectedTextures();
@@ -54,6 +57,10 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
 
     @Override
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            return invalidGeometryKey();
+        }
+
         Object delegateKey = delegate.createGeometryKey(level, pos, state, random);
         Map<Direction, Integer> indices = computeCTIndices(level, pos, state);
         TextureSelection textureSelection = selectTextures(state, pos, indices);
@@ -75,6 +82,11 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state,
                              RandomSource random, List<BlockStateModelPart> parts) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            delegate.collectParts(random, parts);
+            return;
+        }
+
         Sprites sp = ensureSprites();
         Map<Direction, Integer> ctIndices = computeCTIndices(level, pos, state);
         TextureSelection textureSelection = selectTextures(state, pos, ctIndices);
@@ -85,6 +97,22 @@ public final class CTBlockStateModel extends DelegateBlockStateModel implements 
         for (BlockStateModelPart part : delegateParts) {
             parts.add(new CTPart(part, ctIndices, sp, textureSelection, type.getSheetSize()));
         }
+    }
+
+    private GeometryKey invalidGeometryKey() {
+        return new GeometryKey(
+                expectedBlock,
+                baseTextureId,
+                connectedTextureIds,
+                type,
+                padding,
+                new TextureSelection(0, 0, 0, 0, 0, 0),
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                -1);
     }
 
     private TextureSelection selectTextures(BlockState state, BlockPos pos, Map<Direction, Integer> ctIndices) {
