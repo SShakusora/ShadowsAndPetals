@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.model.DelegateBlockStateModel;
 import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
@@ -29,14 +30,17 @@ import java.util.concurrent.ConcurrentHashMap;
  * tree is included from the immutable block-entity ModelData snapshot unless
  * this position is assigned to the cross-section BER fallback.</p>
  */
+@SuppressWarnings("ConstantConditions")
 public final class BonsaiPotBlockStateModel extends DelegateBlockStateModel
         implements DynamicBlockStateModel {
+    private final Block expectedBlock;
     private final Map<Integer, List<BlockStateModelPart>> rotatedParts = new ConcurrentHashMap<>();
     private final Map<TreeGeometryKey, List<BlockStateModelPart>> rotatedTreeParts =
             new ConcurrentHashMap<>();
 
-    public BonsaiPotBlockStateModel(BlockStateModel delegate) {
+    public BonsaiPotBlockStateModel(Block expectedBlock, BlockStateModel delegate) {
         super(delegate);
+        this.expectedBlock = expectedBlock;
     }
 
     @Override
@@ -46,6 +50,10 @@ public final class BonsaiPotBlockStateModel extends DelegateBlockStateModel
             BlockState state,
             RandomSource random
     ) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            return new GeometryKey(state == null ? expectedBlock : state.getBlock(), 0, false, null);
+        }
+
         return new GeometryKey(
                 delegate.createGeometryKey(level, pos, state, random),
                 state.getValue(BonsaiBlock.ROTATION),
@@ -62,6 +70,11 @@ public final class BonsaiPotBlockStateModel extends DelegateBlockStateModel
             RandomSource random,
             List<BlockStateModelPart> parts
     ) {
+        if (state == null || state.getBlock() != expectedBlock) {
+            delegate.collectParts(random, parts);
+            return;
+        }
+
         int rotation = state.getValue(BonsaiBlock.ROTATION);
         parts.addAll(rotatedParts.computeIfAbsent(
                 rotation,

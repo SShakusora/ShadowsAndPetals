@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Raw concrete keeps the dense/hole appearance as a normal block state so the
@@ -60,7 +61,10 @@ public class RawConcreteBlock extends Block {
      * Maps a raw-concrete block state and face to the registered texture-sheet
      * index: normal, hole, or dense hole.
      */
-    public static int selectTextureIndex(BlockState state, BlockPos pos, Direction face) {
+    public static int selectTextureIndex(@Nullable BlockState state, BlockPos pos, Direction face) {
+        if (state == null || !state.hasProperty(DENSE)) {
+            return 0;
+        }
         return selectTextureIndex(state.getValue(DENSE), pos, face);
     }
 

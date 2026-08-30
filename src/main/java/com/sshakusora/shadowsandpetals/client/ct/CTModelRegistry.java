@@ -27,7 +27,7 @@ public final class CTModelRegistry {
             Identifier blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock());
             CTEntry entry = CTRegistry.entries().get(blockId);
             if (entry != null) {
-                return new CTBlockStateModel(model, entry);
+                return new CTBlockStateModel(state.getBlock(), model, entry);
             }
             return model;
         });
