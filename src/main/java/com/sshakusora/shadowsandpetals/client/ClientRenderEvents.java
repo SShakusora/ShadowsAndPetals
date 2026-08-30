@@ -40,6 +40,8 @@ import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.resource.NeoForgeReloadListeners;
 
+import java.util.List;
+
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
 public class ClientRenderEvents {
     @SubscribeEvent
@@ -72,6 +74,14 @@ public class ClientRenderEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.COPPER_TEAPOT.get(), CopperTeapotBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.BONSAI.get(), BonsaiBlockEntityRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
+        event.register(
+                List.of(BonsaiBlockTintSources.TRUNK, BonsaiBlockTintSources.LEAVES),
+                BlockRegistry.BONSAI.get()
+        );
     }
 
     @SubscribeEvent

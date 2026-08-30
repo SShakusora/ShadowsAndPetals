@@ -19,7 +19,8 @@ public final class StandaloneBlockModel implements ClientModelEntry {
     private final Identifier modelId;
     private final ModelState modelState;
     private final StandaloneModelKey<BlockStateModel> key;
-    private @Nullable BlockStateModel cachedModel;
+    /** Published after model baking so chunk-meshing workers can read it safely. */
+    private volatile @Nullable BlockStateModel cachedModel;
 
     public StandaloneBlockModel(Identifier id, Identifier modelId, ModelState modelState) {
         this.id = id;

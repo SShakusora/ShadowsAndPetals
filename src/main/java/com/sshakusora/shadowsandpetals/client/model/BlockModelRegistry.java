@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.model;
 import com.mojang.math.Quadrant;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
+import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
@@ -101,11 +102,6 @@ public final class BlockModelRegistry {
             .model(ShadowsAndPetals.asResource("block/teapot/copper/lid"))
             .register();
 
-    public static final StandaloneBlockModel BONSAI_EMPTY_POT = ClientModelRegistry
-            .blockState("bonsai_empty_pot")
-            .model(ShadowsAndPetals.asResource("block/bonsai/bonsai"))
-            .register();
-
     public static final StandaloneBlockModelSet<BonsaiBlockEntity.Shape> BONSAI_SHAPES =
             ClientModelRegistry.enumBlockStateSet("bonsai_shape", BonsaiBlockEntity.Shape.class)
                     .keyPath(BonsaiBlockEntity.Shape::getSerializedName)
@@ -124,6 +120,9 @@ public final class BlockModelRegistry {
                 .register();
         BlockStateModelDecoratorRegistry.forBlock(WoodPostBlock.class)
                 .wrap(WoodPostBlockStateModel::new)
+                .register();
+        BlockStateModelDecoratorRegistry.forBlock(BonsaiBlock.class)
+                .wrap((block, model) -> new BonsaiPotBlockStateModel(model))
                 .register();
     }
 
