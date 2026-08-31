@@ -9,15 +9,15 @@
 
 ## 1. 插件简介
 
-`sap_animation_exporter.js` 是 Shadows And Petals 的 Blockbench 桌面版插件，用于制作玩家使用物品时的第一人称与第三人称动画。
+`sap_animation_exporter.js` 是 Shadows And Petals 的 Blockbench 桌面版插件，用于制作玩家使用物品时的第一人称/第三人称动画，也用于制作方块实体的骨骼动画。
 
-插件会创建带有玩家参考模型、手持物品预览、相机预设和基础 HUD 的专用工作区，并导出以下三类资源：
+插件按项目模式创建专用工作区：玩家模式带有玩家参考模型、手持物品预览、相机预设和基础 HUD；方块实体模式带有可配置的 rig 骨骼、方块模型预览和方块相机。两种模式都导出以下三类资源：
 
 - SAP 骨架（rig）
 - SAP 动画控制器（controller）
 - NeoForge 实体动画片段（clip）
 
-插件只负责制作与导出资源。导出后还需要在模组客户端代码中注册 `UseAnimationProfile`，并由物品代码决定动画的触发条件、状态和播放时间。
+插件只负责制作与导出资源。导出后仍需在模组客户端代码中注册对应的 `UseAnimationProfile` 或 `BlockAnimationDefinition`；动画触发条件、状态选择和播放时间由运行时代码决定。
 
 ## 2. 环境要求与安装
 
@@ -38,11 +38,11 @@
 ## 3. 快速开始
 
 1. 选择“文件 → 新建 → 新建 SAP 使用动画项目”。
-2. 勾选需要的第一人称和/或第三人称工作区。
-3. 选择 Steve（宽手臂）或 Alex（细手臂）参考模型。
+2. 在“动画类型”中选择“玩家使用动画”或“方块实体动画”。
+3. 玩家模式下勾选需要的第一人称和/或第三人称工作区，选择 Steve/Alex；方块实体模式下填写方块骨骼 JSON。
 4. 填写命名空间及骨架/控制器路径。
-5. 使用“文件 → 导入 → 设置 SAP 预览物品”加载物品模型。
-6. 进入 Blockbench 的动画模式，新建动画并给可导出骨骼制作关键帧。
+5. 玩家模式可用“文件 → 导入 → 设置 SAP 预览物品”；方块实体模式可用“设置 SAP 方块模型预览”把模型导入选中的骨骼。
+6. 进入 Blockbench 的动画模式，新建动画并给 `animated_bone` 或 `socket` 制作关键帧。
 7. 需要时填写事件、速度、叠加模式和控制器过渡。
 8. 选择“文件 → 导出 → 导出 SAP 动画资源包”，将结果导出到 `src/main/resources` 或 `src/generated/resources`。
 9. 在 Java 客户端代码中注册导出的骨架、控制器和动画片段。
@@ -55,16 +55,30 @@
 
 | 选项 | 说明 |
 | --- | --- |
+| 动画类型 | `玩家使用动画` 或 `方块实体动画` |
 | 第一人称工作区 | 创建第一人称双臂及左右物品 socket |
 | 第三人称工作区 | 创建完整玩家参考模型及左右手物品预览锚点 |
 | 显示第一人称基础 HUD | 在第一人称相机中显示准星、生命值、饱食度、经验条和快捷栏 |
 | 原版玩家参考模型 | `Steve` 为 4 像素宽手臂，`Alex` 为 3 像素宽手臂 |
 | 命名空间 | 资源命名空间，例如 `shadowsandpetals` |
 | 骨架/控制器路径 | 骨架和控制器的默认资源路径，例如 `animation/hammer` |
+| 方块骨骼 JSON | 方块实体模式下创建的骨骼数组，包含 `name`、`pivot`、`parent` 和可选 `rest` |
 
-至少选择一个人称工作区。
+玩家模式至少选择一个人称工作区；方块实体模式会忽略玩家工作区选项，并创建一个 `SAP 方块实体` 根节点。
 
-> “配置 SAP 使用动画项目”中的人称列表只修改项目配置，不会自动创建或删除模板骨骼。因此应在新建项目时选好所需工作区；如果后来新增人称，建议重新创建项目或手动建立完全一致的骨架。
+方块骨骼 JSON 示例（坐标使用 Blockbench/Minecraft 的 16 像素方块坐标）：
+
+```json
+[
+  {"name": "root", "pivot": [8, 0, 8]},
+  {"name": "body", "pivot": [8, 16, 8], "parent": "root"},
+  {"name": "main", "pivot": [8, 16, 8], "parent": "root"}
+]
+```
+
+`pivot` 是运行时骨骼枢轴；`rest.translation`、`rest.rotation`、`rest.scale` 是可选的静止变换。名称必须唯一，父级必须存在且不能形成循环。
+
+> “配置 SAP 使用动画项目”中的人称列表会为缺失的人称补充模板，但不会删除已有骨骼。因此应在新建项目时选好所需工作区；切换到方块实体模式也不会删除玩家骨骼。
 
 ## 5. 工作区结构
 
@@ -124,6 +138,19 @@ SAP 第三人称 (guide)
 
 插件会自动把 Blockbench 第三人称旋转换算为 Minecraft 坐标约定，请不要手动反转 X/Z 旋转。
 
+### 5.4 方块实体
+
+方块实体模式的结构由新建项目中的骨骼 JSON 生成：
+
+```text
+SAP 方块实体 (guide)
+└─ root (animated_bone)
+   ├─ body (animated_bone)
+   └─ main (animated_bone)
+```
+
+每个 `animated_bone` 都能在动画模式中制作位置、旋转和缩放关键帧。方块实体工作区使用一个中心化坐标层：运行时 `pivot` 的 X/Z 会在编辑器中减去 `[8, 0, 8]`，因此方块中心位于 Blockbench 原点；导出 rig 时插件会自动加回 `[8, 0, 8]`，游戏仍收到 Minecraft 的 `0..16` 坐标。`SAP Rest Translation/Scale` 和组旋转对应 rig 的 `rest`。根节点和导入的模型预览不会导出为几何体；游戏仍使用 BER 的 baked `BlockStateModelPart`。
+
 ## 6. 预览工具
 
 ### 6.1 人称相机
@@ -171,6 +198,110 @@ SAP 第三人称 (guide)
 MC 26 的直接 `minecraft:model` 物品包装 JSON 可以解析；属性选择、条件、范围分派等复杂物品模型分派器不能作为预览入口。遇到此类模型时，请直接选择最终的 `assets/<namespace>/models/item/*.json`。
 
 预览物品不会导出。请给第一人称手臂/socket 或第三人称玩家手臂制作动画，而不是给导入的物品几何制作关键帧。
+
+### 6.4 方块模型预览
+
+在方块实体模式中，先在 Outliner 选中目标 `animated_bone`，再选择“文件 → 导入 → 设置 SAP 方块模型预览”。支持：
+
+- 直接的 `assets/<namespace>/models/*.json` 方块模型；
+- `assets/<namespace>/blockstates/*.json`（选择第一个 variant/multipart 模型作为编辑器预览）；
+- Blockbench `.bbmodel`（仅导入 cube 元素）。
+
+模型会作为 `reference` 预览组挂到目标骨骼下，不会写入 rig，也不会替代游戏中由方块状态烘焙的模型。重复导入同一骨骼会替换旧预览；“工具 → 清除 SAP 方块模型预览”可以按骨骼或全部清除。这样可以在可见模型上直接给骨骼制作关键帧，同时保留运行时 `AnimatedBlockModel` 的绑定方式。
+
+导入方块模型时，模型的 `0..16` X/Z 坐标会自动映射到编辑器的 `-8..8`，Y 坐标保持不变；这样模型中心和骨骼枢轴都落在 BB 中轴线附近。导出时会自动还原到 Minecraft 的 `0..16` 坐标，请不要手动再平移。骨骼 JSON 中的 `pivot` 仍填写运行时方块坐标，例如 `[8, 9, 9]`；打开旧的方块项目时插件会自动完成一次坐标迁移。
+
+例如当前仓库的风铃可以把 `models/block/wind_chimes/block.json` 导入 `body`。如果 `main_ribbon.json` 和 `vane.json` 都需要同时显示在 `main` 上，应先把它们合并为一个 `.bbmodel`，或者为它们建立两个独立的预览骨骼；同一骨骼上的后一次导入会替换前一次导入。
+
+### 6.5 示例：静态模型 A 与动画模型 B
+
+模型 A、B 在插件中只是用于观察动画效果的 `reference` 几何；真正被写入动画资源的是骨骼。对于“A 保持静止、B 参与动画”的方块，可以创建一个公共根骨骼、一个静态骨骼和一个动画骨骼：
+
+```json
+[
+  {
+    "name": "root",
+    "pivot": [8, 0, 8]
+  },
+  {
+    "name": "static",
+    "pivot": [8, 0, 8],
+    "parent": "root"
+  },
+  {
+    "name": "moving",
+    "pivot": [8, 16, 8],
+    "parent": "root"
+  }
+]
+```
+
+创建方块实体项目后，Outliner 结构如下：
+
+```text
+SAP 方块实体
+└─ root
+   ├─ static
+   └─ moving
+```
+
+`pivot` 使用模型自身的 `0..16` 方块坐标。B 从顶部悬挂时可使用 `[8,16,8]`；转轴位于模型中央时可使用 `[8,8,8]`。如果 B 还应继承 A 的动画，就把 `moving` 的父级改为 `static`。
+
+导入模型：
+
+1. 选中 `static`，执行“文件 → 导入 → 设置 SAP 方块模型预览”，选择模型 A 的具体 `models/*.json` 或 `.bbmodel`。
+2. 选中 `moving`，再次执行同一命令并选择模型 B。
+3. 确认模型分别出现在 `static` 和 `moving` 下方的 `reference` 预览组中。
+
+一个骨骼同时只保存一个导入模型；再次导入会替换该骨骼的旧预览。如果 A 或 B 由多个 JSON 组成，应先合并为一个 `.bbmodel`，或者为每个部分建立独立骨骼。
+
+制作动画时进入 Animate 模式，新建动画并使用最终资源路径作为名称，例如 `animation/my_block`。只给 `moving` 添加位置、旋转或缩放关键帧；不要给 `moving (方块预览)`、Cube 或其他 `reference` 组制作关键帧。`static` 没有关键帧时会保持静止。例如一个循环摆动可以使用：
+
+```text
+0.0 秒：moving rotation Z = -10
+0.5 秒：moving rotation Z =  10
+1.0 秒：moving rotation Z = -10
+```
+
+将循环模式设置为 `Loop`，然后使用“文件 → 导出 → 导出 SAP 动画资源包”并选择 `src/main/resources`。当命名空间为 `shadowsandpetals`、骨架/控制器路径和动画名均为 `animation/my_block` 时，会生成：
+
+```text
+assets/shadowsandpetals/sap/animations/rigs/animation/my_block.json
+assets/shadowsandpetals/sap/animations/controllers/animation/my_block.json
+assets/shadowsandpetals/neoforge/animations/entity/animation/my_block.json
+```
+
+注册路径必须与导出名称一致：
+
+```java
+SAPAnimationRegistries.blockAnimation("my_block")
+        .clip("animation/my_block")
+        .defaultState("animation/my_block")
+        .register();
+```
+
+如果 A、B 都由 BER 的 `AnimatedBlockModel` 提交，可以分别绑定到对应骨骼：
+
+```java
+AnimatedBlockModel animatedModel = new AnimatedBlockModel(
+        rig,
+        List.of(
+                new AnimatedBlockModel.Binding(
+                        rig, "static", staticParts, staticHasTranslucency, tints),
+                new AnimatedBlockModel.Binding(
+                        rig, "moving", movingParts, movingHasTranslucency, tints)
+        )
+);
+
+animatedModel.submit(
+        state.animationPose,
+        poseStack,
+        collector,
+        state.lightCoords
+);
+```
+
+如果 A 完全不需要受到 rig 层级影响，也可以继续用普通方式提交 A，只把 B 绑定到 `moving`。此时仍可在插件中把 A 导入 `static` 或 `root`，作为编辑 B 动画时的视觉参照。
 
 ## 7. 制作动画
 
@@ -283,6 +414,7 @@ Catmull-Rom 会导出为 `minecraft:catmullrom`，其他插值类型一律导出
 
 | 配置 | 说明 |
 | --- | --- |
+| 动画类型 | `玩家使用动画` 或 `方块实体动画`；切换后会只导出当前模式的骨骼 |
 | 人称配置 | 仅允许 `first_person`、`third_person`，多个值以逗号分隔 |
 | 命名空间 | 导出资源的 namespace |
 | 骨架路径 | SAP rig 的资源路径 |
@@ -290,6 +422,7 @@ Catmull-Rom 会导出为 `minecraft:catmullrom`，其他插值类型一律导出
 | 本地资源根目录 | 解析预览模型父级和纹理时使用，多个目录以 `;` 分隔 |
 | 显示第一人称基础 HUD | 编辑器预览设置 |
 | 控制器过渡 JSON | `from`、`to`、`duration` 数组 |
+| 方块骨骼 JSON | 方块实体模式下补充尚不存在的骨骼，并保存模板元数据 |
 
 命名空间只能使用小写字母、数字、下划线、点和连字符，并必须以字母或数字开头。资源路径允许小写字母、数字、下划线、点、斜杠和连字符；不能以斜杠开头或结尾，也不能包含空路径段、`.` 或 `..` 段。
 
@@ -301,6 +434,8 @@ Catmull-Rom 会导出为 `minecraft:catmullrom`，其他插值类型一律导出
 - 骨架路径；
 - 控制器路径；
 - 导出全部动画或仅导出当前动画。
+
+玩家与方块实体使用相同的导出按钮和资源目录布局。方块实体模式下只会收集 `SAP 方块实体` 根节点内的 `animated_bone`/`socket`；导入的方块模型预览组不会导出。
 
 推荐选择以下任一目录作为导出根目录：
 
@@ -384,6 +519,20 @@ public static final UseAnimationProfile HAMMER =
 
 资源在客户端资源重载时加载并校验。缺失文件、未注册 clip、错误 bone/socket、非法 state 或非法过渡都会使资源重载失败，并在日志中给出原因。
 
+### 方块实体动画
+
+方块实体也可以复用同一套 rig、controller 和 NeoForge clip。先在 `SAPAnimations` 中注册方块动画：
+
+```java
+public static final BlockAnimationDefinition WIND_CHIME =
+        SAPAnimationRegistries.blockAnimation("wind_chime")
+                .clip("animation/wind_chime")
+                .defaultState("animation/wind_chime")
+                .register();
+```
+
+在插件方块实体模式中，建议把默认动画命名为 `animation/wind_chime`，这样会同时生成上面示例中的 clip 和 controller state；如果把动画命名为 `idle`，则将 builder 的 clip/state 改成 `idle`。BER 在 `extractRenderState` 中采样 `RigPose`，并用 `AnimatedBlockModel.Binding` 将每个 rig bone 绑定到已烘焙的 `BlockStateModelPart`。`AnimatedBlockModel.submit(...)` 会自动处理父骨骼链、pivot、旋转、缩放、透明层、tint 以及 push/pop；`submit` 中只需保留方块朝向或整体偏移。流体、火焰等非方块模型几何仍可作为独立的自定义层提交。
+
 ## 11. 常见问题
 
 ### 导入物品时提示无法解析父模型或纹理
@@ -405,6 +554,14 @@ public static final UseAnimationProfile HAMMER =
 ### 修改人称配置后没有出现新工作区
 
 项目配置不会生成模板。请在新建项目时选择所需人称，或重新创建工程。
+
+### 方块模型预览为空或无法导入
+
+请直接选择具体的 `models/*.json`、包含可解析 variant 的 `blockstates/*.json` 或只含 cube 的 `.bbmodel`。如果模型引用了其他资源包，请把资源根目录（直接包含 `assets` 的目录）加入项目配置；预览模型的几何体仍然是非导出 reference。
+
+### 方块动画导出后骨骼不生效
+
+确认关键帧加在 `SAP 方块实体` 根节点下的 `animated_bone` 上，并且 Java `BlockAnimationDefinition` 使用了相同的 rig/controller/clip 路径和 bone 名称。方块模型几何体由 BER 的 `AnimatedBlockModel.Binding` 绑定，不能通过给 reference 组打关键帧来改变导出 rig。
 
 ### 游戏中没有动画，但 JSON 已经导出
 
@@ -433,6 +590,20 @@ SAPAnimationStudio.createProject({
     transitions: []
 });
 
+SAPAnimationStudio.createProject({
+    mode: "block_entity",
+    namespace: "shadowsandpetals",
+    rigPath: "animation/wind_chime",
+    controllerPath: "animation/wind_chime",
+    blockBones: [
+        {name: "root", pivot: [8, 0, 8]},
+        {name: "body", pivot: [8, 16, 8], parent: "root"},
+        {name: "main", pivot: [8, 16, 8], parent: "root"}
+    ],
+    blockModelPath: "D:/path/to/assets/shadowsandpetals/models/block/wind_chimes/block.json",
+    blockModelBone: "body"
+});
+
 SAPAnimationStudio.setPreviewItem(
     "D:/path/to/assets/example/models/item/hammer.json",
     {hand: "right"}
@@ -451,12 +622,21 @@ SAPAnimationStudio.exportBundle(
         controllerPath: "animation/hammer"
     }
 );
+
+SAPAnimationStudio.setBlockModel(
+    "D:/path/to/assets/shadowsandpetals/models/block/wind_chime.json",
+    {bone: "body"}
+);
+SAPAnimationStudio.clearBlockModel({bone: "body"});
 ```
 
 其他可用成员：
 
 - `version`
 - `generateRig()`
+- `parseBlockBones(value)`
+- `setBlockModel(filePath, {bone})`
+- `clearBlockModel({bone})`
 
 ---
 
@@ -464,15 +644,15 @@ SAPAnimationStudio.exportBundle(
 
 ## 1. Overview
 
-`sap_animation_exporter.js` is a desktop Blockbench plugin for authoring first-person and third-person player use animations for Shadows And Petals.
+`sap_animation_exporter.js` is a desktop Blockbench plugin for authoring first-person/third-person player use animations and block-entity bone animations for Shadows And Petals.
 
-It creates a dedicated workspace with player references, held-item previews, camera presets, and a basic HUD. It exports:
+It creates a mode-specific workspace: player mode has player references, held-item previews, camera presets, and a basic HUD; block-entity mode has configurable rig bones, block-model previews, and a block camera. Both modes export:
 
 - an SAP animation rig;
 - an SAP animation controller;
 - NeoForge entity animation clips.
 
-The plugin only authors and exports resources. The mod must still register a `UseAnimationProfile` on the client, while item code remains responsible for trigger rules, state selection, and local animation time.
+The plugin only authors and exports resources. The mod must still register a `UseAnimationProfile` or `BlockAnimationDefinition`, while runtime code remains responsible for trigger rules, state selection, and local animation time.
 
 ## 2. Requirements and installation
 
@@ -495,11 +675,11 @@ The current plugin UI is Chinese. The menu labels quoted below match the actual 
 ## 3. Quick start
 
 1. Select “文件 → 新建 → 新建 SAP 使用动画项目”.
-2. Enable the first-person and/or third-person workspace.
-3. Choose the Steve wide-arm or Alex slim-arm reference.
+2. Choose `玩家使用动画` or `方块实体动画` in `动画类型`.
+3. In player mode, enable the required perspective workspaces and choose Steve/Alex; in block mode, enter the block-bone JSON.
 4. Enter the namespace and rig/controller path.
-5. Use “文件 → 导入 → 设置 SAP 预览物品” to load an item model.
-6. Switch to Animate mode, create an animation, and keyframe exported bones.
+5. In player mode use “文件 → 导入 → 设置 SAP 预览物品”; in block mode use “设置 SAP 方块模型预览” for the selected bone.
+6. Switch to Animate mode, create an animation, and keyframe `animated_bone` or `socket` groups.
 7. Configure events, speed, additive playback, and controller transitions if needed.
 8. Use “文件 → 导出 → 导出 SAP 动画资源包” and select `src/main/resources` or `src/generated/resources`.
 9. Register the exported resources from client-side Java code.
@@ -512,16 +692,30 @@ The new-project dialog contains:
 
 | Option | Meaning |
 | --- | --- |
+| 动画类型 | `玩家使用动画` (player use) or `方块实体动画` (block entity) |
 | 第一人称工作区 | Creates both first-person arms and their item sockets |
 | 第三人称工作区 | Creates a full player reference and held-item preview anchors |
 | 显示第一人称基础 HUD | Shows a crosshair, health, hunger, experience, and hotbar overlay |
 | 原版玩家参考模型 | `Steve` uses 4-pixel arms; `Alex` uses 3-pixel arms |
 | 命名空间 | Resource namespace, such as `shadowsandpetals` |
 | 骨架/控制器路径 | Default path shared by the rig and controller, such as `animation/hammer` |
+| 方块骨骼 JSON | Bone array for block mode with `name`, `pivot`, `parent`, and optional `rest` |
 
-At least one perspective workspace is required.
+Player mode requires at least one perspective workspace. Block mode ignores the player workspace options and creates a `SAP 方块实体` root.
 
-> Changing the profile list later in “配置 SAP 使用动画项目” does not create or remove template bones. Select all required workspaces when creating the project. If a new perspective is needed later, recreate the project or manually reproduce the exact rig structure.
+Example block-bone JSON (coordinates use the 16-pixel Minecraft/Blockbench block space):
+
+```json
+[
+  {"name": "root", "pivot": [8, 0, 8]},
+  {"name": "body", "pivot": [8, 16, 8], "parent": "root"},
+  {"name": "main", "pivot": [8, 16, 8], "parent": "root"}
+]
+```
+
+`pivot` is the runtime bone pivot. `rest.translation`, `rest.rotation`, and `rest.scale` are optional rest transforms. Bone names must be unique, parents must exist, and the hierarchy must be acyclic.
+
+> Changing the profile list later in “配置 SAP 使用动画项目” adds missing perspective templates but never deletes existing bones. Switching to block mode also keeps the player bones in the source file; export is isolated to the active mode.
 
 ## 5. Workspace structure
 
@@ -581,6 +775,19 @@ Third-person held items always follow the corresponding player arm:
 
 The exporter automatically converts Blockbench third-person rotations to Minecraft coordinates. Do not manually negate the X or Z rotations.
 
+### 5.4 Block entities
+
+Block mode builds its hierarchy from the bone JSON entered when the project is created:
+
+```text
+SAP 方块实体 (guide)
+└─ root (animated_bone)
+   ├─ body (animated_bone)
+   └─ main (animated_bone)
+```
+
+Every `animated_bone` can receive position, rotation, and scale keyframes. Block-entity workspaces use a centered coordinate layer: runtime bone pivot X/Z values are **reduced by** `[8, 0, 8]` for the editor, so the block center sits on the Blockbench origin; rig export adds `[8, 0, 8]` back and Minecraft still receives its `0..16` coordinates. `SAP Rest Translation/Scale` and the group rotation become the rig `rest` transform. The root and imported preview geometry are not exported; the game still uses its baked `BlockStateModelPart` geometry.
+
 ## 6. Preview tools
 
 ### 6.1 Perspective cameras
@@ -593,6 +800,8 @@ The View menu contains:
 - `切换 SAP 第一人称基础 HUD`
 
 Camera position, left-arm visibility, and HUD visibility affect the editor preview only. They are not exported. The front-facing third-person preview follows Minecraft renderer handedness, so anatomical left and right appear as they would on a real person facing the viewer.
+
+Block mode adds `SAP 相机：方块实体`, which frames the 16×16×16 block space.
 
 ### 6.2 Player skins
 
@@ -624,6 +833,110 @@ Resource lookup rules:
 A direct MC 26 `minecraft:model` item wrapper is supported. Complex property-select, conditional, or range-dispatch item model entry points are not. For those items, select the final `assets/<namespace>/models/item/*.json` directly.
 
 Preview items are never exported. Animate a first-person arm/socket or a third-person player arm instead of the imported item geometry.
+
+### 6.4 Block-model previews
+
+In block mode, select an `animated_bone` in the Outliner and choose “文件 → 导入 → 设置 SAP 方块模型预览”. The importer accepts:
+
+- a concrete `assets/<namespace>/models/*.json` block model;
+- an `assets/<namespace>/blockstates/*.json` file (the first variant/multipart model is used for the editor preview);
+- a Blockbench `.bbmodel` containing cube elements.
+
+The model is attached as a `reference` preview group under the selected bone. It is not written into the rig and does not replace the baked model used by the game. Importing again on the same bone replaces the previous preview; “工具 → 清除 SAP 方块模型预览” removes one bone or all previews. This lets you keyframe the visible block while retaining the runtime `AnimatedBlockModel` binding.
+
+When importing a block model, its `0..16` X/Z coordinates are mapped to `-8..8` in the editor while Y is unchanged, putting the model center and bone pivots on the BB axes. Export restores Minecraft's `0..16` coordinates automatically; do not add another manual translation. Bone JSON `pivot` values remain runtime block coordinates, such as `[8, 9, 9]`. Opening a block project saved by an older plugin version migrates its coordinates once.
+
+For the repository's wind chime, import `models/block/wind_chimes/block.json` into `body`. To display both `main_ribbon.json` and `vane.json` on `main`, first merge them into one `.bbmodel` or create separate preview bones; a later import on the same bone replaces the previous one.
+
+### 6.5 Example: static model A and animated model B
+
+Models A and B are `reference` geometry used to inspect the animation in the editor. The bones, rather than the preview geometry, are written to the animation resources. For a block where A remains static and B moves, create a common root, a static bone, and an animated bone:
+
+```json
+[
+  {
+    "name": "root",
+    "pivot": [8, 0, 8]
+  },
+  {
+    "name": "static",
+    "pivot": [8, 0, 8],
+    "parent": "root"
+  },
+  {
+    "name": "moving",
+    "pivot": [8, 16, 8],
+    "parent": "root"
+  }
+]
+```
+
+The resulting Outliner structure is:
+
+```text
+SAP 方块实体
+└─ root
+   ├─ static
+   └─ moving
+```
+
+`pivot` uses the model's own `0..16` block coordinates. Use `[8,16,8]` for a part suspended from the top, or `[8,8,8]` for a central axle. Make `moving` a child of `static` instead if B must inherit animation authored on A.
+
+Import the models as follows:
+
+1. Select `static`, run “文件 → 导入 → 设置 SAP 方块模型预览”, and choose model A's concrete `models/*.json` or `.bbmodel`.
+2. Select `moving`, run the same command, and choose model B.
+3. Confirm that the models appear in separate `reference` preview groups below `static` and `moving`.
+
+Each bone stores one imported model at a time; another import replaces that bone's previous preview. If A or B consists of multiple JSON files, merge them into a `.bbmodel` first or create a separate bone for each part.
+
+In Animate mode, create an animation whose name is its final resource path, such as `animation/my_block`. Add position, rotation, or scale keyframes only to `moving`; do not keyframe `moving (方块预览)`, cubes, or other `reference` groups. With no keyframes on `static`, A remains stationary. A simple loop could use:
+
+```text
+0.0 s: moving rotation Z = -10
+0.5 s: moving rotation Z =  10
+1.0 s: moving rotation Z = -10
+```
+
+Set the loop mode to `Loop`, choose “文件 → 导出 → 导出 SAP 动画资源包”, and export to `src/main/resources`. With namespace `shadowsandpetals` and `animation/my_block` used for the rig, controller, and animation name, the result is:
+
+```text
+assets/shadowsandpetals/sap/animations/rigs/animation/my_block.json
+assets/shadowsandpetals/sap/animations/controllers/animation/my_block.json
+assets/shadowsandpetals/neoforge/animations/entity/animation/my_block.json
+```
+
+The registration paths must match the exported names:
+
+```java
+SAPAnimationRegistries.blockAnimation("my_block")
+        .clip("animation/my_block")
+        .defaultState("animation/my_block")
+        .register();
+```
+
+If the BER submits both A and B through `AnimatedBlockModel`, bind the baked parts to their corresponding bones:
+
+```java
+AnimatedBlockModel animatedModel = new AnimatedBlockModel(
+        rig,
+        List.of(
+                new AnimatedBlockModel.Binding(
+                        rig, "static", staticParts, staticHasTranslucency, tints),
+                new AnimatedBlockModel.Binding(
+                        rig, "moving", movingParts, movingHasTranslucency, tints)
+        )
+);
+
+animatedModel.submit(
+        state.animationPose,
+        poseStack,
+        collector,
+        state.lightCoords
+);
+```
+
+If A must remain completely outside the rig hierarchy, submit A normally and bind only B to `moving`. A can still be imported under `static` or `root` as visual context while authoring B's animation.
 
 ## 7. Authoring animations
 
@@ -725,6 +1038,7 @@ Scale components must be finite and non-zero. Editing a first-person rest transl
 
 | Setting | Meaning |
 | --- | --- |
+| 动画类型 | `玩家使用动画` or `方块实体动画`; export collects only the active mode's bones |
 | 人称配置 | `first_person`, `third_person`, or both separated by commas |
 | 命名空间 | Export namespace |
 | 骨架路径 | SAP rig resource path |
@@ -732,6 +1046,7 @@ Scale components must be finite and non-zero. Editing a first-person rest transl
 | 本地资源根目录 | Roots used to resolve preview model parents and textures; separate with `;` |
 | 显示第一人称基础 HUD | Editor-only preview setting |
 | 控制器过渡 JSON | Array of `from`, `to`, and `duration` entries |
+| 方块骨骼 JSON | Adds missing block-mode bones and stores the template metadata |
 
 Namespaces may contain lowercase letters, digits, underscores, dots, and hyphens, and must begin with a letter or digit. Resource paths may also contain slashes. They cannot begin or end with a slash or contain empty, `.` or `..` segments.
 
@@ -743,6 +1058,8 @@ Use “文件 → 导出 → 导出 SAP 动画资源包” and configure:
 - rig path;
 - controller path;
 - all animations or the selected animation only.
+
+Player and block-entity projects use the same export command and resource layout. In block mode only `animated_bone`/`socket` groups under `SAP 方块实体` are collected; imported block-model preview groups are excluded.
 
 Choose one of these export roots:
 
@@ -802,6 +1119,20 @@ Item rendering code remains responsible for:
 
 Resources are loaded and validated during client resource reload. Missing files, unregistered clips, invalid bones/sockets, invalid states, or invalid transitions cause reload failure with a diagnostic in the log.
 
+### Block-entity animations
+
+Block entities can reuse the same SAP rig, controller, and NeoForge clip resources. Register the block animation in `SAPAnimations`:
+
+```java
+public static final BlockAnimationDefinition WIND_CHIME =
+        SAPAnimationRegistries.blockAnimation("wind_chime")
+                .clip("animation/wind_chime")
+                .defaultState("animation/wind_chime")
+                .register();
+```
+
+In block mode, name the default animation `animation/wind_chime` to generate the clip and controller state used above; if you use `idle`, change both builder values to `idle`. In `extractRenderState`, sample the `RigPose` and bind each rig bone to its baked `BlockStateModelPart` with `AnimatedBlockModel.Binding`. `AnimatedBlockModel.submit(...)` owns the parent chain, pivots, rotation, scale, translucent layers, tints, and pose push/pop; the BER `submit` method only keeps block-facing or whole-model offsets. Fluids, flames, and other non-block-model geometry can remain separate custom layers.
+
 ## 11. Troubleshooting
 
 ### A parent model or texture cannot be resolved
@@ -823,6 +1154,14 @@ This is expected preview behavior. The plugin hides its built-in arm reference w
 ### Adding a profile does not create its workspace
 
 Project settings do not generate templates. Select all perspectives when creating the project or recreate the source project.
+
+### A block-model preview is empty or cannot be imported
+
+Select a concrete `models/*.json`, a `blockstates/*.json` with a resolvable variant, or a `.bbmodel` containing only cubes. Add a resource root (the directory that directly contains `assets`) when the model references another pack. Preview geometry remains a non-exported `reference` group.
+
+### Exported block animation does not move the model
+
+Keyframe an `animated_bone` under `SAP 方块实体` and make sure the Java `BlockAnimationDefinition` uses matching rig/controller/clip paths and bone names. The geometry is bound by the BER's `AnimatedBlockModel.Binding`; keyframing a reference preview group cannot change the exported rig.
 
 ### JSON files exist, but nothing animates in game
 
@@ -847,5 +1186,8 @@ Available members:
 - `exportBundle(directory, options)`
 - `activateProfile(profile)`
 - `generateRig()`
+- `parseBlockBones(value)`
+- `setBlockModel(filePath, {bone})`
+- `clearBlockModel({bone})`
 
 See the runnable examples in [Blockbench 脚本 API](#12-blockbench-脚本-api) above.

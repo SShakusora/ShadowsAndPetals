@@ -10,6 +10,8 @@ public final class SAPAnimationRegistry {
             new LinkedHashMap<>();
     private static final Map<Identifier, UseAnimationProfile> PROFILES =
             new LinkedHashMap<>();
+    private static final Map<Identifier, BlockAnimationDefinition> BLOCK_ANIMATIONS =
+            new LinkedHashMap<>();
 
     private SAPAnimationRegistry() {
     }
@@ -55,6 +57,30 @@ public final class SAPAnimationRegistry {
         return previous;
     }
 
+    /**
+     * Registers a controller intended for a block-entity renderer.
+     */
+    public static synchronized BlockAnimationDefinition register(
+            BlockAnimationDefinition definition
+    ) {
+        Objects.requireNonNull(definition, "definition");
+        BlockAnimationDefinition previous = BLOCK_ANIMATIONS.get(definition.id());
+        if (previous != null && !previous.equals(definition)) {
+            throw new IllegalStateException(
+                    "Block animation is already registered: " + definition.id());
+        }
+        register(new Registration(
+                Set.of(Target.BLOCK_ENTITY),
+                definition.rig(),
+                definition.controller(),
+                definition.clips()
+        ));
+        if (previous == null) {
+            BLOCK_ANIMATIONS.put(definition.id(), definition);
+        }
+        return previous == null ? definition : previous;
+    }
+
     public static synchronized @Nullable UseAnimationProfile findProfile(
             Identifier id
     ) {
@@ -63,6 +89,16 @@ public final class SAPAnimationRegistry {
 
     public static synchronized Set<UseAnimationProfile> profiles() {
         return Set.copyOf(PROFILES.values());
+    }
+
+    public static synchronized @Nullable BlockAnimationDefinition findBlockAnimation(
+            Identifier id
+    ) {
+        return BLOCK_ANIMATIONS.get(id);
+    }
+
+    public static synchronized Set<BlockAnimationDefinition> blockAnimations() {
+        return Set.copyOf(BLOCK_ANIMATIONS.values());
     }
 
     static synchronized Snapshot snapshot() {
@@ -80,12 +116,14 @@ public final class SAPAnimationRegistry {
                 Set.copyOf(rigs),
                 Set.copyOf(controllers),
                 Set.copyOf(clips),
-                Set.copyOf(PROFILES.values()));
+                Set.copyOf(PROFILES.values()),
+                Set.copyOf(BLOCK_ANIMATIONS.values()));
     }
 
     public enum Target {
         FIRST_PERSON,
-        THIRD_PERSON
+        THIRD_PERSON,
+        BLOCK_ENTITY
     }
 
     public record Registration(
@@ -112,7 +150,8 @@ public final class SAPAnimationRegistry {
             Set<AnimationResourceRef.Rig> rigs,
             Set<AnimationResourceRef.Controller> controllers,
             Set<AnimationResourceRef.Clip> clips,
-            Set<UseAnimationProfile> profiles
+            Set<UseAnimationProfile> profiles,
+            Set<BlockAnimationDefinition> blockAnimations
     ) {
     }
 }

@@ -7,8 +7,23 @@
     const ROLE_SOCKET = "socket";
     const ROLE_REFERENCE = "reference";
     const ROLE_GUIDE = "guide";
-    const PLUGIN_VERSION = "1.1.0";
+    const PLUGIN_VERSION = "1.2.0";
     const PROFILES = ["first_person", "third_person"];
+    const ANIMATION_MODE_PLAYER = "player";
+    const ANIMATION_MODE_BLOCK_ENTITY = "block_entity";
+    const BLOCK_PROFILE = "block_entity";
+    const BLOCK_ROOT_NAME = "SAP 方块实体";
+    // Blockbench's centered grid places the block origin at the center of the
+    // editor viewport. Minecraft's baked block models still use 0..16 X/Z
+    // coordinates, so the plugin keeps an explicit editor/runtime layer.
+    const BLOCK_EDITOR_OFFSET = [-8, 0, -8];
+    const BLOCK_RUNTIME_OFFSET = [8, 0, 8];
+    const BLOCK_COORDINATE_LAYER = "centered_v1";
+    const DEFAULT_BLOCK_BONES = [
+        {name: "root", pivot: [8, 0, 8], parent: null},
+        {name: "body", pivot: [8, 16, 8], parent: "root"},
+        {name: "main", pivot: [8, 16, 8], parent: "root"}
+    ];
     const PROFILE_ROOTS = {
         first_person: "SAP 第一人称",
         third_person: "SAP 第三人称"
@@ -75,7 +90,15 @@
 
     if (typeof Plugin === "undefined") {
         if (typeof module !== "undefined" && module.exports) {
-            module.exports = {inferUseSequence, useSequenceTransitions};
+            module.exports = {
+                inferUseSequence,
+                useSequenceTransitions,
+                normalizeAnimationMode,
+                parseBlockBones,
+                blockEditorPoint,
+                blockRuntimePoint,
+                defaultBlockBones: () => parseBlockBones(DEFAULT_BLOCK_BONES)
+            };
         }
         return;
     }
@@ -83,9 +106,9 @@
     Plugin.register(PLUGIN_ID, {
         title: "Shadows And Petals 动画制作器",
         author: "Shadows And Petals",
-        description: "用于离线制作第一人称与第三人称玩家使用动画。",
+        description: "用于离线制作玩家使用动画与方块实体骨骼动画。",
         icon: "fa-person-running",
-        tags: ["Animation", "Minecraft: Java Edition"],
+        tags: ["Animation", "Block Entity", "Minecraft: Java Edition"],
         variant: "desktop",
         version: PLUGIN_VERSION,
         min_version: "5.0.6",
@@ -149,8 +172,8 @@
 
     function installFormat() {
         sapFormat = new ModelFormat(FORMAT_ID, {
-            name: "SAP 使用动画",
-            description: "SAP 第一人称与第三人称使用动画工作区",
+            name: "SAP 动画工作室",
+            description: "SAP 玩家使用动画与方块实体动画编辑器",
             icon: "fa-person-running",
             category: "minecraft",
             target: "Minecraft: Java Edition",
@@ -188,6 +211,26 @@
                 && (group.sap_role === ROLE_REFERENCE || group.sap_role === ROLE_GUIDE),
             default: "both",
             values: ["both", "left", "right"]
+        }));
+        properties.push(new Property(Group, "boolean", "sap_block_animation_root", {
+            condition: () => isSapProject(),
+            default: false
+        }));
+        properties.push(new Property(Group, "boolean", "sap_block_bone", {
+            condition: () => isSapProject(),
+            default: false
+        }));
+        properties.push(new Property(Group, "string", "sap_block_parent", {
+            condition: group => isSapProject() && isGroupInBlockWorkspace(group),
+            default: ""
+        }));
+        properties.push(new Property(Group, "boolean", "sap_block_preview", {
+            condition: group => isSapProject() && group.sap_role === ROLE_REFERENCE,
+            default: false
+        }));
+        properties.push(new Property(Group, "string", "sap_block_model_source", {
+            condition: group => isSapProject() && group.sap_block_preview,
+            default: ""
         }));
         properties.push(new Property(Group, "vector", "sap_rest_translation", {
             condition: group => isExportedGroup(group),
@@ -235,6 +278,7 @@
             default: ""
         }));
         if (typeof ModelProject !== "undefined") {
+            projectProperty("string", "sap_animation_mode", ANIMATION_MODE_PLAYER);
             projectProperty("string", "sap_profiles", "first_person");
             projectProperty("string", "sap_active_profile", "first_person");
             projectProperty("string", "sap_namespace", "shadowsandpetals");
@@ -245,6 +289,15 @@
             projectProperty("boolean", "sap_show_first_person_hud", true);
             projectProperty("string", "sap_player_model", "steve");
             projectProperty("string", "sap_transitions", "[]");
+            projectProperty(
+                "string",
+                "sap_block_bones",
+                JSON.stringify(DEFAULT_BLOCK_BONES)
+            );
+            projectProperty("string", "sap_block_coordinate_layer", "");
+            projectProperty("string", "sap_block_model_path", "");
+            projectProperty("string", "sap_block_model_bone", "");
+            projectProperty("string", "sap_block_models", "{}");
         }
 
         if (typeof Animation !== "undefined") {
@@ -282,12 +335,22 @@
             clearPreviewItem(options) {
                 return clearPreviewItemsFromApi(options);
             },
+            setBlockModel(filePath, options) {
+                return setBlockModelFromApi(filePath, options);
+            },
+            clearBlockModel(options) {
+                return clearBlockModelFromApi(options);
+            },
             setFirstPersonHudVisible(visible) {
-                if (!isSapProject()) throw new Error("请先打开一个 SAP 使用动画项目，再设置第一人称 HUD");
+                if (!isPlayerAnimationProject()) {
+                    throw new Error("请先打开一个 SAP 玩家使用动画项目，再设置第一人称 HUD");
+                }
                 setFirstPersonHudVisibility(visible);
             },
             loadPlayerSkin(filePath) {
-                if (!isSapProject()) throw new Error("请先打开一个 SAP 使用动画项目，再加载玩家皮肤");
+                if (!isPlayerAnimationProject()) {
+                    throw new Error("请先打开一个 SAP 玩家使用动画项目，再加载玩家皮肤");
+                }
                 return loadPlayerSkin(filePath);
             },
             exportBundle(directory, options) {
@@ -295,7 +358,11 @@
                 return exportAnimationBundle(directory, options || {});
             },
             activateProfile,
-            generateRig
+            generateRig,
+            parseBlockBones,
+            blockEditorPoint,
+            blockRuntimePoint,
+            blockCoordinateLayer: BLOCK_COORDINATE_LAYER
         });
         globalThis.SAPAnimationStudio = studioApi;
     }
@@ -590,46 +657,66 @@
             name: "设置 SAP 预览物品",
             description: "设置或替换指定手的非导出物品预览",
             icon: "fa-cubes",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: showPreviewItemDialog
         }, "file.import");
         addAction("clear_sap_preview_item", {
             name: "清除 SAP 预览物品",
             description: "移除指定手的非导出物品预览",
             icon: "fa-eraser",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: showClearPreviewItemDialog
         }, "tools");
         addAction("load_sap_player_skin", {
             name: "加载 SAP 玩家皮肤",
             description: "使用本地 64x64 PNG 皮肤替换玩家参考纹理",
             icon: "fa-shirt",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: showPlayerSkinDialog
         }, "file.import");
+        addAction("import_sap_block_model", {
+            name: "设置 SAP 方块模型预览",
+            description: "将方块模型 JSON、方块状态或 BBModel 导入选中的方块骨骼",
+            icon: "fa-cubes-stacked",
+            condition: () => isBlockAnimationProject(),
+            click: showBlockModelDialog
+        }, "file.import");
+        addAction("clear_sap_block_model", {
+            name: "清除 SAP 方块模型预览",
+            description: "移除选中方块骨骼上的非导出模型预览",
+            icon: "fa-eraser",
+            condition: () => isBlockAnimationProject(),
+            click: showClearBlockModelDialog
+        }, "tools");
         addAction("sap_camera_first_person", {
             name: "SAP 相机：第一人称",
             icon: "fa-camera",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: () => activateProfile("first_person")
         }, "view");
         addAction("sap_camera_third_person", {
             name: "SAP 相机：第三人称",
             icon: "fa-camera",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: () => activateProfile("third_person")
+        }, "view");
+        addAction("sap_camera_block_entity", {
+            name: "SAP 相机：方块实体",
+            icon: "fa-cube",
+            condition: () => isBlockAnimationProject(),
+            click: () => activateProfile(BLOCK_PROFILE)
         }, "view");
         addAction("toggle_sap_left_hand", {
             name: "切换 SAP 第一人称左手显示",
             icon: "fa-hand",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: toggleLeftHand
         }, "view");
         addAction("toggle_sap_first_person_hud", {
             name: "切换 SAP 第一人称基础 HUD",
             description: "显示或隐藏准星、快捷栏、生命值、饱食度和经验条",
             icon: "fa-crosshairs",
-            condition: () => isSapProject(),
+            condition: () => isPlayerAnimationProject(),
             click: toggleFirstPersonHud
         }, "view");
         addAction("edit_sap_bone_rest_pose", {
@@ -659,6 +746,15 @@
             id: "sap_animation_new_project",
             title: "新建 SAP 使用动画项目",
             form: {
+                animation_mode: {
+                    label: "动画类型",
+                    type: "select",
+                    options: {
+                        player: "玩家使用动画",
+                        block_entity: "方块实体动画"
+                    },
+                    value: ANIMATION_MODE_PLAYER
+                },
                 first_person: {label: "第一人称工作区", type: "checkbox", value: true},
                 third_person: {label: "第三人称工作区", type: "checkbox", value: true},
                 show_first_person_hud: {
@@ -676,11 +772,30 @@
                     value: "steve"
                 },
                 namespace: {label: "命名空间", type: "text", value: "shadowsandpetals"},
-                resource_path: {label: "骨架/控制器路径", type: "text", value: "animation/main"}
+                resource_path: {label: "骨架/控制器路径", type: "text", value: "animation/main"},
+                block_bones: {
+                    label: "方块骨骼 JSON（方块实体模式）",
+                    type: "textarea",
+                    value: JSON.stringify(DEFAULT_BLOCK_BONES, null, 2)
+                }
             },
             onConfirm(form) {
+                const mode = normalizeAnimationMode(form.animation_mode);
+                if (mode === ANIMATION_MODE_BLOCK_ENTITY) {
+                    createSapProject({
+                        mode,
+                        blockBones: parseBlockBones(form.block_bones),
+                        namespace: form.namespace,
+                        rigPath: form.resource_path,
+                        controllerPath: form.resource_path
+                    });
+                    dialog.hide();
+                    return;
+                }
                 const profiles = PROFILES.filter(profile => form[profile]);
+                if (!profiles.length) throw new Error("至少选择一个玩家人称工作区");
                 createSapProject({
+                    mode,
                     profiles,
                     showFirstPersonHud: form.show_first_person_hud,
                     playerModel: form.player_model,
@@ -695,6 +810,13 @@
     }
 
     function createSapProject(options) {
+        options = options || {};
+        const mode = normalizeAnimationMode(
+            options.animationMode || options.mode || ANIMATION_MODE_PLAYER
+        );
+        if (mode === ANIMATION_MODE_BLOCK_ENTITY) {
+            return createBlockSapProject(options);
+        }
         const profiles = Array.isArray(options.profiles)
             ? parseProfiles(options.profiles.join(","))
             : parseProfiles(options.profiles || "first_person");
@@ -714,6 +836,7 @@
         Project.texture_width = 64;
         Project.texture_height = 64;
         Project.box_uv = true;
+        Project.sap_animation_mode = ANIMATION_MODE_PLAYER;
         Project.sap_profiles = profiles.join(",");
         Project.sap_active_profile = profiles[0];
         Project.sap_namespace = namespace;
@@ -723,6 +846,10 @@
         Project.sap_show_first_person_hud = options.showFirstPersonHud !== false;
         Project.sap_player_model = playerModel;
         Project.sap_resource_roots = String(options.resourceRoots || "");
+        Project.sap_block_coordinate_layer = "";
+        Project.sap_block_model_path = "";
+        Project.sap_block_model_bone = "";
+        Project.sap_block_models = "{}";
         const transitions = typeof options.transitions === "string"
             ? parseJsonArray(options.transitions, "控制器过渡")
             : options.transitions || [];
@@ -735,15 +862,79 @@
         return Project;
     }
 
+    function createBlockSapProject(options) {
+        const blockBones = parseBlockBones(
+            options.blockBones == null
+                ? (options.block_bones == null ? DEFAULT_BLOCK_BONES : options.block_bones)
+                : options.blockBones
+        );
+        const namespace = String(options.namespace || "shadowsandpetals").trim();
+        const rigPath = cleanPath(options.rigPath || "animation/block");
+        const controllerPath = cleanPath(options.controllerPath || rigPath);
+        validateIdentifier(namespace, rigPath);
+        validateIdentifier(namespace, controllerPath);
+
+        if (typeof newProject === "function") {
+            newProject(sapFormat);
+        } else {
+            ModelFormat.prototype.new.call(sapFormat);
+        }
+        Project.texture_width = 16;
+        Project.texture_height = 16;
+        Project.box_uv = false;
+        Project.sap_animation_mode = ANIMATION_MODE_BLOCK_ENTITY;
+        Project.sap_profiles = "";
+        Project.sap_active_profile = "";
+        Project.sap_namespace = namespace;
+        Project.sap_rig_path = rigPath;
+        Project.sap_controller_path = controllerPath;
+        Project.sap_show_left_hand = false;
+        Project.sap_show_first_person_hud = false;
+        Project.sap_player_model = "steve";
+        Project.sap_resource_roots = String(options.resourceRoots || "");
+        Project.sap_block_coordinate_layer = BLOCK_COORDINATE_LAYER;
+        const transitions = typeof options.transitions === "string"
+            ? parseJsonArray(options.transitions, "控制器过渡")
+            : options.transitions || [];
+        if (!Array.isArray(transitions)) throw new Error("控制器过渡必须是 JSON 数组");
+        Project.sap_transitions = JSON.stringify(transitions);
+        Project.sap_block_bones = JSON.stringify(blockBones, null, 2);
+        Project.sap_block_model_path = "";
+        Project.sap_block_model_bone = "";
+        Project.sap_block_models = "{}";
+        createBlockWorkspace(blockBones);
+        activateProfile(BLOCK_PROFILE);
+        if (options.blockModelPath) {
+            setBlockModel(
+                String(options.blockModelPath),
+                options.blockModelBone || options.block_bone
+            );
+        }
+        return Project;
+    }
+
     function showProjectDialog() {
         const dialog = new Dialog({
             id: "sap_animation_project_settings",
             title: "配置 SAP 使用动画项目",
             form: {
+                animation_mode: {
+                    label: "动画类型",
+                    type: "select",
+                    options: {
+                        player: "玩家使用动画",
+                        block_entity: "方块实体动画"
+                    },
+                    value: normalizeAnimationMode(
+                        projectValue("sap_animation_mode", ANIMATION_MODE_PLAYER)
+                    )
+                },
                 profiles: {
                     label: "人称配置（逗号分隔）",
                     type: "text",
-                    value: Project.sap_profiles || "first_person"
+                    value: isBlockAnimationProject()
+                        ? ""
+                        : (Project.sap_profiles || "first_person")
                 },
                 namespace: {label: "命名空间", type: "text", value: projectValue("sap_namespace", "shadowsandpetals")},
                 rig_path: {label: "骨架路径", type: "text", value: projectValue("sap_rig_path", "animation/main")},
@@ -762,25 +953,149 @@
                     label: "控制器过渡 JSON",
                     type: "textarea",
                     value: Project.sap_transitions || "[]"
+                },
+                block_bones: {
+                    label: "方块骨骼 JSON（方块实体模式）",
+                    type: "textarea",
+                    value: Project.sap_block_bones
+                        || JSON.stringify(DEFAULT_BLOCK_BONES, null, 2)
                 }
             },
             onConfirm(form) {
-                const profiles = parseProfiles(form.profiles);
-                validateIdentifier(form.namespace.trim(), cleanPath(form.rig_path));
-                validateIdentifier(form.namespace.trim(), cleanPath(form.controller_path));
-                parseJsonArray(form.transitions, "控制器过渡");
-                Project.sap_profiles = profiles.join(",");
-                Project.sap_namespace = form.namespace.trim();
-                Project.sap_rig_path = cleanPath(form.rig_path);
-                Project.sap_controller_path = cleanPath(form.controller_path);
+                const mode = normalizeAnimationMode(form.animation_mode);
+                const namespace = form.namespace.trim();
+                const rigPath = cleanPath(form.rig_path);
+                const controllerPath = cleanPath(form.controller_path);
+                validateIdentifier(namespace, rigPath);
+                validateIdentifier(namespace, controllerPath);
+                const transitions = parseJsonArray(form.transitions, "控制器过渡");
+                Project.sap_animation_mode = mode;
+                Project.sap_namespace = namespace;
+                Project.sap_rig_path = rigPath;
+                Project.sap_controller_path = controllerPath;
                 Project.sap_resource_roots = form.resource_roots.trim();
-                Project.sap_show_first_person_hud = !!form.show_first_person_hud;
-                Project.sap_transitions = form.transitions.trim() || "[]";
+                Project.sap_transitions = JSON.stringify(transitions);
+                if (mode === ANIMATION_MODE_BLOCK_ENTITY) {
+                    const blockBones = parseBlockBones(form.block_bones);
+                    Project.sap_profiles = "";
+                    Project.sap_active_profile = "";
+                    Project.sap_show_left_hand = false;
+                    Project.sap_show_first_person_hud = false;
+                    Project.sap_block_bones = JSON.stringify(blockBones, null, 2);
+                    ensureBlockWorkspace(blockBones);
+                    activateProfile(BLOCK_PROFILE);
+                } else {
+                    const profiles = parseProfiles(form.profiles);
+                    Project.sap_profiles = profiles.join(",");
+                    Project.sap_show_first_person_hud = !!form.show_first_person_hud;
+                    ensurePlayerWorkspace(profiles);
+                    activateProfile(
+                        profiles.includes(Project.sap_active_profile)
+                            ? Project.sap_active_profile
+                            : profiles[0]
+                    );
+                }
                 synchronizeFirstPersonHud();
                 dialog.hide();
             }
         });
         dialog.show();
+    }
+
+    function ensureBlockWorkspace(blockBones) {
+        const root = findBlockRoot();
+        if (root) {
+            migrateBlockCoordinateLayer();
+            const normalizedBones = parseBlockBones(blockBones);
+            const definitions = new Map(normalizedBones.map(bone => [bone.name, bone]));
+            const existing = new Map(blockBoneGroups().map(group => [group.name, group]));
+            const missing = normalizedBones.filter(bone => !existing.has(bone.name));
+            if (!missing.length) return root;
+            const creating = new Set();
+            const ensureBone = name => {
+                if (existing.has(name)) return existing.get(name);
+                const definition = definitions.get(name);
+                if (!definition) throw new Error(`方块骨骼 ${name} 不存在`);
+                if (creating.has(name)) throw new Error(`方块骨骼存在父级循环：${name}`);
+                creating.add(name);
+                const parent = definition.parent ? ensureBone(definition.parent) : root;
+                const group = makeGroup(
+                    definition.name,
+                    blockEditorPoint(definition.pivot),
+                    ROLE_ANIMATED_BONE,
+                    parent
+                );
+                group.sap_block_bone = true;
+                group.sap_rest_translation = definition.rest.translation.slice();
+                group.sap_rest_scale = definition.rest.scale.slice();
+                group.rotation = definition.rest.rotation.slice();
+                group.sap_block_parent = definition.parent || "";
+                existing.set(name, group);
+                creating.delete(name);
+                return group;
+            };
+            Undo.initEdit({outliner: true});
+            normalizedBones.forEach(bone => ensureBone(bone.name));
+            Undo.finishEdit("更新 SAP 方块实体骨骼工作区");
+            Canvas.updateAll();
+            return root;
+        }
+        return createBlockWorkspace(blockBones).root;
+    }
+
+    function migrateBlockCoordinateLayer() {
+        if (!isBlockAnimationProject()
+                || Project.sap_block_coordinate_layer === BLOCK_COORDINATE_LAYER) {
+            return false;
+        }
+        const root = findBlockRoot();
+        if (!root) return false;
+
+        // Projects saved before the centered editor layer have runtime
+        // 0..16 coordinates in both bone origins and imported preview trees.
+        // Shift each node exactly once, then persist a marker so reopening the
+        // project cannot apply the offset again.
+        Group.all
+            .filter(group => isExportedGroup(group))
+            .forEach(group => shiftBlockCoordinateNode(group));
+        Group.all
+            .filter(group => group.sap_block_preview && isGroupInBlockWorkspace(group))
+            .forEach(preview => collectTreeNodes(preview)
+                .forEach(node => shiftBlockCoordinateNode(node)));
+
+        Project.sap_block_coordinate_layer = BLOCK_COORDINATE_LAYER;
+        Canvas.updateAll();
+        return true;
+    }
+
+    function shiftBlockCoordinateNode(node) {
+        if (node instanceof Group) {
+            if (Array.isArray(node.origin)) node.origin = blockEditorPoint(node.origin);
+            return;
+        }
+        if (typeof Cube !== "undefined" && node instanceof Cube) {
+            ["from", "to", "origin"].forEach(property => {
+                if (Array.isArray(node[property])) {
+                    node[property] = blockEditorPoint(node[property]);
+                }
+            });
+        }
+    }
+
+    function ensurePlayerWorkspace(profiles) {
+        const missing = profiles.filter(profile =>
+            !Group.all.some(group => group.name === PROFILE_ROOTS[profile]
+                && group.sap_role === ROLE_GUIDE)
+        );
+        if (!missing.length) return;
+        const playerModel = normalizePlayerModel(Project.sap_player_model || "steve");
+        const skinTexture = Texture.all.find(texture => texture.sap_player_skin)
+            || createReferenceSkinTexture(playerModel);
+        createWorkspace(
+            missing,
+            VANILLA_PLAYER_SKINS[playerModel].slim,
+            skinTexture
+        );
     }
 
     function createWorkspace(profiles, slimArms, skinTexture) {
@@ -789,6 +1104,49 @@
         if (profiles.includes("third_person")) createThirdPersonTemplate(slimArms, skinTexture);
         Undo.finishEdit("创建 SAP 动画工作区");
         Canvas.updateAll();
+    }
+
+    function createBlockWorkspace(blockBones) {
+        const normalizedBones = parseBlockBones(blockBones);
+        Project.sap_block_coordinate_layer = BLOCK_COORDINATE_LAYER;
+        Undo.initEdit({outliner: true});
+        const guide = makeGroup(BLOCK_ROOT_NAME, [0, 0, 0], ROLE_GUIDE);
+        guide.sap_block_animation_root = true;
+        const definitions = new Map(normalizedBones.map(bone => [bone.name, bone]));
+        const created = new Map();
+        const creating = new Set();
+
+        const createBone = name => {
+            if (created.has(name)) return created.get(name);
+            const definition = definitions.get(name);
+            if (!definition) throw new Error(`方块骨骼 ${name} 不存在`);
+            if (creating.has(name)) {
+                throw new Error(`方块骨骼存在父级循环：${name}`);
+            }
+            creating.add(name);
+            const parent = definition.parent
+                ? createBone(definition.parent)
+                : guide;
+            const group = makeGroup(
+                definition.name,
+                blockEditorPoint(definition.pivot),
+                ROLE_ANIMATED_BONE,
+                parent
+            );
+            group.sap_block_bone = true;
+            group.sap_rest_translation = definition.rest.translation.slice();
+            group.sap_rest_scale = definition.rest.scale.slice();
+            group.rotation = definition.rest.rotation.slice();
+            group.sap_block_parent = definition.parent || "";
+            created.set(name, group);
+            creating.delete(name);
+            return group;
+        };
+
+        normalizedBones.forEach(bone => createBone(bone.name));
+        Undo.finishEdit("创建 SAP 方块实体动画工作区");
+        Canvas.updateAll();
+        return {root: guide, bones: created};
     }
 
     function createFirstPersonTemplate(slimArms, skinTexture) {
@@ -978,6 +1336,14 @@
     function handleProjectParsed() {
         if (!isSapProject()) return [];
         const parsedProject = Project;
+        if (isBlockAnimationProject()) {
+            migrateBlockCoordinateLayer();
+            Project.sap_profiles = "";
+            Project.sap_active_profile = BLOCK_PROFILE;
+            scheduleParsedPreviewRefresh(parsedProject);
+            activateProfile(BLOCK_PROFILE);
+            return [];
+        }
         const profile = inferProfileFromSavedVisibility();
         const refreshed = refreshPreviewReferences(false);
         if (profile) {
@@ -1042,6 +1408,7 @@
 
     function isPreviewReferenceElement(element) {
         if (!(element instanceof Cube)) return false;
+        if (isBlockAnimationProject()) return false;
         if (element.sap_player_reference) return true;
         let parent = element.parent;
         while (parent instanceof Group) {
@@ -1068,6 +1435,7 @@
     }
 
     function inferProfileFromSavedVisibility() {
+        if (isBlockAnimationProject()) return BLOCK_PROFILE;
         const roots = Object.entries(PROFILE_ROOTS)
             .map(([profile, name]) => ({
                 profile,
@@ -1094,6 +1462,7 @@
     }
 
     function refreshPreviewReferences(refreshProfile = true) {
+        if (!isPlayerAnimationProject()) return [];
         const refreshedSkins = refreshEmbeddedReferenceSkins();
         const refreshedPositions = refreshThirdPersonPreviewPositions();
         const refreshedArmUvs = refreshFirstPersonArmUvs();
@@ -1449,11 +1818,24 @@
                 target: [0, 20, 0],
                 fov: 45,
                 aspect_ratio: 16 / 9
+            },
+            [BLOCK_PROFILE]: {
+                projection: "perspective",
+                // Keep the same viewing direction after moving the block
+                // model's editor origin from [8, 0, 8] to [0, 0, 0].
+                position: [22, 24, -38],
+                target: [0, 8, 0],
+                fov: 50,
+                aspect_ratio: 16 / 9
             }
         };
         const preset = presets[profile];
         if (!preset) throw new Error(`未知的 SAP 人称配置：${profile}`);
-        if (!parseProfiles(Project.sap_profiles || "").includes(profile)) {
+        if (profile === BLOCK_PROFILE && !isBlockAnimationProject()) {
+            throw new Error("当前 SAP 项目不是方块实体动画模式");
+        }
+        if (profile !== BLOCK_PROFILE
+                && !parseProfiles(Project.sap_profiles || "").includes(profile)) {
             throw new Error(`当前 SAP 项目不包含 ${profile} 工作区`);
         }
         Project.sap_active_profile = profile;
@@ -1516,27 +1898,43 @@
 
     function applyProfileVisibility() {
         const visibility = new Map();
-        Object.entries(PROFILE_ROOTS).forEach(([entryProfile, name]) => {
-            const root = Group.all.find(group => group.name === name && group.sap_role === ROLE_GUIDE);
-            if (root) {
-                collectTreeNodes(root).forEach(
-                    node => visibility.set(node, entryProfile === Project.sap_active_profile)
-                );
+        if (isBlockAnimationProject()) {
+            const blockRoot = findBlockRoot();
+            if (blockRoot) {
+                collectTreeNodes(blockRoot).forEach(node => visibility.set(node, true));
             }
-        });
-        if (!Project.sap_show_left_hand) {
-            const firstPersonRoot = Group.all.find(group =>
-                group.name === PROFILE_ROOTS.first_person
-                    && group.sap_role === ROLE_GUIDE);
-            const firstPersonNodes = new Set(
-                firstPersonRoot ? collectTreeNodes(firstPersonRoot) : []
-            );
-            Group.all
-                .filter(group => group.sap_reference_side === "left"
-                    && firstPersonNodes.has(group))
-                .forEach(group => collectTreeNodes(group).forEach(node => visibility.set(node, false)));
+            Object.values(PROFILE_ROOTS).forEach(name => {
+                const root = Group.all.find(group =>
+                    group.name === name && group.sap_role === ROLE_GUIDE);
+                if (root) collectTreeNodes(root).forEach(node => visibility.set(node, false));
+            });
+        } else {
+            Object.entries(PROFILE_ROOTS).forEach(([entryProfile, name]) => {
+                const root = Group.all.find(group => group.name === name && group.sap_role === ROLE_GUIDE);
+                if (root) {
+                    collectTreeNodes(root).forEach(
+                        node => visibility.set(node, entryProfile === Project.sap_active_profile)
+                    );
+                }
+            });
+            const blockRoot = findBlockRoot();
+            if (blockRoot) {
+                collectTreeNodes(blockRoot).forEach(node => visibility.set(node, false));
+            }
+            if (!Project.sap_show_left_hand) {
+                const firstPersonRoot = Group.all.find(group =>
+                    group.name === PROFILE_ROOTS.first_person
+                        && group.sap_role === ROLE_GUIDE);
+                const firstPersonNodes = new Set(
+                    firstPersonRoot ? collectTreeNodes(firstPersonRoot) : []
+                );
+                Group.all
+                    .filter(group => group.sap_reference_side === "left"
+                        && firstPersonNodes.has(group))
+                    .forEach(group => collectTreeNodes(group).forEach(node => visibility.set(node, false)));
+            }
+            hideFirstPersonArmsWithHeldItems(visibility);
         }
-        hideFirstPersonArmsWithHeldItems(visibility);
 
         const elements = [];
         const groups = [];
@@ -1827,8 +2225,8 @@
     }
 
     function setPreviewItemFromApi(filePath, options) {
-        if (!isSapProject()) {
-            throw new Error("请先打开一个 SAP 使用动画项目，再设置预览物品");
+        if (!isPlayerAnimationProject()) {
+            throw new Error("请先打开一个 SAP 玩家使用动画项目，再设置预览物品");
         }
         if (typeof filePath !== "string" || !filePath.trim()) {
             throw new Error("预览物品模型路径不能为空");
@@ -1837,10 +2235,323 @@
     }
 
     function clearPreviewItemsFromApi(options) {
-        if (!isSapProject()) {
-            throw new Error("请先打开一个 SAP 使用动画项目，再清除预览物品");
+        if (!isPlayerAnimationProject()) {
+            throw new Error("请先打开一个 SAP 玩家使用动画项目，再清除预览物品");
         }
         return clearPreviewItems(previewItemHand(options));
+    }
+
+    function showBlockModelDialog() {
+        if (!isBlockAnimationProject()) return;
+        const bones = blockBoneGroups();
+        if (!bones.length) {
+            Blockbench.showMessageBox({
+                title: "SAP 方块模型预览",
+                message: "当前项目没有方块骨骼，请先在项目配置中填写方块骨骼 JSON。",
+                icon: "error"
+            });
+            return;
+        }
+        const selected = Group.selected;
+        const selectedBone = selected && bones.includes(selected)
+            ? selected.name
+            : (Project.sap_block_model_bone || bones[0].name);
+        const options = Object.fromEntries(bones.map(group => [group.name, group.name]));
+        const dialog = new Dialog({
+            id: "sap_set_block_model",
+            title: "设置 SAP 方块模型预览",
+            form: {
+                bone: {
+                    label: "目标骨骼",
+                    type: "select",
+                    options,
+                    value: options[selectedBone] ? selectedBone : bones[0].name
+                }
+            },
+            onConfirm(form) {
+                dialog.hide();
+                Blockbench.import({
+                    resource_id: "sap_block_model",
+                    extensions: ["json", "bbmodel"],
+                    type: "Minecraft 方块模型 JSON / 方块状态 / Blockbench BBModel",
+                    multiple: false
+                }, files => {
+                    if (!files || !files.length) return;
+                    try {
+                        setBlockModel(files[0].path, form.bone);
+                    } catch (error) {
+                        Blockbench.showMessageBox({
+                            title: "SAP 方块模型预览失败",
+                            message: String(error && error.message || error),
+                            icon: "error"
+                        });
+                    }
+                });
+            }
+        });
+        dialog.show();
+    }
+
+    function showClearBlockModelDialog() {
+        if (!isBlockAnimationProject()) return;
+        const bones = blockBoneGroups();
+        const options = {__all__: "全部骨骼"};
+        bones.forEach(group => { options[group.name] = group.name; });
+        const selected = Group.selected && bones.includes(Group.selected)
+            ? Group.selected.name
+            : "__all__";
+        const dialog = new Dialog({
+            id: "sap_clear_block_model",
+            title: "清除 SAP 方块模型预览",
+            form: {
+                bone: {
+                    label: "目标骨骼",
+                    type: "select",
+                    options,
+                    value: selected
+                }
+            },
+            onConfirm(form) {
+                dialog.hide();
+                try {
+                    const removed = clearBlockModel({bone: form.bone});
+                    Blockbench.showQuickMessage(
+                        removed ? `已清除 ${removed} 个方块模型预览` : "没有可清除的方块模型预览",
+                        2000
+                    );
+                } catch (error) {
+                    Blockbench.showMessageBox({
+                        title: "SAP 方块模型预览失败",
+                        message: String(error && error.message || error),
+                        icon: "error"
+                    });
+                }
+            }
+        });
+        dialog.show();
+    }
+
+    function setBlockModelFromApi(filePath, options) {
+        if (!isBlockAnimationProject()) {
+            throw new Error("请先打开一个 SAP 方块实体动画项目，再设置方块模型预览");
+        }
+        if (typeof filePath !== "string" || !filePath.trim()) {
+            throw new Error("方块模型路径不能为空");
+        }
+        const boneName = options && typeof options === "object"
+            ? String(options.bone || options.boneName || "").trim()
+            : "";
+        return setBlockModel(filePath.trim(), boneName || undefined);
+    }
+
+    function clearBlockModelFromApi(options) {
+        if (!isBlockAnimationProject()) {
+            throw new Error("请先打开一个 SAP 方块实体动画项目，再清除方块模型预览");
+        }
+        const bone = options && typeof options === "object"
+            ? String(options.bone || options.boneName || "").trim()
+            : "";
+        return clearBlockModel({bone: bone || "__all__"});
+    }
+
+    function setBlockModel(filePath, boneName) {
+        const fs = require("fs");
+        const path = require("path");
+        migrateBlockCoordinateLayer();
+        const bones = blockBoneGroups();
+        if (!bones.length) throw new Error("项目中没有可用的方块骨骼");
+        const target = boneName
+            ? bones.find(group => group.name === boneName)
+            : bones[0];
+        if (!target) throw new Error(`不存在方块骨骼：${boneName}`);
+        const definition = loadBlockModelDefinition(fs, path, filePath);
+        if (!definition.elements.length) {
+            throw new Error(`模型 ${definition.modelPath} 没有可用于预览的立方体元素`);
+        }
+        Undo.initEdit({outliner: true, textures: []});
+        removeBlockModelPreview(target);
+        const textures = definition.loadTextures();
+        const root = instantiateBlockModel(
+            path,
+            definition.modelPath,
+            definition.flattened,
+            definition.elements,
+            textures,
+            target
+        );
+        Project.sap_block_model_path = definition.modelPath;
+        Project.sap_block_model_bone = target.name;
+        const modelMap = readBlockModelMap();
+        modelMap[target.name] = definition.modelPath;
+        Project.sap_block_models = JSON.stringify(modelMap);
+        Undo.finishEdit("设置 SAP 方块模型预览");
+        Canvas.updateAll();
+        target.select();
+        Blockbench.showQuickMessage(
+            `已将 ${path.basename(definition.modelPath, path.extname(definition.modelPath))}`
+                + ` 导入到方块骨骼 ${target.name}`,
+            2500
+        );
+        return root;
+    }
+
+    function clearBlockModel(options) {
+        const boneName = options && options.bone ? String(options.bone) : "__all__";
+        const targets = boneName === "__all__"
+            ? blockBoneGroups()
+            : blockBoneGroups().filter(group => group.name === boneName);
+        if (boneName !== "__all__" && !targets.length) {
+            throw new Error(`不存在方块骨骼：${boneName}`);
+        }
+        let removed = 0;
+        Undo.initEdit({outliner: true});
+        targets.forEach(target => { removed += removeBlockModelPreview(target); });
+        const modelMap = readBlockModelMap();
+        if (boneName === "__all__") {
+            Object.keys(modelMap).forEach(name => delete modelMap[name]);
+            Project.sap_block_model_path = "";
+            Project.sap_block_model_bone = "";
+        } else {
+            delete modelMap[boneName];
+            if (Project.sap_block_model_bone === boneName) {
+                const last = Object.entries(modelMap).pop();
+                Project.sap_block_model_bone = last ? last[0] : "";
+                Project.sap_block_model_path = last ? last[1] : "";
+            }
+        }
+        Project.sap_block_models = JSON.stringify(modelMap);
+        Undo.finishEdit("清除 SAP 方块模型预览");
+        if (removed) Canvas.updateAll();
+        return removed;
+    }
+
+    function removeBlockModelPreview(target) {
+        let removed = 0;
+        [...target.children]
+            .filter(child => child instanceof Group && child.sap_block_preview)
+            .forEach(child => {
+                child.remove();
+                removed++;
+            });
+        return removed;
+    }
+
+    function readBlockModelMap() {
+        try {
+            const value = JSON.parse(String(Project.sap_block_models || "{}"));
+            return value && typeof value === "object" && !Array.isArray(value)
+                ? value
+                : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function blockBoneGroups() {
+        if (typeof Group === "undefined") return [];
+        return Group.all.filter(group => group.sap_role === ROLE_ANIMATED_BONE
+            && isGroupInBlockWorkspace(group));
+    }
+
+    function findBlockRoot() {
+        if (typeof Group === "undefined") return null;
+        return Group.all.find(group => group.sap_block_animation_root
+            || (group.name === BLOCK_ROOT_NAME && group.sap_role === ROLE_GUIDE)) || null;
+    }
+
+    function instantiateBlockModel(path, modelPath, flattened, elements, textures, target) {
+        const modelName = path.basename(modelPath, path.extname(modelPath));
+        const root = makeGroup(
+            `${modelName} (方块预览)`,
+            target.origin.slice(),
+            ROLE_REFERENCE,
+            target
+        );
+        root.sap_block_preview = true;
+        root.sap_block_model_source = modelPath;
+        // Keep the editor centered on the BB origin while preserving the
+        // runtime Minecraft 0..16 coordinate system for exported pivots.
+        const transform = {translation: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1]};
+        const geometryPivot = BLOCK_EDITOR_OFFSET;
+        const geometryCenter = [0, 0, 0];
+        if (flattened.bbmodel) {
+            instantiateBbmodelHierarchy(
+                root,
+                flattened,
+                elements,
+                textures,
+                transform,
+                geometryPivot,
+                "right",
+                geometryCenter
+            );
+            return root;
+        }
+        elements.forEach((element, index) => {
+            const from = transformPoint(
+                element.from || [0, 0, 0], transform, geometryPivot, geometryCenter);
+            const to = transformPoint(
+                element.to || [0, 0, 0], transform, geometryPivot, geometryCenter);
+            const rotation = element.rotation || {};
+            const cube = new Cube({
+                name: element.name || `element_${index}`,
+                from: from.map((value, axis) => Math.min(value, to[axis])),
+                to: to.map((value, axis) => Math.max(value, from[axis])),
+                origin: transformPoint(
+                    rotation.origin || geometryCenter, transform, geometryPivot, geometryCenter),
+                rotation: axisRotation(rotation.axis, Number(rotation.angle || 0)),
+                box_uv: false,
+                autouv: 0,
+                inflate: Number(element.inflate || 0),
+                shade: element.shade !== false
+            }).addTo(root).init();
+            applyFaces(
+                cube,
+                element.faces || {},
+                flattened.textures || {},
+                textures,
+                flattened.texture_size
+            );
+            Cube.preview_controller.updateUV(cube);
+        });
+        return root;
+    }
+
+    function loadBlockModelDefinition(fs, path, filePath) {
+        const source = readJson(fs, filePath);
+        if (isBbmodelSource(source, path, filePath)) {
+            return loadBbmodelDefinition(fs, path, filePath, source, true);
+        }
+        const selected = selectBlockstateModel(path, filePath, source);
+        if (!selected) return loadPreviewItemDefinition(fs, path, filePath, true);
+        return loadPreviewItemDefinition(fs, path, selected, true);
+    }
+
+    function selectBlockstateModel(path, filePath, source) {
+        const variants = source && source.variants && typeof source.variants === "object"
+            ? Object.values(source.variants)
+            : [];
+        const multipart = source && Array.isArray(source.multipart) ? source.multipart : [];
+        const entries = variants.concat(multipart.map(part => part && part.apply)).flat();
+        const model = entries
+            .map(entry => Array.isArray(entry) ? entry[0] : entry)
+            .find(entry => entry && typeof entry.model === "string")?.model;
+        if (!model) return null;
+        const roots = configuredRoots(path);
+        const inferredRoot = inferResourceRoot(path, filePath);
+        if (inferredRoot && !roots.includes(inferredRoot)) roots.unshift(inferredRoot);
+        const namespace = inferNamespace(path, filePath)
+            || Project.sap_namespace
+            || "minecraft";
+        const resolved = resolveAsset(
+            path,
+            roots,
+            model.replace(/\.json$/i, ""),
+            "models",
+            namespace
+        );
+        if (!resolved) throw new Error(`无法解析方块模型：${model}`);
+        return resolved;
     }
 
     function previewItemHand(options) {
@@ -2211,7 +2922,8 @@
         textures,
         transform,
         pivot,
-        hand
+        hand,
+        center = flattened.model_center
     ) {
         const elementByUuid = new Map(elements
             .filter(element => element.uuid)
@@ -2252,23 +2964,23 @@
                 element.from || [0, 0, 0],
                 transform,
                 pivot,
-                flattened.model_center
+                center
             );
             const to = transformPoint(
                 element.to || [0, 0, 0],
                 transform,
                 pivot,
-                flattened.model_center
+                center
             );
             const cube = new Cube({
                 name: element.name || `element_${index}`,
                 from: from.map((value, axis) => Math.min(value, to[axis])),
                 to: to.map((value, axis) => Math.max(value, from[axis])),
                 origin: transformPoint(
-                    element.origin || flattened.model_center,
+                    element.origin || center,
                     transform,
                     pivot,
-                    flattened.model_center
+                    center
                 ),
                 rotation: vectorOr(
                     element.rotation,
@@ -2302,10 +3014,10 @@
             const group = makeGroup(
                 template.name || "BBModel 组",
                 transformPoint(
-                    template.origin || flattened.model_center,
+                    template.origin || center,
                     transform,
                     pivot,
-                    flattened.model_center
+                    center
                 ),
                 ROLE_REFERENCE,
                 parent,
@@ -2853,6 +3565,7 @@
     }
 
     function generateRig() {
+        migrateBlockCoordinateLayer();
         const exported = Group.all.filter(isExportedGroup);
         const names = new Set();
         const bones = exported.map(group => {
@@ -2865,7 +3578,11 @@
             const firstPerson = isFirstPersonRuntimeGroup(group);
             const bone = {
                 name: group.name,
-                pivot: firstPerson ? [0, 0, 0] : roundVector(group.origin)
+                pivot: firstPerson
+                    ? [0, 0, 0]
+                    : isBlockAnimationProject()
+                        ? blockRuntimePoint(roundVector(group.origin))
+                        : roundVector(group.origin)
             };
             if (parent) bone.parent = parent;
             const translation = firstPerson
@@ -3199,15 +3916,49 @@
     }
 
     function isSapProject() {
-        return Format && Format.id === FORMAT_ID;
+        return typeof Format !== "undefined" && Format && Format.id === FORMAT_ID;
+    }
+
+    function isBlockAnimationProject() {
+        if (!isSapProject() || typeof Project === "undefined" || !Project) return false;
+        const raw = Project.sap_animation_mode || Project.sap_mode || ANIMATION_MODE_PLAYER;
+        try {
+            return normalizeAnimationMode(raw) === ANIMATION_MODE_BLOCK_ENTITY;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function isPlayerAnimationProject() {
+        return isSapProject() && !isBlockAnimationProject();
     }
 
     function isExportedGroup(group) {
         if (!(group instanceof Group)) return false;
-        return group.sap_role === ROLE_ANIMATED_BONE || group.sap_role === ROLE_SOCKET;
+        if (group.sap_role !== ROLE_ANIMATED_BONE && group.sap_role !== ROLE_SOCKET) {
+            return false;
+        }
+        return isBlockAnimationProject()
+            ? isGroupInBlockWorkspace(group)
+            : !isGroupInBlockWorkspace(group);
+    }
+
+    function isGroupInBlockWorkspace(group) {
+        if (!(group instanceof Group)) return false;
+        let ancestor = group;
+        while (ancestor instanceof Group) {
+            if (ancestor.sap_block_animation_root
+                    || (ancestor.name === BLOCK_ROOT_NAME
+                        && ancestor.sap_role === ROLE_GUIDE)) {
+                return true;
+            }
+            ancestor = ancestor.parent;
+        }
+        return !!group.sap_block_bone;
     }
 
     function inferProfiles() {
+        if (findBlockRoot()) return "";
         const names = Group.all.map(group => group.name);
         const profiles = [];
         if (names.some(name => name.startsWith("first_person_"))) profiles.push("first_person");
@@ -3227,6 +3978,138 @@
             throw new Error(`人称配置只能使用：${PROFILES.join(", ")}`);
         }
         return [...new Set(profiles)];
+    }
+
+    function normalizeAnimationMode(value) {
+        const normalized = String(value == null ? ANIMATION_MODE_PLAYER : value)
+            .trim()
+            .toLowerCase();
+        if ([ANIMATION_MODE_PLAYER, "use", "item", "first_person", "third_person"]
+                .includes(normalized)) {
+            return ANIMATION_MODE_PLAYER;
+        }
+        if ([ANIMATION_MODE_BLOCK_ENTITY, "block", "blockentity", "ber"].includes(normalized)) {
+            return ANIMATION_MODE_BLOCK_ENTITY;
+        }
+        throw new Error(`动画类型无效：${value}`);
+    }
+
+    function blockEditorPoint(value) {
+        return blockCoordinatePoint(value, BLOCK_EDITOR_OFFSET, "方块编辑器坐标");
+    }
+
+    function blockRuntimePoint(value) {
+        return blockCoordinatePoint(value, BLOCK_RUNTIME_OFFSET, "方块运行时坐标");
+    }
+
+    function blockCoordinatePoint(value, offset, description) {
+        const point = blockBoneVector(value, [0, 0, 0], description);
+        return point.map((component, axis) => component + offset[axis]);
+    }
+
+    function parseBlockBones(value) {
+        let parsed = value;
+        if (parsed == null) parsed = DEFAULT_BLOCK_BONES;
+        if (typeof parsed === "string") {
+            if (!parsed.trim()) throw new Error("方块骨骼 JSON 不能为空");
+            try {
+                parsed = JSON.parse(parsed);
+            } catch (error) {
+                throw new Error(`方块骨骼 JSON 无效：${error.message}`);
+            }
+        }
+        if (parsed && !Array.isArray(parsed) && Array.isArray(parsed.bones)) {
+            parsed = parsed.bones;
+        }
+        if (!Array.isArray(parsed) || !parsed.length) {
+            throw new Error("方块骨骼必须是非空 JSON 数组");
+        }
+        const names = new Set();
+        const result = parsed.map((entry, index) => {
+            if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+                throw new Error(`方块骨骼 ${index + 1} 必须是对象`);
+            }
+            const name = String(entry.name == null ? "" : entry.name).trim();
+            if (!name) throw new Error(`方块骨骼 ${index + 1} 的名称不能为空`);
+            if (names.has(name)) throw new Error(`方块骨骼名称重复：${name}`);
+            names.add(name);
+            const pivot = blockBoneVector(
+                entry.pivot,
+                [8, 8, 8],
+                `方块骨骼 ${name} 的 pivot`
+            );
+            const parentValue = entry.parent == null
+                ? ""
+                : String(entry.parent).trim();
+            if (parentValue === name) throw new Error(`方块骨骼 ${name} 不能以自身为父级`);
+            if (entry.rest != null
+                    && (typeof entry.rest !== "object" || Array.isArray(entry.rest))) {
+                throw new Error(`方块骨骼 ${name} 的 rest 必须是对象`);
+            }
+            const restSource = entry.rest && typeof entry.rest === "object"
+                ? entry.rest
+                : entry;
+            const translation = blockBoneVector(
+                restSource.translation !== undefined
+                    ? restSource.translation
+                    : entry.rest_translation,
+                [0, 0, 0],
+                `方块骨骼 ${name} 的静止平移`
+            );
+            const rotation = blockBoneVector(
+                restSource.rotation !== undefined
+                    ? restSource.rotation
+                    : entry.rest_rotation,
+                [0, 0, 0],
+                `方块骨骼 ${name} 的静止旋转`
+            );
+            const scale = blockBoneVector(
+                restSource.scale !== undefined ? restSource.scale : entry.rest_scale,
+                [1, 1, 1],
+                `方块骨骼 ${name} 的静止缩放`
+            );
+            if (scale.some(component => component === 0)) {
+                throw new Error(`方块骨骼 ${name} 的静止缩放不能为 0`);
+            }
+            return {
+                name,
+                pivot,
+                parent: parentValue || null,
+                rest: {translation, rotation, scale}
+            };
+        });
+        const byName = new Set(result.map(bone => bone.name));
+        result.forEach(bone => {
+            if (bone.parent && !byName.has(bone.parent)) {
+                throw new Error(`方块骨骼 ${bone.name} 引用了缺失父级 ${bone.parent}`);
+            }
+        });
+        const definitions = new Map(result.map(bone => [bone.name, bone]));
+        const visiting = new Set();
+        const visited = new Set();
+        const visit = name => {
+            if (visited.has(name)) return;
+            if (visiting.has(name)) throw new Error(`方块骨骼存在父级循环：${name}`);
+            visiting.add(name);
+            const parent = definitions.get(name).parent;
+            if (parent) visit(parent);
+            visiting.delete(name);
+            visited.add(name);
+        };
+        result.forEach(bone => visit(bone.name));
+        return result;
+    }
+
+    function blockBoneVector(value, fallback, description) {
+        if (value == null) return fallback.slice();
+        if (!Array.isArray(value) || value.length !== 3) {
+            throw new Error(`${description}必须是长度为 3 的数组`);
+        }
+        const vector = value.map(Number);
+        if (vector.some(component => !Number.isFinite(component))) {
+            throw new Error(`${description}包含非有限数值`);
+        }
+        return vector;
     }
 
     function projectValue(name, fallback) {
