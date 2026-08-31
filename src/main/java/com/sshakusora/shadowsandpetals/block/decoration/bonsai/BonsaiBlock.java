@@ -186,7 +186,7 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         Item item = stack.getItem();
         Block block = Block.byItem(item);
         if (block instanceof net.minecraft.world.level.block.SaplingBlock) {
-            BonsaiTreeResolver.Result resolved = BonsaiTreeResolver.resolve(block);
+            BonsaiTreeResolver.Result resolved = BonsaiTreeResolver.resolve(block, level.registryAccess());
             if (resolved != null) {
                 Identifier plantedItemId = BuiltInRegistries.ITEM.getKey(item);
                 bonsai.plant(resolved.trunkBlock(), resolved.leavesBlock(), plantedItemId, false);

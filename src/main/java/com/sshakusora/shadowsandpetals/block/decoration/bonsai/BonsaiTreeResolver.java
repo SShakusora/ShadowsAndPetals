@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
@@ -109,8 +110,14 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
      * Resolves a sapling using the active data-pack/API mapping. Resolution is
      * deliberately registry-based and does not depend on a random configured
      * feature.
+     *
+     * <p>Mappings take precedence over the automatic vanilla-pipeline
+     * resolution in {@link BonsaiAutoTreeResolver}, which fills the gap for
+     * saplings from mods without an explicit integration. {@code registries}
+     * only powers that automatic fallback and may be null when only explicit
+     * mappings are of interest.</p>
      */
-    public static @Nullable Result resolve(Block saplingBlock) {
+    public static Result resolve(Block saplingBlock, HolderLookup.@Nullable Provider registries) {
         if (!(saplingBlock instanceof SaplingBlock)) {
             return null;
         }
@@ -122,6 +129,11 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
         }
 
         Result resolved = definition == null ? null : definition.resolveBlocks();
+        if (resolved != null) {
+            return resolved;
+        }
+
+        resolved = BonsaiAutoTreeResolver.resolve(saplingBlock, registries);
         if (resolved != null) {
             return resolved;
         }
