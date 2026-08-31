@@ -1,4 +1,4 @@
-// 26.1.2	2026-08-28T19:01:26.9667778	ShadowsAndPetals Rockery Models
+// 26.1.2	2026-08-29T02:50:21.1045817	ShadowsAndPetals Rockery Models
 2c93c72c9ff82861c601597dc9cf76fab83f75d4 assets/shadowsandpetals/models/block/rock/1x1x1/0_0_0.json
 6013e3419250fdbd95b9caf40b72261619475921ed6ae7ef883be97f4e8a3246 assets/shadowsandpetals/models/block/rock/1x1x1/0_0_0.obj
 5a4cf4234287dd0661a7cf2a6177e886c99d11da1a5f762c9a5eb697837156ac assets/shadowsandpetals/models/block/rock/1x1x1/material.mtl
@@ -12,14 +12,14 @@ a4569562e0920482fa636dc7df5ba97fef6d8a13 assets/shadowsandpetals/models/block/ro
 fd597912bd6ecf866e0ed0a2b8fdbfe07aa3e584 assets/shadowsandpetals/models/block/rock/1x2x1/0_1_0.json
 a524f9430b8662c8845fac1bf9b8edfbab14c19f4e8c412970c333f7af36d349 assets/shadowsandpetals/models/block/rock/1x2x1/0_1_0.obj
 5a4cf4234287dd0661a7cf2a6177e886c99d11da1a5f762c9a5eb697837156ac assets/shadowsandpetals/models/block/rock/1x2x1/material.mtl
-101cd12f85783aa678dff849b30d9fd68c3d5455 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_0.json
-8b9472b1217afa9167369aeec77d6519fcba99ce783d59f0d51306d8e7b8bf74 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_0.obj
-0d0a09107229f17ce1117cbb90d391760a037b68 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_1.json
-84c6ae7d7ab8ab48cf038d5998a09f9f3b64231b65dd83cf813f878286d3d260 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_1.obj
-e690c366901e1de8ce34f37429bed68501a7ad81 assets/shadowsandpetals/models/block/rock/1x2x2/0_1_0.json
-046424372cedf6b303fa1ab65bfc2eb8c9fea9195bcd1956049c25ebb4985e2d assets/shadowsandpetals/models/block/rock/1x2x2/0_1_0.obj
-ab1ca59a26f921ce9b8b2222b53e7bc9fd209ecf assets/shadowsandpetals/models/block/rock/1x2x2/0_1_1.json
-91b007d37ee50150238a36f00cdf93b3e92b4ef589be0f6c0a03baf51aaf4124 assets/shadowsandpetals/models/block/rock/1x2x2/0_1_1.obj
+cb23aeefcc07ad6517d50a91fb10feebe81faa70 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_0.json
+f8eb72464178a6cf18f50c97e28cefe22022b3e1056efdb5b5fb67951d0945f5 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_0.obj
+7044e4e426e7c52210f79a403d576be92df5abff assets/shadowsandpetals/models/block/rock/1x2x2/0_0_1.json
+0be46830e45fb8852e81f75f69d70bb7a02e343b4c46264eb88eadf7394816f9 assets/shadowsandpetals/models/block/rock/1x2x2/0_0_1.obj
+72b7c0d3681ab4a9477d162729aa13a8b71469d8 assets/shadowsandpetals/models/block/rock/1x2x2/0_1_0.json
+3e2d2d4421735256e91a5eed16228abdb29567ccb3deccf2e9ccbc0959acdecb assets/shadowsandpetals/models/block/rock/1x2x2/0_1_0.obj
+6d2013934d3550a3c76bea67cf584e873893b94b assets/shadowsandpetals/models/block/rock/1x2x2/0_1_1.json
+2fada7fde6e49493bb3e0e5252cd59b148af45a9e700fe31517f72a791816c9a assets/shadowsandpetals/models/block/rock/1x2x2/0_1_1.obj
 5a4cf4234287dd0661a7cf2a6177e886c99d11da1a5f762c9a5eb697837156ac assets/shadowsandpetals/models/block/rock/1x2x2/material.mtl
 41659c1d98cb3057720b868fdd9ba919a351664a assets/shadowsandpetals/models/block/rock/1x3x1/0_0_0.json
 f1d32bbf6841e56c29a7379397cc2cf4fe8f21dfb5348445605faa8ea1a19379 assets/shadowsandpetals/models/block/rock/1x3x1/0_0_0.obj

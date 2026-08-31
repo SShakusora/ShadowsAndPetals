@@ -1,22 +1,25 @@
 package com.sshakusora.shadowsandpetals.client.renderer;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.decoration.BonsaiBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiModelTransform;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
+import net.minecraft.client.renderer.block.BlockModelResolver;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.entity.DisplayRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.entity.DisplayRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -33,51 +36,58 @@ import net.minecraft.util.TriState;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.RotationSegment;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.model.quad.MutableQuad;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Renders bonsai pots with dynamic trunk/leaf textures.
+ * Renders planted bonsai trees with dynamic trunk/leaf textures.
  *
- * <p>The bonsai models are baked with placeholder textures (maple_log,
- * maple_leaves_0, bonsai_pot). At render time, quads are categorized by
- * comparing their sprite against the known base sprites, and the UVs are
- * remapped to sample the resolved tree's actual trunk/leaf textures.</p>
+ * <p>The tree models are baked with placeholder tree textures
+ * ({@code maple_log}, {@code maple_leaves_0}). At render time, their quads are
+ * categorized by comparing their sprites against the known base sprites, and
+ * the UVs/materials are remapped to sample the resolved tree textures. The pot
+ * itself is supplied by the normal chunk model renderer. The same tree quads
+ * are also consumed by the chunk model when the complete tree envelope fits
+ * inside one section; this BER remains the cross-section fallback.</p>
  */
+@SuppressWarnings({"resource", "deprecation"}) // Atlas sprites are owned and closed by Minecraft's atlas manager.
 public class BonsaiBlockEntityRenderer implements
         BlockEntityRenderer<BonsaiBlockEntity, BonsaiBlockEntityRenderer.State> {
 
-    private static final RandomSource PART_RANDOM = RandomSource.create(42L);
-
     /**
      * The bonsai models were authored in Blockbench with a 90-degree yaw
-     * error: the pot's long axis runs along model Z instead of X. This
-     * compensation rotates every model (empty pot, living and dead trees —
-     * they all funnel through {@code submit}) into the intended orientation.
-     * Remove once the models are re-exported fixed.
+     * error: the pot's long axis runs along model Z instead of X. The shared
+     * model transform keeps the chunk-rendered pot and BER tree aligned.
      */
-    private static final float MODEL_AUTHORING_ROTATION_DEGREES = 90.0F;
+    public static final int TRUNK_TINT_INDEX = 0;
+    public static final int LEAVES_TINT_INDEX = 1;
 
     // Base sprites from the bonsai model — used to identify which texture slot a quad uses
-    private @Nullable TextureAtlasSprite baseLogSprite;
-    private @Nullable TextureAtlasSprite baseLeavesSprite;
-    private @Nullable TextureAtlasSprite basePotSprite;
+    private static @Nullable TextureAtlasSprite baseLogSprite;
+    private static @Nullable TextureAtlasSprite baseLeavesSprite;
 
     /** Wrapped parts per render configuration; invalidated on resource reload. */
-    private final Map<BonsaiPartCacheKey, CachedParts> partCache = new ConcurrentHashMap<>();
-    /** Resolved particle sprites per block id; invalidated on resource reload. */
-    private final Map<Identifier, @Nullable TextureAtlasSprite> spriteCache = new ConcurrentHashMap<>();
+    private static final Map<BonsaiPartCacheKey, CachedParts> PART_CACHE = new ConcurrentHashMap<>();
+    /** Resolved render materials per block id; invalidated on resource reload. */
+    private static final Map<Identifier, Optional<ResolvedMaterial>> MATERIAL_CACHE = new ConcurrentHashMap<>();
 
-    public BonsaiBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        INSTANCES.add(this);
+    public BonsaiBlockEntityRenderer(BlockEntityRendererProvider.Context ignoredContext) {
+    }
+
+    @Override
+    public boolean shouldRender(BonsaiBlockEntity blockEntity, Vec3 cameraPosition) {
+        return blockEntity.isPlanted()
+                && BonsaiRenderRouting.usesBer(blockEntity.getBlockPos())
+                && BlockEntityRenderer.super.shouldRender(blockEntity, cameraPosition);
     }
 
     @Override
@@ -96,12 +106,11 @@ public class BonsaiBlockEntityRenderer implements
         BlockEntityRenderer.super.extractRenderState(
                 blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
-        state.planted = blockEntity.isPlanted();
-
         BlockAndTintGetter level = (BlockAndTintGetter) blockEntity.getLevel();
         if (level == null) {
             state.modelParts = List.of();
             state.hasTranslucency = false;
+            state.tintLayers = BlockModelRenderState.EMPTY_TINTS;
             return;
         }
 
@@ -109,60 +118,217 @@ public class BonsaiBlockEntityRenderer implements
         state.rotation = blockState.getValue(BonsaiBlock.ROTATION);
         BlockPos pos = blockEntity.getBlockPos();
 
-        BlockStateModel model;
-        if (blockEntity.isPlanted()) {
-            model = blockEntity.isDead()
-                    ? BlockModelRegistry.BONSAI_DEAD_SHAPES.get(blockEntity.getShape())
-                    : BlockModelRegistry.BONSAI_SHAPES.get(blockEntity.getShape());
-        } else {
-            model = BlockModelRegistry.BONSAI_EMPTY_POT.get();
-        }
-
-        if (model == null) {
+        // Safe positions are fully emitted by BonsaiPotBlockStateModel. Keep
+        // the renderer registered for the fallback path, but avoid extracting
+        // any tree state or submitting duplicate geometry here.
+        if (!BonsaiRenderRouting.usesBer(pos)) {
             state.modelParts = List.of();
             state.hasTranslucency = false;
+            state.tintLayers = BlockModelRenderState.EMPTY_TINTS;
             return;
         }
 
-        BonsaiPartCacheKey key = new BonsaiPartCacheKey(
-                blockEntity.getShape(), blockEntity.isDead(),
-                blockEntity.getTrunkBlockId(), blockEntity.getLeavesBlockId());
-        CachedParts cached = partCache.computeIfAbsent(key, k -> buildParts(model, level, pos, blockState, k));
+        if (!blockEntity.isPlanted()) {
+            state.modelParts = List.of();
+            state.hasTranslucency = false;
+            state.tintLayers = BlockModelRenderState.EMPTY_TINTS;
+            return;
+        }
+
+        BlockStateModel treeModel = blockEntity.isDead()
+                ? BlockModelRegistry.BONSAI_DEAD_SHAPES.get(blockEntity.getShape())
+                : BlockModelRegistry.BONSAI_SHAPES.get(blockEntity.getShape());
+        if (treeModel == null) {
+            state.modelParts = List.of();
+            state.hasTranslucency = false;
+            state.tintLayers = BlockModelRenderState.EMPTY_TINTS;
+            return;
+        }
+
+        List<BlockStateModel> models = List.of(treeModel);
+
+        BonsaiPartCacheKey key = BonsaiPartCacheKey.forState(
+                blockEntity.getShape(),
+                blockEntity.isPlanted(),
+                blockEntity.isDead(),
+                blockEntity.getTrunkBlockId(),
+                blockEntity.getLeavesBlockId());
+        CachedParts cached = getCachedParts(models, level, pos, blockState, key);
         state.modelParts = cached.parts();
         state.hasTranslucency = cached.hasTranslucency();
+        state.tintLayers = resolveTintLayers(
+                cached,
+                blockEntity.getTrunkBlockId(),
+                blockEntity.getLeavesBlockId(),
+                level,
+                pos
+        );
     }
 
-    private CachedParts buildParts(
-            BlockStateModel model,
+    public static CachedParts getCachedParts(
+            List<BlockStateModel> models,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            BlockState blockState,
+            BonsaiPartCacheKey key
+    ) {
+        return PART_CACHE.computeIfAbsent(key, k -> buildParts(models, level, pos, blockState, k));
+    }
+
+    private static CachedParts buildParts(
+            List<BlockStateModel> models,
             BlockAndTintGetter level,
             BlockPos pos,
             BlockState blockState,
             BonsaiPartCacheKey key
     ) {
         List<BlockStateModelPart> rawParts = new ArrayList<>();
-        PART_RANDOM.setSeed(42L);
-        model.collectParts(level, pos, blockState, PART_RANDOM, rawParts);
-        boolean hasTranslucency = model.hasMaterialFlag(
-                level, pos, blockState, BakedQuad.FLAG_TRANSLUCENT
-        );
+        RandomSource partRandom = RandomSource.create(42L);
+        boolean hasTranslucency = false;
+        for (BlockStateModel model : models) {
+            model.collectParts(level, pos, blockState, partRandom, rawParts);
+            hasTranslucency |= model.hasMaterialFlag(
+                    level, pos, blockState, BakedQuad.FLAG_TRANSLUCENT
+            );
+        }
 
-        TextureAtlasSprite trunkSprite = resolveSprite(key.trunkBlockId());
-        TextureAtlasSprite leavesSprite = key.dead() ? null : resolveSprite(key.leavesBlockId());
-        if (trunkSprite == null) {
-            // Nothing to remap onto (unplanted pot or unresolved sprite) —
+        ResolvedMaterial trunkMaterial = resolveMaterial(key.trunkBlockId());
+        ResolvedMaterial leavesMaterial = key.dead() ? null : resolveMaterial(key.leavesBlockId());
+        if (trunkMaterial == null) {
+            // Nothing to remap onto (unresolved sprite) —
             // keep the raw parts, exactly like the pre-cache behaviour.
-            return new CachedParts(List.copyOf(rawParts), hasTranslucency);
+            return new CachedParts(List.copyOf(rawParts), hasTranslucency, -1, -1);
         }
         TextureAtlasSprite baseLog = getBaseLogSprite();
         TextureAtlasSprite baseLeaves = getBaseLeavesSprite();
         List<BlockStateModelPart> wrapped = new ArrayList<>(rawParts.size());
         for (BlockStateModelPart part : rawParts) {
-            wrapped.add(new BonsaiPart(part, trunkSprite, leavesSprite, baseLog, baseLeaves));
+            wrapped.add(new BonsaiPart(part, trunkMaterial, leavesMaterial, baseLog, baseLeaves));
         }
-        return new CachedParts(List.copyOf(wrapped), hasTranslucency);
+        hasTranslucency |= trunkMaterial.hasTranslucency();
+        hasTranslucency |= leavesMaterial != null && leavesMaterial.hasTranslucency();
+        return new CachedParts(
+                List.copyOf(wrapped),
+                hasTranslucency,
+                tintIndex(trunkMaterial),
+                tintIndex(leavesMaterial)
+        );
     }
 
-    private record CachedParts(List<BlockStateModelPart> parts, boolean hasTranslucency) {
+    public record CachedParts(
+            List<BlockStateModelPart> parts,
+            boolean hasTranslucency,
+            int trunkTintIndex,
+            int leavesTintIndex
+    ) {
+    }
+
+    /** Returns immutable tree parts rotated into the block's 16-step pose. */
+    public static List<BlockStateModelPart> rotateParts(
+            List<BlockStateModelPart> source,
+            int rotation
+    ) {
+        Matrix4f transform = BonsaiModelTransform.aroundBlockCenter(rotation);
+        List<BlockStateModelPart> result = new ArrayList<>(source.size());
+        for (BlockStateModelPart part : source) {
+            result.add(new RotatedPart(part, transform));
+        }
+        return List.copyOf(result);
+    }
+
+    private static final class RotatedPart implements BlockStateModelPart {
+        private final List<BakedQuad>[] quadsByDirection;
+        private final List<BakedQuad> generalQuads;
+        private final TriState ambientOcclusion;
+        private final Material.Baked particleMaterial;
+        private final int materialFlags;
+
+        @SuppressWarnings("unchecked")
+        private RotatedPart(BlockStateModelPart delegate, Matrix4f transform) {
+            this.quadsByDirection = new List[Direction.values().length];
+            int flags = delegate.materialFlags();
+            for (Direction direction : Direction.values()) {
+                // A non-quadrant transform no longer has a meaningful face
+                // bucket. Keep directional lists empty so the chunk renderer
+                // cannot cull a rotated tree against an adjacent solid block.
+                this.quadsByDirection[direction.get3DDataValue()] = List.of();
+            }
+            this.generalQuads = rotateAllQuads(delegate, transform);
+            flags |= flags(this.generalQuads);
+            this.ambientOcclusion = delegate.ambientOcclusion();
+            this.particleMaterial = delegate.particleMaterial();
+            this.materialFlags = flags;
+        }
+
+        @Override
+        public List<BakedQuad> getQuads(@Nullable Direction direction) {
+            return direction == null
+                    ? generalQuads
+                    : quadsByDirection[direction.get3DDataValue()];
+        }
+
+        @Override
+        @Deprecated
+        public boolean useAmbientOcclusion() {
+            return ambientOcclusion != TriState.FALSE;
+        }
+
+        @Override
+        public TriState ambientOcclusion() {
+            return ambientOcclusion;
+        }
+
+        @Override
+        public Material.Baked particleMaterial() {
+            return particleMaterial;
+        }
+
+        @Override
+        public int materialFlags() {
+            return materialFlags;
+        }
+
+        private static List<BakedQuad> rotateQuads(List<BakedQuad> source, Matrix4f transform) {
+            if (source.isEmpty()) {
+                return source;
+            }
+            MutableQuad mutable = new MutableQuad();
+            List<BakedQuad> result = new ArrayList<>(source.size());
+            for (BakedQuad quad : source) {
+                result.add(mutable.setFrom(quad)
+                        .transform(transform)
+                        .recomputeNormals(true)
+                        .toBakedQuad());
+            }
+            return List.copyOf(result);
+        }
+
+        private static List<BakedQuad> rotateAllQuads(
+                BlockStateModelPart source,
+                Matrix4f transform
+        ) {
+            int size = source.getQuads(null).size();
+            for (Direction direction : Direction.values()) {
+                size += source.getQuads(direction).size();
+            }
+            if (size == 0) {
+                return List.of();
+            }
+            List<BakedQuad> all = new ArrayList<>(size);
+            for (Direction direction : Direction.values()) {
+                all.addAll(rotateQuads(source.getQuads(direction), transform));
+            }
+            all.addAll(rotateQuads(source.getQuads(null), transform));
+            return List.copyOf(all);
+        }
+
+        private static int flags(List<BakedQuad> quads) {
+            int flags = 0;
+            for (BakedQuad quad : quads) {
+                flags |= quad.materialInfo().flags();
+            }
+            return flags;
+        }
     }
 
     @Override
@@ -178,14 +344,14 @@ public class BonsaiBlockEntityRenderer implements
 
         poseStack.pushPose();
         poseStack.translate(0.5F, 0.0F, 0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-RotationSegment.convertToDegrees(state.rotation)));
-        poseStack.mulPose(Axis.YP.rotationDegrees(MODEL_AUTHORING_ROTATION_DEGREES));
+        poseStack.mulPose(Axis.YP.rotationDegrees(
+                BonsaiModelTransform.rotationDegrees(state.rotation)));
         poseStack.translate(-0.5F, 0.0F, -0.5F);
         submitNodeCollector.submitMultiLayerBlockModel(
                 poseStack,
                 state.modelParts,
                 state.hasTranslucency,
-                BlockModelRenderState.EMPTY_TINTS,
+                state.tintLayers,
                 state.lightCoords,
                 OverlayTexture.NO_OVERLAY,
                 0
@@ -196,16 +362,27 @@ public class BonsaiBlockEntityRenderer implements
     @Override
     public AABB getRenderBoundingBox(BonsaiBlockEntity blockEntity) {
         BlockPos pos = blockEntity.getBlockPos();
-        if (!blockEntity.isPlanted()) {
-            // The empty pot model is fully contained in the block.
+        if (!BonsaiRenderRouting.usesBer(pos) || !blockEntity.isPlanted()) {
+            // Empty pots are rendered by the chunk model; keep block bounds for
+            // renderer state even though this renderer submits no geometry.
             return new AABB(pos.getX(), pos.getY(), pos.getZ(),
                     pos.getX() + 1.0D, pos.getY() + 1.0D, pos.getZ() + 1.0D);
         }
-        // The rendered tree extends well outside the block (up to ~2 blocks up
-        // and ~1 block sideways); expand so it is not frustum-culled.
+        AABB bounds = BonsaiRenderRouting.treeBounds(
+                blockEntity.getShape(),
+                blockEntity.isDead(),
+                blockEntity.getBlockState().getValue(BonsaiBlock.ROTATION)
+        );
+        // The cached bounds describe the tree mesh. Include the pot's block
+        // volume as well, since some dead/twin meshes are narrower than the
+        // pot and must not be culled at the sides.
         return new AABB(
-                pos.getX() - 1.0D, pos.getY(), pos.getZ() - 1.0D,
-                pos.getX() + 2.0D, pos.getY() + 2.0D, pos.getZ() + 2.0D
+                pos.getX() + Math.min(bounds.minX, 0.0D),
+                pos.getY() + Math.min(bounds.minY, 0.0D),
+                pos.getZ() + Math.min(bounds.minZ, 0.0D),
+                pos.getX() + Math.max(bounds.maxX, 1.0D),
+                pos.getY() + Math.max(bounds.maxY, 1.0D),
+                pos.getZ() + Math.max(bounds.maxZ, 1.0D)
         );
     }
 
@@ -218,21 +395,29 @@ public class BonsaiBlockEntityRenderer implements
         private final BlockStateModelPart delegate;
         private final List<BakedQuad>[] quadsByDirection;
         private final List<BakedQuad> generalQuads;
+        private final int materialFlags;
 
+        @SuppressWarnings("unchecked")
         BonsaiPart(
                 BlockStateModelPart delegate,
-                TextureAtlasSprite trunkSprite,
-                @Nullable TextureAtlasSprite leavesSprite,
+                ResolvedMaterial trunkMaterial,
+                @Nullable ResolvedMaterial leavesMaterial,
                 TextureAtlasSprite baseLogSprite,
                 TextureAtlasSprite baseLeavesSprite
         ) {
             this.delegate = delegate;
             this.quadsByDirection = new List[6];
+            int materialFlags = delegate.materialFlags();
             for (Direction direction : Direction.values()) {
                 this.quadsByDirection[direction.get3DDataValue()] =
-                        remapQuads(delegate.getQuads(direction), trunkSprite, leavesSprite, baseLogSprite, baseLeavesSprite);
+                        remapQuads(delegate.getQuads(direction), trunkMaterial, leavesMaterial,
+                                baseLogSprite, baseLeavesSprite);
+                materialFlags |= flags(this.quadsByDirection[direction.get3DDataValue()]);
             }
-            this.generalQuads = remapQuads(delegate.getQuads(null), trunkSprite, leavesSprite, baseLogSprite, baseLeavesSprite);
+            this.generalQuads = remapQuads(delegate.getQuads(null), trunkMaterial, leavesMaterial,
+                    baseLogSprite, baseLeavesSprite);
+            materialFlags |= flags(this.generalQuads);
+            this.materialFlags = materialFlags;
         }
 
         @Override
@@ -242,7 +427,7 @@ public class BonsaiBlockEntityRenderer implements
 
         @Override
         public boolean useAmbientOcclusion() {
-            return delegate.useAmbientOcclusion();
+            return delegate.ambientOcclusion() != TriState.FALSE;
         }
 
         @Override
@@ -257,53 +442,72 @@ public class BonsaiBlockEntityRenderer implements
 
         @Override
         public int materialFlags() {
-            return delegate.materialFlags();
+            return materialFlags;
         }
 
-        private List<BakedQuad> remapQuads(List<BakedQuad> quads, TextureAtlasSprite trunkSprite, @Nullable TextureAtlasSprite leavesSprite, TextureAtlasSprite baseLogSprite, TextureAtlasSprite baseLeavesSprite) {
+        private static int flags(List<BakedQuad> quads) {
+            int flags = 0;
+            for (BakedQuad quad : quads) {
+                flags |= quad.materialInfo().flags();
+            }
+            return flags;
+        }
+
+        private List<BakedQuad> remapQuads(
+                List<BakedQuad> quads,
+            ResolvedMaterial trunkMaterial,
+            @Nullable ResolvedMaterial leavesMaterial,
+            TextureAtlasSprite baseLogSprite,
+            TextureAtlasSprite baseLeavesSprite
+        ) {
             if (quads.isEmpty()) {
                 return quads;
             }
             List<BakedQuad> result = new ArrayList<>(quads.size());
             for (BakedQuad quad : quads) {
-                result.add(remapQuad(quad, trunkSprite, leavesSprite, baseLogSprite, baseLeavesSprite));
+                result.add(remapQuad(quad, trunkMaterial, leavesMaterial, baseLogSprite, baseLeavesSprite));
             }
             return result;
         }
 
         private static BakedQuad remapQuad(
                 BakedQuad quad,
-                TextureAtlasSprite trunkSprite,
-                @Nullable TextureAtlasSprite leavesSprite,
+                ResolvedMaterial trunkMaterial,
+                @Nullable ResolvedMaterial leavesMaterial,
                 TextureAtlasSprite baseLogSprite,
                 TextureAtlasSprite baseLeavesSprite
         ) {
             TextureAtlasSprite quadSprite = quad.materialInfo().sprite();
 
-            TextureAtlasSprite targetSprite;
             TextureAtlasSprite sourceSprite;
+            ResolvedMaterial targetMaterial;
 
             if (spritesMatch(quadSprite, baseLogSprite)) {
-                targetSprite = trunkSprite;
+                targetMaterial = trunkMaterial;
                 sourceSprite = baseLogSprite;
             } else if (spritesMatch(quadSprite, baseLeavesSprite)) {
-                if (leavesSprite == null) {
+                if (leavesMaterial == null) {
                     // Dead tree — leaves quads keep the base sprite (model has none)
                     return quad;
                 }
-                targetSprite = leavesSprite;
+                targetMaterial = leavesMaterial;
                 sourceSprite = baseLeavesSprite;
             } else {
                 // Pot or other texture — leave as-is
                 return quad;
             }
-            return remapQuadSprite(quad, sourceSprite, targetSprite);
+            int tintIndex = targetMaterial.materialInfo() != null
+                    && targetMaterial.materialInfo().tintIndex() >= 0
+                    ? (sourceSprite == baseLogSprite ? TRUNK_TINT_INDEX : LEAVES_TINT_INDEX)
+                    : -1;
+            return remapQuadSprite(quad, sourceSprite, targetMaterial, tintIndex);
         }
 
         private static BakedQuad remapQuadSprite(
                 BakedQuad quad,
                 TextureAtlasSprite source,
-                TextureAtlasSprite target
+                ResolvedMaterial target,
+                int tintIndex
         ) {
             long[] newUVs = new long[4];
             for (int v = 0; v < 4; v++) {
@@ -314,20 +518,25 @@ public class BonsaiBlockEntityRenderer implements
                 float localU = getUnInterpolatedU(source, atlasU);
                 float localV = getUnInterpolatedV(source, atlasV);
 
-                float targetU = target.getU(localU);
-                float targetV = target.getV(localV);
+                float targetU = target.sprite().getU(localU);
+                float targetV = target.sprite().getV(localV);
 
                 newUVs[v] = UVPair.pack(targetU, targetV);
             }
 
             BakedQuad.MaterialInfo mat = quad.materialInfo();
+            BakedQuad.MaterialInfo targetInfo = target.materialInfo();
+            if (targetInfo == null) {
+                targetInfo = mat;
+            }
             return new BakedQuad(
                     quad.position0(), quad.position1(), quad.position2(), quad.position3(),
                     newUVs[0], newUVs[1], newUVs[2], newUVs[3],
                     quad.direction(),
                     new BakedQuad.MaterialInfo(
-                            target, mat.layer(), mat.itemRenderType(),
-                            mat.tintIndex(), mat.shade(), mat.lightEmission(), mat.ambientOcclusion()
+                            target.sprite(), targetInfo.layer(), targetInfo.itemRenderType(),
+                            tintIndex, targetInfo.shade(), targetInfo.lightEmission(),
+                            targetInfo.ambientOcclusion()
                     ),
                     quad.bakedNormals(),
                     quad.bakedColors()
@@ -351,43 +560,78 @@ public class BonsaiBlockEntityRenderer implements
         }
     }
 
-    private final BlockModelResolver blockModelResolver =
-            new BlockModelResolver(Minecraft.getInstance().getModelManager());
-    private final BlockModelRenderState blockModelRenderState = new BlockModelRenderState();
+    private record ResolvedMaterial(
+            TextureAtlasSprite sprite,
+            BakedQuad.@Nullable MaterialInfo materialInfo,
+            boolean hasTranslucency
+    ) {
+    }
 
-    private @Nullable TextureAtlasSprite resolveSprite(@Nullable Identifier blockId) {
+    private static @Nullable BlockModelResolver blockModelResolver;
+
+    private static @Nullable ResolvedMaterial resolveMaterial(@Nullable Identifier blockId) {
         if (blockId == null) {
             return null;
         }
-        return spriteCache.computeIfAbsent(blockId, this::resolveSpriteUncached);
+        return MATERIAL_CACHE.computeIfAbsent(blockId, BonsaiBlockEntityRenderer::resolveMaterialUncached).orElse(null);
     }
 
-    private @Nullable TextureAtlasSprite resolveSpriteUncached(Identifier blockId) {
+    private static Optional<ResolvedMaterial> resolveMaterialUncached(Identifier blockId) {
         Block block = BuiltInRegistries.BLOCK.getValue(blockId);
         if (block == Blocks.AIR) {
-            return null;
+            return Optional.empty();
         }
         BlockState blockState = block.defaultBlockState();
-        blockModelResolver.update(blockModelRenderState, blockState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
-        List<BlockStateModelPart> parts = blockModelRenderState.modelParts;
+        BlockModelRenderState renderState = new BlockModelRenderState();
+        getBlockModelResolver().update(renderState, blockState, DisplayRenderer.BLOCK_DISPLAY_CONTEXT);
+        List<BlockStateModelPart> parts = renderState.modelParts;
         if (parts == null || parts.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
-        Material.Baked particleMaterial = parts.get(0).particleMaterial();
-        if (particleMaterial == null) {
-            return null;
-        }
-        return particleMaterial.sprite();
+        Material.Baked particleMaterial = parts.getFirst().particleMaterial();
+        TextureAtlasSprite particleSprite = particleMaterial.sprite();
+        BakedQuad.MaterialInfo materialInfo = findMaterialInfo(parts, particleSprite);
+        boolean hasTranslucency = parts.stream()
+                .anyMatch(part -> (part.materialFlags() & BakedQuad.FLAG_TRANSLUCENT) != 0);
+        return Optional.of(new ResolvedMaterial(particleSprite, materialInfo, hasTranslucency));
     }
 
-    private TextureAtlasSprite getBaseLogSprite() {
+    private static synchronized BlockModelResolver getBlockModelResolver() {
+        if (blockModelResolver == null) {
+            blockModelResolver = new BlockModelResolver(Minecraft.getInstance().getModelManager());
+        }
+        return blockModelResolver;
+    }
+
+    private static BakedQuad.@Nullable MaterialInfo findMaterialInfo(
+            List<BlockStateModelPart> parts,
+            TextureAtlasSprite sprite
+    ) {
+        for (BlockStateModelPart part : parts) {
+            for (Direction direction : Direction.values()) {
+                for (BakedQuad quad : part.getQuads(direction)) {
+                    if (BonsaiPart.spritesMatch(quad.materialInfo().sprite(), sprite)) {
+                        return quad.materialInfo();
+                    }
+                }
+            }
+            for (BakedQuad quad : part.getQuads(null)) {
+                if (BonsaiPart.spritesMatch(quad.materialInfo().sprite(), sprite)) {
+                    return quad.materialInfo();
+                }
+            }
+        }
+        return null;
+    }
+
+    private static synchronized TextureAtlasSprite getBaseLogSprite() {
         if (baseLogSprite == null) {
             baseLogSprite = getAtlasSprite(ShadowsAndPetals.asResource("block/maple_log"));
         }
         return baseLogSprite;
     }
 
-    private TextureAtlasSprite getBaseLeavesSprite() {
+    private static synchronized TextureAtlasSprite getBaseLeavesSprite() {
         if (baseLeavesSprite == null) {
             baseLeavesSprite = getAtlasSprite(ShadowsAndPetals.asResource("block/maple_leaves_0"));
         }
@@ -401,26 +645,83 @@ public class BonsaiBlockEntityRenderer implements
         return atlas.getSprite(textureId);
     }
 
+    private static int tintIndex(@Nullable ResolvedMaterial material) {
+        return material == null || material.materialInfo() == null
+                ? -1
+                : material.materialInfo().tintIndex();
+    }
+
+    /** Returns the original tint index of a resolved trunk/leaf block model. */
+    public static int getTargetTintIndex(@Nullable Identifier blockId) {
+        return tintIndex(resolveMaterial(blockId));
+    }
+
+    private static int[] resolveTintLayers(
+            CachedParts cached,
+            @Nullable Identifier trunkBlockId,
+            @Nullable Identifier leavesBlockId,
+            BlockAndTintGetter level,
+            BlockPos pos
+    ) {
+        boolean trunkTinted = cached.trunkTintIndex() >= 0;
+        boolean leavesTinted = cached.leavesTintIndex() >= 0;
+        if (!trunkTinted && !leavesTinted) {
+            return BlockModelRenderState.EMPTY_TINTS;
+        }
+
+        int[] tints = new int[leavesTinted ? LEAVES_TINT_INDEX + 1 : TRUNK_TINT_INDEX + 1];
+        java.util.Arrays.fill(tints, 0xFFFFFFFF);
+        if (trunkTinted) {
+            tints[TRUNK_TINT_INDEX] = resolveBlockTint(
+                    trunkBlockId, level, pos, cached.trunkTintIndex());
+        }
+        if (leavesTinted) {
+            tints[LEAVES_TINT_INDEX] = resolveBlockTint(
+                    leavesBlockId, level, pos, cached.leavesTintIndex());
+        }
+        return tints;
+    }
+
+    private static int resolveBlockTint(
+            @Nullable Identifier blockId,
+            BlockAndTintGetter level,
+            BlockPos pos,
+            int tintIndex
+    ) {
+        // The material cache intentionally stores only baked metadata. Resolve
+        // the actual block state here because foliage colors depend on biome and
+        // position, while the quad cache remains safely shareable.
+        if (blockId == null) {
+            return 0xFFFFFFFF;
+        }
+        Block block = BuiltInRegistries.BLOCK.getValue(blockId);
+        if (block == Blocks.AIR) {
+            return 0xFFFFFFFF;
+        }
+        BlockTintSource tintSource = Minecraft.getInstance().getBlockColors()
+                .getTintSource(block.defaultBlockState(), tintIndex);
+        int tint = tintSource == null
+                ? -1
+                : tintSource.colorInWorld(block.defaultBlockState(), level, pos);
+        return tint == -1 ? 0xFFFFFFFF : tint;
+    }
+
     /**
      * Drops all cached parts and sprites. Called when models are re-baked
      * (resource reload), since baked quads and atlas sprites are replaced.
      */
     public static void invalidateCaches() {
-        for (BonsaiBlockEntityRenderer renderer : INSTANCES) {
-            renderer.partCache.clear();
-            renderer.spriteCache.clear();
-            renderer.baseLogSprite = null;
-            renderer.baseLeavesSprite = null;
-            renderer.basePotSprite = null;
-        }
+        PART_CACHE.clear();
+        MATERIAL_CACHE.clear();
+        baseLogSprite = null;
+        baseLeavesSprite = null;
+        blockModelResolver = null;
     }
 
-    private static final List<BonsaiBlockEntityRenderer> INSTANCES = new CopyOnWriteArrayList<>();
-
     public static class State extends BlockEntityRenderState {
-        public boolean planted = false;
         public int rotation = 0;
         public List<BlockStateModelPart> modelParts = List.of();
         public boolean hasTranslucency = false;
+        public int[] tintLayers = BlockModelRenderState.EMPTY_TINTS;
     }
 }

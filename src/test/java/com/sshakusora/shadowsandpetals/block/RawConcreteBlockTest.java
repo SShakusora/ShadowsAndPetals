@@ -30,4 +30,9 @@ class RawConcreteBlockTest {
         assertTrue(RawConcreteBlock.isHolePosition(new BlockPos(-2, 0, -4), Direction.NORTH));
         assertFalse(RawConcreteBlock.isHolePosition(new BlockPos(-1, 0, -4), Direction.NORTH));
     }
+
+    @Test
+    void invalidStatesUseTheBaseTextureInsteadOfReadingMissingProperties() {
+        assertEquals(0, RawConcreteBlock.selectTextureIndex(null, BlockPos.ZERO, Direction.UP));
+    }
 }

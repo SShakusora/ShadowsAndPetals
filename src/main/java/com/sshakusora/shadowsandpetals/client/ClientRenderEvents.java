@@ -9,8 +9,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
-import com.sshakusora.shadowsandpetals.client.outline.BlockOutlineRegistry;
-import com.sshakusora.shadowsandpetals.client.outline.BlockOutlineRenderer;
+import com.sshakusora.shadowsandpetals.client.outline.*;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
 import com.sshakusora.shadowsandpetals.client.renderer.*;
 import com.sshakusora.shadowsandpetals.client.screen.IroriScreen;
@@ -38,6 +37,8 @@ import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsE
 import net.neoforged.neoforge.client.fluid.FluidTintSources;
 import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
 import net.neoforged.neoforge.resource.NeoForgeReloadListeners;
+
+import java.util.List;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
 public class ClientRenderEvents {
@@ -71,6 +72,14 @@ public class ClientRenderEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.COPPER_TEAPOT.get(), CopperTeapotBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.BONSAI.get(), BonsaiBlockEntityRenderer::new);
+    }
+
+    @SubscribeEvent
+    public static void registerBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
+        event.register(
+                List.of(BonsaiBlockTintSources.TRUNK, BonsaiBlockTintSources.LEAVES),
+                BlockRegistry.BONSAI.get()
+        );
     }
 
     @SubscribeEvent
@@ -144,6 +153,9 @@ public class ClientRenderEvents {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void registerReloadListeners(AddClientReloadListenersEvent event) {
+        LampOutlineCache.register(event);
+        TeapotOutlineCache.register(event);
+        VanityOutlineCache.register(event);
         SAPAnimations.init();
         var key = ShadowsAndPetals.asResource("pose_animations");
         event.addListener(key, SAPAnimationResources.INSTANCE);

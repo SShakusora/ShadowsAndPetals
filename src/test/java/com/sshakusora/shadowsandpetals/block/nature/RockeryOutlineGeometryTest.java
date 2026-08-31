@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
+import com.sshakusora.shadowsandpetals.client.outline.RockeryOutlineGeometry;
 import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;

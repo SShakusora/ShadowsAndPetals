@@ -4,13 +4,14 @@ import java.util.*;
 
 import static com.sshakusora.shadowsandpetals.data.rockery.obj.ObjModel.*;
 
-/** Extracts the cuboid topology retained by Blockbench's OBJ exporter. */
+/** Extracts the outline-solid topology retained by Blockbench's OBJ exporter. */
 public final class ObjModelOutline {
     private static final double EPSILON = 1.0E-5D;
     private static final int CUBOID_VERTEX_COUNT = 8;
     private static final int CUBOID_FACE_MIN = 4;
     private static final int CUBOID_FACE_MAX = 6;
     private static final int CUBOID_EDGE_COUNT = 12;
+    private static final int FACE_CORNER_COUNT = 4;
 
     private ObjModelOutline() {
     }
@@ -67,22 +68,21 @@ public final class ObjModelOutline {
         }
 
         List<DirectionLength> directions = collectDirections(vertices, faces, object);
-        if (directions.size() != 3) {
-            throw invalid(object, "does not have three orthogonal edge directions");
-        }
-        List<Edge> edges = collectEdges(vertices, directions, object);
-        if (edges.size() != CUBOID_EDGE_COUNT) {
-            throw invalid(object, "has " + edges.size() + " inferred edges; expected 12");
-        }
-        int[] degrees = new int[vertices.size()];
-        for (Edge edge : edges) {
-            degrees[edge.first()]++;
-            degrees[edge.second()]++;
-        }
-        for (int degree : degrees) {
-            if (degree != 3) {
-                throw invalid(object, "does not form a cuboid graph");
+        List<Edge> edges;
+        if (directions.size() == 3) {
+            edges = collectEdges(vertices, directions, object);
+            if (edges.size() != CUBOID_EDGE_COUNT) {
+                throw invalid(object, "has " + edges.size() + " inferred edges; expected 12");
             }
+            validateGraph(vertices, edges, object, "cuboid");
+            if (sourceFaces.size() == CUBOID_FACE_MAX) {
+                validateConvexSolid(vertices, faces, object, collectFaceEdges(faces, object));
+            }
+        } else if (sourceFaces.size() == CUBOID_FACE_MAX) {
+            edges = collectFaceEdges(faces, object);
+            validateConvexSolid(vertices, faces, object, edges);
+        } else {
+            throw invalid(object, "does not have three edge directions and has no complete six-face topology");
         }
         return new Cuboid(vertices, faces, edges);
     }
@@ -104,18 +104,15 @@ public final class ObjModelOutline {
     ) {
         List<DirectionLength> directions = new ArrayList<>(3);
         for (Face face : faces) {
-            for (int corner = 0; corner < 4; corner++) {
+            for (int corner = 0; corner < FACE_CORNER_COUNT; corner++) {
                 ObjVector3 first = vertices.get(face.corners()[corner]);
-                ObjVector3 second = vertices.get(face.corners()[(corner + 1) % 4]);
+                ObjVector3 second = vertices.get(face.corners()[(corner + 1) % FACE_CORNER_COUNT]);
                 double length = Math.sqrt(distanceSquared(first, second));
                 if (length <= EPSILON) {
                     throw invalid(object, "contains a zero-length edge");
                 }
                 ObjVector3 direction = second.subtract(first).normalized();
                 if (directions.stream().noneMatch(existing -> existing.matches(direction, length))) {
-                    if (directions.size() == 3) {
-                        throw invalid(object, "has more than three edge directions");
-                    }
                     directions.add(new DirectionLength(direction, length));
                 }
             }
@@ -146,6 +143,106 @@ public final class ObjModelOutline {
             throw invalid(object, "has ambiguous cuboid edges");
         }
         return edges;
+    }
+
+    private static List<Edge> collectFaceEdges(List<Face> faces, ObjObject object) {
+        Map<EdgeKey, Integer> edgeUses = new LinkedHashMap<>();
+        for (Face face : faces) {
+            int[] corners = face.corners();
+            for (int corner = 0; corner < FACE_CORNER_COUNT; corner++) {
+                EdgeKey key = EdgeKey.of(corners[corner], corners[(corner + 1) % FACE_CORNER_COUNT]);
+                int uses = edgeUses.merge(key, 1, Integer::sum);
+                if (uses > 2) {
+                    throw invalid(object, "has an edge shared by more than two faces");
+                }
+            }
+        }
+        if (edgeUses.size() != CUBOID_EDGE_COUNT) {
+            throw invalid(object, "has " + edgeUses.size() + " topological edges; expected 12");
+        }
+        if (edgeUses.values().stream().anyMatch(uses -> uses != 2)) {
+            throw invalid(object, "does not form a closed six-face topology");
+        }
+        return edgeUses.keySet().stream()
+                .map(key -> new Edge(key.first(), key.second()))
+                .toList();
+    }
+
+    private static void validateConvexSolid(
+            List<ObjVector3> vertices,
+            List<Face> faces,
+            ObjObject object,
+            List<Edge> edges
+    ) {
+        validateGraph(vertices, edges, object, "closed solid");
+        ObjVector3 center = average(vertices);
+        for (Face face : faces) {
+            int[] corners = face.corners();
+            ObjVector3 first = vertices.get(corners[0]);
+            ObjVector3 second = vertices.get(corners[1]);
+            ObjVector3 third = vertices.get(corners[2]);
+            ObjVector3 normal = second.subtract(first).cross(third.subtract(first));
+            double normalLength = length(normal);
+            if (normalLength <= EPSILON) {
+                throw invalid(object, "contains a degenerate face");
+            }
+
+            ObjVector3 fourth = vertices.get(corners[3]);
+            double faceScale = Math.max(1.0D, Math.max(
+                    length(second.subtract(first)),
+                    Math.max(length(third.subtract(second)), length(fourth.subtract(third)))
+            ));
+            if (Math.abs(dot(normal, fourth.subtract(first))) > EPSILON * normalLength * faceScale) {
+                throw invalid(object, "contains a non-planar face");
+            }
+
+            for (int corner = 0; corner < FACE_CORNER_COUNT; corner++) {
+                ObjVector3 previous = vertices.get(corners[(corner + FACE_CORNER_COUNT - 1) % FACE_CORNER_COUNT]);
+                ObjVector3 current = vertices.get(corners[corner]);
+                ObjVector3 next = vertices.get(corners[(corner + 1) % FACE_CORNER_COUNT]);
+                ObjVector3 turn = current.subtract(previous).cross(next.subtract(current));
+                double turnScale = normalLength * Math.max(
+                        1.0D,
+                        length(current.subtract(previous)) * length(next.subtract(current))
+                );
+                if (dot(turn, normal) <= EPSILON * turnScale) {
+                    throw invalid(object, "contains a non-convex or self-intersecting face");
+                }
+            }
+
+            double centerSide = dot(normal, center.subtract(first));
+            double planeScale = normalLength * Math.max(1.0D, maxDistance(vertices, first));
+            if (Math.abs(centerSide) <= EPSILON * planeScale) {
+                throw invalid(object, "has zero volume or a face through its center");
+            }
+            ObjVector3 outward = centerSide > 0.0D ? negate(normal) : normal;
+            for (ObjVector3 vertex : vertices) {
+                if (dot(outward, vertex.subtract(first)) > EPSILON * planeScale) {
+                    throw invalid(object, "is not convex");
+                }
+            }
+        }
+    }
+
+    private static void validateGraph(
+            List<ObjVector3> vertices,
+            List<Edge> edges,
+            ObjObject object,
+            String graphName
+    ) {
+        if (edges.size() != CUBOID_EDGE_COUNT) {
+            throw invalid(object, "has " + edges.size() + " edges; expected 12");
+        }
+        int[] degrees = new int[vertices.size()];
+        for (Edge edge : edges) {
+            degrees[edge.first()]++;
+            degrees[edge.second()]++;
+        }
+        for (int degree : degrees) {
+            if (degree != 3) {
+                throw invalid(object, "does not form a " + graphName + " graph");
+            }
+        }
     }
 
     private static int findVertex(List<ObjVector3> vertices, ObjVector3 target) {
@@ -180,6 +277,38 @@ public final class ObjModelOutline {
         return x * x + y * y + z * z;
     }
 
+    private static double length(ObjVector3 vector) {
+        return Math.sqrt(vector.x() * vector.x() + vector.y() * vector.y() + vector.z() * vector.z());
+    }
+
+    private static double dot(ObjVector3 first, ObjVector3 second) {
+        return first.x() * second.x() + first.y() * second.y() + first.z() * second.z();
+    }
+
+    private static ObjVector3 negate(ObjVector3 vector) {
+        return new ObjVector3(-vector.x(), -vector.y(), -vector.z());
+    }
+
+    private static ObjVector3 average(List<ObjVector3> vertices) {
+        double x = 0.0D;
+        double y = 0.0D;
+        double z = 0.0D;
+        for (ObjVector3 vertex : vertices) {
+            x += vertex.x();
+            y += vertex.y();
+            z += vertex.z();
+        }
+        return new ObjVector3(x / vertices.size(), y / vertices.size(), z / vertices.size());
+    }
+
+    private static double maxDistance(List<ObjVector3> vertices, ObjVector3 origin) {
+        double maximum = 0.0D;
+        for (ObjVector3 vertex : vertices) {
+            maximum = Math.max(maximum, length(vertex.subtract(origin)));
+        }
+        return maximum;
+    }
+
     private static IllegalArgumentException invalid(ObjObject object, String reason) {
         return new IllegalArgumentException("OBJ object '" + object.name() + "' " + reason);
     }
@@ -199,6 +328,12 @@ public final class ObjModelOutline {
     }
 
     public record Edge(int first, int second) {
+    }
+
+    private record EdgeKey(int first, int second) {
+        private static EdgeKey of(int first, int second) {
+            return first < second ? new EdgeKey(first, second) : new EdgeKey(second, first);
+        }
     }
 
     private record DirectionLength(ObjVector3 direction, double length) {

@@ -41,6 +41,7 @@ public class ModDataGenerator {
         generator.addProvider(true, new ModItemTagProvider(output, lookupProvider, blockTags.contentsGetter()));
         generator.addProvider(true, new ModDataMapProvider(output, lookupProvider));
         generator.addProvider(true, new ModSoundDefinitionsProvider(output));
+        generator.addProvider(true, new ModBonsaiTreeProvider(output));
         generator.addProvider(true, new WorldGenProvider(output, lookupProvider));
     }
 }

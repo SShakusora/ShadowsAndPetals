@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.block.nature;
+package com.sshakusora.shadowsandpetals.client.outline;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -13,7 +13,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Extracts the boundary of the union of the cuboids used by a rockery model.
+ * Extracts the boundary of the union of cuboids declared by a Blockbench
+ * model. The single-model entry point is also used by custom block outlines;
+ * the multipart entry point additionally supports rockery structure offsets.
  *
  * <p>The model is not an axis-aligned voxel shape: its elements can be
  * rotated, overlap one another, and be split between several PART models.
@@ -24,7 +26,7 @@ import java.util.Objects;
  * between two rotated faces are therefore produced naturally by the clipping
  * operation, even when no source cuboid has an edge at that location.</p>
  */
-final class RockeryOutlineGeometry {
+public final class RockeryOutlineGeometry {
     private static final String OBJ_COLLISION_KEY = "shadowsandpetals:collision";
     private static final String OBJ_OUTLINE_KEY = "shadowsandpetals:outline";
     private static final double EDGE_EPSILON = 1.0E-6D;
@@ -39,10 +41,14 @@ final class RockeryOutlineGeometry {
     }
 
     /**
-     * Parses one model without a structure offset. This remains useful for
-     * tests and for callers that only have a single model available.
+     * Extracts the visible boundary of a single Blockbench/Minecraft model.
+     *
+     * <p>This entry point is intentionally public because the same rotated
+     * cuboid clipping is useful for custom block outlines outside rockery
+     * models. Multipart rockery callers should continue to use
+     * {@link #fromModels(List)}.</p>
      */
-    static @Nullable OutlineGeometry fromModel(JsonObject model) {
+    public static @Nullable OutlineGeometry fromModel(JsonObject model) {
         return fromModels(List.of(new ModelPart(model, Vec3.ZERO)));
     }
 
@@ -50,7 +56,7 @@ final class RockeryOutlineGeometry {
      * Parses all generated PART models in the common structure coordinate
      * system. Each offset is expressed in model units (16 units per block).
      */
-    static @Nullable OutlineGeometry fromModels(List<ModelPart> modelParts) {
+    public static @Nullable OutlineGeometry fromModels(List<ModelPart> modelParts) {
         Objects.requireNonNull(modelParts, "modelParts");
         if (modelParts.isEmpty()) {
             return null;
@@ -199,7 +205,7 @@ final class RockeryOutlineGeometry {
                 <= PLANE_EPSILON;
     }
 
-    static OutlineGeometry translate(OutlineGeometry geometry, double x, double y, double z) {
+    public static OutlineGeometry translate(OutlineGeometry geometry, double x, double y, double z) {
         return OutlineGeometry.of(geometry.lines().stream()
                 .map(line -> new OutlineGeometry.Line(
                         line.from().add(x, y, z),
@@ -208,7 +214,7 @@ final class RockeryOutlineGeometry {
                 .toList());
     }
 
-    static OutlineGeometry rotateClockwise(OutlineGeometry geometry) {
+    public static OutlineGeometry rotateClockwise(OutlineGeometry geometry) {
         return OutlineGeometry.of(geometry.lines().stream()
                 .map(line -> new OutlineGeometry.Line(
                         rotateClockwise(line.from()),
@@ -325,8 +331,8 @@ final class RockeryOutlineGeometry {
     }
 
     /** A model together with its offset in the unrotated, complete structure. */
-    record ModelPart(JsonObject model, Vec3 offset) {
-        ModelPart {
+    public record ModelPart(JsonObject model, Vec3 offset) {
+        public ModelPart {
             Objects.requireNonNull(model, "model");
             Objects.requireNonNull(offset, "offset");
         }

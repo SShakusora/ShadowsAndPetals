@@ -14,26 +14,39 @@ import net.neoforged.neoforge.client.model.DynamicBlockStateModel;
 
 import java.util.List;
 
+@SuppressWarnings("ConstantConditions")
 public final class WoodPostBlockStateModel extends DelegateBlockStateModel implements DynamicBlockStateModel {
-    private final WoodPostBlock block;
+    private final Block block;
+    private static final WoodPostBlock.Connections NO_CONNECTIONS = new WoodPostBlock.Connections(
+            WoodPostBlock.ConnectionType.NONE,
+            WoodPostBlock.ConnectionType.NONE,
+            WoodPostBlock.ConnectionType.NONE,
+            WoodPostBlock.ConnectionType.NONE,
+            WoodPostBlock.ConnectionType.NONE,
+            WoodPostBlock.ConnectionType.NONE);
 
-    public WoodPostBlockStateModel(WoodPostBlock block, BlockStateModel delegate) {
+    public WoodPostBlockStateModel(Block block, BlockStateModel delegate) {
         super(delegate);
         this.block = block;
     }
 
     @Override
     public Object createGeometryKey(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random) {
+        if (state == null || state.getBlock() != block) {
+            return new GeometryKey(state == null ? block : state.getBlock(), Direction.Axis.Y, NO_CONNECTIONS);
+        }
+
         return new GeometryKey(state.getBlock(), state.getValue(WoodPostBlock.AXIS), WoodPostBlock.connections(level, pos, state));
     }
 
     @Override
     public void collectParts(BlockAndTintGetter level, BlockPos pos, BlockState state, RandomSource random, List<BlockStateModelPart> parts) {
-        delegate.collectParts(level, pos, state, random, parts);
-
-        if (state.getBlock() != block) {
+        if (state == null || state.getBlock() != block) {
+            delegate.collectParts(random, parts);
             return;
         }
+
+        delegate.collectParts(level, pos, state, random, parts);
 
         WoodPostBlock.Connections connections = WoodPostBlock.connections(level, pos, state);
         for (Direction direction : Direction.values()) {

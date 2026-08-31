@@ -62,4 +62,25 @@ class BonsaiPartCacheKeyTest {
         BonsaiPartCacheKey b = new BonsaiPartCacheKey(BonsaiBlockEntity.Shape.SEMI_CASCADE, true, OAK, null);
         assertEquals(a, b);
     }
+
+    @Test
+    void deadTreesIgnoreLeavesInCacheKey() {
+        BonsaiPartCacheKey oak = new BonsaiPartCacheKey(
+                BonsaiBlockEntity.Shape.TWIN, true, OAK, Identifier.withDefaultNamespace("oak_leaves"));
+        BonsaiPartCacheKey maple = new BonsaiPartCacheKey(
+                BonsaiBlockEntity.Shape.TWIN, true, OAK, Identifier.withDefaultNamespace("maple_leaves"));
+        assertEquals(oak, maple);
+    }
+
+    @Test
+    void emptyStateDropsTreeIdentifiers() {
+        BonsaiPartCacheKey key = BonsaiPartCacheKey.forState(
+                BonsaiBlockEntity.Shape.SEMI_CASCADE,
+                false,
+                false,
+                OAK,
+                Identifier.withDefaultNamespace("oak_leaves"));
+        assertNull(key.trunkBlockId());
+        assertNull(key.leavesBlockId());
+    }
 }

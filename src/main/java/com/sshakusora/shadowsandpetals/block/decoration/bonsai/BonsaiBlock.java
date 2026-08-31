@@ -1,8 +1,10 @@
-package com.sshakusora.shadowsandpetals.block.decoration;
+package com.sshakusora.shadowsandpetals.block.decoration.bonsai;
 
 import com.mojang.serialization.MapCodec;
+import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
+import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineProvider;
+import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
-import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -17,12 +19,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
@@ -36,7 +33,6 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,7 +42,7 @@ import java.util.List;
  * sapling to plant it. The pot becomes a block entity that dynamically
  * renders the tree's trunk and leaves textures on a bonsai-shaped model.
  */
-public final class BonsaiBlock extends BaseEntityBlock {
+public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlineProvider {
     public static final MapCodec<BonsaiBlock> CODEC = simpleCodec(BonsaiBlock::new);
 
     public static final IntegerProperty ROTATION = BlockStateProperties.ROTATION_16;
@@ -84,6 +80,11 @@ public final class BonsaiBlock extends BaseEntityBlock {
     }
 
     @Override
+    public OutlineGeometry getOutline(BlockState state, BlockOutlineContext context) {
+        return BonsaiOutlineGeometry.forRotation(state.getValue(ROTATION));
+    }
+
+    @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         // Net yaw = 90° - 22.5° * segment (renderer compensation included); the
         // pot's long axis lands on X for segments 0-3, Z for 4-7, alternating
@@ -95,7 +96,7 @@ public final class BonsaiBlock extends BaseEntityBlock {
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
+        return RenderShape.MODEL;
     }
 
     @Override
@@ -104,7 +105,7 @@ public final class BonsaiBlock extends BaseEntityBlock {
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BonsaiBlockEntity(pos, state);
     }
 
@@ -151,10 +152,15 @@ public final class BonsaiBlock extends BaseEntityBlock {
         if (stack.is(Items.SHEARS)) {
             if (bonsai.isPlanted()) {
                 if (bonsai.isDead()) {
+                    ItemStack recovered = bonsai.getPlantedItemStack();
                     bonsai.clear();
+                    if (!recovered.isEmpty() && !player.getInventory().add(recovered)) {
+                        Block.popResource(level, pos, recovered);
+                    }
                 } else {
                     bonsai.makeDead();
                 }
+                stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.SHEARS_SNIP, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.SUCCESS_SERVER;
             }
@@ -180,7 +186,7 @@ public final class BonsaiBlock extends BaseEntityBlock {
         Item item = stack.getItem();
         Block block = Block.byItem(item);
         if (block instanceof net.minecraft.world.level.block.SaplingBlock) {
-            BonsaiTreeResolver.Result resolved = BonsaiTreeResolver.resolve(block, level);
+            BonsaiTreeResolver.Result resolved = BonsaiTreeResolver.resolve(block);
             if (resolved != null) {
                 Identifier plantedItemId = BuiltInRegistries.ITEM.getKey(item);
                 bonsai.plant(resolved.trunkBlock(), resolved.leavesBlock(), plantedItemId, false);
@@ -240,17 +246,13 @@ public final class BonsaiBlock extends BaseEntityBlock {
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder builder) {
-        List<ItemStack> drops = new ArrayList<>();
-        drops.add(new ItemStack(BlockRegistry.BONSAI.get()));
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, builder));
 
         BlockEntity be = builder.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (be instanceof BonsaiBlockEntity bonsai && bonsai.isPlanted()) {
-            Identifier plantedItemId = bonsai.getPlantedItemId();
-            if (plantedItemId != null) {
-                Item plantedItem = BuiltInRegistries.ITEM.getValue(plantedItemId);
-                if (plantedItem != Items.AIR) {
-                    drops.add(new ItemStack(plantedItem));
-                }
+            ItemStack plantedItem = bonsai.getPlantedItemStack();
+            if (!plantedItem.isEmpty()) {
+                drops.add(plantedItem);
             }
         }
 

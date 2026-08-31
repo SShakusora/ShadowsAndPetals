@@ -5,16 +5,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.model.data.ModelData;
+import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -31,16 +38,26 @@ public final class BonsaiBlockEntity extends BlockEntity {
     private static final String PLANTED_ITEM_KEY = "PlantedItem";
 
     /**
+     * Immutable snapshot consumed by the chunk compiler.  The snapshot keeps
+     * asynchronous model collection off the live block entity, which is
+     * important because chunk meshing runs on worker threads.
+     */
+    public static final ModelProperty<RenderData> RENDER_DATA = new ModelProperty<>();
+
+    /**
      * Bonsai shape variants that the player can cycle through.
      * Order matters: semi_cascade is the initial planting shape.
      */
-    public enum Shape {
+    public enum Shape implements StringRepresentable {
         SEMI_CASCADE("semi_cascade"),
         SLANTING("slanting"),
         TWIN("twin"),
         WINDSWEPT("windswept");
 
         private final String serializedName;
+
+        public static final StringRepresentable.EnumCodec<Shape> CODEC =
+                StringRepresentable.fromEnum(Shape::values);
 
         Shape(String serializedName) {
             this.serializedName = serializedName;
@@ -62,6 +79,25 @@ public final class BonsaiBlockEntity extends BlockEntity {
                 }
             }
             return SEMI_CASCADE;
+        }
+    }
+
+    public record RenderData(
+            boolean planted,
+            boolean dead,
+            Shape shape,
+            @Nullable Identifier trunkBlockId,
+            @Nullable Identifier leavesBlockId
+    ) {
+        public RenderData {
+            if (!planted) {
+                dead = false;
+                trunkBlockId = null;
+                leavesBlockId = null;
+                shape = Shape.SEMI_CASCADE;
+            } else if (dead) {
+                leavesBlockId = null;
+            }
         }
     }
 
@@ -97,8 +133,13 @@ public final class BonsaiBlockEntity extends BlockEntity {
         return leavesBlockId;
     }
 
-    public @Nullable Identifier getPlantedItemId() {
-        return plantedItemId;
+    /** Returns the original sapling/dead bush for an explicit clear action. */
+    public ItemStack getPlantedItemStack() {
+        if (!planted || plantedItemId == null) {
+            return ItemStack.EMPTY;
+        }
+        Item item = BuiltInRegistries.ITEM.getValue(plantedItemId);
+        return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
     }
 
     /**
@@ -150,9 +191,10 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     private void setChangedAndSync() {
         setChanged();
+        requestModelDataUpdate();
         if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
-            level.sendBlockUpdated(getBlockPos(), state, state, 3);
+            level.sendBlockUpdated(getBlockPos(), state, state, Block.UPDATE_CLIENTS);
         }
     }
 
@@ -162,9 +204,31 @@ public final class BonsaiBlockEntity extends BlockEntity {
         this.planted = input.getBooleanOr(PLANTED_KEY, false);
         this.dead = input.getBooleanOr(DEAD_KEY, false);
         this.shape = Shape.fromName(input.getStringOr(SHAPE_KEY, Shape.SEMI_CASCADE.getSerializedName()));
-        this.trunkBlockId = input.getString(TRUNK_KEY).map(Identifier::tryParse).orElse(null);
-        this.leavesBlockId = input.getString(LEAVES_KEY).map(Identifier::tryParse).orElse(null);
-        this.plantedItemId = input.getString(PLANTED_ITEM_KEY).map(Identifier::tryParse).orElse(null);
+        this.trunkBlockId = input.getString(TRUNK_KEY)
+                .map(Identifier::tryParse)
+                .filter(BonsaiBlockEntity::isRegisteredBlock)
+                .orElse(null);
+        this.leavesBlockId = input.getString(LEAVES_KEY)
+                .map(Identifier::tryParse)
+                .filter(BonsaiBlockEntity::isRegisteredBlock)
+                .orElse(null);
+        this.plantedItemId = input.getString(PLANTED_ITEM_KEY)
+                .map(Identifier::tryParse)
+                .filter(BonsaiBlockEntity::isRegisteredItem)
+                .orElse(null);
+
+        // A planted entity without all three identifiers cannot be rendered or
+        // safely dropped. Treat it as an empty pot instead of keeping corrupt
+        // state alive after a datapack/mod change.
+        if (planted && (trunkBlockId == null || leavesBlockId == null || plantedItemId == null)) {
+            planted = false;
+            dead = false;
+            trunkBlockId = null;
+            leavesBlockId = null;
+            plantedItemId = null;
+            shape = Shape.SEMI_CASCADE;
+        }
+        requestModelDataUpdate();
     }
 
     @Override
@@ -185,12 +249,37 @@ public final class BonsaiBlockEntity extends BlockEntity {
     }
 
     @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return saveCustomOnly(registries);
+    }
+
+    @Override
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadWithComponents(input);
+
+        if (level != null && level.isClientSide()) {
+            BlockState state = getBlockState();
+            level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
+        }
+    }
+
+    @Override
+    public ModelData getModelData() {
+        return planted
+                ? ModelData.of(RENDER_DATA, new RenderData(true, dead, shape, trunkBlockId, leavesBlockId))
+                : ModelData.EMPTY;
+    }
+
+    private static boolean isRegisteredBlock(Identifier id) {
+        return BuiltInRegistries.BLOCK.getValue(id) != Blocks.AIR;
+    }
+
+    private static boolean isRegisteredItem(Identifier id) {
+        return BuiltInRegistries.ITEM.getValue(id) != Items.AIR;
     }
 }

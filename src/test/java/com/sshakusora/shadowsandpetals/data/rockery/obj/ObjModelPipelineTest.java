@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static com.sshakusora.shadowsandpetals.data.rockery.obj.ObjModel.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,7 +29,7 @@ class ObjModelPipelineTest {
                 new SourceFixture("1_2_1", 1, 2, 1, 44),
                 new SourceFixture("1_3_1", 1, 3, 1, 83),
                 new SourceFixture("1_1_2", 1, 1, 2, 30),
-                new SourceFixture("1_2_2", 1, 2, 2, 62)
+                new SourceFixture("1_2_2", 1, 2, 2, 58)
         );
 
         for (SourceFixture fixture : fixtures) {
@@ -49,7 +47,7 @@ class ObjModelPipelineTest {
                 "1_2_1", 10,
                 "1_3_1", 18,
                 "1_1_2", 5,
-                "1_2_2", 14
+                "1_2_2", 13
         );
 
         for (Map.Entry<String, Integer> fixture : expectedCuboidCounts.entrySet()) {
@@ -67,13 +65,87 @@ class ObjModelPipelineTest {
     }
 
     @Test
+    void extractsConvexNonCuboidSixFaceTopology() throws IOException {
+        ObjModel model = ObjModelParser.parse(SOURCE_DIRECTORY.resolve("1_2_2.obj"));
+
+        List<ObjModelOutline.Cuboid> solids = ObjModelOutline.extract(model);
+
+        ObjModelOutline.Cuboid importedSolid = solids.getLast();
+        assertEquals(13, solids.size());
+        assertEquals(8, importedSolid.vertices().size());
+        assertEquals(6, importedSolid.faces().size());
+        assertEquals(12, importedSolid.edges().size());
+    }
+
+    @Test
+    void rejectsNonPlanarSixFaceTopology() {
+        List<ObjVector3> vertices = List.of(
+                new ObjVector3(0.0D, 0.0D, 0.0D),
+                new ObjVector3(1.0D, 0.0D, 0.0D),
+                new ObjVector3(1.0D, 0.0D, 1.0D),
+                new ObjVector3(0.0D, 0.0D, 1.0D),
+                new ObjVector3(0.0D, 1.0D, 0.0D),
+                new ObjVector3(1.0D, 1.0D, 0.0D),
+                new ObjVector3(1.0D, 1.0D, 1.25D),
+                new ObjVector3(0.0D, 1.0D, 1.0D)
+        );
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> ObjModelOutline.extract(singleObject(vertices, cubeFaces()))
+        );
+
+        assertTrue(exception.getMessage().contains("non-planar face"));
+    }
+
+    @Test
+    void rejectsConcaveSixFaceTopology() {
+        List<ObjVector3> vertices = concavePrismVertices();
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> ObjModelOutline.extract(singleObject(vertices, concavePrismFaces()))
+        );
+
+        assertTrue(exception.getMessage().contains("non-convex"));
+    }
+
+    @Test
+    void rejectsIncompleteNonCuboidTopology() {
+        List<int[]> faces = new ArrayList<>(Arrays.asList(concavePrismFaces()));
+        faces.removeLast();
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> ObjModelOutline.extract(singleObject(concavePrismVertices(), faces.toArray(int[][]::new)))
+        );
+
+        assertTrue(exception.getMessage().contains("three edge directions"));
+    }
+
+    @Test
+    void rejectsEdgesThatAreNotUsedByExactlyTwoFaces() {
+        int[][] faces = cubeFaces();
+        faces[5] = new int[]{3, 0, 4, 6};
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> ObjModelOutline.extract(singleObject(cubeVertices(), faces))
+        );
+
+        assertTrue(exception.getMessage().contains("topological edges")
+                || exception.getMessage().contains("closed six-face topology")
+                || exception.getMessage().contains("shared by more than two faces"));
+    }
+
+    @Test
     void cutsImportedModelsIntoExpectedPartGrids() throws IOException {
         List<SourceFixture> fixtures = List.of(
                 new SourceFixture("1_1_1", 1, 1, 1, 39),
                 new SourceFixture("1_2_1", 1, 2, 1, 44),
                 new SourceFixture("1_3_1", 1, 3, 1, 83),
                 new SourceFixture("1_1_2", 1, 1, 2, 30),
-                new SourceFixture("1_2_2", 1, 2, 2, 62)
+                new SourceFixture("1_2_2", 1, 2, 2, 58)
         );
 
         for (SourceFixture fixture : fixtures) {
@@ -115,7 +187,7 @@ class ObjModelPipelineTest {
 
         assertEquals(0.0D, cut.alignment().x(), EPSILON);
         assertEquals(0.0D, cut.alignment().y(), EPSILON);
-        assertEquals(1.0D, cut.alignment().z(), EPSILON);
+        assertEquals(0.0D, cut.alignment().z(), EPSILON);
         assertTrue(cut.normalizedBounds().minZ() >= -EPSILON);
         assertTrue(cut.normalizedBounds().maxZ() <= 2.0D + EPSILON);
     }
@@ -171,7 +243,7 @@ class ObjModelPipelineTest {
                 "1x2x1", 10,
                 "1x3x1", 18,
                 "1x1x2", 5,
-                "1x2x2", 14
+                "1x2x2", 13
         );
 
         for (Map.Entry<String, Integer> fixture : expectedCuboidCounts.entrySet()) {
@@ -192,6 +264,69 @@ class ObjModelPipelineTest {
 
     private static void assertBetweenZeroAndOne(double value, String message) {
         assertTrue(value >= -EPSILON && value <= 1.0D + EPSILON, message + ": " + value);
+    }
+
+    private static ObjModel singleObject(List<ObjVector3> vertices, int[][] faceIndices) {
+        List<ObjFace> faces = new ArrayList<>();
+        for (int[] faceIndicesForObject : faceIndices) {
+            List<ObjVertex> corners = Arrays.stream(faceIndicesForObject)
+                    .mapToObj(index -> new ObjVertex(vertices.get(index), null, null))
+                    .toList();
+            faces.add(new ObjFace(0, "test", "rockery", corners));
+        }
+        return new ObjModel(
+                faces,
+                List.of(new ObjObject(0, "test", vertices)),
+                Set.of("rockery")
+        );
+    }
+
+    private static List<ObjVector3> cubeVertices() {
+        return List.of(
+                new ObjVector3(0.0D, 0.0D, 0.0D),
+                new ObjVector3(1.0D, 0.0D, 0.0D),
+                new ObjVector3(1.0D, 0.0D, 1.0D),
+                new ObjVector3(0.0D, 0.0D, 1.0D),
+                new ObjVector3(0.0D, 1.0D, 0.0D),
+                new ObjVector3(1.0D, 1.0D, 0.0D),
+                new ObjVector3(1.0D, 1.0D, 1.0D),
+                new ObjVector3(0.0D, 1.0D, 1.0D)
+        );
+    }
+
+    private static int[][] cubeFaces() {
+        return new int[][]{
+                {0, 1, 2, 3},
+                {4, 7, 6, 5},
+                {0, 4, 5, 1},
+                {3, 2, 6, 7},
+                {0, 3, 7, 4},
+                {1, 5, 6, 2}
+        };
+    }
+
+    private static List<ObjVector3> concavePrismVertices() {
+        return List.of(
+                new ObjVector3(0.0D, 0.0D, 0.0D),
+                new ObjVector3(0.0D, 2.0D, 0.0D),
+                new ObjVector3(0.0D, 0.7D, 0.5D),
+                new ObjVector3(0.0D, 0.0D, 1.0D),
+                new ObjVector3(1.0D, 0.0D, 0.0D),
+                new ObjVector3(1.0D, 2.0D, 0.0D),
+                new ObjVector3(1.0D, 0.7D, 0.5D),
+                new ObjVector3(1.0D, 0.0D, 1.0D)
+        );
+    }
+
+    private static int[][] concavePrismFaces() {
+        return new int[][]{
+                {0, 1, 2, 3},
+                {4, 7, 6, 5},
+                {0, 4, 5, 1},
+                {1, 5, 6, 2},
+                {2, 6, 7, 3},
+                {3, 7, 4, 0}
+        };
     }
 
     private record SourceFixture(String name, int width, int height, int depth, int faceCount) {

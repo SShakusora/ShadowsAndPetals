@@ -11,6 +11,7 @@ import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
 import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineProvider;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
+import com.sshakusora.shadowsandpetals.client.outline.RockeryOutlineGeometry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;

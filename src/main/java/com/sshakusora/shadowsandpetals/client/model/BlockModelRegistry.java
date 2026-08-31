@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState;
@@ -101,11 +102,6 @@ public final class BlockModelRegistry {
             .model(ShadowsAndPetals.asResource("block/teapot/copper/lid"))
             .register();
 
-    public static final StandaloneBlockModel BONSAI_EMPTY_POT = ClientModelRegistry
-            .blockState("bonsai_empty_pot")
-            .model(ShadowsAndPetals.asResource("block/bonsai/bonsai"))
-            .register();
-
     public static final StandaloneBlockModelSet<BonsaiBlockEntity.Shape> BONSAI_SHAPES =
             ClientModelRegistry.enumBlockStateSet("bonsai_shape", BonsaiBlockEntity.Shape.class)
                     .keyPath(BonsaiBlockEntity.Shape::getSerializedName)
@@ -120,10 +116,13 @@ public final class BlockModelRegistry {
 
     static {
         BlockStateModelDecoratorRegistry.forBlock(IroriBlock.class)
-                .wrap((block, model) -> new IroriBlockStateModel(model))
+                .wrap(IroriBlockStateModel::new)
                 .register();
         BlockStateModelDecoratorRegistry.forBlock(WoodPostBlock.class)
                 .wrap(WoodPostBlockStateModel::new)
+                .register();
+        BlockStateModelDecoratorRegistry.forBlock(BonsaiBlock.class)
+                .wrap(BonsaiPotBlockStateModel::new)
                 .register();
     }
 
@@ -158,7 +157,8 @@ public final class BlockModelRegistry {
 
         event.getBakingResult().blockStateModels().replaceAll((state, model) ->
                 state.is(BlockRegistry.RECESSED_LAMP_COMPOSITE.get())
-                        ? new RecessedLampCompositeBlockStateModel(model, immutableSlabModels)
+                        ? new RecessedLampCompositeBlockStateModel(
+                                state.getBlock(), model, immutableSlabModels)
                         : model
         );
     }

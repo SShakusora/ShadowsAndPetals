@@ -35,15 +35,15 @@ public class RockeryRecipeCategory implements IRecipeCategory<RockeryInfoRecipe>
     public static final IRecipeType<RockeryInfoRecipe> TYPE =
             IRecipeType.create(ShadowsAndPetals.asResource("rockery_carving"), RockeryInfoRecipe.class);
 
-    private static final int WIDTH = 210;
-    private static final int HEIGHT = 96;
-    private static final int PIP_SIZE = 64;
+    private static final int WIDTH = 184;
+    private static final int HEIGHT = 60;
+    private static final int PIP_SIZE = 52;
     private static final int INPUT_PIP_X = 2;
     private static final int OUTPUT_PIP_X = WIDTH - PIP_SIZE - 2;
     private static final int PIP_Y = (HEIGHT - PIP_SIZE) / 2;
     private static final int CENTER_X = WIDTH / 2;
-    private static final int TOOL_Y = 11;
-    private static final int ARROW_Y = 35;
+    private static final int TOOL_Y = 3;
+    private static final int ARROW_Y = 27;
     private static final int ARROW_BACKGROUND_COLOR = 0xFF_AAAAAA;
     private static final int ARROW_PROGRESS_COLOR = 0xFF_666666;
     private static final long NANOS_PER_TICK = 50_000_000L;
