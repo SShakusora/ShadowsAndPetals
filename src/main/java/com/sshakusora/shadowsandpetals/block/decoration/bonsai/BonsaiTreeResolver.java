@@ -6,14 +6,23 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.RandomSource;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.world.level.block.grower.TreeGrower;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.ConfiguredFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
@@ -29,9 +38,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Each JSON file under {@code data/<namespace>/bonsai_trees/} contains a
  * sapling block, a trunk block, and optionally a leaves block. The mapping
  * can also be supplied by another mod through {@link #register(Identifier,
- * Identifier, Identifier)}. This avoids reaching into the private details
- * of {@link net.minecraft.world.level.block.grower.TreeGrower}; feature
- * providers are not guaranteed to expose one simple trunk or foliage block.</p>
+ * Identifier, Identifier)}. When no explicit mapping exists, the server-side
+ * resolver can inspect the sapling's {@link net.minecraft.world.level.block.grower.TreeGrower}
+ * and sample standard {@link TreeConfiguration} providers without placing a
+ * configured feature in the world.</p>
  */
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID)
 public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<BonsaiTreeResolver.Definition> {
@@ -48,6 +58,11 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
     private static final BonsaiTreeResolver INSTANCE = new BonsaiTreeResolver();
     private static final Map<Identifier, Definition> API_MAPPINGS = new ConcurrentHashMap<>();
     private static final Set<Identifier> WARNED_FALLBACKS = ConcurrentHashMap.newKeySet();
+    private static final Set<Identifier> WARNED_INFERENCE = ConcurrentHashMap.newKeySet();
+
+    private static final int PROVIDER_SAMPLES = 32;
+    private static final long TRUNK_SAMPLE_SEED = 0x5341505F5452554EL;
+    private static final long LEAVES_SAMPLE_SEED = 0x5341505F4C454146L;
 
     private volatile Map<Identifier, Definition> dataMappings = Map.of();
 
@@ -103,6 +118,7 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
         }
         dataMappings = Map.copyOf(bySapling);
         WARNED_FALLBACKS.clear();
+        WARNED_INFERENCE.clear();
         LOGGER.debug("Loaded {} bonsai tree mappings", dataMappings.size());
     }
 
@@ -123,10 +139,46 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
         }
 
         Identifier saplingId = BuiltInRegistries.BLOCK.getKey(saplingBlock);
+        Result resolved = resolveExplicit(saplingId);
+        if (resolved != null) {
+            return resolved;
+        }
+
+        return fallback(saplingId);
+    }
+
+    /**
+     * Resolves a sapling for planting. Explicit data/API mappings win; when no
+     * override exists, the sapling's TreeGrower is inspected and its standard
+     * TreeConfiguration providers are sampled without placing a feature in the
+     * world.
+     */
+    public static @Nullable Result resolve(ServerLevel level, BlockPos pos, Block saplingBlock) {
+        if (!(saplingBlock instanceof SaplingBlock)) {
+            return null;
+        }
+
+        Identifier saplingId = BuiltInRegistries.BLOCK.getKey(saplingBlock);
+        Result explicit = resolveExplicit(saplingId);
+        if (explicit != null) {
+            return explicit;
+        }
+
+        Result inferred = inferFromTreeGrower(level, pos, (SaplingBlock) saplingBlock);
+        if (inferred != null) {
+            return inferred;
+        }
+
+        return fallback(saplingId);
+    }
+
+    private static @Nullable Result resolveExplicit(Identifier saplingId) {
         Definition definition = INSTANCE.dataMappings.get(saplingId);
         if (definition == null) {
             definition = API_MAPPINGS.get(saplingId);
         }
+        return definition == null ? null : definition.resolveBlocks();
+    }
 
         Result resolved = definition == null ? null : definition.resolveBlocks();
         if (resolved != null) {
@@ -139,9 +191,96 @@ public final class BonsaiTreeResolver extends SimpleJsonResourceReloadListener<B
         }
 
         if (WARNED_FALLBACKS.add(saplingId)) {
-            LOGGER.warn("No valid bonsai mapping for {}; falling back to oak", saplingId);
+            LOGGER.warn("No valid bonsai mapping or standard tree configuration for {}; falling back to oak", saplingId);
         }
         return new Result(Blocks.OAK_LOG, Blocks.OAK_LEAVES);
+    }
+
+    private static @Nullable Result inferFromTreeGrower(
+            ServerLevel level,
+            BlockPos pos,
+            SaplingBlock sapling
+    ) {
+        TreeGrower grower = sapling.treeGrower;
+        var configuredFeatures = level.registryAccess().lookupOrThrow(Registries.CONFIGURED_FEATURE);
+        List<Result> candidates = new ArrayList<>();
+
+        for (Optional<ResourceKey<ConfiguredFeature<?, ?>>> key : featureKeys(grower)) {
+            if (key.isEmpty()) {
+                continue;
+            }
+
+            var holder = configuredFeatures.get(key.get());
+            if (holder.isEmpty() || !(holder.get().value().config() instanceof TreeConfiguration tree)) {
+                continue;
+            }
+
+            Block trunk = sampleProvider(tree.trunkProvider, level, pos, TRUNK_SAMPLE_SEED);
+            Block leaves = sampleProvider(tree.foliageProvider, level, pos, LEAVES_SAMPLE_SEED);
+            if (isUsableBlock(trunk) && isUsableBlock(leaves)) {
+                candidates.add(new Result(trunk, leaves));
+            }
+        }
+
+        if (candidates.isEmpty()) {
+            return null;
+        }
+
+        Result selected = candidates.getFirst();
+        for (int i = 1; i < candidates.size(); i++) {
+            Result candidate = candidates.get(i);
+            if (!selected.equals(candidate)) {
+                Identifier saplingId = BuiltInRegistries.BLOCK.getKey(sapling);
+                if (WARNED_INFERENCE.add(saplingId)) {
+                    LOGGER.warn(
+                            "TreeGrower for {} has differing trunk/foliage providers; using the first resolvable configuration",
+                            saplingId
+                    );
+                }
+                break;
+            }
+        }
+        return selected;
+    }
+
+    private static List<Optional<ResourceKey<ConfiguredFeature<?, ?>>>> featureKeys(
+            TreeGrower grower
+    ) {
+        return List.of(
+                grower.tree,
+                grower.secondaryTree,
+                grower.flowers,
+                grower.secondaryFlowers,
+                grower.megaTree,
+                grower.secondaryMegaTree
+        );
+    }
+
+    private static @Nullable Block sampleProvider(
+            BlockStateProvider provider,
+            ServerLevel level,
+            BlockPos pos,
+            long seed
+    ) {
+        Map<Block, Integer> counts = new LinkedHashMap<>();
+        for (int i = 0; i < PROVIDER_SAMPLES; i++) {
+            try {
+                BlockState state = provider.getState(level, RandomSource.create(seed + i), pos);
+                if (!state.isAir()) {
+                    counts.merge(state.getBlock(), 1, Integer::sum);
+                }
+            } catch (RuntimeException exception) {
+                LOGGER.debug("Could not sample bonsai block-state provider", exception);
+            }
+        }
+        return counts.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+    }
+
+    private static boolean isUsableBlock(@Nullable Block block) {
+        return block != null && block != Blocks.AIR;
     }
 
     public record Definition(Identifier sapling, Identifier trunk, Optional<Identifier> leaves) {
