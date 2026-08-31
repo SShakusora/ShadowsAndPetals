@@ -6,6 +6,7 @@ import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineProvider;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -186,7 +187,9 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         Item item = stack.getItem();
         Block block = Block.byItem(item);
         if (block instanceof net.minecraft.world.level.block.SaplingBlock) {
-            BonsaiTreeResolver.Result resolved = BonsaiTreeResolver.resolve(block);
+            BonsaiTreeResolver.Result resolved = level instanceof ServerLevel serverLevel
+                    ? BonsaiTreeResolver.resolve(serverLevel, pos, block)
+                    : BonsaiTreeResolver.resolve(block);
             if (resolved != null) {
                 bonsai.plant(resolved.trunkBlock(), resolved.leavesBlock(), stack, false);
                 if (!player.isCreative()) {
