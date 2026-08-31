@@ -91,7 +91,7 @@ public class CafeChairBlock extends AbstractSeatBlock {
                     level.playSound(null, pos, SoundEvents.DYE_USE, SoundSource.BLOCKS, 0.45F, 0.95F);
                     HumanoidArm brushArm = hand == InteractionHand.MAIN_HAND ? player.getMainArm() : player.getMainArm().getOpposite();
                     spawnDyeParticles((ServerLevel) level, hitResult, player.getViewVector(0.0F), brushArm, getColor(state), dyeColor);
-                    if (!player.getAbilities().instabuild) {
+                    if (!player.isCreative()) {
                         stack.shrink(1);
                     }
                 }

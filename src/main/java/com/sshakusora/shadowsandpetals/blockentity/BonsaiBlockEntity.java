@@ -11,7 +11,6 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -25,9 +24,10 @@ import net.neoforged.neoforge.model.data.ModelProperty;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Block entity for bonsai pots. Stores the resolved trunk/leaf block IDs,
- * the current shape variant, and the dead-tree flag. No ticking is needed;
- * the entity exists solely to drive dynamic client-side rendering.
+ * Block entity for bonsai pots. Stores the resolved trunk/leaf block IDs, the
+ * single planted item (including its data components), the current shape
+ * variant, and the dead-tree flag. No ticking is needed; the entity exists
+ * solely to drive dynamic client-side rendering.
  */
 public final class BonsaiBlockEntity extends BlockEntity {
     private static final String TRUNK_KEY = "TrunkBlock";
@@ -35,7 +35,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
     private static final String SHAPE_KEY = "Shape";
     private static final String DEAD_KEY = "Dead";
     private static final String PLANTED_KEY = "Planted";
-    private static final String PLANTED_ITEM_KEY = "PlantedItem";
+    private static final String PLANTED_ITEM_STACK_KEY = "PlantedItemStack";
 
     /**
      * Immutable snapshot consumed by the chunk compiler.  The snapshot keeps
@@ -106,8 +106,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
     private @Nullable Identifier trunkBlockId;
     private @Nullable Identifier leavesBlockId;
     private Shape shape = Shape.SEMI_CASCADE;
-    /** The item that was planted — stored for drop recovery. */
-    private @Nullable Identifier plantedItemId;
+    private ItemStack plantedItem = ItemStack.EMPTY;
 
     public BonsaiBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.BONSAI.get(), pos, blockState);
@@ -135,11 +134,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     /** Returns the original sapling/dead bush for an explicit clear action. */
     public ItemStack getPlantedItemStack() {
-        if (!planted || plantedItemId == null) {
-            return ItemStack.EMPTY;
-        }
-        Item item = BuiltInRegistries.ITEM.getValue(plantedItemId);
-        return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
+        return planted ? plantedItem.copy() : ItemStack.EMPTY;
     }
 
     /**
@@ -150,12 +145,12 @@ public final class BonsaiBlockEntity extends BlockEntity {
      * @param plantedItem the item that was planted (for drop recovery)
      * @param dead        whether this is a dead-tree planting
      */
-    public void plant(Block trunkBlock, Block leavesBlock, Identifier plantedItem, boolean dead) {
+    public void plant(Block trunkBlock, Block leavesBlock, ItemStack plantedItem, boolean dead) {
         this.planted = true;
         this.dead = dead;
         this.trunkBlockId = BuiltInRegistries.BLOCK.getKey(trunkBlock);
         this.leavesBlockId = BuiltInRegistries.BLOCK.getKey(leavesBlock);
-        this.plantedItemId = plantedItem;
+        this.plantedItem = plantedItem.copyWithCount(1);
         this.shape = Shape.SEMI_CASCADE;
         setChangedAndSync();
     }
@@ -184,7 +179,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
         this.dead = false;
         this.trunkBlockId = null;
         this.leavesBlockId = null;
-        this.plantedItemId = null;
+        this.plantedItem = ItemStack.EMPTY;
         this.shape = Shape.SEMI_CASCADE;
         setChangedAndSync();
     }
@@ -212,20 +207,22 @@ public final class BonsaiBlockEntity extends BlockEntity {
                 .map(Identifier::tryParse)
                 .filter(BonsaiBlockEntity::isRegisteredBlock)
                 .orElse(null);
-        this.plantedItemId = input.getString(PLANTED_ITEM_KEY)
-                .map(Identifier::tryParse)
-                .filter(BonsaiBlockEntity::isRegisteredItem)
-                .orElse(null);
+        this.plantedItem = input.read(PLANTED_ITEM_STACK_KEY, ItemStack.CODEC)
+                .map(stack -> stack.copyWithCount(1))
+                .orElse(ItemStack.EMPTY);
 
-        // A planted entity without all three identifiers cannot be rendered or
-        // safely dropped. Treat it as an empty pot instead of keeping corrupt
-        // state alive after a datapack/mod change.
-        if (planted && (trunkBlockId == null || leavesBlockId == null || plantedItemId == null)) {
+        if (planted && (trunkBlockId == null || leavesBlockId == null || plantedItem.isEmpty())) {
             planted = false;
             dead = false;
             trunkBlockId = null;
             leavesBlockId = null;
-            plantedItemId = null;
+            plantedItem = ItemStack.EMPTY;
+            shape = Shape.SEMI_CASCADE;
+        } else if (!planted) {
+            dead = false;
+            trunkBlockId = null;
+            leavesBlockId = null;
+            plantedItem = ItemStack.EMPTY;
             shape = Shape.SEMI_CASCADE;
         }
         requestModelDataUpdate();
@@ -243,8 +240,8 @@ public final class BonsaiBlockEntity extends BlockEntity {
         if (leavesBlockId != null) {
             output.putString(LEAVES_KEY, leavesBlockId.toString());
         }
-        if (plantedItemId != null) {
-            output.putString(PLANTED_ITEM_KEY, plantedItemId.toString());
+        if (!plantedItem.isEmpty()) {
+            output.store(PLANTED_ITEM_STACK_KEY, ItemStack.CODEC, plantedItem);
         }
     }
 
