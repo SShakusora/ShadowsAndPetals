@@ -88,52 +88,6 @@ public class BlockRegistry {
             MapColor.COLOR_ORANGE
     );
 
-    public static final DeferredBlock<BonsaiBlock> BONSAI = SAPRegistries
-            .block("bonsai", BonsaiBlock::new)
-            .properties(properties -> BlockBehaviour.Properties.of()
-                    .strength(0.5F)
-                    .sound(SoundType.STONE)
-                    .mapColor(MapColor.STONE)
-                    .noOcclusion()
-                    .pushReaction(PushReaction.DESTROY))
-            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
-            .withItem()
-            .creativeTab(CreativeTabKey.MAIN)
-            .tooltipDescription(tooltip -> tooltip
-                    .summary(
-                            "A _decorative pot_ that can display miniature trees.",
-                            "可以展示微缩树木的_装饰盆栽_。")
-                    .behaviour(
-                            "Right-click with a Sapling:", "手持树苗右键：",
-                            "Plant a bonsai tree with the sapling's _trunk and leaves_.",
-                            "种下带有该树苗_树干与树叶_的盆景。")
-                    .behaviour(
-                            "Right-click with Dead Bush:", "手持枯死的灌木右键：",
-                            "Plant a _dead tree_ bonsai (no leaves).",
-                            "种下_枯树_盆景（无树叶）。")
-                    .behaviour(
-                            "Empty-hand Right-click (planted):", "空手右键（已种植）：",
-                            "_Cycle_ through four bonsai shapes.", "在四种盆景造型间_轮换_。")
-                    .action(
-                            "Right-click with Shears (living):", "手持剪刀右键（活树）：",
-                            "Strip leaves to create a _dead tree_.", "剪去树叶变为_枯树_。")
-                    .action(
-                            "Right-click with Shears (dead):", "手持剪刀右键（枯树）：",
-                            "Clear back to an _empty pot_.", "清空回到_空盆栽_。")
-                    .action(
-                            "Sneak + Right-click (empty hand):", "蹲下右键（空手）：",
-                            "Rotate the pot in 22.5° steps.", "以 22.5° 步进旋转花盆。"))
-            .loot((provider, block) -> provider.dropSelf(block.get()))
-            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get(), 3)
-                    .define('A', ItemRegistry.ALUMINUM_INGOT.get())
-                    .pattern("A A")
-                    .pattern(" A ")
-                    .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
-                    .save(provider.output()))
-            .blockstate(() -> BonsaiBlockModels::block)
-            .lang(DatagenLangRegistry.ZH_CN, "盆栽")
-            .register();
-
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
             .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
@@ -619,7 +573,7 @@ public class BlockRegistry {
                     .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
             .blockstate(() -> DecorationBlockModels::recessedLampComposite)
             .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
-            .lang("en_us", "Recessed Lamp")
+            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Recessed Lamp")
             .lang(DatagenLangRegistry.ZH_CN, "嵌灯")
             .register();
 
@@ -650,6 +604,57 @@ public class BlockRegistry {
                     .save(provider.output()))
             .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
             .lang(DatagenLangRegistry.ZH_CN, "台灯")
+            .register();
+
+    public static final DeferredBlock<BonsaiBlock> BONSAI = SAPRegistries
+            .block("bonsai", BonsaiBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(0.5F)
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.STONE)
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.MAIN)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A _decorative pot_ for growing trees.",
+                            "可栽种树木的_装饰花盆_。")
+                    .behaviour(
+                            "Use a Sapling on an empty pot:", "对空花盆使用树苗：",
+                            "Create a miniature tree matching the sapling's _wood and foliage_.",
+                            "栽种具有对应_树干与树叶_的微型盆景。")
+                    .behaviour(
+                            "Use a Dead Bush on an empty pot:", "对空花盆使用枯死的灌木：",
+                            "Create a leafless _dead-tree bonsai_.",
+                            "栽种一株无叶的_枯木盆景_。")
+                    .action(
+                            "Empty-hand Right-click:", "已种植时空手右键：",
+                            "_Cycle_ through four bonsai shapes.",
+                            "切换四种_盆景造型_。")
+                    .action(
+                            "Sneak + Empty-hand Right-click:", "潜行时空手右键：",
+                            "Rotate the pot by _22.5°_.",
+                            "将花盆旋转_22.5°_。")
+                    .action(
+                            "Use Shears on a living bonsai:", "对活盆景使用剪刀：",
+                            "Remove its leaves and turn it into a _dead tree_.",
+                            "剪去树叶，使其变为_枯木盆景_。")
+                    .action(
+                            "Use Shears on a dead bonsai:", "对枯木盆景使用剪刀：",
+                            "Recover the planted item and return to an _empty pot_.",
+                            "取回种植物，并恢复为_空花盆_。"))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get(), 3)
+                    .define('A', ItemRegistry.ALUMINUM_INGOT.get())
+                    .define('D', ItemTags.DIRT)
+                    .pattern("ADA")
+                    .pattern(" A ")
+                    .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
+                    .save(provider.output()))
+            .blockstate(() -> BonsaiBlockModels::block)
+            .lang(DatagenLangRegistry.ZH_CN, "盆栽")
             .register();
 
     public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
@@ -961,7 +966,7 @@ public class BlockRegistry {
                             .setRolls(ConstantValue.exactly(1.0F))
                             .add(LootItem.lootTableItem(Items.SAND)))
             ))
-            .lang("en_us", "Sand Excavation")
+            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Sand Excavation")
             .lang(DatagenLangRegistry.ZH_CN, "挖掘中的沙子")
             .register();
 
@@ -1067,7 +1072,7 @@ public class BlockRegistry {
                 .blockstate(() -> (context, generator) -> NatureBlockModels.rockery(context, generator, dims))
                 .clientItem(ShadowsAndPetals.asResource("block/rock/1x1x1/0_0_0"))
                 .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
-                .lang("en_us", "rockery")
+                .lang(DatagenLangRegistry.DEFAULT_LOCALE, "rockery")
                 .lang(DatagenLangRegistry.ZH_CN, "石山")
                 .register();
 

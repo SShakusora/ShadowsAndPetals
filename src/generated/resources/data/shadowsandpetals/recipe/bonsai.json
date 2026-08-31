@@ -2,10 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": "shadowsandpetals:aluminum_ingot"
+    "A": "shadowsandpetals:aluminum_ingot",
+    "D": "#minecraft:dirt"
   },
   "pattern": [
-    "A A",
+    "ADA",
     " A "
   ],
   "result": {

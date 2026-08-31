@@ -6,8 +6,6 @@ import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineProvider;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -152,7 +150,9 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         if (stack.is(Items.SHEARS)) {
             if (bonsai.isPlanted()) {
                 if (bonsai.isDead()) {
-                    ItemStack recovered = bonsai.getPlantedItemStack();
+                    ItemStack recovered = player.isCreative()
+                            ? ItemStack.EMPTY
+                            : bonsai.getPlantedItemStack();
                     bonsai.clear();
                     if (!recovered.isEmpty() && !player.getInventory().add(recovered)) {
                         Block.popResource(level, pos, recovered);
@@ -174,8 +174,8 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
 
         // Dead Bush → dead tree mode (oak log trunk, no leaves)
         if (stack.is(Items.DEAD_BUSH)) {
-            bonsai.plant(Blocks.OAK_LOG, Blocks.OAK_LEAVES, BuiltInRegistries.ITEM.getKey(Items.DEAD_BUSH), true);
-            if (!player.getAbilities().instabuild) {
+            bonsai.plant(Blocks.OAK_LOG, Blocks.OAK_LEAVES, stack, true);
+            if (!player.isCreative()) {
                 stack.shrink(1);
             }
             level.playSound(null, pos, SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -188,9 +188,8 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         if (block instanceof net.minecraft.world.level.block.SaplingBlock) {
             BonsaiTreeResolver.Result resolved = BonsaiTreeResolver.resolve(block);
             if (resolved != null) {
-                Identifier plantedItemId = BuiltInRegistries.ITEM.getKey(item);
-                bonsai.plant(resolved.trunkBlock(), resolved.leavesBlock(), plantedItemId, false);
-                if (!player.getAbilities().instabuild) {
+                bonsai.plant(resolved.trunkBlock(), resolved.leavesBlock(), stack, false);
+                if (!player.isCreative()) {
                     stack.shrink(1);
                 }
                 level.playSound(null, pos, SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
