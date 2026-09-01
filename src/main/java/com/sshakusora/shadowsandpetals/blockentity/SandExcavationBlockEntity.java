@@ -3,7 +3,6 @@ package com.sshakusora.shadowsandpetals.blockentity;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
-import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationDemoSettings;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationLootPool;
 import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationResult;
 import net.minecraft.core.BlockPos;
@@ -36,8 +35,6 @@ public final class SandExcavationBlockEntity extends BlockEntity {
 
     private static final int RESET_STEP_TICKS = 4;
     private static final int RESET_STEP_AMOUNT = 2;
-    // Production values are intentionally kept here. The showcase override is
-    // controlled by SandExcavationDemoSettings.ENABLED and is restored with it.
     private static final long SUCCESS_COOLDOWN_TICKS = 40_960L;
     private static final long EMPTY_COOLDOWN_TICKS = 2_400L;
     private static final String BRUSH_COUNT_KEY = "brush_count";
@@ -125,9 +122,7 @@ public final class SandExcavationBlockEntity extends BlockEntity {
 
     private void complete(ServerLevel level) {
         boolean hasDrop = !item.isEmpty();
-        long cooldownTicks = SandExcavationDemoSettings.ENABLED
-                ? SandExcavationDemoSettings.COOLDOWN_TICKS
-                : hasDrop ? SUCCESS_COOLDOWN_TICKS : EMPTY_COOLDOWN_TICKS;
+        long cooldownTicks = hasDrop ? SUCCESS_COOLDOWN_TICKS : EMPTY_COOLDOWN_TICKS;
         SandExcavationCooldownData.startCooldown(
                 level,
                 worldPosition,
