@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * Block entity for bonsai pots. Stores the resolved trunk/leaf block IDs, the
  * single planted item (including its data components), the current shape
  * variant, and the dead-tree flag. No ticking is needed; the entity exists
- * solely to drive dynamic client-side rendering.
+ * solely to provide immutable client-side model data for chunk compilation.
  */
 public final class BonsaiBlockEntity extends BlockEntity {
     private static final String TRUNK_KEY = "TrunkBlock";
@@ -263,6 +263,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
         loadWithComponents(input);
 
         if (level != null && level.isClientSide()) {
+            requestModelDataUpdate();
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
         }

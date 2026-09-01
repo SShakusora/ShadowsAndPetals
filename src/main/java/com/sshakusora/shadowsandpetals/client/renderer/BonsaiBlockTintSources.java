@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.client.renderer;
 
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
+import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -43,7 +44,7 @@ public final class BonsaiBlockTintSources {
             }
 
             BlockState targetState = block.defaultBlockState();
-            int targetTintIndex = BonsaiBlockEntityRenderer.getTargetTintIndex(blockId);
+            int targetTintIndex = BonsaiTreeGeometryCache.getTargetTintIndex(blockId);
             if (targetTintIndex < 0) {
                 return 0xFFFFFFFF;
             }

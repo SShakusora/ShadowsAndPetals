@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTBlockStateModel;
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
+import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiPotBlockStateModel;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -47,7 +48,7 @@ class DynamicBlockStateModelSafetyTest {
     @Test
     void bonsaiBreakingOverlayRetainsBakedRotation() {
         RecordingModel delegate = new RecordingModel();
-        BonsaiPotBlockStateModel model = new BonsaiPotBlockStateModel(null, 4, delegate);
+        BonsaiPotBlockStateModel model = new BonsaiPotBlockStateModel(null, delegate);
 
         List<BlockStateModelPart> parts = new ArrayList<>();
         model.collectParts(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create(), parts);

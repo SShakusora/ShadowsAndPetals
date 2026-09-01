@@ -5,7 +5,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
 /**
- * Shared model-space transform used by the chunk-rendered pot, the tree BER,
+ * Shared model-space transform used by the chunk-rendered pot, tree geometry,
  * and the selection outline.
  */
 public final class BonsaiModelTransform {
