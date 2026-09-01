@@ -3,15 +3,20 @@ name: Build Latest JAR
 on:
   push:
     branches:
-      - "26.1.2/Teacon"
+      - "26.1.2/Dev"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: shadowsandpetals-26.1.2-latest-jar
+  group: shadowsandpetals-26.1.2-dev-latest-jar
   cancel-in-progress: true
+
+env:
+  RELEASE_TAG: latest-build-26.1.2-dev
+  RELEASE_TITLE: Latest Development Build - 26.1.2/Dev
+  JAR_NAME: ShadowsAndPetals-26.1.2-dev-latest.jar
 
 jobs:
   build:
@@ -52,25 +57,37 @@ jobs:
             exit 1
           fi
 
-          cp "${jars[0]}" build/libs/ShadowsAndPetals-latest.jar
+          cp "${jars[0]}" "build/libs/${JAR_NAME}"
 
-      - name: Create or update latest-build release
+      - name: Create or update branch-specific release
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
-          release_notes="Automatically built from commit ${GITHUB_SHA}."
+          release_notes="Automatically built from branch ${GITHUB_REF_NAME}, commit ${GITHUB_SHA}."
 
-          if gh release view latest-build >/dev/null 2>&1; then
-            gh release upload latest-build \
-              build/libs/ShadowsAndPetals-latest.jar \
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            gh api --method PATCH \
+              "repos/${GITHUB_REPOSITORY}/git/refs/tags/${RELEASE_TAG}" \
+              -f sha="${GITHUB_SHA}" \
+              -F force=true
+
+            gh release upload "${RELEASE_TAG}" \
+              "build/libs/${JAR_NAME}" \
               --clobber
-            gh release edit latest-build --notes "$release_notes"
+
+            gh release edit "${RELEASE_TAG}" \
+              --target "${GITHUB_SHA}" \
+              --title "${RELEASE_TITLE}" \
+              --notes "${release_notes}" \
+              --prerelease \
+              --latest=false
           else
-            gh release create latest-build \
-              build/libs/ShadowsAndPetals-latest.jar \
+            gh release create "${RELEASE_TAG}" \
+              "build/libs/${JAR_NAME}" \
               --target "$GITHUB_SHA" \
-              --title "Latest Development Build" \
+              --title "${RELEASE_TITLE}" \
               --notes "$release_notes" \
-              --prerelease
+              --prerelease \
+              --latest=false
           fi
