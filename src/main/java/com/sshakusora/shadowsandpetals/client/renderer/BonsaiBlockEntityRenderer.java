@@ -80,10 +80,13 @@ public class BonsaiBlockEntityRenderer implements
     public BonsaiBlockEntityRenderer(BlockEntityRendererProvider.Context ignoredContext) {
     }
 
+    static boolean shouldExtractTree(boolean usesBer, boolean hasBreakProgress) {
+        return usesBer || hasBreakProgress;
+    }
+
     @Override
     public boolean shouldRender(BonsaiBlockEntity blockEntity, Vec3 cameraPosition) {
         return blockEntity.isPlanted()
-                && BonsaiRenderRouting.usesBer(blockEntity.getBlockPos())
                 && BlockEntityRenderer.super.shouldRender(blockEntity, cameraPosition);
     }
 
@@ -108,17 +111,16 @@ public class BonsaiBlockEntityRenderer implements
             state.modelParts = List.of();
             state.hasTranslucency = false;
             state.tintLayers = BlockModelRenderState.EMPTY_TINTS;
+            state.usesBer = false;
             return;
         }
 
         BlockState blockState = blockEntity.getBlockState();
         state.rotation = blockState.getValue(BonsaiBlock.ROTATION);
         BlockPos pos = blockEntity.getBlockPos();
+        state.usesBer = BonsaiRenderRouting.usesBer(pos);
 
-        // Safe positions are fully emitted by BonsaiPotBlockStateModel. Keep
-        // the renderer registered for the fallback path, but avoid extracting
-        // any tree state or submitting duplicate geometry here.
-        if (!BonsaiRenderRouting.usesBer(pos)) {
+        if (!shouldExtractTree(state.usesBer, breakProgress != null)) {
             state.modelParts = List.of();
             state.hasTranslucency = false;
             state.tintLayers = BlockModelRenderState.EMPTY_TINTS;
@@ -344,24 +346,34 @@ public class BonsaiBlockEntityRenderer implements
         poseStack.mulPose(Axis.YP.rotationDegrees(
                 BonsaiModelTransform.rotationDegrees(state.rotation)));
         poseStack.translate(-0.5F, 0.0F, -0.5F);
-        submitNodeCollector.submitMultiLayerBlockModel(
-                poseStack,
-                state.modelParts,
-                state.hasTranslucency,
-                state.tintLayers,
-                state.lightCoords,
-                OverlayTexture.NO_OVERLAY,
-                0
-        );
+        if (state.usesBer) {
+            submitNodeCollector.submitMultiLayerBlockModel(
+                    poseStack,
+                    state.modelParts,
+                    state.hasTranslucency,
+                    state.tintLayers,
+                    state.lightCoords,
+                    OverlayTexture.NO_OVERLAY,
+                    0
+            );
+        }
+        if (state.breakProgress != null) {
+            submitNodeCollector.submitBreakingBlockModel(
+                    poseStack,
+                    new FixedPartsModel(state.modelParts),
+                    state.blockPos.asLong(),
+                    state.breakProgress.progress()
+            );
+        }
         poseStack.popPose();
     }
 
     @Override
     public AABB getRenderBoundingBox(BonsaiBlockEntity blockEntity) {
         BlockPos pos = blockEntity.getBlockPos();
-        if (!BonsaiRenderRouting.usesBer(pos) || !blockEntity.isPlanted()) {
-            // Empty pots are rendered by the chunk model; keep block bounds for
-            // renderer state even though this renderer submits no geometry.
+        if (!blockEntity.isPlanted()) {
+            // Empty pots are rendered by the chunk model and do not need a BER
+            // state, so keep the ordinary block bounds for the dispatcher.
             return new AABB(pos.getX(), pos.getY(), pos.getZ(),
                     pos.getX() + 1.0D, pos.getY() + 1.0D, pos.getZ() + 1.0D);
         }
@@ -564,6 +576,50 @@ public class BonsaiBlockEntityRenderer implements
     ) {
     }
 
+    private static final class FixedPartsModel implements BlockStateModel {
+        private final List<BlockStateModelPart> parts;
+
+        private FixedPartsModel(List<BlockStateModelPart> parts) {
+            this.parts = parts;
+        }
+
+        @Override
+        @Deprecated
+        public void collectParts(RandomSource random, List<BlockStateModelPart> output) {
+            output.addAll(parts);
+        }
+
+        @Override
+        public void collectParts(
+                BlockAndTintGetter level,
+                BlockPos pos,
+                BlockState state,
+                RandomSource random,
+                List<BlockStateModelPart> output
+        ) {
+            output.addAll(parts);
+        }
+
+        @Override
+        @Deprecated
+        public Material.Baked particleMaterial() {
+            if (parts.isEmpty()) {
+                throw new IllegalStateException("A breaking bonsai model must contain at least one part");
+            }
+            return parts.getFirst().particleMaterial();
+        }
+
+        @Override
+        @Deprecated
+        public int materialFlags() {
+            int flags = 0;
+            for (BlockStateModelPart part : parts) {
+                flags |= part.materialFlags();
+            }
+            return flags;
+        }
+    }
+
     private static @Nullable BlockModelResolver blockModelResolver;
 
     private static @Nullable ResolvedMaterial resolveMaterial(@Nullable Identifier blockId) {
@@ -717,6 +773,7 @@ public class BonsaiBlockEntityRenderer implements
 
     public static class State extends BlockEntityRenderState {
         public int rotation = 0;
+        public boolean usesBer = false;
         public List<BlockStateModelPart> modelParts = List.of();
         public boolean hasTranslucency = false;
         public int[] tintLayers = BlockModelRenderState.EMPTY_TINTS;

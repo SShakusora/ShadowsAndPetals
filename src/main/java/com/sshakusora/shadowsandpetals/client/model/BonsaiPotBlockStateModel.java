@@ -34,13 +34,47 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class BonsaiPotBlockStateModel extends DelegateBlockStateModel
         implements DynamicBlockStateModel {
     private final Block expectedBlock;
+    private final int breakingOverlayRotation;
     private final Map<Integer, List<BlockStateModelPart>> rotatedParts = new ConcurrentHashMap<>();
     private final Map<TreeGeometryKey, List<BlockStateModelPart>> rotatedTreeParts =
             new ConcurrentHashMap<>();
 
     public BonsaiPotBlockStateModel(Block expectedBlock, BlockStateModel delegate) {
+        this(expectedBlock, null, delegate);
+    }
+
+    public BonsaiPotBlockStateModel(
+            Block expectedBlock,
+            @Nullable BlockState bakedState,
+            BlockStateModel delegate
+    ) {
+        this(expectedBlock, rotationFor(expectedBlock, bakedState), delegate);
+    }
+
+    BonsaiPotBlockStateModel(
+            Block expectedBlock,
+            int breakingOverlayRotation,
+            BlockStateModel delegate
+    ) {
         super(delegate);
         this.expectedBlock = expectedBlock;
+        this.breakingOverlayRotation = breakingOverlayRotation;
+    }
+
+    private static int rotationFor(Block expectedBlock, @Nullable BlockState bakedState) {
+        return bakedState != null
+                && bakedState.getBlock() == expectedBlock
+                && bakedState.hasProperty(BonsaiBlock.ROTATION)
+                ? bakedState.getValue(BonsaiBlock.ROTATION)
+                : 0;
+    }
+
+    @Override
+    @Deprecated
+    public void collectParts(RandomSource random, List<BlockStateModelPart> parts) {
+        List<BlockStateModelPart> originals = new ArrayList<>();
+        delegate.collectParts(random, originals);
+        parts.addAll(BonsaiBlockEntityRenderer.rotateParts(originals, breakingOverlayRotation));
     }
 
     @Override
@@ -71,7 +105,7 @@ public final class BonsaiPotBlockStateModel extends DelegateBlockStateModel
             List<BlockStateModelPart> parts
     ) {
         if (state == null || state.getBlock() != expectedBlock) {
-            delegate.collectParts(random, parts);
+            collectParts(random, parts);
             return;
         }
 

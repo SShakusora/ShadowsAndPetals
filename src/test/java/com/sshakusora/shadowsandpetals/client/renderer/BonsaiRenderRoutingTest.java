@@ -38,4 +38,19 @@ class BonsaiRenderRoutingTest {
         assertTrue(BonsaiRenderRouting.usesBer(new BlockPos(14, 2, 2)));
         assertTrue(BonsaiRenderRouting.usesBer(new BlockPos(2, 15, 2)));
     }
+
+    @Test
+    void breakingInteriorTreeIsExtractedForBerOverlay() {
+        assertTrue(BonsaiBlockEntityRenderer.shouldExtractTree(false, true));
+    }
+
+    @Test
+    void idleInteriorTreeRemainsOwnedByChunkRenderer() {
+        assertFalse(BonsaiBlockEntityRenderer.shouldExtractTree(false, false));
+    }
+
+    @Test
+    void berTreeIsExtractedWithoutBreakingOverlay() {
+        assertTrue(BonsaiBlockEntityRenderer.shouldExtractTree(true, false));
+    }
 }

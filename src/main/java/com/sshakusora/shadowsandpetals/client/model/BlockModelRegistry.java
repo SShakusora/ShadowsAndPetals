@@ -122,7 +122,7 @@ public final class BlockModelRegistry {
                 .wrap(WoodPostBlockStateModel::new)
                 .register();
         BlockStateModelDecoratorRegistry.forBlock(BonsaiBlock.class)
-                .wrap(BonsaiPotBlockStateModel::new)
+                .wrapWithState(BonsaiPotBlockStateModel::new)
                 .register();
     }
 
