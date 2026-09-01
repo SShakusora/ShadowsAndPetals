@@ -4,7 +4,7 @@
 	"parent": "shadowsandpetals:block/vanity/vanity_upper",
 	"texture_size": [32, 32],
 	"textures": {
-		"particle": "minecraft:block/stripped_oak_log",
-		"vanity": "shadowsandpetals:block/vanity/oak"
+		"particle": "shadowsandpetals:block/stripped_ginkgo_log",
+		"vanity": "shadowsandpetals:block/vanity/ginkgo"
 	}
 }

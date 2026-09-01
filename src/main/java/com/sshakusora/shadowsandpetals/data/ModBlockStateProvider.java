@@ -17,9 +17,8 @@ import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.InputStream;
 
 import static com.sshakusora.shadowsandpetals.ShadowsAndPetals.MOD_ID;
 
@@ -92,15 +91,12 @@ public class ModBlockStateProvider extends BlockStateProvider {
     }
 
     private boolean modelExists(String modelPath) {
-        Path path = Paths.get(
-                "src/main/resources/assets/" +
-                        MOD_ID +
-                        "/models/" +
-                        modelPath +
-                        ".json"
-        );
-
-        return Files.exists(path);
+        String resourcePath = "/assets/" + MOD_ID + "/models/" + modelPath + ".json";
+        try (InputStream stream = ModBlockStateProvider.class.getResourceAsStream(resourcePath)) {
+            return stream != null;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
     public void vanityBlock(VanityBlock block) {
@@ -109,7 +105,6 @@ public class ModBlockStateProvider extends BlockStateProvider {
                 ? blockName.substring(0, blockName.length() - "_vanity".length())
                 : blockName;
 
-        // TODO: Need To Replace Oak Upper
         ResourceLocation lowerModel = modelExists("block/vanity/" + woodName + "_lower") ? modLoc("block/vanity/" + woodName + "_lower") : modLoc("block/vanity/oak_lower");
         ResourceLocation upperModel = modelExists("block/vanity/" + woodName + "_upper") ? modLoc("block/vanity/" + woodName + "_upper") : modLoc("block/vanity/oak_upper");
         getVariantBuilder(block).forAllStates(state -> {
