@@ -1,0 +1,93 @@
+name: Build Latest JAR
+
+on:
+  push:
+    branches:
+      - "1.21.1/Dev"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: shadowsandpetals-1.21.1-dev-latest-jar
+  cancel-in-progress: true
+
+env:
+  RELEASE_TAG: latest-build-1.21.1-dev
+  RELEASE_TITLE: Latest Development Build - 1.21.1/Dev
+  JAR_NAME: ShadowsAndPetals-1.21.1-dev-latest.jar
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build JAR
+        run: |
+          chmod +x gradlew
+          ./gradlew clean build --no-daemon
+
+      - name: Prepare latest JAR
+        shell: bash
+        run: |
+          mapfile -t jars < <(
+            find build/libs -maxdepth 1 -type f \
+              -name '*.jar' \
+              ! -name '*-sources.jar' \
+              ! -name '*-javadoc.jar'
+          )
+
+          if [[ ${#jars[@]} -ne 1 ]]; then
+            echo "Expected exactly one distributable JAR, found ${#jars[@]}" >&2
+            printf '  %s\n' "${jars[@]}" >&2
+            exit 1
+          fi
+
+          cp "${jars[0]}" "build/libs/${JAR_NAME}"
+
+      - name: Create or update branch-specific release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          release_notes="Automatically built from branch ${GITHUB_REF_NAME}, commit ${GITHUB_SHA}."
+
+          if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
+            gh api --method PATCH \
+              "repos/${GITHUB_REPOSITORY}/git/refs/tags/${RELEASE_TAG}" \
+              -f sha="${GITHUB_SHA}" \
+              -F force=true
+
+            gh release upload "${RELEASE_TAG}" \
+              "build/libs/${JAR_NAME}" \
+              --clobber
+
+            gh release edit "${RELEASE_TAG}" \
+              --target "${GITHUB_SHA}" \
+              --title "${RELEASE_TITLE}" \
+              --notes "${release_notes}" \
+              --prerelease \
+              --latest=false
+          else
+            gh release create "${RELEASE_TAG}" \
+              "build/libs/${JAR_NAME}" \
+              --target "${GITHUB_SHA}" \
+              --title "${RELEASE_TITLE}" \
+              --notes "${release_notes}" \
+              --prerelease \
+              --latest=false
+          fi
