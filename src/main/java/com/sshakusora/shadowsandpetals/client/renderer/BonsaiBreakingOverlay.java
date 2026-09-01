@@ -1,9 +1,7 @@
 package com.sshakusora.shadowsandpetals.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiModelTransform;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;

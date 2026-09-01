@@ -135,6 +135,16 @@ public final class BonsaiBlockEntity extends BlockEntity {
         return leavesBlockId;
     }
 
+    /** Returns the current trunk state for client-visible material effects. */
+    public @Nullable BlockState getTrunkBlockState() {
+        return getStoredBlockState(trunkBlockId);
+    }
+
+    /** Returns the current leaves state for client-visible material effects. */
+    public @Nullable BlockState getLeavesBlockState() {
+        return getStoredBlockState(leavesBlockId);
+    }
+
     /** Returns the original sapling/dead bush for an explicit clear action. */
     public ItemStack getPlantedItemStack() {
         return plantStorage.getStoredStack();
@@ -278,6 +288,14 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     private static boolean isSupportedPlant(ItemStack stack) {
         return stack.is(Items.DEAD_BUSH) || Block.byItem(stack.getItem()) instanceof SaplingBlock;
+    }
+
+    private static @Nullable BlockState getStoredBlockState(@Nullable Identifier id) {
+        if (id == null) {
+            return null;
+        }
+        Block block = BuiltInRegistries.BLOCK.getValue(id);
+        return block == Blocks.AIR ? null : block.defaultBlockState();
     }
 
     private static final class BonsaiPlantStorage extends ItemStackResourceHandler {

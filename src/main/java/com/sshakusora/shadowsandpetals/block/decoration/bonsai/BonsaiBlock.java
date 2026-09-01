@@ -7,9 +7,13 @@ import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.client.outline.BonsaiOutlineGeometry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -31,6 +35,7 @@ import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -152,15 +157,23 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         if (stack.is(Items.SHEARS)) {
             if (bonsai.isPlanted()) {
                 if (bonsai.isDead()) {
+                    BlockState trunkState = bonsai.getTrunkBlockState();
                     ItemStack recovered = player.isCreative()
                             ? ItemStack.EMPTY
                             : bonsai.getPlantedItemStack();
                     bonsai.clear();
+                    if (trunkState != null && level instanceof ServerLevel serverLevel) {
+                        spawnWoodShearParticles(serverLevel, pos, hitResult, trunkState);
+                    }
                     if (!recovered.isEmpty() && !player.getInventory().add(recovered)) {
                         Block.popResource(level, pos, recovered);
                     }
                 } else {
+                    BlockState leavesState = bonsai.getLeavesBlockState();
                     bonsai.makeDead();
+                    if (leavesState != null && level instanceof ServerLevel serverLevel) {
+                        spawnLeafShearParticles(serverLevel, pos, hitResult, leavesState);
+                    }
                 }
                 stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
                 level.playSound(null, pos, SoundEvents.SHEARS_SNIP, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -196,6 +209,9 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
                 if (!player.isCreative()) {
                     stack.shrink(1);
                 }
+                if (level instanceof ServerLevel serverLevel) {
+                    spawnPlantingParticles(serverLevel, pos, resolved.leavesBlock().defaultBlockState());
+                }
                 level.playSound(null, pos, SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.SUCCESS_SERVER;
             }
@@ -203,6 +219,122 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
 
         // Nothing matched; let an empty hand fall through to useWithoutItem (shape cycling)
         return stack.isEmpty() ? InteractionResult.TRY_WITH_EMPTY_HAND : InteractionResult.PASS;
+    }
+
+    private static void spawnPlantingParticles(
+            ServerLevel level,
+            BlockPos pos,
+            BlockState leavesState
+    ) {
+        RandomSource random = RandomSource.create();
+        BlockParticleOption particle = new BlockParticleOption(
+                ParticleTypes.BLOCK,
+                leavesState,
+                pos
+        );
+        double centerX = pos.getX() + 0.5D;
+        double centerY = pos.getY() + 1.12D;
+        double centerZ = pos.getZ() + 0.5D;
+
+        // A gentle upward spread makes planting read as growth rather than impact.
+        for (int i = 0; i < 16; i++) {
+            double x = centerX + random.nextGaussian() * 0.18D;
+            double y = centerY + random.nextDouble() * 0.28D;
+            double z = centerZ + random.nextGaussian() * 0.18D;
+            double velocityX = random.nextGaussian() * 0.025D;
+            double velocityY = 0.035D + random.nextDouble() * 0.035D;
+            double velocityZ = random.nextGaussian() * 0.025D;
+            sendDirectedParticle(level, particle, x, y, z, velocityX, velocityY, velocityZ);
+        }
+    }
+
+    private static void spawnLeafShearParticles(
+            ServerLevel level,
+            BlockPos pos,
+            BlockHitResult hitResult,
+            BlockState leavesState
+    ) {
+        RandomSource random = RandomSource.create();
+        BlockParticleOption particle = new BlockParticleOption(
+                ParticleTypes.BLOCK,
+                leavesState,
+                pos
+        );
+        Vec3 hit = hitResult.getLocation();
+        double centerX = hit.x;
+        double centerY = Math.max(hit.y, pos.getY() + 0.95D);
+        double centerZ = hit.z;
+
+        // Radial burst with a small upward bias; gravity supplies the falling arc.
+        for (int i = 0; i < 24; i++) {
+            double angle = random.nextDouble() * Math.PI * 2.0D;
+            double speed = 0.035D + random.nextDouble() * 0.045D;
+            double x = centerX + random.nextGaussian() * 0.12D;
+            double y = centerY + random.nextGaussian() * 0.10D;
+            double z = centerZ + random.nextGaussian() * 0.12D;
+            double velocityX = Math.cos(angle) * speed + random.nextGaussian() * 0.01D;
+            double velocityY = 0.02D + random.nextDouble() * 0.065D;
+            double velocityZ = Math.sin(angle) * speed + random.nextGaussian() * 0.01D;
+            sendDirectedParticle(level, particle, x, y, z, velocityX, velocityY, velocityZ);
+        }
+    }
+
+    private static void spawnWoodShearParticles(
+            ServerLevel level,
+            BlockPos pos,
+            BlockHitResult hitResult,
+            BlockState trunkState
+    ) {
+        RandomSource random = RandomSource.create();
+        BlockParticleOption particle = new BlockParticleOption(
+                ParticleTypes.BLOCK,
+                trunkState,
+                pos
+        );
+        Vec3 hit = hitResult.getLocation();
+        int stepX = hitResult.getDirection().getStepX();
+        int stepY = hitResult.getDirection().getStepY();
+        int stepZ = hitResult.getDirection().getStepZ();
+        double centerX = Mth.clamp(hit.x, pos.getX() + 0.2D, pos.getX() + 0.8D);
+        double centerY = Mth.clamp(hit.y, pos.getY() + 0.55D, pos.getY() + 1.35D);
+        double centerZ = Mth.clamp(hit.z, pos.getZ() + 0.2D, pos.getZ() + 0.8D);
+
+        // Tight wood chips travel mostly along the clicked face normal.
+        for (int i = 0; i < 14; i++) {
+            double speed = 0.07D + random.nextDouble() * 0.06D;
+            double x = centerX + random.nextGaussian() * 0.055D;
+            double y = centerY + random.nextGaussian() * 0.055D;
+            double z = centerZ + random.nextGaussian() * 0.055D;
+            double velocityX = stepX * speed + random.nextGaussian() * 0.022D;
+            double velocityY = stepY * speed + 0.015D + random.nextDouble() * 0.035D;
+            double velocityZ = stepZ * speed + random.nextGaussian() * 0.022D;
+            sendDirectedParticle(level, particle, x, y, z, velocityX, velocityY, velocityZ);
+        }
+    }
+
+    private static void sendDirectedParticle(
+            ServerLevel level,
+            BlockParticleOption particle,
+            double x,
+            double y,
+            double z,
+            double velocityX,
+            double velocityY,
+            double velocityZ
+    ) {
+        // With count=0, Minecraft interprets the three distance values as the
+        // exact velocity vector (scaled by maxSpeed), avoiding an isotropic burst.
+        level.sendParticles(
+                particle,
+                x,
+                y,
+                z,
+                0,
+                velocityX,
+                velocityY,
+                velocityZ,
+                1.0D
+        );
     }
 
     @Override
