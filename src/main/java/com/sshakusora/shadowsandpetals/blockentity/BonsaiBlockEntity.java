@@ -15,12 +15,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.model.data.ModelData;
 import net.neoforged.neoforge.model.data.ModelProperty;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.item.ItemStackResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -34,8 +39,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
     private static final String LEAVES_KEY = "LeavesBlock";
     private static final String SHAPE_KEY = "Shape";
     private static final String DEAD_KEY = "Dead";
-    private static final String PLANTED_KEY = "Planted";
-    private static final String PLANTED_ITEM_STACK_KEY = "PlantedItemStack";
+    private static final String PLANT_SLOT_KEY = "PlantSlot";
 
     /**
      * Immutable snapshot consumed by the chunk compiler.  The snapshot keeps
@@ -101,19 +105,18 @@ public final class BonsaiBlockEntity extends BlockEntity {
         }
     }
 
-    private boolean planted = false;
     private boolean dead = false;
     private @Nullable Identifier trunkBlockId;
     private @Nullable Identifier leavesBlockId;
     private Shape shape = Shape.SEMI_CASCADE;
-    private ItemStack plantedItem = ItemStack.EMPTY;
+    private final BonsaiPlantStorage plantStorage = new BonsaiPlantStorage();
 
     public BonsaiBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.BONSAI.get(), pos, blockState);
     }
 
     public boolean isPlanted() {
-        return planted;
+        return !plantStorage.getStoredStack().isEmpty();
     }
 
     public boolean isDead() {
@@ -134,7 +137,11 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     /** Returns the original sapling/dead bush for an explicit clear action. */
     public ItemStack getPlantedItemStack() {
-        return planted ? plantedItem.copy() : ItemStack.EMPTY;
+        return plantStorage.getStoredStack();
+    }
+
+    public ResourceHandler<ItemResource> getPlantStorage() {
+        return plantStorage;
     }
 
     /**
@@ -146,18 +153,17 @@ public final class BonsaiBlockEntity extends BlockEntity {
      * @param dead        whether this is a dead-tree planting
      */
     public void plant(Block trunkBlock, Block leavesBlock, ItemStack plantedItem, boolean dead) {
-        this.planted = true;
         this.dead = dead;
         this.trunkBlockId = BuiltInRegistries.BLOCK.getKey(trunkBlock);
         this.leavesBlockId = BuiltInRegistries.BLOCK.getKey(leavesBlock);
-        this.plantedItem = plantedItem.copyWithCount(1);
+        this.plantStorage.setStoredStack(plantedItem);
         this.shape = Shape.SEMI_CASCADE;
         setChangedAndSync();
     }
 
     /** Cycles to the next bonsai shape. Only valid when planted. */
     public void cycleShape() {
-        if (!planted) {
+        if (!isPlanted()) {
             return;
         }
         this.shape = this.shape.next();
@@ -166,7 +172,7 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     /** Turns a living bonsai into a dead one (scissors on leaves). */
     public void makeDead() {
-        if (!planted || dead) {
+        if (!isPlanted() || dead) {
             return;
         }
         this.dead = true;
@@ -175,11 +181,10 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     /** Clears the bonsai back to an empty pot (scissors on dead tree). */
     public void clear() {
-        this.planted = false;
         this.dead = false;
         this.trunkBlockId = null;
         this.leavesBlockId = null;
-        this.plantedItem = ItemStack.EMPTY;
+        this.plantStorage.setStoredStack(ItemStack.EMPTY);
         this.shape = Shape.SEMI_CASCADE;
         setChangedAndSync();
     }
@@ -196,7 +201,6 @@ public final class BonsaiBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.planted = input.getBooleanOr(PLANTED_KEY, false);
         this.dead = input.getBooleanOr(DEAD_KEY, false);
         this.shape = Shape.fromName(input.getStringOr(SHAPE_KEY, Shape.SEMI_CASCADE.getSerializedName()));
         this.trunkBlockId = input.getString(TRUNK_KEY)
@@ -207,22 +211,21 @@ public final class BonsaiBlockEntity extends BlockEntity {
                 .map(Identifier::tryParse)
                 .filter(BonsaiBlockEntity::isRegisteredBlock)
                 .orElse(null);
-        this.plantedItem = input.read(PLANTED_ITEM_STACK_KEY, ItemStack.CODEC)
+        this.plantStorage.setStoredStack(input.read(PLANT_SLOT_KEY, ItemStack.CODEC)
                 .map(stack -> stack.copyWithCount(1))
-                .orElse(ItemStack.EMPTY);
+                .orElse(ItemStack.EMPTY));
 
-        if (planted && (trunkBlockId == null || leavesBlockId == null || plantedItem.isEmpty())) {
-            planted = false;
+        if (isPlanted() && (trunkBlockId == null || leavesBlockId == null
+                || !isSupportedPlant(plantStorage.getStoredStack()))) {
             dead = false;
             trunkBlockId = null;
             leavesBlockId = null;
-            plantedItem = ItemStack.EMPTY;
+            plantStorage.setStoredStack(ItemStack.EMPTY);
             shape = Shape.SEMI_CASCADE;
-        } else if (!planted) {
+        } else if (!isPlanted()) {
             dead = false;
             trunkBlockId = null;
             leavesBlockId = null;
-            plantedItem = ItemStack.EMPTY;
             shape = Shape.SEMI_CASCADE;
         }
         requestModelDataUpdate();
@@ -231,7 +234,6 @@ public final class BonsaiBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putBoolean(PLANTED_KEY, planted);
         output.putBoolean(DEAD_KEY, dead);
         output.putString(SHAPE_KEY, shape.getSerializedName());
         if (trunkBlockId != null) {
@@ -240,8 +242,9 @@ public final class BonsaiBlockEntity extends BlockEntity {
         if (leavesBlockId != null) {
             output.putString(LEAVES_KEY, leavesBlockId.toString());
         }
-        if (!plantedItem.isEmpty()) {
-            output.store(PLANTED_ITEM_STACK_KEY, ItemStack.CODEC, plantedItem);
+        ItemStack storedPlant = plantStorage.getStoredStack();
+        if (!storedPlant.isEmpty()) {
+            output.store(PLANT_SLOT_KEY, ItemStack.CODEC, storedPlant);
         }
     }
 
@@ -267,16 +270,59 @@ public final class BonsaiBlockEntity extends BlockEntity {
 
     @Override
     public ModelData getModelData() {
-        return planted
+        return isPlanted()
                 ? ModelData.of(RENDER_DATA, new RenderData(true, dead, shape, trunkBlockId, leavesBlockId))
                 : ModelData.EMPTY;
+    }
+
+    private static boolean isSupportedPlant(ItemStack stack) {
+        return stack.is(Items.DEAD_BUSH) || Block.byItem(stack.getItem()) instanceof SaplingBlock;
+    }
+
+    private static final class BonsaiPlantStorage extends ItemStackResourceHandler {
+        private ItemStack storedStack = ItemStack.EMPTY;
+
+        private ItemStack getStoredStack() {
+            return storedStack.copy();
+        }
+
+        private void setStoredStack(ItemStack stack) {
+            storedStack = stack.isEmpty() ? ItemStack.EMPTY : stack.copyWithCount(1);
+        }
+
+        @Override
+        protected ItemStack getStack() {
+            return storedStack;
+        }
+
+        @Override
+        protected void setStack(ItemStack stack) {
+            setStoredStack(stack);
+        }
+
+        @Override
+        protected boolean isValid(ItemResource resource) {
+            return isSupportedPlant(resource.toStack(1));
+        }
+
+        @Override
+        protected int getCapacity(ItemResource resource) {
+            return 1;
+        }
+
+        @Override
+        public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
+
+        @Override
+        public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
+            return 0;
+        }
     }
 
     private static boolean isRegisteredBlock(Identifier id) {
         return BuiltInRegistries.BLOCK.getValue(id) != Blocks.AIR;
     }
 
-    private static boolean isRegisteredItem(Identifier id) {
-        return BuiltInRegistries.ITEM.getValue(id) != Items.AIR;
-    }
 }

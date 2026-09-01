@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * sapling block, a trunk block, and optionally a leaves block. The mapping
  * can also be supplied by another mod through {@link #register(Identifier,
  * Identifier, Identifier)}. When no explicit mapping exists, the server-side
- * resolver can inspect the sapling's {@link net.minecraft.world.level.block.grower.TreeGrower}
+ * resolver can inspect the sapling's {@link TreeGrower}
  * and sample standard {@link TreeConfiguration} providers without placing a
  * configured feature in the world.</p>
  */
