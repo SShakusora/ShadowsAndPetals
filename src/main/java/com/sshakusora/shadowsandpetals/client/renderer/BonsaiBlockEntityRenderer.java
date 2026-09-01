@@ -42,10 +42,7 @@ import net.neoforged.neoforge.client.model.quad.MutableQuad;
 import org.joml.Matrix4f;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -670,7 +667,7 @@ public class BonsaiBlockEntityRenderer implements
         }
 
         int[] tints = new int[leavesTinted ? LEAVES_TINT_INDEX + 1 : TRUNK_TINT_INDEX + 1];
-        java.util.Arrays.fill(tints, 0xFFFFFFFF);
+        Arrays.fill(tints, 0xFFFFFFFF);
         if (trunkTinted) {
             tints[TRUNK_TINT_INDEX] = resolveBlockTint(
                     trunkBlockId, level, pos, cached.trunkTintIndex());

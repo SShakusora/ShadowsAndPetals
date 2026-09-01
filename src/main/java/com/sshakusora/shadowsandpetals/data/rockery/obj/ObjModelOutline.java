@@ -266,8 +266,8 @@ public final class ObjModelOutline {
 
     private static String canonicalFaceKey(int[] indices) {
         int[] sorted = indices.clone();
-        java.util.Arrays.sort(sorted);
-        return java.util.Arrays.toString(sorted);
+        Arrays.sort(sorted);
+        return Arrays.toString(sorted);
     }
 
     private static double distanceSquared(ObjVector3 first, ObjVector3 second) {

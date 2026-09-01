@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.client.animation;
 
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 import org.jspecify.annotations.Nullable;
 
@@ -150,6 +151,6 @@ public final class UseAnimationPlaybackManager {
         }
     }
 
-    private record Key(int entityId, net.minecraft.resources.Identifier profileId) {
+    private record Key(int entityId, Identifier profileId) {
     }
 }

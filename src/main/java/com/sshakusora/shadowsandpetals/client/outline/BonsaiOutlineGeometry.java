@@ -1,6 +1,7 @@
-package com.sshakusora.shadowsandpetals.block.decoration.bonsai;
+package com.sshakusora.shadowsandpetals.client.outline;
 
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
+import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiModelTransform;
 
 import java.util.ArrayList;
 import java.util.List;

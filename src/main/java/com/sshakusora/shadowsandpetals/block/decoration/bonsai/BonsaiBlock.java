@@ -5,6 +5,7 @@ import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
 import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineProvider;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
+import com.sshakusora.shadowsandpetals.client.outline.BonsaiOutlineGeometry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -132,7 +133,7 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
                         wouldSucceed = true;
                     } else {
                         Block block = Block.byItem(stack.getItem());
-                        if (block instanceof net.minecraft.world.level.block.SaplingBlock) {
+                        if (block instanceof SaplingBlock) {
                             wouldSucceed = true;
                         }
                     }
@@ -186,7 +187,7 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         // Sapling → plant with resolved trunk/leaves
         Item item = stack.getItem();
         Block block = Block.byItem(item);
-        if (block instanceof net.minecraft.world.level.block.SaplingBlock) {
+        if (block instanceof SaplingBlock) {
             BonsaiTreeResolver.Result resolved = level instanceof ServerLevel serverLevel
                     ? BonsaiTreeResolver.resolve(serverLevel, pos, block)
                     : BonsaiTreeResolver.resolve(block);
