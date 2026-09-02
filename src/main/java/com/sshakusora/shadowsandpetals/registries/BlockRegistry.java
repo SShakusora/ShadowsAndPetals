@@ -1051,13 +1051,15 @@ public class BlockRegistry {
                             .property(CurtainBlock.HALF, DoubleBlockHalf.LOWER)
                             .property(CurtainBlock.SIDE, CurtainBlock.Side.LEFT)
                             .property(CurtainBlock.OPEN, false)
-                            .property(CurtainBlock.POWERED, false),
+                            .property(CurtainBlock.POWERED, false)
+                            .property(CurtainBlock.ANIMATING, false),
                     (legacyState, targetState) -> targetState
                             .setValue(CurtainBlock.FACING, legacyState.getValue(CurtainBlock.FACING))
                             .setValue(CurtainBlock.HALF, legacyState.getValue(CurtainBlock.HALF))
                             .setValue(CurtainBlock.SIDE, legacyState.getValue(CurtainBlock.SIDE))
                             .setValue(CurtainBlock.OPEN, legacyState.getValue(CurtainBlock.OPEN))
-                            .setValue(CurtainBlock.POWERED, legacyState.getValue(CurtainBlock.POWERED)));
+                            .setValue(CurtainBlock.POWERED, legacyState.getValue(CurtainBlock.POWERED))
+                            .setValue(CurtainBlock.ANIMATING, false));
         }
         return builder
                 .clientItem(block -> ShadowsAndPetals.asResource(

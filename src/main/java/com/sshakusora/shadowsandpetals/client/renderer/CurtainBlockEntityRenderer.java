@@ -90,20 +90,19 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
         state.facing = blockEntity.getBlockState().getValue(CurtainBlock.FACING);
+        state.animationPose = null;
+        state.model = null;
+        // Outside the animation window the block-state model renders the
+        // curtain; the block-entity renderer stays idle.
+        if (!blockEntity.getBlockState().getValue(CurtainBlock.ANIMATING)
+                || blockEntity.getLevel() == null) {
+            return;
+        }
         boolean upper = blockEntity.getBlockState().getValue(CurtainBlock.HALF) == DoubleBlockHalf.UPPER;
         boolean left = blockEntity.getBlockState().getValue(CurtainBlock.SIDE) == CurtainBlock.Side.LEFT;
-        // The block entity carries OPEN and the animation clock in one data
-        // packet, seeded by its constructor from the block state. When it
-        // disagrees with the block-state property (external state change
-        // before the entity synced), the block state wins for the pose.
         boolean stateOpen = blockEntity.getBlockState().getValue(CurtainBlock.OPEN);
         boolean beSynced = blockEntity.isOpen() == stateOpen;
         state.open = beSynced ? blockEntity.isOpen() : stateOpen;
-        state.animationPose = null;
-        state.model = null;
-        if (blockEntity.getLevel() == null) {
-            return;
-        }
 
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
         AnimationResourceRef.Rig rig;

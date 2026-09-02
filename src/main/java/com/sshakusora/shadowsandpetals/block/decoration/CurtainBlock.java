@@ -50,6 +50,14 @@ public class CurtainBlock extends BaseEntityBlock {
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+    /**
+     * True only during the open/close animation window: the block-entity
+     * renderer owns the pose then. Once false, the plain block-state model
+     * (baked to the current OPEN pose) renders the curtain for free.
+     */
+    public static final BooleanProperty ANIMATING = BooleanProperty.create("animating");
+    /** Server ticks to hold ANIMATING: ceil of the 0.29167 s clip length. */
+    public static final int ANIMATION_TICKS = 6;
 
     /** Which side of a window the curtain panel hangs on. */
     public enum Side implements StringRepresentable {
@@ -87,7 +95,6 @@ public class CurtainBlock extends BaseEntityBlock {
             VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_RIGHT);
     private static final Map<Direction, VoxelShape> OPEN_LEFT_SHAPES =
             VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_LEFT);
-
     public CurtainBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
@@ -95,7 +102,8 @@ public class CurtainBlock extends BaseEntityBlock {
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(SIDE, Side.LEFT)
                 .setValue(OPEN, false)
-                .setValue(POWERED, false));
+                .setValue(POWERED, false)
+                .setValue(ANIMATING, false));
     }
 
     @Override
@@ -105,7 +113,7 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, SIDE, OPEN, POWERED);
+        builder.add(FACING, HALF, SIDE, OPEN, POWERED, ANIMATING);
     }
 
     /**
@@ -184,12 +192,22 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.INVISIBLE;
+        // Static chunk-mesh rendering outside the animation window; the
+        // block-entity renderer takes over only while ANIMATING.
+        return state.getValue(ANIMATING) ? RenderShape.INVISIBLE : RenderShape.MODEL;
     }
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return BlockEntityRegistry.CURTAIN.get().create(pos, state);
+    }
+
+    @Override
+    protected void tick(BlockState state, net.minecraft.server.level.ServerLevel level,
+                        BlockPos pos, net.minecraft.util.RandomSource random) {
+        if (state.getValue(ANIMATING)) {
+            level.setBlock(pos, state.setValue(ANIMATING, false), Block.UPDATE_ALL);
+        }
     }
 
     @Override
@@ -331,10 +349,14 @@ public class CurtainBlock extends BaseEntityBlock {
         // Record the clock before setBlock so the block-entity data packet
         // carries OPEN and the animation timestamp together.
         recordClock(level, pos, gameTime, open);
-        level.setBlock(pos, state.setValue(OPEN, open).setValue(POWERED, powered), Block.UPDATE_ALL);
+        level.setBlock(pos, state.setValue(OPEN, open).setValue(POWERED, powered)
+                .setValue(ANIMATING, true), Block.UPDATE_ALL);
+        level.scheduleTick(pos, state.getBlock(), ANIMATION_TICKS);
         if (hasPair) {
             recordClock(level, otherPos, gameTime, open);
-            level.setBlock(otherPos, otherState.setValue(OPEN, open).setValue(POWERED, powered), Block.UPDATE_ALL);
+            level.setBlock(otherPos, otherState.setValue(OPEN, open).setValue(POWERED, powered)
+                    .setValue(ANIMATING, true), Block.UPDATE_ALL);
+            level.scheduleTick(otherPos, state.getBlock(), ANIMATION_TICKS);
         }
     }
 
