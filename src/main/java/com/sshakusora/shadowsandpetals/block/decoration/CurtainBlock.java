@@ -86,7 +86,7 @@ public class CurtainBlock extends BaseEntityBlock {
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
-                .setValue(SIDE, Side.RIGHT)
+                .setValue(SIDE, Side.LEFT)
                 .setValue(OPEN, false)
                 .setValue(POWERED, false));
     }
@@ -142,7 +142,7 @@ public class CurtainBlock extends BaseEntityBlock {
      * using wall geometry: the neighbour on the observer's left makes this
      * curtain RIGHT, the neighbour on the observer's right makes it LEFT.
      * Sneaking keeps the neighbour's side instead (same-side pairing).
-     * Without a linkable neighbour the curtain is a plain RIGHT.
+     * Without a neighbouring curtain the curtain defaults to LEFT.
      */
     private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
         Direction leftDir = facing.getClockWise();
@@ -160,7 +160,7 @@ public class CurtainBlock extends BaseEntityBlock {
                 return direction == leftDir ? Side.RIGHT : Side.LEFT;
             }
         }
-        return Side.RIGHT;
+        return Side.LEFT;
     }
 
     @Override
