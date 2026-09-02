@@ -1027,6 +1027,21 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "添水竹管")
             .register();
 
+    public static final DeferredBlock<CurtainBlock> CURTAIN = SAPRegistries
+            .block("curtain", CurtainBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                    .strength(1.0F)
+                    .sound(SoundType.WOOL)
+                    .mapColor(MapColor.WOOL)
+                    .noOcclusion())
+            .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.MAIN)
+            .blockstate(() -> CurtainModels::block)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "窗帘")
+            .register();
+
     public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
             .block("orange_tree", OrangeTreeBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH)

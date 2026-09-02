@@ -4,6 +4,8 @@
 
 Production Java lives in `src/main/java/com/sshakusora/shadowsandpetals`, grouped by feature areas such as `block`, `client`, `item`, `registries`, and `worldgen`. Hand-authored assets, data, mixin configuration, and structures belong in `src/main/resources`. Data-generator output is committed under `src/generated/resources`; update it through the generator instead of editing generated JSON manually. JUnit tests mirror production packages under `src/test/java`. Blockbench export tooling and its JavaScript tests live in `tools/blockbench`. Treat `build/`, `run/`, and `logs/` as local output.
 
+The animated curtain renders through per-bone model files (`models/block/curtain/curtain_upper_r/*.json`) bound by the block-entity renderer's rig. The aggregate `curtain_upper_r.json` only feeds the item model and blockstate. After any texture/UV/geometry edit to the aggregate model, re-run `node tools/curtain/split_curtain_model.js` to regenerate the per-bone files, or the placed block keeps showing old textures.
+
 ## Build, Test, and Development Commands
 
 Use the checked-in Gradle wrapper (on Windows, replace `./gradlew` with `./gradlew.bat`):

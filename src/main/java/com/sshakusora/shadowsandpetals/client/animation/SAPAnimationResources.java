@@ -264,6 +264,15 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
         Map<Identifier, SAPAnimationRegistry.Registration> registrationByController = new HashMap<>();
         for (SAPAnimationRegistry.Registration registration : registrations.registrations()) {
             registrationByController.put(registration.controller().id(), registration);
+            for (AnimationResourceRef.Clip clipRef : registration.clips()) {
+                AnimationDefinition clip = pendingAnimations.get(clipRef.id());
+                if (clip == null) {
+                    throw new IllegalArgumentException(
+                            "Registered animation clip " + clipRef.id()
+                                    + " is missing from the resource manager");
+                }
+                validateClip(clipRef.id(), clip);
+            }
         }
         for (AnimationControllerDefinition controller : controllers.values()) {
             SAPAnimationRegistry.Registration registration =
@@ -347,6 +356,36 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
         }
         validateProfiles(
                 registrations.profiles(), rigs, controllers, pendingAnimations);
+        validateBlockAnimations(
+                registrations.blockAnimations(), rigs, controllers);
+    }
+
+    private static void validateBlockAnimations(
+            Set<BlockAnimationDefinition> definitions,
+            Map<Identifier, RigDefinition> rigs,
+            Map<Identifier, AnimationControllerDefinition> controllers
+    ) {
+        for (BlockAnimationDefinition definition : definitions) {
+            RigDefinition rig = rigs.get(definition.rig().id());
+            if (rig == null) {
+                throw new IllegalArgumentException(
+                        "Block animation " + definition.id()
+                                + " references missing rig " + definition.rig().id());
+            }
+            AnimationControllerDefinition controller = controllers.get(definition.controller().id());
+            if (controller == null) {
+                throw new IllegalArgumentException(
+                        "Block animation " + definition.id()
+                                + " references missing controller " + definition.controller().id());
+            }
+            if (!controller.rig().equals(definition.rig().id())) {
+                throw new IllegalArgumentException(
+                        "Block animation " + definition.id()
+                                + " uses controller " + definition.controller().id()
+                                + " with rig " + controller.rig());
+            }
+            controller.state(definition.defaultState().name());
+        }
     }
 
     private static void validateProfiles(

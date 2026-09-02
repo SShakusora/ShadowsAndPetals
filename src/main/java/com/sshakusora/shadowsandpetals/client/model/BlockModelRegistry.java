@@ -114,6 +114,71 @@ public final class BlockModelRegistry {
                     .model(shape -> ShadowsAndPetals.asResource("block/bonsai/bonsai_" + shape.getSerializedName() + "_dead"))
                     .register();
 
+    public static final StandaloneBlockModel CURTAIN_G1 = ClientModelRegistry
+            .blockState("curtain_g1")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g1"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G1_1 = ClientModelRegistry
+            .blockState("curtain_g1_1")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g1_1"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G2 = ClientModelRegistry
+            .blockState("curtain_g2")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g2"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G2_1 = ClientModelRegistry
+            .blockState("curtain_g2_1")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g2_1"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G3 = ClientModelRegistry
+            .blockState("curtain_g3")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g3"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G3_1 = ClientModelRegistry
+            .blockState("curtain_g3_1")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g3_1"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G4 = ClientModelRegistry
+            .blockState("curtain_g4")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g4"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_G4_1 = ClientModelRegistry
+            .blockState("curtain_g4_1")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g4_1"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_GROUP = ClientModelRegistry
+            .blockState("curtain_group")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/group"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_LOWER_G1 = ClientModelRegistry
+            .blockState("curtain_lower_g1")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g1"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_LOWER_G2 = ClientModelRegistry
+            .blockState("curtain_lower_g2")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g2"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_LOWER_G3 = ClientModelRegistry
+            .blockState("curtain_lower_g3")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g3"))
+            .register();
+
+    public static final StandaloneBlockModel CURTAIN_LOWER_G4 = ClientModelRegistry
+            .blockState("curtain_lower_g4")
+            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g4"))
+            .register();
+
     static {
         BlockStateModelDecoratorRegistry.forBlock(IroriBlock.class)
                 .wrap(IroriBlockStateModel::new)

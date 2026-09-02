@@ -32,6 +32,24 @@ public final class SAPAnimations {
                     .thirdPerson()
                     .register();
 
+    public static final BlockAnimationDefinition CURTAIN_UPPER_R =
+            SAPAnimationRegistries.blockAnimation("curtain_upper_r")
+                    .rig("animation/curtain_upper_r")
+                    .controller("animation/curtain_upper_r")
+                    .clip("curtain/on")
+                    .clip("curtain/off")
+                    .defaultState("on")
+                    .register();
+
+    public static final BlockAnimationDefinition CURTAIN_LOWER_R =
+            SAPAnimationRegistries.blockAnimation("curtain_lower_r")
+                    .rig("animation/curtain_lower_r")
+                    .controller("animation/curtain_lower_r")
+                    .clip("curtain/on_lower")
+                    .clip("curtain/off_lower")
+                    .defaultState("on")
+                    .register();
+
     private SAPAnimations() {
     }
 

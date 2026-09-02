@@ -1,11 +1,11 @@
-// 26.1.2	2026-08-31T10:54:13.569494	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-09-01T22:02:15.4954558	Tags for minecraft:block mod id shadowsandpetals
 853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
 9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/fences.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/block/fence_gates.json
 2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/leaves.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs_that_burn.json
-3b5a49bbc783f4ee93d2d5e2bbe646b6b12e04fa data/minecraft/tags/block/mineable/axe.json
+958ed0cc1a39339493c7cdc0bbd04d23fdc69231 data/minecraft/tags/block/mineable/axe.json
 bc7582f4a3b986423d68f0e3fc5c74d791473a20 data/minecraft/tags/block/mineable/hoe.json
 4f3c76eb301e5177cbc58dd95305297550dba9b0 data/minecraft/tags/block/mineable/pickaxe.json
 0e0d8c1b2029eb3131315384f9ae503dc0895800 data/minecraft/tags/block/mineable/shovel.json
@@ -22,5 +22,6 @@ c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/overworld_nat
 21ae918c7f6060df9d0283ddc26fad549e75f5b6 data/minecraft/tags/block/wooden_pressure_plates.json
 6bc11a2d4177a0d9611945df44d13193b6a789ff data/minecraft/tags/block/wooden_slabs.json
 9644ee46dbcf0b61308350c014ab90f94fb07807 data/minecraft/tags/block/wooden_stairs.json
+874176c8a960c29b0a9afec5f9cbed369a1e2573 data/minecraft/tags/block/wool.json
 fb044f973d2aa7c3dd084278ff2db4ba8dff6ea2 data/shadowsandpetals/tags/block/requires_irori_grill.json
 ec58bd8d4702fc49cc7ac761f4d1674e1ffa2234 data/shadowsandpetals/tags/block/wood_post_hanging_connections.json

@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=east,half=lower": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r",
+      "y": 90
+    },
+    "facing=east,half=upper": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r",
+      "y": 90
+    },
+    "facing=north,half=lower": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r"
+    },
+    "facing=north,half=upper": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r"
+    },
+    "facing=south,half=lower": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r",
+      "y": 180
+    },
+    "facing=south,half=upper": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r",
+      "y": 180
+    },
+    "facing=west,half=lower": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r",
+      "y": 270
+    },
+    "facing=west,half=upper": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r",
+      "y": 270
+    }
+  }
+}
