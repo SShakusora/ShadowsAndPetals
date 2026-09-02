@@ -152,6 +152,30 @@ tasks.register('installShaderpacks') {
     dependsOn tasks.named('installClientShaderpacks')
 }
 
+tasks.register('generateTextLedgerManifest', Exec) {
+    group = 'shadowsandpetals'
+    description = 'Regenerates tools/petalledger/data/repository-manifest.js from generated language resources.'
+    dependsOn tasks.named('runClientData')
+    workingDir projectDir
+    def manifestFile = file('tools/petalledger/data/repository-manifest.js')
+    doFirst {
+        manifestFile.parentFile.mkdirs()
+        standardOutput = manifestFile.newOutputStream()
+    }
+    commandLine 'node', 'tools/petalledger/generate-manifest.mjs'
+}
+
+tasks.register('generateTextLedgerSite', Exec) {
+    group = 'shadowsandpetals'
+    description = 'Builds a self-contained static site for Petal-Ledger deployment.'
+    dependsOn tasks.named('generateTextLedgerManifest')
+    workingDir projectDir
+    inputs.file('tools/petalledger/Petal-Ledger.html')
+    inputs.file('tools/petalledger/data/repository-manifest.js')
+    commandLine 'node', 'tools/petalledger/package-site.mjs'
+    outputs.dir(layout.buildDirectory.dir('textledger-site'))
+}
+
 tasks.register('cleanRunLogs', Delete) {
     group = 'shadowsandpetals'
     description = 'Deletes logs and crash reports from the shared client run directory.'
