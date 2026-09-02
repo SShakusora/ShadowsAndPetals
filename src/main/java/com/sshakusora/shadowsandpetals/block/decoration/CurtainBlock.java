@@ -48,8 +48,7 @@ public class CurtainBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
-
-    /** Shape for FACING=north: the rail hangs near the north wall face. */
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     private static final VoxelShape NORTH_SHAPE = Shapes.or(
             box(0, 0, 12.5, 16, 16, 14.5),
             // The unfolded curtain panels sweep across the full X width.
@@ -63,7 +62,8 @@ public class CurtainBlock extends BaseEntityBlock {
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
-                .setValue(OPEN, false));
+                .setValue(OPEN, false)
+                .setValue(POWERED, false));
     }
 
     @Override
@@ -73,7 +73,7 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, OPEN);
+        builder.add(FACING, HALF, OPEN, POWERED);
     }
 
     /**
@@ -95,9 +95,12 @@ public class CurtainBlock extends BaseEntityBlock {
                 || !level.getBlockState(upperPos).canBeReplaced(context)) {
             return null;
         }
+        boolean powered = level.hasNeighborSignal(lowerPos) || level.hasNeighborSignal(upperPos);
         return defaultBlockState()
                 .setValue(FACING, context.getHorizontalDirection().getOpposite())
-                .setValue(HALF, DoubleBlockHalf.LOWER);
+                .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(POWERED, powered)
+                .setValue(OPEN, powered);
     }
 
     @Override
@@ -202,6 +205,10 @@ public class CurtainBlock extends BaseEntityBlock {
     protected InteractionResult useWithoutItem(
             BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
+        // Redstone-driven curtains stay closed to manual use, like vanilla doors.
+        if (state.getValue(POWERED)) {
+            return InteractionResult.PASS;
+        }
         boolean open = !state.getValue(OPEN);
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
@@ -210,21 +217,50 @@ public class CurtainBlock extends BaseEntityBlock {
         return InteractionResult.SUCCESS_SERVER;
     }
 
+    @Override
+    protected void neighborChanged(
+            BlockState state, Level level, BlockPos pos, Block block,
+            net.minecraft.world.level.redstone.@Nullable Orientation orientation,
+            boolean movedByPiston
+    ) {
+        if (level.isClientSide()) {
+            return;
+        }
+        boolean powered = level.hasNeighborSignal(pos)
+                || level.hasNeighborSignal(pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
+                ? Direction.UP : Direction.DOWN));
+        if (powered != state.getValue(POWERED)) {
+            if (powered != state.getValue(OPEN)) {
+                togglePair(level, pos, state, powered);
+            } else {
+                // Only the POWERED flag changes; keep the current pose.
+                level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_ALL);
+                BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
+                        ? Direction.UP : Direction.DOWN);
+                BlockState otherState = level.getBlockState(otherPos);
+                if (otherState.getBlock() instanceof CurtainBlock) {
+                    level.setBlock(otherPos, otherState.setValue(POWERED, powered), Block.UPDATE_ALL);
+                }
+            }
+        }
+    }
+
     /** Toggles both halves and records the shared animation clock on each. */
     private static void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
         DoubleBlockHalf half = state.getValue(HALF);
         BlockPos otherPos = pos.relative(half == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN);
         BlockState otherState = level.getBlockState(otherPos);
         boolean hasPair = otherState.getBlock() instanceof CurtainBlock;
+        boolean powered = state.hasProperty(POWERED) && state.getValue(POWERED);
 
         long gameTime = level.getGameTime();
         // Record the clock before setBlock so the block-entity data packet
         // carries OPEN and the animation timestamp together.
         recordClock(level, pos, gameTime, open);
-        level.setBlock(pos, state.setValue(OPEN, open), Block.UPDATE_ALL);
+        level.setBlock(pos, state.setValue(OPEN, open).setValue(POWERED, powered), Block.UPDATE_ALL);
         if (hasPair) {
             recordClock(level, otherPos, gameTime, open);
-            level.setBlock(otherPos, otherState.setValue(OPEN, open), Block.UPDATE_ALL);
+            level.setBlock(otherPos, otherState.setValue(OPEN, open).setValue(POWERED, powered), Block.UPDATE_ALL);
         }
     }
 
