@@ -115,22 +115,50 @@ public final class BlockModelRegistry {
                     .register();
 
     /**
-     * Per-bone baked models of the curtain rig, keyed by dye color. Each set
-     * resolves to the per-bone files under
-     * {@code block/curtain/curtain_<half>_<side>_<color>/}.
+     * Per-bone baked models of the curtain rig, keyed by (dye color, bone).
+     * Each set resolves to the per-bone files under
+     * {@code block/curtain/curtain_<half>_<side>[_<color>]/<bone>}.
      */
-    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_UPPER_R = curtainBoneSet("curtain_upper_r");
-    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_LOWER_R = curtainBoneSet("curtain_lower_r");
-    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_UPPER_L = curtainBoneSet("curtain_upper_l");
-    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_LOWER_L = curtainBoneSet("curtain_lower_l");
+    public static final String[] CURTAIN_UPPER_BONES = {
+            "g1", "g1_1", "g2", "g2_1", "g3", "g3_1", "g4", "g4_1", "group"
+    };
+    public static final String[] CURTAIN_LOWER_BONES = {
+            "g1", "g2", "g3", "g4"
+    };
 
-    private static StandaloneBlockModelSet<DyeColor> curtainBoneSet(String part) {
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_R =
+            curtainBoneSet("curtain_upper_r", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_R =
+            curtainBoneSet("curtain_lower_r", CURTAIN_LOWER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_L =
+            curtainBoneSet("curtain_upper_l", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_L =
+            curtainBoneSet("curtain_lower_l", CURTAIN_LOWER_BONES);
+
+    /** A dye color paired with one rig bone of a curtain part. */
+    public record CurtainBoneKey(DyeColor color, String bone) {
+    }
+
+    private static StandaloneBlockModelSet<CurtainBoneKey> curtainBoneSet(String part, String[] bones) {
         return ClientModelRegistry
-                .enumBlockStateSet(part, DyeColor.class)
-                .keyPath(DyeColor::getName)
-                .model(color -> ShadowsAndPetals.asResource(
-                        "block/curtain/" + part + (color == DyeColor.WHITE ? "" : "_" + color.getName())))
+                .<CurtainBoneKey>blockStateSet(part)
+                .keys(() -> curtainBoneKeys(bones))
+                .keyPath(key -> key.color().getName() + "/" + key.bone())
+                .model(key -> ShadowsAndPetals.asResource(
+                        "block/curtain/" + part
+                                + (key.color() == DyeColor.WHITE ? "" : "_" + key.color().getName())
+                                + "/" + key.bone()))
                 .register();
+    }
+
+    private static List<CurtainBoneKey> curtainBoneKeys(String[] bones) {
+        List<CurtainBoneKey> keys = new ArrayList<>();
+        for (DyeColor color : DyeColor.values()) {
+            for (String bone : bones) {
+                keys.add(new CurtainBoneKey(color, bone));
+            }
+        }
+        return keys;
     }
 
     static {

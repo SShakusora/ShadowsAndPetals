@@ -58,12 +58,8 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
     private static final AnimationResourceRef.Rig LOWER_L_RIG =
             new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_lower_l"));
 
-    private static final String[] UPPER_BONES = {
-            "g1", "g1_1", "g2", "g2_1", "g3", "g3_1", "g4", "g4_1", "group"
-    };
-    private static final String[] LOWER_BONES = {
-            "g1", "g2", "g3", "g4"
-    };
+    private static final String[] UPPER_BONES = BlockModelRegistry.CURTAIN_UPPER_BONES;
+    private static final String[] LOWER_BONES = BlockModelRegistry.CURTAIN_LOWER_BONES;
 
     /** Baked per-bone models keyed by (half, side, dye color). */
     private final Map<CurtainVariant, AnimatedBlockModel> cachedModels = new HashMap<>();
@@ -116,7 +112,7 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         } else {
             rig = left ? LOWER_L_RIG : LOWER_R_RIG;
         }
-        StandaloneBlockModelSet<DyeColor> modelSet = upper
+        StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet = upper
                 ? (left ? BlockModelRegistry.CURTAIN_UPPER_L : BlockModelRegistry.CURTAIN_UPPER_R)
                 : (left ? BlockModelRegistry.CURTAIN_LOWER_L : BlockModelRegistry.CURTAIN_LOWER_R);
         DyeColor color = dyeColorOf(blockEntity.getBlockState());
@@ -161,18 +157,19 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
             CurtainBlockEntity blockEntity,
             AnimationResourceRef.Rig rig,
             String[] boneNames,
-            StandaloneBlockModelSet<DyeColor> modelSet,
+            StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet,
             CurtainVariant variant
     ) {
         AnimatedBlockModel cached = cachedModels.get(variant);
         if (cached != null) {
             return cached;
         }
-        // Every bone of one part shares the per-bone directory, so the set
-        // resolves to the same file family; bone names pick the file.
+        // Each bone binds its own per-bone model file: the set keys pair the
+        // dye color with the bone name.
         BlockStateModel[] models = new BlockStateModel[boneNames.length];
         for (int index = 0; index < boneNames.length; index++) {
-            models[index] = modelSet.get(variant.color());
+            models[index] = modelSet.get(
+                    new BlockModelRegistry.CurtainBoneKey(variant.color(), boneNames[index]));
         }
         AnimatedBlockModel baked = bakeModel(tintGetter, blockEntity, rig, boneNames, models);
         cachedModels.put(variant, baked);
