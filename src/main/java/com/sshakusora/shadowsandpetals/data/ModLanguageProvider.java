@@ -16,8 +16,6 @@ public class ModLanguageProvider extends LanguageProvider {
 
     @Override
     protected void addTranslations() {
-        BuiltinLanguageKeys.bootstrap();
-
         for (Map.Entry<String, String> entry : DatagenLangRegistry.translations(locale).entrySet()) {
             add(entry.getKey(), entry.getValue());
         }
