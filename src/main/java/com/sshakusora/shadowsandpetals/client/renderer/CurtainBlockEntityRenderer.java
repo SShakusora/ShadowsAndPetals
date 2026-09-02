@@ -89,9 +89,12 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         boolean upper = blockEntity.getBlockState().getValue(CurtainBlock.HALF) == DoubleBlockHalf.UPPER;
         boolean left = blockEntity.getBlockState().getValue(CurtainBlock.SIDE) == CurtainBlock.Side.LEFT;
         // The block entity carries OPEN and the animation clock in one data
-        // packet, so it is the authoritative animation state; the block-state
-        // property can be observed one packet earlier or later.
-        state.open = blockEntity.isOpen();
+        // packet, seeded by its constructor from the block state. When it
+        // disagrees with the block-state property (external state change
+        // before the entity synced), the block state wins for the pose.
+        boolean stateOpen = blockEntity.getBlockState().getValue(CurtainBlock.OPEN);
+        boolean beSynced = blockEntity.isOpen() == stateOpen;
+        state.open = beSynced ? blockEntity.isOpen() : stateOpen;
         state.animationPose = null;
         state.model = null;
         if (blockEntity.getLevel() == null) {
@@ -118,10 +121,12 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
 
         float seconds = blockEntity.transitionTimeSeconds(
                 blockEntity.getLevel().getGameTime(), partialTicks);
-        if (seconds < 0.0F || seconds > FALLBACK_END_POSE_SECONDS) {
-            // No transition recorded yet, or the animation finished long ago
-            // (including right after a world reload): hold the authored end
-            // pose of the current state instead of sampling a stale clock.
+        boolean holdEndPose = !beSynced || seconds < 0.0F || seconds > FALLBACK_END_POSE_SECONDS;
+        if (holdEndPose) {
+            // The block entity and block state disagree (external state
+            // change), no transition was recorded yet, or the animation
+            // finished long ago: hold the authored end pose of the current
+            // state instead of sampling a stale clock.
             seconds = FALLBACK_END_POSE_SECONDS;
         }
         state.animationPose = AnimationControllerEvaluator.sample(

@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
+import com.sshakusora.shadowsandpetals.block.decoration.CurtainBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -29,6 +30,10 @@ public class CurtainBlockEntity extends BlockEntity {
 
     public CurtainBlockEntity(BlockPos pos, BlockState blockState) {
         super(BlockEntityRegistry.CURTAIN.get(), pos, blockState);
+        // The OPEN block-state property is the single source of truth; the
+        // constructor sees it before any data packet arrives.
+        this.open = blockState.hasProperty(CurtainBlock.OPEN)
+                && blockState.getValue(CurtainBlock.OPEN);
     }
 
     /** Records a toggle toward the given open state at the current game time. */
@@ -64,7 +69,7 @@ public class CurtainBlockEntity extends BlockEntity {
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        open = input.getBooleanOr(OPEN_KEY, true);
+        open = input.getBooleanOr(OPEN_KEY, false);
         transitionStartTick = input.getLong(TRANSITION_TICK_KEY).orElse(Long.MIN_VALUE);
     }
 
