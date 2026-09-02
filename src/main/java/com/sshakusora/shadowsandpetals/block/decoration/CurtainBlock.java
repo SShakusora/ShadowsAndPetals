@@ -73,11 +73,8 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
-    private static final VoxelShape NORTH_SHAPE = Shapes.or(
-            box(0, 0, 12.5, 16, 16, 14.5),
-            // The unfolded curtain panels sweep across the full X width.
-            box(0, 0, 12, 16, 15.2, 14.5)
-    ).optimize();
+    /** Shape for FACING=north: one 1-thick slice across the wall face. */
+    private static final VoxelShape NORTH_SHAPE = box(0, 0, 14, 16, 16, 15);
     private static final Map<Direction, VoxelShape> SHAPES =
             VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE);
 
