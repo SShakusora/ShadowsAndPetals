@@ -7,10 +7,7 @@ import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Extracts the boundary of the union of cuboids declared by a Blockbench
@@ -676,7 +673,7 @@ public final class RockeryOutlineGeometry {
             }
             if (signedArea(cleaned) < 0.0D) {
                 List<Point2> reversed = new ArrayList<>(cleaned);
-                java.util.Collections.reverse(reversed);
+                Collections.reverse(reversed);
                 cleaned = reversed;
             }
             return new Polygon2(cleaned);

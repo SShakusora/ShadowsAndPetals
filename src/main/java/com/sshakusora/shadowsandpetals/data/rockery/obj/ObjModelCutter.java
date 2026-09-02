@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.data.rockery.obj;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import static com.sshakusora.shadowsandpetals.data.rockery.obj.ObjModel.*;
 
@@ -83,7 +84,7 @@ public final class ObjModelCutter {
                     "OBJ bounds cannot fit rockery " + axis + " axis: " + min + ".." + max + " in 0.." + size
             );
         }
-        return java.util.stream.IntStream.rangeClosed(first, last)
+        return IntStream.rangeClosed(first, last)
                 .boxed()
                 .min(Comparator.comparingInt(value -> Math.abs(value)))
                 .orElseThrow();

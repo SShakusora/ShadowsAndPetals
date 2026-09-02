@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 public final class SAPAnimationResources extends ContextAwareReloadListener {
     public static final SAPAnimationResources INSTANCE = new SAPAnimationResources();
@@ -145,7 +146,7 @@ public final class SAPAnimationResources extends ContextAwareReloadListener {
         );
         Set<Identifier> preparedClipIds = registrations.clips().stream()
                 .map(AnimationResourceRef.Clip::id)
-                .collect(java.util.stream.Collectors.toUnmodifiableSet());
+                .collect(Collectors.toUnmodifiableSet());
         validate(registrations, preparedRigs, preparedControllers, pendingAnimations);
         return new Prepared(
                 Map.copyOf(preparedRigs),

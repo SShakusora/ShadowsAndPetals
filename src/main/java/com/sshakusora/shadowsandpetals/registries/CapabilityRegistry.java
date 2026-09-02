@@ -24,6 +24,11 @@ public class CapabilityRegistry {
                 (blockEntity, side) -> VanillaContainerWrapper.of(blockEntity)
         );
         event.registerBlockEntity(
+                Capabilities.Item.BLOCK,
+                BlockEntityRegistry.BONSAI.get(),
+                (blockEntity, side) -> side == null ? blockEntity.getPlantStorage() : null
+        );
+        event.registerBlockEntity(
                 Capabilities.Fluid.BLOCK,
                 BlockEntityRegistry.COPPER_TEAPOT.get(),
                 (blockEntity, side) -> blockEntity.getFluidTank()

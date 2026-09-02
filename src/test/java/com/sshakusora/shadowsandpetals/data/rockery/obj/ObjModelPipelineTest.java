@@ -223,7 +223,7 @@ class ObjModelPipelineTest {
     void generatedObjPartsCanBeParsedAgain() throws IOException {
         for (String directory : List.of("1x1x1", "1x2x1", "1x3x1", "1x1x2", "1x2x2")) {
             Path partDirectory = GENERATED_DIRECTORY.resolve(directory);
-            try (var files = java.nio.file.Files.list(partDirectory)) {
+            try (var files = Files.list(partDirectory)) {
                 List<Path> objFiles = files.filter(path -> path.getFileName().toString().endsWith(".obj")).toList();
                 assertFalse(objFiles.isEmpty(), directory);
                 for (Path objFile : objFiles) {

@@ -79,6 +79,23 @@ class BonsaiTreeMappingResourceTest {
         }
     }
 
+    @Test
+    void accessTransformerExposesTreeGrowerConfigurationFields() throws IOException {
+        ClassLoader classLoader = BonsaiTreeMappingResourceTest.class.getClassLoader();
+        try (InputStream stream = classLoader.getResourceAsStream("META-INF/accesstransformer.cfg")) {
+            assertNotNull(stream);
+            String accessTransformer = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            assertTrue(accessTransformer.contains(
+                    "public net.minecraft.world.level.block.SaplingBlock treeGrower"));
+            for (String field : List.of(
+                    "tree", "secondaryTree", "flowers", "secondaryFlowers", "megaTree", "secondaryMegaTree"
+            )) {
+                assertTrue(accessTransformer.contains(
+                        "public net.minecraft.world.level.block.grower.TreeGrower " + field));
+            }
+        }
+    }
+
     private static void assertIdentifier(JsonObject json, String key, String resource) {
         assertTrue(json.has(key), resource + " missing " + key);
         Identifier parsed = Identifier.tryParse(json.get(key).getAsString());

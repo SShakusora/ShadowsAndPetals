@@ -9,6 +9,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;
 import com.sshakusora.shadowsandpetals.client.outline.*;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
 import com.sshakusora.shadowsandpetals.client.renderer.*;
@@ -71,7 +72,6 @@ public class ClientRenderEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.CURTAIN.get(), CurtainBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.COPPER_TEAPOT.get(), CopperTeapotBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntityRegistry.BONSAI.get(), BonsaiBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
@@ -138,7 +138,17 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void cacheStandaloneModels(ModelEvent.BakingCompleted event) {
         BlockModelRegistry.cacheBakedModels(event);
-        BonsaiBlockEntityRenderer.invalidateCaches();
+        BonsaiTreeGeometryCache.invalidate();
+    }
+
+    @SubscribeEvent
+    public static void extractBonsaiBreakingOverlay(ExtractLevelRenderStateEvent event) {
+        BonsaiBreakingOverlay.extract(event);
+    }
+
+    @SubscribeEvent
+    public static void submitBonsaiBreakingOverlay(SubmitCustomGeometryEvent event) {
+        BonsaiBreakingOverlay.submit(event);
     }
 
     @SubscribeEvent
