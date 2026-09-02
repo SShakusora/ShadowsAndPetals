@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=east,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_pink",
+      "y": 90
+    },
+    "facing=east,half=lower,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_pink",
+      "y": 90
+    },
+    "facing=east,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_pink",
+      "y": 90
+    },
+    "facing=east,half=upper,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_pink",
+      "y": 90
+    },
+    "facing=north,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_pink"
+    },
+    "facing=north,half=lower,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_pink"
+    },
+    "facing=north,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_pink"
+    },
+    "facing=north,half=upper,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_pink"
+    },
+    "facing=south,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_pink",
+      "y": 180
+    },
+    "facing=south,half=lower,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_pink",
+      "y": 180
+    },
+    "facing=south,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_pink",
+      "y": 180
+    },
+    "facing=south,half=upper,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_pink",
+      "y": 180
+    },
+    "facing=west,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_pink",
+      "y": 270
+    },
+    "facing=west,half=lower,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_pink",
+      "y": 270
+    },
+    "facing=west,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_pink",
+      "y": 270
+    },
+    "facing=west,half=upper,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_pink",
+      "y": 270
+    }
+  }
+}

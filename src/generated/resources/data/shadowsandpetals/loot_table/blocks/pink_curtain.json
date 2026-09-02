@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "shadowsandpetals:pink_curtain",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "shadowsandpetals:pink_curtain"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "shadowsandpetals:blocks/pink_curtain"
+}

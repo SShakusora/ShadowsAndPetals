@@ -1,0 +1,6 @@
+{
+  "parent": "shadowsandpetals:block/curtain/white_curtain",
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/gray"
+  }
+}

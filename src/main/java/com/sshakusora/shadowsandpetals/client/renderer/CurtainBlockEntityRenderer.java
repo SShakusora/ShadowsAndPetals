@@ -5,11 +5,13 @@ import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.CurtainBlock;
 import com.sshakusora.shadowsandpetals.blockentity.CurtainBlockEntity;
+import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import com.sshakusora.shadowsandpetals.client.animation.AnimatedBlockModel;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationControllerEvaluator;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationResourceRef;
 import com.sshakusora.shadowsandpetals.client.animation.RigPose;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
+import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModelSet;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -22,14 +24,19 @@ import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Experimental renderer for the two-block curtain. Submits the per-bone baked
@@ -58,10 +65,11 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
             "g1", "g2", "g3", "g4"
     };
 
-    private @Nullable AnimatedBlockModel cachedUpperRightModel;
-    private @Nullable AnimatedBlockModel cachedLowerRightModel;
-    private @Nullable AnimatedBlockModel cachedUpperLeftModel;
-    private @Nullable AnimatedBlockModel cachedLowerLeftModel;
+    /** Baked per-bone models keyed by (half, side, dye color). */
+    private final Map<CurtainVariant, AnimatedBlockModel> cachedModels = new HashMap<>();
+
+    private record CurtainVariant(boolean upper, boolean left, DyeColor color) {
+    }
 
     public CurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -103,18 +111,18 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
 
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
         AnimationResourceRef.Rig rig;
-        AnimatedBlockModel model;
         if (upper) {
             rig = left ? UPPER_L_RIG : UPPER_R_RIG;
-            model = left
-                    ? resolveUpperLeftModel(tintGetter, blockEntity)
-                    : resolveUpperRightModel(tintGetter, blockEntity);
         } else {
             rig = left ? LOWER_L_RIG : LOWER_R_RIG;
-            model = left
-                    ? resolveLowerLeftModel(tintGetter, blockEntity)
-                    : resolveLowerRightModel(tintGetter, blockEntity);
         }
+        StandaloneBlockModelSet<DyeColor> modelSet = upper
+                ? (left ? BlockModelRegistry.CURTAIN_UPPER_L : BlockModelRegistry.CURTAIN_UPPER_R)
+                : (left ? BlockModelRegistry.CURTAIN_LOWER_L : BlockModelRegistry.CURTAIN_LOWER_R);
+        DyeColor color = dyeColorOf(blockEntity.getBlockState());
+        AnimatedBlockModel model = resolveModel(
+                tintGetter, blockEntity, rig, upper ? UPPER_BONES : LOWER_BONES, modelSet,
+                new CurtainVariant(upper, left, color));
         if (model == null) {
             return;
         }
@@ -137,70 +145,38 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         state.model = model;
     }
 
-    private AnimatedBlockModel resolveUpperRightModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
-        if (cachedUpperRightModel != null) {
-            return cachedUpperRightModel;
+    /** The dye color of the placed curtain block, white for unknown states. */
+    private static DyeColor dyeColorOf(BlockState blockState) {
+        Block block = blockState.getBlock();
+        for (DyeColor color : DyeColor.values()) {
+            if (block == BlockRegistry.CURTAINS.get(color).get()) {
+                return color;
+            }
         }
-        BlockStateModel[] models = {
-                BlockModelRegistry.CURTAIN_G1.get(),
-                BlockModelRegistry.CURTAIN_G1_1.get(),
-                BlockModelRegistry.CURTAIN_G2.get(),
-                BlockModelRegistry.CURTAIN_G2_1.get(),
-                BlockModelRegistry.CURTAIN_G3.get(),
-                BlockModelRegistry.CURTAIN_G3_1.get(),
-                BlockModelRegistry.CURTAIN_G4.get(),
-                BlockModelRegistry.CURTAIN_G4_1.get(),
-                BlockModelRegistry.CURTAIN_GROUP.get()
-        };
-        cachedUpperRightModel = bakeModel(tintGetter, blockEntity, UPPER_R_RIG, UPPER_BONES, models);
-        return cachedUpperRightModel;
+        return DyeColor.WHITE;
     }
 
-    private AnimatedBlockModel resolveUpperLeftModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
-        if (cachedUpperLeftModel != null) {
-            return cachedUpperLeftModel;
+    private AnimatedBlockModel resolveModel(
+            BlockAndTintGetter tintGetter,
+            CurtainBlockEntity blockEntity,
+            AnimationResourceRef.Rig rig,
+            String[] boneNames,
+            StandaloneBlockModelSet<DyeColor> modelSet,
+            CurtainVariant variant
+    ) {
+        AnimatedBlockModel cached = cachedModels.get(variant);
+        if (cached != null) {
+            return cached;
         }
-        BlockStateModel[] models = {
-                BlockModelRegistry.CURTAIN_LEFT_G1.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G1_1.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G2.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G2_1.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G3.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G3_1.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G4.get(),
-                BlockModelRegistry.CURTAIN_LEFT_G4_1.get(),
-                BlockModelRegistry.CURTAIN_LEFT_GROUP.get()
-        };
-        cachedUpperLeftModel = bakeModel(tintGetter, blockEntity, UPPER_L_RIG, UPPER_BONES, models);
-        return cachedUpperLeftModel;
-    }
-
-    private AnimatedBlockModel resolveLowerRightModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
-        if (cachedLowerRightModel != null) {
-            return cachedLowerRightModel;
+        // Every bone of one part shares the per-bone directory, so the set
+        // resolves to the same file family; bone names pick the file.
+        BlockStateModel[] models = new BlockStateModel[boneNames.length];
+        for (int index = 0; index < boneNames.length; index++) {
+            models[index] = modelSet.get(variant.color());
         }
-        BlockStateModel[] models = {
-                BlockModelRegistry.CURTAIN_LOWER_G1.get(),
-                BlockModelRegistry.CURTAIN_LOWER_G2.get(),
-                BlockModelRegistry.CURTAIN_LOWER_G3.get(),
-                BlockModelRegistry.CURTAIN_LOWER_G4.get()
-        };
-        cachedLowerRightModel = bakeModel(tintGetter, blockEntity, LOWER_R_RIG, LOWER_BONES, models);
-        return cachedLowerRightModel;
-    }
-
-    private AnimatedBlockModel resolveLowerLeftModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
-        if (cachedLowerLeftModel != null) {
-            return cachedLowerLeftModel;
-        }
-        BlockStateModel[] models = {
-                BlockModelRegistry.CURTAIN_LOWER_LEFT_G1.get(),
-                BlockModelRegistry.CURTAIN_LOWER_LEFT_G2.get(),
-                BlockModelRegistry.CURTAIN_LOWER_LEFT_G3.get(),
-                BlockModelRegistry.CURTAIN_LOWER_LEFT_G4.get()
-        };
-        cachedLowerLeftModel = bakeModel(tintGetter, blockEntity, LOWER_L_RIG, LOWER_BONES, models);
-        return cachedLowerLeftModel;
+        AnimatedBlockModel baked = bakeModel(tintGetter, blockEntity, rig, boneNames, models);
+        cachedModels.put(variant, baked);
+        return baked;
     }
 
     private static AnimatedBlockModel bakeModel(

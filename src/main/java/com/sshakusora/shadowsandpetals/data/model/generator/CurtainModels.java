@@ -24,14 +24,19 @@ public final class CurtainModels {
             SAPBlockModelGenerator generator
     ) {
         CurtainBlock block = context.get();
+        String path = context.id().getPath();
+        String color = path.endsWith("_curtain")
+                ? path.substring(0, path.length() - "_curtain".length())
+                : "white";
+        String variantSuffix = color.equals("white") ? "" : "_" + color;
         MultiVariant upperRight = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_upper_r"));
+                generator.modLoc("block/curtain/curtain_upper_r" + variantSuffix));
         MultiVariant lowerRight = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_lower_r"));
+                generator.modLoc("block/curtain/curtain_lower_r" + variantSuffix));
         MultiVariant upperLeft = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_upper_l"));
+                generator.modLoc("block/curtain/curtain_upper_l" + variantSuffix));
         MultiVariant lowerLeft = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_lower_l"));
+                generator.modLoc("block/curtain/curtain_lower_l" + variantSuffix));
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(CurtainBlock.HALF, CurtainBlock.SIDE)
                         .select(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, upperRight)
@@ -42,7 +47,7 @@ public final class CurtainModels {
         StandardBlockModels.parentBlockItem(
                 block,
                 generator,
-                generator.modLoc("block/curtain/white_curtain")
+                generator.modLoc("block/curtain/" + color + "_curtain")
         );
     }
 }

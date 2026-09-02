@@ -114,135 +114,24 @@ public final class BlockModelRegistry {
                     .model(shape -> ShadowsAndPetals.asResource("block/bonsai/bonsai_" + shape.getSerializedName() + "_dead"))
                     .register();
 
-    public static final StandaloneBlockModel CURTAIN_G1 = ClientModelRegistry
-            .blockState("curtain_g1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g1"))
-            .register();
+    /**
+     * Per-bone baked models of the curtain rig, keyed by dye color. Each set
+     * resolves to the per-bone files under
+     * {@code block/curtain/curtain_<half>_<side>_<color>/}.
+     */
+    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_UPPER_R = curtainBoneSet("curtain_upper_r");
+    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_LOWER_R = curtainBoneSet("curtain_lower_r");
+    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_UPPER_L = curtainBoneSet("curtain_upper_l");
+    public static final StandaloneBlockModelSet<DyeColor> CURTAIN_LOWER_L = curtainBoneSet("curtain_lower_l");
 
-    public static final StandaloneBlockModel CURTAIN_G1_1 = ClientModelRegistry
-            .blockState("curtain_g1_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g1_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_G2 = ClientModelRegistry
-            .blockState("curtain_g2")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g2"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_G2_1 = ClientModelRegistry
-            .blockState("curtain_g2_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g2_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_G3 = ClientModelRegistry
-            .blockState("curtain_g3")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g3"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_G3_1 = ClientModelRegistry
-            .blockState("curtain_g3_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g3_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_G4 = ClientModelRegistry
-            .blockState("curtain_g4")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g4"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_G4_1 = ClientModelRegistry
-            .blockState("curtain_g4_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/g4_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_GROUP = ClientModelRegistry
-            .blockState("curtain_group")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_r/group"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_G1 = ClientModelRegistry
-            .blockState("curtain_lower_g1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_G2 = ClientModelRegistry
-            .blockState("curtain_lower_g2")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g2"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_G3 = ClientModelRegistry
-            .blockState("curtain_lower_g3")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g3"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_G4 = ClientModelRegistry
-            .blockState("curtain_lower_g4")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_r/g4"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G1 = ClientModelRegistry
-            .blockState("curtain_left_g1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G1_1 = ClientModelRegistry
-            .blockState("curtain_left_g1_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g1_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G2 = ClientModelRegistry
-            .blockState("curtain_left_g2")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g2"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G2_1 = ClientModelRegistry
-            .blockState("curtain_left_g2_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g2_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G3 = ClientModelRegistry
-            .blockState("curtain_left_g3")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g3"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G3_1 = ClientModelRegistry
-            .blockState("curtain_left_g3_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g3_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G4 = ClientModelRegistry
-            .blockState("curtain_left_g4")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g4"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_G4_1 = ClientModelRegistry
-            .blockState("curtain_left_g4_1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/g4_1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LEFT_GROUP = ClientModelRegistry
-            .blockState("curtain_left_group")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_upper_l/group"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_LEFT_G1 = ClientModelRegistry
-            .blockState("curtain_lower_left_g1")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_l/g1"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_LEFT_G2 = ClientModelRegistry
-            .blockState("curtain_lower_left_g2")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_l/g2"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_LEFT_G3 = ClientModelRegistry
-            .blockState("curtain_lower_left_g3")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_l/g3"))
-            .register();
-
-    public static final StandaloneBlockModel CURTAIN_LOWER_LEFT_G4 = ClientModelRegistry
-            .blockState("curtain_lower_left_g4")
-            .model(ShadowsAndPetals.asResource("block/curtain/curtain_lower_l/g4"))
-            .register();
+    private static StandaloneBlockModelSet<DyeColor> curtainBoneSet(String part) {
+        return ClientModelRegistry
+                .enumBlockStateSet(part, DyeColor.class)
+                .keyPath(DyeColor::getName)
+                .model(color -> ShadowsAndPetals.asResource(
+                        "block/curtain/" + part + (color == DyeColor.WHITE ? "" : "_" + color.getName())))
+                .register();
+    }
 
     static {
         BlockStateModelDecoratorRegistry.forBlock(IroriBlock.class)

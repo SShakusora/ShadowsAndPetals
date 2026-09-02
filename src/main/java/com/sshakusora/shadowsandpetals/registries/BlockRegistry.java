@@ -1027,20 +1027,26 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "添水竹管")
             .register();
 
-    public static final DeferredBlock<CurtainBlock> CURTAIN = SAPRegistries
-            .block("curtain", CurtainBlock::new)
+    public static final DyedBlockList<CurtainBlock> CURTAINS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_curtain", CurtainBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
                     .strength(1.0F)
                     .sound(SoundType.WOOL)
-                    .mapColor(MapColor.WOOL)
+                    .mapColor(color)
                     .noOcclusion())
             .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
             .withItem()
             .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> CurtainModels::block)
+            .clientItem(block -> ShadowsAndPetals.asResource(
+                    "block/curtain/" + (color == DyeColor.WHITE ? "white" : color.getName()) + "_curtain"))
             .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
-            .lang(DatagenLangRegistry.ZH_CN, "窗帘")
-            .register();
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "窗帘")
+            .register());
+
+    /** @deprecated use {@link #CURTAINS} and resolve by dye color. */
+    @Deprecated
+    public static final DeferredBlock<CurtainBlock> CURTAIN = CURTAINS.get(DyeColor.WHITE);
 
     public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
             .block("orange_tree", OrangeTreeBlock::new)

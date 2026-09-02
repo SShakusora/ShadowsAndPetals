@@ -1,0 +1,86 @@
+{
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/red",
+    "particle": "shadowsandpetals:block/curtain/red"
+  },
+  "elements": [
+    {
+      "name": "g2",
+      "from": [
+        8.51253,
+        3,
+        14.19657
+      ],
+      "to": [
+        12.51253,
+        16,
+        15.19657
+      ],
+      "rotation": {
+        "angle": 22.5,
+        "axis": "y",
+        "origin": [
+          10.51253,
+          9.5,
+          14.69657
+        ]
+      },
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            3,
+            4,
+            16
+          ],
+          "texture": "#1"
+        },
+        "east": {
+          "uv": [
+            0,
+            3,
+            1,
+            16
+          ],
+          "texture": "#1"
+        },
+        "south": {
+          "uv": [
+            4,
+            3,
+            0,
+            16
+          ],
+          "texture": "#1"
+        },
+        "west": {
+          "uv": [
+            3,
+            3,
+            4,
+            16
+          ],
+          "texture": "#1"
+        },
+        "up": {
+          "uv": [
+            4,
+            3,
+            0,
+            4
+          ],
+          "texture": "#1"
+        },
+        "down": {
+          "uv": [
+            4,
+            15,
+            0,
+            16
+          ],
+          "texture": "#1"
+        }
+      }
+    }
+  ]
+}
