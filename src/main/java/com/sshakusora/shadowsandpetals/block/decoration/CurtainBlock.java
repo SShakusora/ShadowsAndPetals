@@ -139,10 +139,11 @@ public class CurtainBlock extends BaseEntityBlock {
 
     /**
      * Chooses the side from the neighbouring curtain of the same facing,
-     * using wall geometry: the neighbour on the observer's left makes this
-     * curtain RIGHT, the neighbour on the observer's right makes it LEFT.
-     * Sneaking keeps the neighbour's side instead (same-side pairing).
-     * Without a neighbouring curtain the curtain defaults to LEFT.
+     * using wall geometry: the neighbour on the observer's left marks this
+     * curtain's window position as the observer's right, so the curtain is
+     * RIGHT, and vice versa. Sneaking keeps the neighbour's side instead
+     * (same-side pairing). Without a neighbouring curtain the curtain
+     * defaults to LEFT.
      */
     private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
         Direction leftDir = facing.getClockWise();
@@ -155,8 +156,8 @@ public class CurtainBlock extends BaseEntityBlock {
                 if (sneaking) {
                     return neighbour.getValue(SIDE);
                 }
-                // The new curtain sits on the opposite side of the window
-                // from the neighbour: neighbour on the left => RIGHT here.
+                // This curtain sits on the opposite window side from the
+                // neighbour: neighbour at observer-left => this is RIGHT.
                 return direction == leftDir ? Side.RIGHT : Side.LEFT;
             }
         }
@@ -283,10 +284,9 @@ public class CurtainBlock extends BaseEntityBlock {
      * Toggles this curtain's halves plus its linked neighbour curtain,
      * recording the shared animation clock on each block entity.
      *
-     * <p>Linking is geometric: a LEFT curtain only links with a RIGHT
-     * curtain on its left side (as seen from the room), and a RIGHT curtain
-     * only links with a LEFT curtain on its right side. Two same-side
-     * curtains never link.</p>
+     * <p>Linking is geometric: in a window pair the LEFT curtain stands on
+     * the observer's left, so its RIGHT partner is toward the observer's
+     * right, and vice versa. Two same-side curtains never link.</p>
      */
     private static void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
         long gameTime = level.getGameTime();
@@ -294,10 +294,10 @@ public class CurtainBlock extends BaseEntityBlock {
 
         Direction facing = state.getValue(FACING);
         Side side = state.getValue(SIDE);
-        Direction outward = side == Side.LEFT
-                ? facing.getClockWise()          // LEFT curtains link toward the observer's left
-                : facing.getClockWise().getOpposite(); // RIGHT curtains link toward the observer's right
-        BlockPos neighbourPos = pos.relative(outward);
+        Direction towardPartner = side == Side.LEFT
+                ? facing.getClockWise().getOpposite()  // LEFT looks right for its RIGHT partner
+                : facing.getClockWise();               // RIGHT looks left for its LEFT partner
+        BlockPos neighbourPos = pos.relative(towardPartner);
         BlockState neighbour = level.getBlockState(neighbourPos);
         if (neighbour.getBlock() instanceof CurtainBlock
                 && neighbour.getValue(FACING) == facing
