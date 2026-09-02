@@ -1,32 +1,62 @@
 {
   "variants": {
-    "facing=east,half=lower": {
+    "facing=east,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l",
+      "y": 90
+    },
+    "facing=east,half=lower,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_lower_r",
       "y": 90
     },
-    "facing=east,half=upper": {
+    "facing=east,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l",
+      "y": 90
+    },
+    "facing=east,half=upper,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_upper_r",
       "y": 90
     },
-    "facing=north,half=lower": {
+    "facing=north,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l"
+    },
+    "facing=north,half=lower,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_lower_r"
     },
-    "facing=north,half=upper": {
+    "facing=north,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l"
+    },
+    "facing=north,half=upper,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_upper_r"
     },
-    "facing=south,half=lower": {
+    "facing=south,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l",
+      "y": 180
+    },
+    "facing=south,half=lower,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_lower_r",
       "y": 180
     },
-    "facing=south,half=upper": {
+    "facing=south,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l",
+      "y": 180
+    },
+    "facing=south,half=upper,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_upper_r",
       "y": 180
     },
-    "facing=west,half=lower": {
+    "facing=west,half=lower,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l",
+      "y": 270
+    },
+    "facing=west,half=lower,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_lower_r",
       "y": 270
     },
-    "facing=west,half=upper": {
+    "facing=west,half=upper,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l",
+      "y": 270
+    },
+    "facing=west,half=upper,side=right": {
       "model": "shadowsandpetals:block/curtain/curtain_upper_r",
       "y": 270
     }

@@ -36,6 +36,15 @@ const PARTS = [
         // Lower panels bind straight to the g1..g4 bones; each panel carries
         // both the gx translation and the gx_1 rotation of the upper rig.
         boneOfElement: ["g1", "g2", "g3", "g4"]
+    },
+    {
+        name: "curtain_upper_l",
+        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group"]
+    },
+    {
+        name: "curtain_lower_l",
+        // Left mirrors bind like the right ones.
+        boneOfElement: ["g1", "g2", "g3", "g4"]
     }
 ];
 

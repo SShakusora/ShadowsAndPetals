@@ -7,6 +7,7 @@ import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -49,6 +50,29 @@ public class CurtainBlock extends BaseEntityBlock {
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+
+    /** Which side of a window the curtain panel hangs on. */
+    public enum Side implements StringRepresentable {
+        LEFT("left"),
+        RIGHT("right");
+
+        private final String name;
+
+        Side(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+
+        public Side mirror() {
+            return this == LEFT ? RIGHT : LEFT;
+        }
+    }
+
+    public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
     private static final VoxelShape NORTH_SHAPE = Shapes.or(
             box(0, 0, 12.5, 16, 16, 14.5),
             // The unfolded curtain panels sweep across the full X width.
@@ -62,6 +86,7 @@ public class CurtainBlock extends BaseEntityBlock {
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(SIDE, Side.RIGHT)
                 .setValue(OPEN, false)
                 .setValue(POWERED, false));
     }
@@ -73,7 +98,7 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, OPEN, POWERED);
+        builder.add(FACING, HALF, SIDE, OPEN, POWERED);
     }
 
     /**
@@ -96,9 +121,14 @@ public class CurtainBlock extends BaseEntityBlock {
             return null;
         }
         boolean powered = level.hasNeighborSignal(lowerPos) || level.hasNeighborSignal(upperPos);
+        // A curtain placed beside another one takes the opposite side so the
+        // pair can link, matching which half of the window it hangs on.
+        Direction facing = context.getHorizontalDirection().getOpposite();
+        Side side = sideForLink(level, lowerPos, facing);
         return defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(FACING, facing)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(SIDE, side)
                 .setValue(POWERED, powered)
                 .setValue(OPEN, powered);
     }
@@ -245,15 +275,42 @@ public class CurtainBlock extends BaseEntityBlock {
         }
     }
 
-    /** Toggles both halves and records the shared animation clock on each. */
+    /**
+     * Toggles this curtain's halves plus any horizontally linked neighbour
+     * curtain of the opposite side, recording the shared animation clock on
+     * each block entity.
+     */
     private static void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
+        long gameTime = level.getGameTime();
+        toggleColumn(level, pos, state, open, gameTime);
+
+        // Link with the neighbour curtain across the window: same FACING,
+        // opposite SIDE, sitting beside this column along the wall.
+        Direction facing = state.getValue(FACING);
+        Side side = state.getValue(SIDE);
+        Direction linkDirection = facing.getCounterClockWise();
+        Direction[] both = {linkDirection, linkDirection.getOpposite()};
+        for (Direction direction : both) {
+            BlockPos neighbourPos = pos.relative(direction);
+            BlockState neighbour = level.getBlockState(neighbourPos);
+            if (neighbour.getBlock() instanceof CurtainBlock
+                    && neighbour.getValue(FACING) == facing
+                    && neighbour.getValue(SIDE) != side) {
+                toggleColumn(level, neighbourPos, neighbour, open, gameTime);
+                break;
+            }
+        }
+    }
+
+    /** Toggles both vertical halves of one curtain column. */
+    private static void toggleColumn(Level level, BlockPos pos, BlockState state, boolean open, long gameTime) {
         DoubleBlockHalf half = state.getValue(HALF);
         BlockPos otherPos = pos.relative(half == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN);
         BlockState otherState = level.getBlockState(otherPos);
-        boolean hasPair = otherState.getBlock() instanceof CurtainBlock;
+        boolean hasPair = otherState.getBlock() instanceof CurtainBlock
+                && otherState.getValue(SIDE) == state.getValue(SIDE);
         boolean powered = state.hasProperty(POWERED) && state.getValue(POWERED);
 
-        long gameTime = level.getGameTime();
         // Record the clock before setBlock so the block-entity data packet
         // carries OPEN and the animation timestamp together.
         recordClock(level, pos, gameTime, open);
@@ -262,6 +319,25 @@ public class CurtainBlock extends BaseEntityBlock {
             recordClock(level, otherPos, gameTime, open);
             level.setBlock(otherPos, otherState.setValue(OPEN, open).setValue(POWERED, powered), Block.UPDATE_ALL);
         }
+    }
+
+    /**
+     * Chooses the side for a newly placed curtain: when a linkable neighbour
+     * of one side exists, take the opposite side; otherwise keep RIGHT, the
+     * default single-curtain side.
+     */
+    private static Side sideForLink(Level level, BlockPos lowerPos, Direction facing) {
+        Direction linkDirection = facing.getCounterClockWise();
+        Direction[] both = {linkDirection, linkDirection.getOpposite()};
+        for (Direction direction : both) {
+            BlockPos neighbourPos = lowerPos.relative(direction);
+            BlockState neighbour = level.getBlockState(neighbourPos);
+            if (neighbour.getBlock() instanceof CurtainBlock
+                    && neighbour.getValue(FACING) == facing) {
+                return neighbour.getValue(SIDE).mirror();
+            }
+        }
+        return Side.RIGHT;
     }
 
     private static void recordClock(Level level, BlockPos pos, long gameTime, boolean open) {

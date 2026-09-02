@@ -1,0 +1,49 @@
+{
+  "format_version": 1,
+  "rig": "shadowsandpetals:animation/curtain_upper_l",
+  "initial": "on",
+  "states": {
+    "on": {
+      "clip": "shadowsandpetals:curtain/on_l",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "g1",
+        "g1_1",
+        "g2",
+        "g2_1",
+        "g3",
+        "g3_1",
+        "g4",
+        "g4_1"
+      ]
+    },
+    "off": {
+      "clip": "shadowsandpetals:curtain/off_l",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "g1",
+        "g1_1",
+        "g2",
+        "g2_1",
+        "g3",
+        "g3_1",
+        "g4",
+        "g4_1"
+      ]
+    }
+  },
+  "transitions": [
+    {
+      "from": "on",
+      "to": "off",
+      "duration": 0.08
+    },
+    {
+      "from": "off",
+      "to": "on",
+      "duration": 0.08
+    }
+  ]
+}

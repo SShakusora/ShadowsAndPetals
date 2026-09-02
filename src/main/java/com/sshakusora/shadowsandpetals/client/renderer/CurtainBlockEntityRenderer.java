@@ -33,7 +33,8 @@ import java.util.List;
 
 /**
  * Experimental renderer for the two-block curtain. Submits the per-bone baked
- * models of the matching half through its resource-driven animation rig.
+ * models of the matching half and side through its resource-driven animation
+ * rig.
  */
 public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBlockEntity, CurtainBlockEntityRenderer.State> {
     private static final RandomSource PART_COLLECT_RANDOM = RandomSource.create(42L);
@@ -41,10 +42,14 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
     /** Beyond this local time the clip has clamped to its final keyframe. */
     private static final float FALLBACK_END_POSE_SECONDS = 1.0F;
 
-    private static final AnimationResourceRef.Rig UPPER_RIG =
+    private static final AnimationResourceRef.Rig UPPER_R_RIG =
             new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_upper_r"));
-    private static final AnimationResourceRef.Rig LOWER_RIG =
+    private static final AnimationResourceRef.Rig LOWER_R_RIG =
             new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_lower_r"));
+    private static final AnimationResourceRef.Rig UPPER_L_RIG =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_upper_l"));
+    private static final AnimationResourceRef.Rig LOWER_L_RIG =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_lower_l"));
 
     private static final String[] UPPER_BONES = {
             "g1", "g1_1", "g2", "g2_1", "g3", "g3_1", "g4", "g4_1", "group"
@@ -53,8 +58,10 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
             "g1", "g2", "g3", "g4"
     };
 
-    private @Nullable AnimatedBlockModel cachedUpperModel;
-    private @Nullable AnimatedBlockModel cachedLowerModel;
+    private @Nullable AnimatedBlockModel cachedUpperRightModel;
+    private @Nullable AnimatedBlockModel cachedLowerRightModel;
+    private @Nullable AnimatedBlockModel cachedUpperLeftModel;
+    private @Nullable AnimatedBlockModel cachedLowerLeftModel;
 
     public CurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -80,6 +87,7 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
 
         state.facing = blockEntity.getBlockState().getValue(CurtainBlock.FACING);
         boolean upper = blockEntity.getBlockState().getValue(CurtainBlock.HALF) == DoubleBlockHalf.UPPER;
+        boolean left = blockEntity.getBlockState().getValue(CurtainBlock.SIDE) == CurtainBlock.Side.LEFT;
         // The block entity carries OPEN and the animation clock in one data
         // packet, so it is the authoritative animation state; the block-state
         // property can be observed one packet earlier or later.
@@ -91,9 +99,19 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         }
 
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        AnimatedBlockModel model = upper
-                ? resolveUpperModel(tintGetter, blockEntity)
-                : resolveLowerModel(tintGetter, blockEntity);
+        AnimationResourceRef.Rig rig;
+        AnimatedBlockModel model;
+        if (upper) {
+            rig = left ? UPPER_L_RIG : UPPER_R_RIG;
+            model = left
+                    ? resolveUpperLeftModel(tintGetter, blockEntity)
+                    : resolveUpperRightModel(tintGetter, blockEntity);
+        } else {
+            rig = left ? LOWER_L_RIG : LOWER_R_RIG;
+            model = left
+                    ? resolveLowerLeftModel(tintGetter, blockEntity)
+                    : resolveLowerRightModel(tintGetter, blockEntity);
+        }
         if (model == null) {
             return;
         }
@@ -107,14 +125,17 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
             seconds = FALLBACK_END_POSE_SECONDS;
         }
         state.animationPose = AnimationControllerEvaluator.sample(
-                upper ? UPPER_RIG.id() : LOWER_RIG.id(),
+                rig.id(),
                 state.open ? "on" : "off",
                 seconds
         );
         state.model = model;
     }
 
-    private AnimatedBlockModel resolveUpperModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
+    private AnimatedBlockModel resolveUpperRightModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
+        if (cachedUpperRightModel != null) {
+            return cachedUpperRightModel;
+        }
         BlockStateModel[] models = {
                 BlockModelRegistry.CURTAIN_G1.get(),
                 BlockModelRegistry.CURTAIN_G1_1.get(),
@@ -126,27 +147,55 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
                 BlockModelRegistry.CURTAIN_G4_1.get(),
                 BlockModelRegistry.CURTAIN_GROUP.get()
         };
-        if (cachedUpperModel != null) {
-            return cachedUpperModel;
-        }
-        AnimatedBlockModel model = bakeModel(tintGetter, blockEntity, UPPER_RIG, UPPER_BONES, models);
-        cachedUpperModel = model;
-        return model;
+        cachedUpperRightModel = bakeModel(tintGetter, blockEntity, UPPER_R_RIG, UPPER_BONES, models);
+        return cachedUpperRightModel;
     }
 
-    private AnimatedBlockModel resolveLowerModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
+    private AnimatedBlockModel resolveUpperLeftModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
+        if (cachedUpperLeftModel != null) {
+            return cachedUpperLeftModel;
+        }
+        BlockStateModel[] models = {
+                BlockModelRegistry.CURTAIN_LEFT_G1.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G1_1.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G2.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G2_1.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G3.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G3_1.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G4.get(),
+                BlockModelRegistry.CURTAIN_LEFT_G4_1.get(),
+                BlockModelRegistry.CURTAIN_LEFT_GROUP.get()
+        };
+        cachedUpperLeftModel = bakeModel(tintGetter, blockEntity, UPPER_L_RIG, UPPER_BONES, models);
+        return cachedUpperLeftModel;
+    }
+
+    private AnimatedBlockModel resolveLowerRightModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
+        if (cachedLowerRightModel != null) {
+            return cachedLowerRightModel;
+        }
         BlockStateModel[] models = {
                 BlockModelRegistry.CURTAIN_LOWER_G1.get(),
                 BlockModelRegistry.CURTAIN_LOWER_G2.get(),
                 BlockModelRegistry.CURTAIN_LOWER_G3.get(),
                 BlockModelRegistry.CURTAIN_LOWER_G4.get()
         };
-        if (cachedLowerModel != null) {
-            return cachedLowerModel;
+        cachedLowerRightModel = bakeModel(tintGetter, blockEntity, LOWER_R_RIG, LOWER_BONES, models);
+        return cachedLowerRightModel;
+    }
+
+    private AnimatedBlockModel resolveLowerLeftModel(BlockAndTintGetter tintGetter, CurtainBlockEntity blockEntity) {
+        if (cachedLowerLeftModel != null) {
+            return cachedLowerLeftModel;
         }
-        AnimatedBlockModel model = bakeModel(tintGetter, blockEntity, LOWER_RIG, LOWER_BONES, models);
-        cachedLowerModel = model;
-        return model;
+        BlockStateModel[] models = {
+                BlockModelRegistry.CURTAIN_LOWER_LEFT_G1.get(),
+                BlockModelRegistry.CURTAIN_LOWER_LEFT_G2.get(),
+                BlockModelRegistry.CURTAIN_LOWER_LEFT_G3.get(),
+                BlockModelRegistry.CURTAIN_LOWER_LEFT_G4.get()
+        };
+        cachedLowerLeftModel = bakeModel(tintGetter, blockEntity, LOWER_L_RIG, LOWER_BONES, models);
+        return cachedLowerLeftModel;
     }
 
     private static AnimatedBlockModel bakeModel(

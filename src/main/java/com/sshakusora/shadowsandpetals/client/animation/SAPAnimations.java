@@ -50,6 +50,24 @@ public final class SAPAnimations {
                     .defaultState("on")
                     .register();
 
+    public static final BlockAnimationDefinition CURTAIN_UPPER_L =
+            SAPAnimationRegistries.blockAnimation("curtain_upper_l")
+                    .rig("animation/curtain_upper_l")
+                    .controller("animation/curtain_upper_l")
+                    .clip("curtain/on_l")
+                    .clip("curtain/off_l")
+                    .defaultState("on")
+                    .register();
+
+    public static final BlockAnimationDefinition CURTAIN_LOWER_L =
+            SAPAnimationRegistries.blockAnimation("curtain_lower_l")
+                    .rig("animation/curtain_lower_l")
+                    .controller("animation/curtain_lower_l")
+                    .clip("curtain/on_l_lower")
+                    .clip("curtain/off_l_lower")
+                    .defaultState("on")
+                    .register();
+
     private SAPAnimations() {
     }
 

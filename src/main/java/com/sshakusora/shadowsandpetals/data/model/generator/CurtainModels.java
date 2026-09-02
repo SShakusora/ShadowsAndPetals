@@ -12,7 +12,8 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 /**
  * Datagen for the experimental two-block curtain. The block-state models
  * only feed the item model; the placed blocks are rendered by
- * {@code CurtainBlockEntityRenderer} through the per-half animation rigs.
+ * {@code CurtainBlockEntityRenderer} through the per-half, per-side
+ * animation rigs.
  */
 public final class CurtainModels {
     private CurtainModels() {
@@ -23,14 +24,20 @@ public final class CurtainModels {
             SAPBlockModelGenerator generator
     ) {
         CurtainBlock block = context.get();
-        MultiVariant upper = BlockModelGenerators.plainVariant(
+        MultiVariant upperRight = BlockModelGenerators.plainVariant(
                 generator.modLoc("block/curtain/curtain_upper_r"));
-        MultiVariant lower = BlockModelGenerators.plainVariant(
+        MultiVariant lowerRight = BlockModelGenerators.plainVariant(
                 generator.modLoc("block/curtain/curtain_lower_r"));
+        MultiVariant upperLeft = BlockModelGenerators.plainVariant(
+                generator.modLoc("block/curtain/curtain_upper_l"));
+        MultiVariant lowerLeft = BlockModelGenerators.plainVariant(
+                generator.modLoc("block/curtain/curtain_lower_l"));
         generator.blockState(MultiVariantGenerator.dispatch(block)
-                .with(PropertyDispatch.initial(CurtainBlock.HALF)
-                        .select(DoubleBlockHalf.UPPER, upper)
-                        .select(DoubleBlockHalf.LOWER, lower))
+                .with(PropertyDispatch.initial(CurtainBlock.HALF, CurtainBlock.SIDE)
+                        .select(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, upperRight)
+                        .select(DoubleBlockHalf.UPPER, CurtainBlock.Side.LEFT, upperLeft)
+                        .select(DoubleBlockHalf.LOWER, CurtainBlock.Side.RIGHT, lowerRight)
+                        .select(DoubleBlockHalf.LOWER, CurtainBlock.Side.LEFT, lowerLeft))
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
         StandardBlockModels.parentBlockItem(
                 block,
