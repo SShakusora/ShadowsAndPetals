@@ -63,7 +63,7 @@ public class CurtainBlock extends BaseEntityBlock {
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
-                .setValue(OPEN, true));
+                .setValue(OPEN, false));
     }
 
     @Override
@@ -77,9 +77,10 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     /**
-     * Places the pair, preferring to extend downward: the lower half goes to
-     * the position below the clicked spot when that block can be replaced,
-     * otherwise the clicked position is the lower half.
+     * Places the pair anchored at the clicked position: the upper half takes
+     * the clicked spot and the lower half extends below it when that block
+     * can be replaced. When the spot below cannot be replaced, the clicked
+     * position becomes the lower half and the pair extends upward instead.
      */
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
