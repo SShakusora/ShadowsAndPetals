@@ -73,10 +73,20 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
-    /** Shape for FACING=north: one 1-thick slice across the wall face. */
-    private static final VoxelShape NORTH_SHAPE = box(0, 0, 14, 16, 16, 15);
-    private static final Map<Direction, VoxelShape> SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE);
+    /**
+     * Collision slices for FACING=north. Closed curtains cover the full
+     * width of the wall face; open curtains only cover the bunch of panels
+     * they gather to their own side of the window.
+     */
+    private static final VoxelShape NORTH_CLOSED = box(0, 0, 14, 16, 16, 15);
+    private static final VoxelShape NORTH_OPEN_RIGHT = box(0, 0, 14, 6, 16, 15);
+    private static final VoxelShape NORTH_OPEN_LEFT = box(10, 0, 14, 16, 16, 15);
+    private static final Map<Direction, VoxelShape> CLOSED_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED);
+    private static final Map<Direction, VoxelShape> OPEN_RIGHT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_RIGHT);
+    private static final Map<Direction, VoxelShape> OPEN_LEFT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_LEFT);
 
     public CurtainBlock(Properties properties) {
         super(properties);
@@ -163,7 +173,13 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES.get(state.getValue(FACING));
+        Direction facing = state.getValue(FACING);
+        if (!state.getValue(OPEN)) {
+            return CLOSED_SHAPES.get(facing);
+        }
+        return (state.getValue(SIDE) == Side.LEFT
+                ? OPEN_LEFT_SHAPES
+                : OPEN_RIGHT_SHAPES).get(facing);
     }
 
     @Override
