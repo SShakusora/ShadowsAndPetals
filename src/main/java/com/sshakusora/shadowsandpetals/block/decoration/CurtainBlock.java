@@ -156,16 +156,45 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        // In creative (or without the correct tool) only the lower half drops
-        // an item; the same guard the vanilla door uses.
-        if (!level.isClientSide() && player.isCreative()) {
+        // Mirror the vanilla door/double-plant pairing so exactly one item
+        // drops per curtain: creative silently removes the other half; in
+        // survival the lower half drops once and the upper half is cleared
+        // without loot (playerDestroy suppresses the default drop path).
+        if (!level.isClientSide()) {
             DoubleBlockHalf half = state.getValue(HALF);
             BlockPos otherPos = pos.relative(half == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN);
-            if (level.getBlockState(otherPos).getBlock() instanceof CurtainBlock) {
-                level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+            BlockState otherState = level.getBlockState(otherPos);
+            boolean hasPair = otherState.getBlock() instanceof CurtainBlock;
+            if (player.preventsBlockDrops()) {
+                if (hasPair) {
+                    level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                }
+            } else {
+                if (hasPair) {
+                    level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                }
+                if (half == DoubleBlockHalf.UPPER && hasPair) {
+                    // Breaking the upper half by hand: drop once for the pair
+                    // from this position, since playerDestroy is suppressed.
+                    dropResources(state, level, pos, null, player, player.getMainHandItem());
+                } else if (half == DoubleBlockHalf.LOWER) {
+                    dropResources(state, level, pos, null, player, player.getMainHandItem());
+                }
             }
         }
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    public void playerDestroy(
+            Level level, Player player, BlockPos pos, BlockState state,
+            net.minecraft.world.level.block.entity.@Nullable BlockEntity blockEntity,
+            net.minecraft.world.item.ItemStack destroyedWith
+    ) {
+        // Suppress the default drop: playerWillDestroy already dropped for
+        // the pair exactly once.
+        player.awardStat(net.minecraft.stats.Stats.BLOCK_MINED.get(this));
+        player.causeFoodExhaustion(0.005F);
     }
 
     @Override
