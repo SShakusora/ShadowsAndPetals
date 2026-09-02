@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.registries.builder.RegBlockBuilder;
 import com.sshakusora.shadowsandpetals.block.*;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
@@ -42,6 +43,9 @@ import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 import java.util.List;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 public class BlockRegistry {
     public static final WoodSetList WOOD_SETS = new WoodSetList();
@@ -1027,22 +1031,41 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "添水竹管")
             .register();
 
-    public static final DyedBlockList<CurtainBlock> CURTAINS = new DyedBlockList<>(color -> SAPRegistries
-            .block(color.getName() + "_curtain", CurtainBlock::new)
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
-                    .strength(1.0F)
-                    .sound(SoundType.WOOL)
-                    .mapColor(color)
-                    .noOcclusion())
-            .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
-            .withItem()
-            .creativeTab(CreativeTabKey.MAIN)
-            .blockstate(() -> CurtainModels::block)
-            .clientItem(block -> ShadowsAndPetals.asResource(
-                    "block/curtain/" + color.getName() + "_curtain"))
-            .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
-            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "窗帘")
-            .register());
+    public static final DyedBlockList<CurtainBlock> CURTAINS = new DyedBlockList<>(color -> {
+        RegBlockBuilder<CurtainBlock> builder = SAPRegistries
+                .block(color.getName() + "_curtain", CurtainBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                        .strength(1.0F)
+                        .sound(SoundType.WOOL)
+                        .mapColor(color)
+                        .noOcclusion())
+                .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.MAIN)
+                .blockstate(() -> CurtainModels::block);
+        if (color == DyeColor.WHITE) {
+            // Legacy worlds stored curtains under the id 'shadowsandpetals:curtain'; migrate
+            // them to the white curtain on chunk load, carrying every block-state property over.
+            builder.stateAliasProperties("curtain", legacy -> legacy
+                            .property(CurtainBlock.FACING, Direction.NORTH)
+                            .property(CurtainBlock.HALF, DoubleBlockHalf.LOWER)
+                            .property(CurtainBlock.SIDE, CurtainBlock.Side.LEFT)
+                            .property(CurtainBlock.OPEN, false)
+                            .property(CurtainBlock.POWERED, false),
+                    (legacyState, targetState) -> targetState
+                            .setValue(CurtainBlock.FACING, legacyState.getValue(CurtainBlock.FACING))
+                            .setValue(CurtainBlock.HALF, legacyState.getValue(CurtainBlock.HALF))
+                            .setValue(CurtainBlock.SIDE, legacyState.getValue(CurtainBlock.SIDE))
+                            .setValue(CurtainBlock.OPEN, legacyState.getValue(CurtainBlock.OPEN))
+                            .setValue(CurtainBlock.POWERED, legacyState.getValue(CurtainBlock.POWERED)));
+        }
+        return builder
+                .clientItem(block -> ShadowsAndPetals.asResource(
+                        "block/curtain/" + color.getName() + "_curtain"))
+                .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
+                .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "窗帘")
+                .register();
+    });
 
     public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
             .block("orange_tree", OrangeTreeBlock::new)
