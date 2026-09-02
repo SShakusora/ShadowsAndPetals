@@ -29,7 +29,8 @@ const curtainDir = path.join(
 const PARTS = [
     {
         name: "curtain_upper_r",
-        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group"]
+        // Element 9 is the rail-end outcrop; it rides the static rail bone.
+        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group", "group"]
     },
     {
         name: "curtain_lower_r",
@@ -39,7 +40,7 @@ const PARTS = [
     },
     {
         name: "curtain_upper_l",
-        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group"]
+        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group", "group"]
     },
     {
         name: "curtain_lower_l",
