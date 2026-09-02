@@ -102,35 +102,58 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     /**
-     * Places the pair anchored at the clicked position: the upper half takes
-     * the clicked spot and the lower half extends below it when that block
-     * can be replaced. When the spot below cannot be replaced, the clicked
-     * position becomes the lower half and the pair extends upward instead.
+     * Places the pair with the upper half at the clicked position, extending
+     * downward past the clicked spot when the block below can be replaced.
+     * When the spot below cannot be replaced, the clicked position becomes
+     * the lower half and the pair extends upward instead.
+     *
+     * <p>The side follows the neighbouring curtain of the same facing: by
+     * default the new curtain takes the opposite side so a window pair links
+     * open/close, while sneaking takes the same side for placing two
+     * curtains side by side on one wall.</p>
      */
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos clickedPos = context.getClickedPos();
         Level level = context.getLevel();
-        BlockPos lowerPos = level.getBlockState(clickedPos.below()).canBeReplaced(context)
-                ? clickedPos.below()
-                : clickedPos;
-        BlockPos upperPos = lowerPos.above();
-        if (lowerPos.getY() < level.getMinY()
-                || !level.getBlockState(lowerPos).canBeReplaced(context)
+        boolean belowReplaceable = level.getBlockState(clickedPos.below()).canBeReplaced(context);
+        DoubleBlockHalf halfAtClick = belowReplaceable
+                ? DoubleBlockHalf.UPPER
+                : DoubleBlockHalf.LOWER;
+        BlockPos lowerPos = belowReplaceable ? clickedPos.below() : clickedPos;
+        BlockPos upperPos = belowReplaceable ? clickedPos : clickedPos.above();
+        if (!level.getBlockState(lowerPos).canBeReplaced(context)
                 || !level.getBlockState(upperPos).canBeReplaced(context)) {
             return null;
         }
         boolean powered = level.hasNeighborSignal(lowerPos) || level.hasNeighborSignal(upperPos);
-        // A curtain placed beside another one takes the opposite side so the
-        // pair can link, matching which half of the window it hangs on.
         Direction facing = context.getHorizontalDirection().getOpposite();
-        Side side = sideForLink(level, lowerPos, facing);
+        Side side = sideForNeighbour(level, lowerPos, facing, context.getPlayer() != null && context.getPlayer().isSecondaryUseActive());
         return defaultBlockState()
                 .setValue(FACING, facing)
-                .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(HALF, halfAtClick)
                 .setValue(SIDE, side)
                 .setValue(POWERED, powered)
                 .setValue(OPEN, powered);
+    }
+
+    /**
+     * Chooses the side from the neighbouring curtain of the same facing:
+     * opposite side normally (linking across a window), same side when
+     * sneaking. Without a linkable neighbour the curtain is a plain RIGHT.
+     */
+    private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
+        Direction linkDirection = facing.getCounterClockWise();
+        Direction[] both = {linkDirection, linkDirection.getOpposite()};
+        for (Direction direction : both) {
+            BlockPos neighbourPos = lowerPos.relative(direction);
+            BlockState neighbour = level.getBlockState(neighbourPos);
+            if (neighbour.getBlock() instanceof CurtainBlock
+                    && neighbour.getValue(FACING) == facing) {
+                return sneaking ? neighbour.getValue(SIDE) : neighbour.getValue(SIDE).mirror();
+            }
+        }
+        return Side.RIGHT;
     }
 
     @Override
@@ -190,45 +213,19 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        // Mirror the vanilla door/double-plant pairing so exactly one item
-        // drops per curtain: creative silently removes the other half; in
-        // survival the lower half drops once and the upper half is cleared
-        // without loot (playerDestroy suppresses the default drop path).
+        // Remove the other half in the same interaction so the pair never
+        // lingers. The loot table only drops for the lower half, so exactly
+        // one item falls per curtain in every mode.
         if (!level.isClientSide()) {
-            DoubleBlockHalf half = state.getValue(HALF);
-            BlockPos otherPos = pos.relative(half == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN);
+            BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
+                    ? Direction.UP : Direction.DOWN);
             BlockState otherState = level.getBlockState(otherPos);
-            boolean hasPair = otherState.getBlock() instanceof CurtainBlock;
-            if (player.preventsBlockDrops()) {
-                if (hasPair) {
-                    level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                }
-            } else {
-                if (hasPair) {
-                    level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                }
-                if (half == DoubleBlockHalf.UPPER && hasPair) {
-                    // Breaking the upper half by hand: drop once for the pair
-                    // from this position, since playerDestroy is suppressed.
-                    dropResources(state, level, pos, null, player, player.getMainHandItem());
-                } else if (half == DoubleBlockHalf.LOWER) {
-                    dropResources(state, level, pos, null, player, player.getMainHandItem());
-                }
+            if (otherState.getBlock() instanceof CurtainBlock) {
+                level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                level.levelEvent(player, 2001, otherPos, Block.getId(otherState));
             }
         }
         return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
-    public void playerDestroy(
-            Level level, Player player, BlockPos pos, BlockState state,
-            net.minecraft.world.level.block.entity.@Nullable BlockEntity blockEntity,
-            net.minecraft.world.item.ItemStack destroyedWith
-    ) {
-        // Suppress the default drop: playerWillDestroy already dropped for
-        // the pair exactly once.
-        player.awardStat(net.minecraft.stats.Stats.BLOCK_MINED.get(this));
-        player.causeFoodExhaustion(0.005F);
     }
 
     @Override
@@ -319,25 +316,6 @@ public class CurtainBlock extends BaseEntityBlock {
             recordClock(level, otherPos, gameTime, open);
             level.setBlock(otherPos, otherState.setValue(OPEN, open).setValue(POWERED, powered), Block.UPDATE_ALL);
         }
-    }
-
-    /**
-     * Chooses the side for a newly placed curtain: when a linkable neighbour
-     * of one side exists, take the opposite side; otherwise keep RIGHT, the
-     * default single-curtain side.
-     */
-    private static Side sideForLink(Level level, BlockPos lowerPos, Direction facing) {
-        Direction linkDirection = facing.getCounterClockWise();
-        Direction[] both = {linkDirection, linkDirection.getOpposite()};
-        for (Direction direction : both) {
-            BlockPos neighbourPos = lowerPos.relative(direction);
-            BlockState neighbour = level.getBlockState(neighbourPos);
-            if (neighbour.getBlock() instanceof CurtainBlock
-                    && neighbour.getValue(FACING) == facing) {
-                return neighbour.getValue(SIDE).mirror();
-            }
-        }
-        return Side.RIGHT;
     }
 
     private static void recordClock(Level level, BlockPos pos, long gameTime, boolean open) {

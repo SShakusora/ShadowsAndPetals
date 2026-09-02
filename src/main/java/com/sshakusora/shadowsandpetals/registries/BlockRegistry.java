@@ -1038,7 +1038,7 @@ public class BlockRegistry {
             .withItem()
             .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> CurtainModels::block)
-            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
             .lang(DatagenLangRegistry.ZH_CN, "窗帘")
             .register();
 
