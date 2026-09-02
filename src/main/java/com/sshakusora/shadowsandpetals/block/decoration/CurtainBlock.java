@@ -138,19 +138,26 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     /**
-     * Chooses the side from the neighbouring curtain of the same facing:
-     * opposite side normally (linking across a window), same side when
-     * sneaking. Without a linkable neighbour the curtain is a plain RIGHT.
+     * Chooses the side from the neighbouring curtain of the same facing,
+     * using wall geometry: the neighbour on the observer's left makes this
+     * curtain RIGHT, the neighbour on the observer's right makes it LEFT.
+     * Sneaking keeps the neighbour's side instead (same-side pairing).
+     * Without a linkable neighbour the curtain is a plain RIGHT.
      */
     private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
-        Direction linkDirection = facing.getCounterClockWise();
-        Direction[] both = {linkDirection, linkDirection.getOpposite()};
+        Direction leftDir = facing.getClockWise();
+        Direction[] both = {leftDir, leftDir.getOpposite()};
         for (Direction direction : both) {
             BlockPos neighbourPos = lowerPos.relative(direction);
             BlockState neighbour = level.getBlockState(neighbourPos);
             if (neighbour.getBlock() instanceof CurtainBlock
                     && neighbour.getValue(FACING) == facing) {
-                return sneaking ? neighbour.getValue(SIDE) : neighbour.getValue(SIDE).mirror();
+                if (sneaking) {
+                    return neighbour.getValue(SIDE);
+                }
+                // The new curtain sits on the opposite side of the window
+                // from the neighbour: neighbour on the left => RIGHT here.
+                return direction == leftDir ? Side.RIGHT : Side.LEFT;
             }
         }
         return Side.RIGHT;
@@ -273,29 +280,29 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     /**
-     * Toggles this curtain's halves plus any horizontally linked neighbour
-     * curtain of the opposite side, recording the shared animation clock on
-     * each block entity.
+     * Toggles this curtain's halves plus its linked neighbour curtain,
+     * recording the shared animation clock on each block entity.
+     *
+     * <p>Linking is geometric: a LEFT curtain only links with a RIGHT
+     * curtain on its left side (as seen from the room), and a RIGHT curtain
+     * only links with a LEFT curtain on its right side. Two same-side
+     * curtains never link.</p>
      */
     private static void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
         long gameTime = level.getGameTime();
         toggleColumn(level, pos, state, open, gameTime);
 
-        // Link with the neighbour curtain across the window: same FACING,
-        // opposite SIDE, sitting beside this column along the wall.
         Direction facing = state.getValue(FACING);
         Side side = state.getValue(SIDE);
-        Direction linkDirection = facing.getCounterClockWise();
-        Direction[] both = {linkDirection, linkDirection.getOpposite()};
-        for (Direction direction : both) {
-            BlockPos neighbourPos = pos.relative(direction);
-            BlockState neighbour = level.getBlockState(neighbourPos);
-            if (neighbour.getBlock() instanceof CurtainBlock
-                    && neighbour.getValue(FACING) == facing
-                    && neighbour.getValue(SIDE) != side) {
-                toggleColumn(level, neighbourPos, neighbour, open, gameTime);
-                break;
-            }
+        Direction outward = side == Side.LEFT
+                ? facing.getClockWise()          // LEFT curtains link toward the observer's left
+                : facing.getClockWise().getOpposite(); // RIGHT curtains link toward the observer's right
+        BlockPos neighbourPos = pos.relative(outward);
+        BlockState neighbour = level.getBlockState(neighbourPos);
+        if (neighbour.getBlock() instanceof CurtainBlock
+                && neighbour.getValue(FACING) == facing
+                && neighbour.getValue(SIDE) != side) {
+            toggleColumn(level, neighbourPos, neighbour, open, gameTime);
         }
     }
 
