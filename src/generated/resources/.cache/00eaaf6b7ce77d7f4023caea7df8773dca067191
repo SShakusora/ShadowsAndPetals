@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-02T09:34:16.9967201	Model Definitions - shadowsandpetals
+// 26.1.2	2026-09-02T13:10:26.5055268	Model Definitions - shadowsandpetals
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 da1d6483fa8034770bc5617a41a2d33e76939b28 assets/shadowsandpetals/blockstates/acacia_window_pane.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
@@ -981,7 +981,7 @@ fbda3daa8b8750b30315ae50f2cf6334839cead1 assets/shadowsandpetals/models/item/che
 261d956c4f7fa4f8ff889ac43a5fce91e6b3e14a assets/shadowsandpetals/models/item/clam.json
 effdd69d1167c8884921228a0bcfd03f921ff934 assets/shadowsandpetals/models/item/copper_ingot_pile.json
 d56b984e5ce5031566a5949241b49523efc9a162 assets/shadowsandpetals/models/item/crimson_window_pane.json
-16dab5c02d67efd220aeb5bb20b252d177470e56 assets/shadowsandpetals/models/item/curtain.json
+3ecbffcf71cd684b5fbfc3079d4a1d1f5c51a141 assets/shadowsandpetals/models/item/curtain.json
 0d019465e9180196610ee230b5c10e5d51433e92 assets/shadowsandpetals/models/item/cyan_cafe_chair.json
 c03be1b56c07bacd6678bd1f4c3370aa4448538e assets/shadowsandpetals/models/item/cyan_roof_tile.json
 21bf72e7987d1e8092bfddd8a040d700fa65a0ee assets/shadowsandpetals/models/item/dark_oak_window_pane.json

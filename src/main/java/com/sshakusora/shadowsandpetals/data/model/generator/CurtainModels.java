@@ -42,7 +42,7 @@ public final class CurtainModels {
         StandardBlockModels.parentBlockItem(
                 block,
                 generator,
-                generator.modLoc("block/curtain/curtain_lower_r")
+                generator.modLoc("block/curtain/white_curtain")
         );
     }
 }
