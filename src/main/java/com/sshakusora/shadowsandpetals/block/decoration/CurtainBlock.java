@@ -79,8 +79,8 @@ public class CurtainBlock extends BaseEntityBlock {
      * they gather to their own side of the window.
      */
     private static final VoxelShape NORTH_CLOSED = box(0, 0, 14, 16, 16, 15);
-    private static final VoxelShape NORTH_OPEN_RIGHT = box(0, 0, 14, 6, 16, 15);
-    private static final VoxelShape NORTH_OPEN_LEFT = box(10, 0, 14, 16, 16, 15);
+    private static final VoxelShape NORTH_OPEN_RIGHT = box(0, 0, 14, 4, 16, 15);
+    private static final VoxelShape NORTH_OPEN_LEFT = box(12, 0, 14, 16, 16, 15);
     private static final Map<Direction, VoxelShape> CLOSED_SHAPES =
             VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED);
     private static final Map<Direction, VoxelShape> OPEN_RIGHT_SHAPES =
