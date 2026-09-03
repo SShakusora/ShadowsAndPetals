@@ -6,16 +6,13 @@ import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,7 +24,6 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
@@ -252,17 +248,9 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        // Remove the other half in the same interaction so the pair never
-        // lingers. The loot table only drops for the lower half, so exactly
-        // one item falls per curtain in every mode.
-        if (!level.isClientSide()) {
-            BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
-                    ? Direction.UP : Direction.DOWN);
-            BlockState otherState = level.getBlockState(otherPos);
-            if (otherState.getBlock() instanceof CurtainBlock) {
-                level.setBlock(otherPos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                level.levelEvent(player, 2001, otherPos, Block.getId(otherState));
-            }
+        if (!level.isClientSide()
+                && (player.isCreative() || !player.hasCorrectToolForDrops(state, level, pos))) {
+            DoublePlantBlock.preventDropFromBottomPart(level, pos, state, player);
         }
         return super.playerWillDestroy(level, pos, state, player);
     }
@@ -271,8 +259,7 @@ public class CurtainBlock extends BaseEntityBlock {
     protected InteractionResult useWithoutItem(
             BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
-        // Redstone-driven curtains stay closed to manual use, like vanilla doors.
-        if (state.getValue(POWERED)) {
+        if (isPoweredPair(level, pos, state)) {
             return InteractionResult.PASS;
         }
         boolean open = !state.getValue(OPEN);
@@ -292,9 +279,7 @@ public class CurtainBlock extends BaseEntityBlock {
         if (level.isClientSide()) {
             return;
         }
-        boolean powered = level.hasNeighborSignal(pos)
-                || level.hasNeighborSignal(pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
-                ? Direction.UP : Direction.DOWN));
+        boolean powered = hasRedstoneSignal(level, pos, state);
         if (powered != state.getValue(POWERED)) {
             if (powered != state.getValue(OPEN)) {
                 togglePair(level, pos, state, powered);
@@ -321,30 +306,28 @@ public class CurtainBlock extends BaseEntityBlock {
      */
     private static void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
         long gameTime = level.getGameTime();
-        toggleColumn(level, pos, state, open, gameTime);
-
-        Direction facing = state.getValue(FACING);
-        Side side = state.getValue(SIDE);
-        Direction towardPartner = side == Side.LEFT
-                ? facing.getClockWise().getOpposite()  // LEFT looks right for its RIGHT partner
-                : facing.getClockWise();               // RIGHT looks left for its LEFT partner
-        BlockPos neighbourPos = pos.relative(towardPartner);
+        BlockPos neighbourPos = linkedNeighbourPos(pos, state);
         BlockState neighbour = level.getBlockState(neighbourPos);
-        if (neighbour.getBlock() instanceof CurtainBlock
-                && neighbour.getValue(FACING) == facing
-                && neighbour.getValue(SIDE) != side) {
-            toggleColumn(level, neighbourPos, neighbour, open, gameTime);
+        boolean hasLinkedNeighbour = isLinkedNeighbour(state, neighbour);
+        boolean powered = hasRedstoneSignal(level, pos, state);
+        boolean neighbourPowered = hasLinkedNeighbour && hasRedstoneSignal(level, neighbourPos, neighbour);
+        boolean targetOpen = open || powered || neighbourPowered;
+
+        toggleColumn(level, pos, state, targetOpen, gameTime, powered);
+        if (hasLinkedNeighbour) {
+            toggleColumn(level, neighbourPos, neighbour, targetOpen, gameTime, neighbourPowered);
         }
     }
 
     /** Toggles both vertical halves of one curtain column. */
-    private static void toggleColumn(Level level, BlockPos pos, BlockState state, boolean open, long gameTime) {
+    private static void toggleColumn(
+            Level level, BlockPos pos, BlockState state, boolean open, long gameTime, boolean powered
+    ) {
         DoubleBlockHalf half = state.getValue(HALF);
         BlockPos otherPos = pos.relative(half == DoubleBlockHalf.LOWER ? Direction.UP : Direction.DOWN);
         BlockState otherState = level.getBlockState(otherPos);
         boolean hasPair = otherState.getBlock() instanceof CurtainBlock
                 && otherState.getValue(SIDE) == state.getValue(SIDE);
-        boolean powered = state.hasProperty(POWERED) && state.getValue(POWERED);
 
         // Record the clock before setBlock so the block-entity data packet
         // carries OPEN and the animation timestamp together.
@@ -358,6 +341,37 @@ public class CurtainBlock extends BaseEntityBlock {
                     .setValue(ANIMATING, true), Block.UPDATE_ALL);
             level.scheduleTick(otherPos, state.getBlock(), ANIMATION_TICKS);
         }
+    }
+
+    private static boolean hasRedstoneSignal(Level level, BlockPos pos, BlockState state) {
+        BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
+                ? Direction.UP : Direction.DOWN);
+        return level.hasNeighborSignal(pos) || level.hasNeighborSignal(otherPos);
+    }
+
+    private static boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
+        if (state.getValue(POWERED) || hasRedstoneSignal(level, pos, state)) {
+            return true;
+        }
+
+        BlockPos neighbourPos = linkedNeighbourPos(pos, state);
+        BlockState neighbour = level.getBlockState(neighbourPos);
+        return isLinkedNeighbour(state, neighbour)
+                && (neighbour.getValue(POWERED) || hasRedstoneSignal(level, neighbourPos, neighbour));
+    }
+
+    private static BlockPos linkedNeighbourPos(BlockPos pos, BlockState state) {
+        Direction facing = state.getValue(FACING);
+        Direction towardPartner = state.getValue(SIDE) == Side.LEFT
+                ? facing.getClockWise().getOpposite()  // LEFT looks right for its RIGHT partner
+                : facing.getClockWise();               // RIGHT looks left for its LEFT partner
+        return pos.relative(towardPartner);
+    }
+
+    private static boolean isLinkedNeighbour(BlockState state, BlockState neighbour) {
+        return neighbour.getBlock() instanceof CurtainBlock
+                && neighbour.getValue(FACING) == state.getValue(FACING)
+                && neighbour.getValue(SIDE) != state.getValue(SIDE);
     }
 
     private static void recordClock(Level level, BlockPos pos, long gameTime, boolean open) {

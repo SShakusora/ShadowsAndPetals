@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
@@ -9,7 +10,6 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
-import net.minecraft.advancements.criterion.StatePropertiesPredicate;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.storage.loot.LootPool;
