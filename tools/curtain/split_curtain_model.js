@@ -21,10 +21,13 @@
  * override the texture, so geometry edits never touch the derived files.
  *
  * Stage 2 - split: writes the per-bone model files that
- * CurtainBlockEntityRenderer binds to the rig bones. Those live in
- * models/block/curtain/curtain_<half>_<side>[_open]_<color>/. The placed
- * curtain is rendered through them, so after any geometry edit re-run this
- * script.
+ * CurtainBlockEntityRenderer binds to the rig bones. The closed white masters
+ * split into per-bone parent models under
+ * models/block/curtain/curtain_<half>_<side>/; every colored per-bone file is
+ * a texture-override stub that parents the white bone model, so geometry
+ * edits only touch the white per-bone files. The open pose renders through
+ * the static block-state model, so no open per-bone files exist. After any
+ * geometry edit re-run this script.
  *
  * Usage:  node tools/curtain/split_curtain_model.js
  */
@@ -354,44 +357,87 @@ function deriveColorVariants() {
 }
 
 // ---------------------------------------------------------------------------
-// Stage 2: split each aggregate model into per-bone files for the renderer.
+// Stage 2: split the closed white masters into per-bone parent models, and
+// derive every colored per-bone file as a parent-override stub.
 // ---------------------------------------------------------------------------
 
+/**
+ * Split base name: only the closed masters feed the renderer's rig bones.
+ * The open pose renders through the static block-state model, so no open
+ * per-bone files are generated; stale directories are pruned.
+ */
 function splitParts() {
     for (const part of PARTS) {
+        const master = readMaster(part.name);
+        if (!Array.isArray(master.elements) || master.elements.length !== part.boneOfElement.length) {
+            fail(part.name + ".json: expected " + part.boneOfElement.length + " elements, found "
+                    + (Array.isArray(master.elements) ? master.elements.length : "none"));
+        }
+        const keys = whiteTextureKeys(master);
+        if (keys.length === 0) {
+            fail(part.name + ".json does not reference the white curtain texture");
+        }
+        const byBone = new Map();
+        master.elements.forEach((element, index) => {
+            const bone = part.boneOfElement[index];
+            if (!byBone.has(bone)) byBone.set(bone, []);
+            byBone.get(bone).push(element);
+        });
+
+        // White per-bone files keep the geometry (one shared parent per bone).
+        const bonesDir = path.join(curtainDir, part.name);
+        for (const [bone, elements] of byBone) {
+            writeModel(path.join(bonesDir, bone + ".json"), { textures: master.textures, elements });
+        }
+
+        // Colored per-bone files are texture-override stubs of the white bone.
+        for (const color of COLORS) {
+            if (color === "white") {
+                continue;
+            }
+            const colorDir = path.join(curtainDir, part.name + "_" + color);
+            for (const bone of byBone.keys()) {
+                const stub = { parent: "shadowsandpetals:block/curtain/" + part.name + "/" + bone, textures: {} };
+                for (const key of keys) {
+                    stub.textures[key] = NS + color;
+                }
+                writeModel(path.join(colorDir, bone + ".json"), stub);
+            }
+        }
+
+        // Prune stale per-bone output: every open dir (never referenced — the
+        // open pose renders through the static block-state model) and any bone
+        // file that no longer maps to an element of the master.
         for (const base of [part.name, part.name + "_open"]) {
-            const master = readMaster(base);
-            const keys = whiteTextureKeys(master);
-            const byBone = new Map();
-            master.elements.forEach((element, index) => {
-                const bone = part.boneOfElement[index];
-                if (!byBone.has(bone)) byBone.set(bone, []);
-                byBone.get(bone).push(element);
-            });
+            if (base.endsWith("_open")) {
+                for (const color of COLORS) {
+                    fs.rmSync(path.join(curtainDir, base + (color === "white" ? "" : "_" + color)),
+                            { recursive: true, force: true });
+                }
+                continue;
+            }
             for (const color of COLORS) {
-                const bonesDir = path.join(curtainDir, base + (color === "white" ? "" : "_" + color));
-                const retexture = color !== "white" && keys.length > 0;
-                for (const [bone, elements] of byBone) {
-                    const out = retexture
-                        ? { textures: retextureMap(master, keys, color), elements }
-                        : { textures: master.textures, elements };
-                    fs.mkdirSync(bonesDir, { recursive: true });
-                    writeModel(path.join(bonesDir, bone + ".json"), out);
+                if (color === "white") {
+                    continue;
+                }
+                const dir = path.join(curtainDir, base + "_" + color);
+                for (const boneFile of fs.existsSync(dir) ? fs.readdirSync(dir) : []) {
+                    if (boneFile.endsWith(".json") && !byBone.has(boneFile.slice(0, -5))) {
+                        fs.rmSync(path.join(dir, boneFile));
+                    }
                 }
             }
-            console.log("split_curtain_model: " + base + " -> wrote "
-                + byBone.size + " per-bone models for " + COLORS.length + " colors (bones: "
-                + [...byBone.keys()].join(", ") + ")");
+            for (const boneFile of fs.existsSync(bonesDir) ? fs.readdirSync(bonesDir) : []) {
+                if (boneFile.endsWith(".json") && !byBone.has(boneFile.slice(0, -5))) {
+                    fs.rmSync(path.join(bonesDir, boneFile));
+                }
+            }
         }
-    }
-}
 
-function retextureMap(master, keys, color) {
-    const textures = Object.assign({}, master.textures);
-    for (const key of keys) {
-        textures[key] = NS + color;
+        console.log("split_curtain_model: " + part.name + " -> " + byBone.size
+                + " white bone parents + " + (COLORS.length - 1) + " color stub sets (bones: "
+                + [...byBone.keys()].join(", ") + ")");
     }
-    return textures;
 }
 
 bakeOpenMasters();
