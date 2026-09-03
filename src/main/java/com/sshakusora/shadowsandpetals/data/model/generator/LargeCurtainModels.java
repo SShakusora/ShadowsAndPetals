@@ -7,12 +7,14 @@ import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.MultiVariant;
 import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
 import net.minecraft.client.data.models.blockstates.PropertyDispatch;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 /**
- * Datagen for the single-block large curtain. Outside the animation window
- * the block renders as a plain block-state model: the closed pose or the
- * baked open pose. While ANIMATING the render shape is INVISIBLE and
- * {@code LargeCurtainBlockEntityRenderer} owns the pose.
+ * Datagen for the four-block large curtain. Outside the animation window
+ * each block renders its own hand-authored quadrant model: the closed pose
+ * or the baked open pose, per (row, column). While ANIMATING the render
+ * shape is INVISIBLE everywhere except the anchor, whose
+ * {@code LargeCurtainBlockEntityRenderer} draws the whole rig.
  */
 public final class LargeCurtainModels {
     private LargeCurtainModels() {
@@ -23,16 +25,23 @@ public final class LargeCurtainModels {
             SAPBlockModelGenerator generator
     ) {
         LargeCurtainBlock block = context.get();
-        MultiVariant closed = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/large_curtain/large_curtain"));
-        MultiVariant open = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/large_curtain/large_curtain_open"));
+        // Quadrant naming from the authored files: l/r = column, 1/2 = row.
+        // The authored geometry is the RIGHT curtain; its outer (bunching)
+        // column is "r", its inner column is "l".
+        PropertyDispatch<MultiVariant> dispatch = PropertyDispatch.initial(
+                        LargeCurtainBlock.HALF,
+                        LargeCurtainBlock.COLUMN,
+                        LargeCurtainBlock.OPEN,
+                        LargeCurtainBlock.ANIMATING)
+                .generate((half, column, open, animating) -> {
+                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "r" : "l")
+                            + (half == DoubleBlockHalf.UPPER ? "1" : "2");
+                    String suffix = open ? "open_" + quadrant : quadrant;
+                    return BlockModelGenerators.plainVariant(
+                            generator.modLoc("block/large_curtain/large_curtain_right_" + suffix));
+                });
         generator.blockState(MultiVariantGenerator.dispatch(block)
-                .with(PropertyDispatch.initial(LargeCurtainBlock.OPEN, LargeCurtainBlock.ANIMATING)
-                        .select(false, true, closed)
-                        .select(false, false, closed)
-                        .select(true, true, open)
-                        .select(true, false, open))
+                .with(dispatch)
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING));
         StandardBlockModels.parentBlockItem(
                 block,

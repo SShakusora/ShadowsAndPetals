@@ -63,9 +63,9 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
     @Override
     public AABB getRenderBoundingBox(LargeCurtainBlockEntity blockEntity) {
-        // The model overhangs the block on x (neighbour cells) and hangs into
-        // the cell below; keep the whole moving volume inside the culling box.
-        return new AABB(blockEntity.getBlockPos()).inflate(0.75D);
+        // The anchor renders the whole 2x2 rig: cover the partner cells and
+        // the fabric bunching beyond them.
+        return new AABB(blockEntity.getBlockPos()).inflate(1.5D);
     }
 
     @Override
@@ -79,9 +79,11 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         state.facing = blockState.getValue(LargeCurtainBlock.FACING);
         state.animationPose = null;
         state.model = null;
-        // Outside the animation window the block-state model renders the
-        // curtain; the block-entity renderer stays idle.
+        // Outside the animation window every block renders its own static
+        // quadrant model; during it only the anchor's renderer draws the
+        // whole rig, so the moving curtain is submitted exactly once.
         if (!blockState.getValue(LargeCurtainBlock.ANIMATING)
+                || !blockState.getValue(LargeCurtainBlock.ANCHOR)
                 || blockEntity.getLevel() == null) {
             return;
         }
