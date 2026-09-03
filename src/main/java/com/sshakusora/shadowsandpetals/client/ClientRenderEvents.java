@@ -167,6 +167,7 @@ public class ClientRenderEvents {
         LampOutlineCache.register(event);
         TeapotOutlineCache.register(event);
         VanityOutlineCache.register(event);
+        CurtainOutlineCache.register(event);
         SAPAnimations.init();
         var key = ShadowsAndPetals.asResource("pose_animations");
         event.addListener(key, SAPAnimationResources.INSTANCE);
