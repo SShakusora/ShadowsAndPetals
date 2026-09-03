@@ -101,14 +101,28 @@ function boneBindings(closed) {
     return boneOf;
 }
 
-function groupPivots(closed) {
+/**
+ * Local-frame rig pivots derived from the elements' authored rotation
+ * origins (the export moved geometry into block-local space while the
+ * outline groups still carry stale editor origins). Each bone takes the
+ * rotation origin of its first rotating element; bones without one (none
+ * in this model after the update) fall back to the outline group origin.
+ */
+function groupPivots(closed, boneOf) {
     const pivots = new Map();
+    closed.elements.forEach((element, index) => {
+        const bone = boneOf[index];
+        if (pivots.has(bone) || !element.rotation || !element.rotation.origin) {
+            return;
+        }
+        pivots.set(bone, element.rotation.origin);
+    });
     (function collect(nodes) {
         for (const node of nodes) {
-            if (typeof node === "object" && node.name) {
+            if (typeof node === "object" && node.name && !pivots.has(node.name) && node.origin) {
                 pivots.set(node.name, node.origin);
-                collect(node.children || []);
             }
+            if (typeof node === "object" && node.children) collect(node.children);
         }
     })(closed.groups || []);
     return pivots;
@@ -271,7 +285,7 @@ function toLocal(element) {
 function main() {
     const { closed, opening, closing } = loadSources();
     const boneOf = boneBindings(closed);
-    const pivots = groupPivots(closed);
+    const pivots = groupPivots(closed, boneOf);
     const pose = poseOf(opening);
 
     const openElements = bakeElements(closed, boneOf, pose, pivots);
