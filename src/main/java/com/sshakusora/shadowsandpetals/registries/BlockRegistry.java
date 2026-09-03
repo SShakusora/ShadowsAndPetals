@@ -1043,24 +1043,23 @@ public class BlockRegistry {
                 .withItem()
                 .creativeTab(CreativeTabKey.MAIN)
                 .blockstate(() -> CurtainModels::block);
-        if (color == DyeColor.WHITE) {
-            // Legacy worlds stored curtains under the id 'shadowsandpetals:curtain'; migrate
-            // them to the white curtain on chunk load, carrying every block-state property over.
-            builder.stateAliasProperties("curtain", legacy -> legacy
-                            .property(CurtainBlock.FACING, Direction.NORTH)
-                            .property(CurtainBlock.HALF, DoubleBlockHalf.LOWER)
-                            .property(CurtainBlock.SIDE, CurtainBlock.Side.LEFT)
-                            .property(CurtainBlock.OPEN, false)
-                            .property(CurtainBlock.POWERED, false)
-                            .property(CurtainBlock.ANIMATING, false),
-                    (legacyState, targetState) -> targetState
-                            .setValue(CurtainBlock.FACING, legacyState.getValue(CurtainBlock.FACING))
-                            .setValue(CurtainBlock.HALF, legacyState.getValue(CurtainBlock.HALF))
-                            .setValue(CurtainBlock.SIDE, legacyState.getValue(CurtainBlock.SIDE))
-                            .setValue(CurtainBlock.OPEN, legacyState.getValue(CurtainBlock.OPEN))
-                            .setValue(CurtainBlock.POWERED, legacyState.getValue(CurtainBlock.POWERED))
-                            .setValue(CurtainBlock.ANIMATING, false));
-        }
+        // Deprecated: the 'shadowsandpetals:curtain' id only existed in 26.1.2 test worlds,
+        // and 26.1.2 legacy content is deprecated. Restore the stateAliasProperties migration
+        // below if the old id ever needs to survive in saved worlds.
+        // builder.stateAliasProperties("curtain", legacy -> legacy
+        //                 .property(CurtainBlock.FACING, Direction.NORTH)
+        //                 .property(CurtainBlock.HALF, DoubleBlockHalf.LOWER)
+        //                 .property(CurtainBlock.SIDE, CurtainBlock.Side.LEFT)
+        //                 .property(CurtainBlock.OPEN, false)
+        //                 .property(CurtainBlock.POWERED, false)
+        //                 .property(CurtainBlock.ANIMATING, false),
+        //         (legacyState, targetState) -> targetState
+        //                 .setValue(CurtainBlock.FACING, legacyState.getValue(CurtainBlock.FACING))
+        //                 .setValue(CurtainBlock.HALF, legacyState.getValue(CurtainBlock.HALF))
+        //                 .setValue(CurtainBlock.SIDE, legacyState.getValue(CurtainBlock.SIDE))
+        //                 .setValue(CurtainBlock.OPEN, legacyState.getValue(CurtainBlock.OPEN))
+        //                 .setValue(CurtainBlock.POWERED, legacyState.getValue(CurtainBlock.POWERED))
+        //                 .setValue(CurtainBlock.ANIMATING, false));
         return builder
                 .clientItem(block -> ShadowsAndPetals.asResource(
                         "block/curtain/" + color.getName() + "_curtain"))
