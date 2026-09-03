@@ -1,0 +1,49 @@
+{
+  "format_version": 1,
+  "rig": "shadowsandpetals:curtain/upper_right",
+  "initial": "open",
+  "states": {
+    "open": {
+      "clip": "shadowsandpetals:curtain/upper_right/opening",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "panel_1_anchor",
+        "panel_1_fabric",
+        "panel_2_anchor",
+        "panel_2_fabric",
+        "panel_3_anchor",
+        "panel_3_fabric",
+        "panel_4_anchor",
+        "panel_4_fabric"
+      ]
+    },
+    "closed": {
+      "clip": "shadowsandpetals:curtain/upper_right/closing",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "panel_1_anchor",
+        "panel_1_fabric",
+        "panel_2_anchor",
+        "panel_2_fabric",
+        "panel_3_anchor",
+        "panel_3_fabric",
+        "panel_4_anchor",
+        "panel_4_fabric"
+      ]
+    }
+  },
+  "transitions": [
+    {
+      "from": "open",
+      "to": "closed",
+      "duration": 0.08
+    },
+    {
+      "from": "closed",
+      "to": "open",
+      "duration": 0.08
+    }
+  ]
+}

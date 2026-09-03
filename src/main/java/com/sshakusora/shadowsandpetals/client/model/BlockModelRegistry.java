@@ -115,6 +115,54 @@ public final class BlockModelRegistry {
                     .model(shape -> ShadowsAndPetals.asResource("block/bonsai/bonsai_" + shape.getSerializedName() + "_dead"))
                     .register();
 
+    /**
+     * Per-bone baked models of the curtain rig, keyed by (dye color, bone).
+     * Each set resolves to the per-bone files under
+     * {@code block/curtain/curtain_<half>_<side>[_<color>]/<bone>}.
+     */
+    public static final String[] CURTAIN_UPPER_BONES = {
+            "panel_1_anchor", "panel_1_fabric", "panel_2_anchor", "panel_2_fabric",
+            "panel_3_anchor", "panel_3_fabric", "panel_4_anchor", "panel_4_fabric", "rail"
+    };
+    public static final String[] CURTAIN_LOWER_BONES = {
+            "panel_1", "panel_2", "panel_3", "panel_4"
+    };
+
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_RIGHT =
+            curtainBoneSet("curtain_upper_right", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_RIGHT =
+            curtainBoneSet("curtain_lower_right", CURTAIN_LOWER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_LEFT =
+            curtainBoneSet("curtain_upper_left", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_LEFT =
+            curtainBoneSet("curtain_lower_left", CURTAIN_LOWER_BONES);
+
+    /** A dye color paired with one rig bone of a curtain part. */
+    public record CurtainBoneKey(DyeColor color, String bone) {
+    }
+
+    private static StandaloneBlockModelSet<CurtainBoneKey> curtainBoneSet(String part, String[] bones) {
+        return ClientModelRegistry
+                .<CurtainBoneKey>blockStateSet(part)
+                .keys(() -> curtainBoneKeys(bones))
+                .keyPath(key -> key.color().getName() + "/" + key.bone())
+                .model(key -> ShadowsAndPetals.asResource(
+                        "block/curtain/" + part
+                                + (key.color() == DyeColor.WHITE ? "" : "_" + key.color().getName())
+                                + "/" + key.bone()))
+                .register();
+    }
+
+    private static List<CurtainBoneKey> curtainBoneKeys(String[] bones) {
+        List<CurtainBoneKey> keys = new ArrayList<>();
+        for (DyeColor color : DyeColor.values()) {
+            for (String bone : bones) {
+                keys.add(new CurtainBoneKey(color, bone));
+            }
+        }
+        return keys;
+    }
+
     static {
         BlockStateModelDecoratorRegistry.forBlock(IroriBlock.class)
                 .wrap(IroriBlockStateModel::new)

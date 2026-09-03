@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "shadowsandpetals:cyan_curtain",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "shadowsandpetals:cyan_curtain"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "shadowsandpetals:blocks/cyan_curtain"
+}

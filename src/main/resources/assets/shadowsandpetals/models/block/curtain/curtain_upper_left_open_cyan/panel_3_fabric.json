@@ -1,0 +1,77 @@
+{
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/cyan",
+    "2": "shadowsandpetals:block/curtain/curtain_deco",
+    "particle": "shadowsandpetals:block/curtain/cyan"
+  },
+  "elements": [
+    {
+      "from": [
+        12.98747,
+        0,
+        12.69657
+      ],
+      "to": [
+        13.98747,
+        13,
+        16.69657
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0,
+            3,
+            4,
+            16
+          ],
+          "texture": "#1"
+        },
+        "north": {
+          "uv": [
+            0,
+            3,
+            1,
+            16
+          ],
+          "texture": "#1"
+        },
+        "east": {
+          "uv": [
+            4,
+            3,
+            0,
+            16
+          ],
+          "texture": "#1"
+        },
+        "south": {
+          "uv": [
+            3,
+            3,
+            4,
+            16
+          ],
+          "texture": "#1"
+        },
+        "up": {
+          "uv": [
+            4,
+            3,
+            0,
+            4
+          ],
+          "texture": "#1"
+        },
+        "down": {
+          "uv": [
+            4,
+            15,
+            0,
+            16
+          ],
+          "texture": "#1"
+        }
+      }
+    }
+  ]
+}
