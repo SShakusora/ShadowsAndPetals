@@ -2,7 +2,7 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiModelTransform;
-import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiOutlineGeometry;
+import com.sshakusora.shadowsandpetals.client.outline.BonsaiOutlineGeometry;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;

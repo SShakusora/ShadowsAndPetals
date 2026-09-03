@@ -4,23 +4,25 @@ import com.sshakusora.shadowsandpetals.client.ct.CTBlockStateModel;
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureSelector;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
+import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiPotBlockStateModel;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings({"DataFlowIssue", "NullableProblems"})
 class DynamicBlockStateModelSafetyTest {
@@ -41,6 +43,19 @@ class DynamicBlockStateModelSafetyTest {
 
         assertEquals(1, delegate.contextFreeCollects);
         assertNotNull(model.createGeometryKey(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create()));
+    }
+
+    @Test
+    void bonsaiBreakingOverlayRetainsBakedRotation() {
+        RecordingModel delegate = new RecordingModel();
+        BonsaiPotBlockStateModel model = new BonsaiPotBlockStateModel(null, delegate);
+
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create(), parts);
+
+        assertEquals(1, delegate.contextFreeCollects);
+        assertEquals(1, parts.size());
+        assertNotSame(delegate.part, parts.getFirst());
     }
 
     @Test
@@ -104,11 +119,13 @@ class DynamicBlockStateModelSafetyTest {
 
     private static final class RecordingModel implements BlockStateModel {
         private int contextFreeCollects;
+        private final BlockStateModelPart part = new RecordingPart();
 
         @Override
         @Deprecated
         public void collectParts(RandomSource random, List<BlockStateModelPart> output) {
             contextFreeCollects++;
+            output.add(part);
         }
 
         @Override
@@ -142,6 +159,29 @@ class DynamicBlockStateModelSafetyTest {
                 RandomSource random
         ) {
             throw new AssertionError("invalid state was forwarded to a contextual delegate");
+        }
+    }
+
+    private static final class RecordingPart implements BlockStateModelPart {
+        @Override
+        public List<net.minecraft.client.resources.model.geometry.BakedQuad> getQuads(@Nullable Direction direction) {
+            return List.of();
+        }
+
+        @Override
+        @Deprecated
+        public boolean useAmbientOcclusion() {
+            return false;
+        }
+
+        @Override
+        public Material.Baked particleMaterial() {
+            return null;
+        }
+
+        @Override
+        public int materialFlags() {
+            return 0;
         }
     }
 }

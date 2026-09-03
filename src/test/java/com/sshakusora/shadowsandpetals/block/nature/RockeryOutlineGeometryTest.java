@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -262,7 +263,7 @@ class RockeryOutlineGeometryTest {
         ClassLoader classLoader = RockeryOutlineGeometryTest.class.getClassLoader();
 
         for (RockeryDimensions dimension : dimensions) {
-            List<RockeryOutlineGeometry.ModelPart> parts = new java.util.ArrayList<>();
+            List<RockeryOutlineGeometry.ModelPart> parts = new ArrayList<>();
             int separateLineCount = 0;
             for (int part = 0; part < dimension.partCount(); part++) {
                 String resource = "assets/shadowsandpetals/models/" + dimension.modelPath(part) + ".json";

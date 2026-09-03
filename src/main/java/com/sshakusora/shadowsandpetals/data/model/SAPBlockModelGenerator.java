@@ -4,16 +4,14 @@ import com.google.gson.JsonObject;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.blockstates.BlockModelDefinitionGenerator;
-import net.minecraft.client.data.models.model.ModelInstance;
-import net.minecraft.client.data.models.model.ModelLocationUtils;
-import net.minecraft.client.data.models.model.ModelTemplate;
-import net.minecraft.client.data.models.model.TextureMapping;
+import net.minecraft.client.data.models.model.*;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.client.model.generators.template.ExtendedModelTemplateBuilder;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
@@ -89,7 +87,7 @@ public final class SAPBlockModelGenerator {
     }
 
     public void parentModel(Identifier modelId, Identifier parent) {
-        new ModelTemplate(java.util.Optional.of(parent), java.util.Optional.empty())
+        new ModelTemplate(Optional.of(parent), Optional.empty())
                 .create(modelId, new TextureMapping(), modelOutput);
     }
 
@@ -102,7 +100,7 @@ public final class SAPBlockModelGenerator {
     }
 
     public void suggestItemModel(Item item, Identifier modelId) {
-        suggestedItems.accept(item, net.minecraft.client.data.models.model.ItemModelUtils.plainModel(modelId));
+        suggestedItems.accept(item, ItemModelUtils.plainModel(modelId));
     }
 
     private BiConsumer<Identifier, ModelInstance> renderTypeOutput(String renderType) {

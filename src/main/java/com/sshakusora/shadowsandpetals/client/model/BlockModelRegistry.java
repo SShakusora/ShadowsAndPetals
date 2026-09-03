@@ -9,6 +9,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState;
+import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiPotBlockStateModel;
 import com.sshakusora.shadowsandpetals.client.model.registry.BlockStateModelDecoratorRegistry;
 import com.sshakusora.shadowsandpetals.client.model.registry.ClientModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModel;
@@ -169,7 +170,7 @@ public final class BlockModelRegistry {
                 .wrap(WoodPostBlockStateModel::new)
                 .register();
         BlockStateModelDecoratorRegistry.forBlock(BonsaiBlock.class)
-                .wrap(BonsaiPotBlockStateModel::new)
+                .wrapWithState(BonsaiPotBlockStateModel::new)
                 .register();
     }
 
