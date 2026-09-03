@@ -13,13 +13,12 @@
  * and Y rotation channels are mirrored relative to the editor model, so
  * editor = negate bedrock x / negate bedrock rotY.
  *
- * Single-block transform (editor -> block local):
- *   x = editor x + 8   (model spans local -8..24: 8px overhang each side)
- *   y = editor y - 16  (rail at the block's top edge, panels hang into the
- *                       cell below: local -13..15.5)
- *   z = editor z + 8   (fabric plane 14..15, rail 14..16 — same as the small
- *                       curtain masters)
- *
+ * Coordinate frame: VERBATIM editor coordinates everywhere. The authored
+ * export large_curtain_right.json is the base model as-is (block-local
+ * per the Blockbench block workspace centered convention), and the
+ * per-bone models, rig pivots and baked open pose all reuse that same
+ * frame untouched, so the static and animated renders always agree.
+ * *
  * Outputs:
  *   models/block/large_curtain/large_curtain.json          closed master
  *   models/block/large_curtain/large_curtain_open.json     baked open master
@@ -44,10 +43,6 @@ const animDir = curtainRoot;
 
 const WHITE_TEXTURE = "shadowsandpetals:block/curtain/white";
 const DECO_TEXTURE = "shadowsandpetals:block/curtain/curtain_deco";
-
-const X_OFFSET = 8;
-const Y_OFFSET = -16;
-const Z_OFFSET = 8;
 
 function fail(message) {
     console.error("split_large_curtain_model: " + message);
@@ -261,23 +256,12 @@ function bakeElements(closed, boneOf, pose, pivots) {
 }
 
 // ---------------------------------------------------------------------------
-// Editor -> single-block local transform
+// Verbatim frame: the authored export coordinates ARE the model space; no
+// transformation anywhere.
 // ---------------------------------------------------------------------------
 
 function toLocal(element) {
-    const out = JSON.parse(JSON.stringify(element));
-    out.from[0] += X_OFFSET;
-    out.to[0] += X_OFFSET;
-    out.from[1] += Y_OFFSET;
-    out.to[1] += Y_OFFSET;
-    out.from[2] += Z_OFFSET;
-    out.to[2] += Z_OFFSET;
-    if (out.rotation) {
-        out.rotation.origin[0] += X_OFFSET;
-        out.rotation.origin[1] += Y_OFFSET;
-        out.rotation.origin[2] += Z_OFFSET;
-    }
-    return out;
+    return element;
 }
 
 // ---------------------------------------------------------------------------
@@ -302,23 +286,23 @@ function main() {
     if (pileMax - pileMin > 10 + 1.0e-4) {
         fail("baked pile is " + (pileMax - pileMin).toFixed(2) + "px wide, expected ~8");
     }
-    console.log("bake: fabric pile x " + pileMin.toFixed(2) + ".." + pileMax.toFixed(2)
-            + " (editor), local x " + (pileMin + X_OFFSET).toFixed(2) + ".." + (pileMax + X_OFFSET).toFixed(2));
+    console.log("bake: fabric pile x " + pileMin.toFixed(2) + ".." + pileMax.toFixed(2));
 
-    // Static masters in single-block local coordinates.
-    const closedLocal = closed.elements.map(toLocal);
-    const openLocal = openElements.map(toLocal);
+    // Static masters in the verbatim frame. The closed master is a plain
+    // parent stub of the authored export; only the open pose needs baked
+    // geometry (the export has no open-pose file).
     writeJson(path.join(outDir, "large_curtain.json"), {
-        textures: masterTextures(),
-        elements: closedLocal
+        parent: "shadowsandpetals:block/large_curtain/large_curtain_right"
     });
+    const openLocal = openElements.map(toLocal);
     writeJson(path.join(outDir, "large_curtain_open.json"), {
         textures: masterTextures(),
         elements: openLocal
     });
-    console.log("masters: large_curtain.json (" + closedLocal.length + " elements) + large_curtain_open.json");
+    console.log("masters: large_curtain.json (parent stub) + large_curtain_open.json ("
+            + openLocal.length + " baked elements)");
 
-    // Per-bone parents for the animation renderer (closed pose).
+    // Per-bone parents for the animation renderer (closed pose, verbatim).
     const bones = [...new Set(boneOf)];
     const bonesDir = path.join(outDir, "large_curtain");
     fs.rmSync(bonesDir, { recursive: true, force: true });
@@ -333,13 +317,13 @@ function main() {
     }
     console.log("split: " + bones.length + " per-bone parents under large_curtain/");
 
-    // Rig with local-coordinate pivots; controller; runtime clips.
+    // Rig with verbatim pivots; controller; runtime clips.
     const rigBones = bones.map(bone => {
         const pivot = pivots.get(bone);
         if (!pivot) fail("no pivot for bone " + bone);
         const entry = {
             name: bone,
-            pivot: [pivot[0] + X_OFFSET, pivot[1] + Y_OFFSET, pivot[2] + Z_OFFSET]
+            pivot: pivot.slice()
         };
         if (bone.endsWith("_fabric")) {
             entry.parent = bone.replace(/_fabric$/, "_anchor");
