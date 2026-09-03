@@ -1045,8 +1045,9 @@ public class BlockRegistry {
                 .register()
     );
 
+    /** Probe build: one white single-block large curtain, right side only. */
     public static final DyedBlockList<LargeCurtainBlock> LARGE_CURTAINS = new DyedBlockList<>(color -> SAPRegistries
-                .block(color.getName() + "_large_curtain", LargeCurtainBlock::new)
+                .block(color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain", LargeCurtainBlock::new)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
                         .strength(1.0F)
                         .sound(SoundType.WOOL)
@@ -1056,9 +1057,8 @@ public class BlockRegistry {
                 .withItem()
                 .creativeTab(CreativeTabKey.MAIN)
                 .blockstate(() -> LargeCurtainModels::block)
-                .clientItem(block -> ShadowsAndPetals.asResource(
-                        "block/large_curtain/large_" + color.getName() + "_curtain"))
-                .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
+                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/large_curtain"))
+                .loot((provider, block) -> provider.dropSelf(block.get()))
                 .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "大窗帘")
                 .register()
     );

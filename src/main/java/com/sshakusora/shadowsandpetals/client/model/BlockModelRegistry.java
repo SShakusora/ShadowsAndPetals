@@ -138,41 +138,18 @@ public final class BlockModelRegistry {
             curtainBoneSet("curtain_lower_left", CURTAIN_LOWER_BONES);
 
     /**
-     * Per-bone baked models of the large-curtain rig, keyed by (dye color,
-     * bone). Each set resolves to the per-bone files under
-     * {@code block/large_curtain/large_curtain_<row>_<column>_<side>[_<color>]/<bone>}.
+     * Per-bone baked models of the single-block large-curtain rig. The whole
+     * curtain (eight panels + rail) hangs off one block, so one model per
+     * rig bone suffices — no color or column variants yet.
      */
-    public static final String[] LARGE_CURTAIN_UPPER_OUTER_BONES = {
+    public static final String[] LARGE_CURTAIN_BONES = {
             "panel_1_anchor", "panel_1_fabric", "panel_2_anchor", "panel_2_fabric",
-            "panel_3_anchor", "panel_3_fabric", "panel_4_anchor", "panel_4_fabric", "rail"
-    };
-    public static final String[] LARGE_CURTAIN_UPPER_INNER_BONES = {
+            "panel_3_anchor", "panel_3_fabric", "panel_4_anchor", "panel_4_fabric",
             "panel_5_anchor", "panel_5_fabric", "panel_6_anchor", "panel_6_fabric",
             "panel_7_anchor", "panel_7_fabric", "panel_8_anchor", "panel_8_fabric", "rail"
     };
-    public static final String[] LARGE_CURTAIN_LOWER_OUTER_BONES = {
-            "panel_1_fabric", "panel_2_fabric", "panel_3_fabric", "panel_4_fabric"
-    };
-    public static final String[] LARGE_CURTAIN_LOWER_INNER_BONES = {
-            "panel_5_fabric", "panel_6_fabric", "panel_7_fabric", "panel_8_fabric"
-    };
 
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_UPPER_OUTER_RIGHT =
-            largeCurtainBoneSet("large_curtain_upper_outer_right", LARGE_CURTAIN_UPPER_OUTER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_UPPER_INNER_RIGHT =
-            largeCurtainBoneSet("large_curtain_upper_inner_right", LARGE_CURTAIN_UPPER_INNER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_LOWER_OUTER_RIGHT =
-            largeCurtainBoneSet("large_curtain_lower_outer_right", LARGE_CURTAIN_LOWER_OUTER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_LOWER_INNER_RIGHT =
-            largeCurtainBoneSet("large_curtain_lower_inner_right", LARGE_CURTAIN_LOWER_INNER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_UPPER_OUTER_LEFT =
-            largeCurtainBoneSet("large_curtain_upper_outer_left", LARGE_CURTAIN_UPPER_OUTER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_UPPER_INNER_LEFT =
-            largeCurtainBoneSet("large_curtain_upper_inner_left", LARGE_CURTAIN_UPPER_INNER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_LOWER_OUTER_LEFT =
-            largeCurtainBoneSet("large_curtain_lower_outer_left", LARGE_CURTAIN_LOWER_OUTER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_LOWER_INNER_LEFT =
-            largeCurtainBoneSet("large_curtain_lower_inner_left", LARGE_CURTAIN_LOWER_INNER_BONES);
+    public static final Map<String, StandaloneBlockModel> LARGE_CURTAIN_BONE_MODELS = registerLargeCurtainBones();
 
     /** A dye color paired with one rig bone of a curtain part. */
     public record CurtainBoneKey(DyeColor color, String bone) {
@@ -190,16 +167,15 @@ public final class BlockModelRegistry {
                 .register();
     }
 
-    private static StandaloneBlockModelSet<CurtainBoneKey> largeCurtainBoneSet(String part, String[] bones) {
-        return ClientModelRegistry
-                .<CurtainBoneKey>blockStateSet(part)
-                .keys(() -> curtainBoneKeys(bones))
-                .keyPath(key -> key.color().getName() + "/" + key.bone())
-                .model(key -> ShadowsAndPetals.asResource(
-                        "block/large_curtain/" + part
-                                + (key.color() == DyeColor.WHITE ? "" : "_" + key.color().getName())
-                                + "/" + key.bone()))
-                .register();
+    private static Map<String, StandaloneBlockModel> registerLargeCurtainBones() {
+        Map<String, StandaloneBlockModel> models = new HashMap<>();
+        for (String bone : LARGE_CURTAIN_BONES) {
+            models.put(bone, ClientModelRegistry
+                    .blockState("large_curtain_" + bone)
+                    .model(ShadowsAndPetals.asResource("block/large_curtain/large_curtain/" + bone))
+                    .register());
+        }
+        return Map.copyOf(models);
     }
 
     private static List<CurtainBoneKey> curtainBoneKeys(String[] bones) {

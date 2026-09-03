@@ -4,13 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.decoration.LargeCurtainBlock;
-import com.sshakusora.shadowsandpetals.blockentity.CurtainBlockEntity;
+import com.sshakusora.shadowsandpetals.blockentity.LargeCurtainBlockEntity;
 import com.sshakusora.shadowsandpetals.client.animation.AnimatedBlockModel;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationControllerEvaluator;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationResourceRef;
 import com.sshakusora.shadowsandpetals.client.animation.RigPose;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
-import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModelSet;
+import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModel;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -28,45 +28,30 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Renderer for the four-block large curtain. Submits the per-bone baked
- * models of the matching row, column and side through its resource-driven
- * animation rig; the rig geometry is shared by all four blocks, so every
- * block renders the bones whose per-bone file it owns.
+ * Renderer for the single-block large curtain. Submits the whole closed
+ * per-bone model family through the shared animation rig while ANIMATING;
+ * outside the window the static block-state model renders the curtain.
  */
-public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBlockEntity, LargeCurtainBlockEntityRenderer.State> {
+public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<LargeCurtainBlockEntity, LargeCurtainBlockEntityRenderer.State> {
     private static final RandomSource PART_COLLECT_RANDOM = RandomSource.create(42L);
     private static final int[] TINTS = new int[0];
     /** Beyond this local time the clip has clamped to its final keyframe. */
     private static final float FALLBACK_END_POSE_SECONDS = 1.0F;
 
-    private static final AnimationResourceRef.Rig RIGHT_RIG =
+    private static final AnimationResourceRef.Rig RIG =
             new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("large_curtain/right"));
-    private static final AnimationResourceRef.Rig LEFT_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("large_curtain/left"));
 
-    private static final String[] UPPER_OUTER_BONES = BlockModelRegistry.LARGE_CURTAIN_UPPER_OUTER_BONES;
-    private static final String[] UPPER_INNER_BONES = BlockModelRegistry.LARGE_CURTAIN_UPPER_INNER_BONES;
-    private static final String[] LOWER_OUTER_BONES = BlockModelRegistry.LARGE_CURTAIN_LOWER_OUTER_BONES;
-    private static final String[] LOWER_INNER_BONES = BlockModelRegistry.LARGE_CURTAIN_LOWER_INNER_BONES;
-
-    /** Baked per-bone models keyed by (row, column, side, dye color). */
-    private final Map<LargeCurtainVariant, AnimatedBlockModel> cachedModels = new HashMap<>();
-
-    private record LargeCurtainVariant(
-            boolean upper, boolean outer, boolean left, DyeColor color
-    ) {
-    }
+    private static final String[] BONES = BlockModelRegistry.LARGE_CURTAIN_BONES;
+    /** Lazily baked whole-rig model; the geometry is side/color-agnostic. */
+    private @Nullable AnimatedBlockModel modelCache;
 
     public LargeCurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -77,15 +62,15 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Curt
     }
 
     @Override
-    public AABB getRenderBoundingBox(CurtainBlockEntity blockEntity) {
-        // The curtain folds beyond the block face; keep the whole moving
-        // volume inside the render culling box.
-        return new AABB(blockEntity.getBlockPos()).inflate(0.25D);
+    public AABB getRenderBoundingBox(LargeCurtainBlockEntity blockEntity) {
+        // The model overhangs the block on x (neighbour cells) and hangs into
+        // the cell below; keep the whole moving volume inside the culling box.
+        return new AABB(blockEntity.getBlockPos()).inflate(0.75D);
     }
 
     @Override
     public void extractRenderState(
-            CurtainBlockEntity blockEntity, State state, float partialTicks,
+            LargeCurtainBlockEntity blockEntity, State state, float partialTicks,
             Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
@@ -100,23 +85,13 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Curt
                 || blockEntity.getLevel() == null) {
             return;
         }
-        boolean upper = blockState.getValue(LargeCurtainBlock.HALF) == DoubleBlockHalf.UPPER;
-        boolean outer = blockState.getValue(LargeCurtainBlock.COLUMN) == LargeCurtainBlock.Column.OUTER;
-        boolean left = blockState.getValue(LargeCurtainBlock.SIDE) == LargeCurtainBlock.Side.LEFT;
         boolean stateOpen = blockState.getValue(LargeCurtainBlock.OPEN);
         boolean beSynced = blockEntity.isOpen() == stateOpen;
         state.open = beSynced ? blockEntity.isOpen() : stateOpen;
 
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        AnimationResourceRef.Rig rig = left ? LEFT_RIG : RIGHT_RIG;
-        StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet = setOf(upper, outer, left);
-        String[] boneNames = upper
-                ? (outer ? UPPER_OUTER_BONES : UPPER_INNER_BONES)
-                : (outer ? LOWER_OUTER_BONES : LOWER_INNER_BONES);
-        DyeColor color = dyeColorOf(blockState);
-        AnimatedBlockModel model = resolveModel(
-                tintGetter, blockEntity, rig, boneNames, modelSet,
-                new LargeCurtainVariant(upper, outer, left, color));
+        AnimatedBlockModel model = modelCache != null ? modelCache : bakeModel(tintGetter, blockEntity);
+        modelCache = model;
         if (model == null) {
             return;
         }
@@ -132,31 +107,14 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Curt
             seconds = FALLBACK_END_POSE_SECONDS;
         }
         state.animationPose = AnimationControllerEvaluator.sample(
-                rig.id(),
+                RIG.id(),
                 state.open ? "open" : "closed",
                 seconds
         );
         state.model = model;
     }
 
-    private static StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> setOf(
-            boolean upper, boolean outer, boolean left
-    ) {
-        if (upper) {
-            return outer
-                    ? (left ? BlockModelRegistry.LARGE_CURTAIN_UPPER_OUTER_LEFT
-                            : BlockModelRegistry.LARGE_CURTAIN_UPPER_OUTER_RIGHT)
-                    : (left ? BlockModelRegistry.LARGE_CURTAIN_UPPER_INNER_LEFT
-                            : BlockModelRegistry.LARGE_CURTAIN_UPPER_INNER_RIGHT);
-        }
-        return outer
-                ? (left ? BlockModelRegistry.LARGE_CURTAIN_LOWER_OUTER_LEFT
-                        : BlockModelRegistry.LARGE_CURTAIN_LOWER_OUTER_RIGHT)
-                : (left ? BlockModelRegistry.LARGE_CURTAIN_LOWER_INNER_LEFT
-                        : BlockModelRegistry.LARGE_CURTAIN_LOWER_INNER_RIGHT);
-    }
-
-    /** The dye color of the placed large curtain block, white for unknown. */
+    /** The dye color of the placed curtain block, white for unknown states. */
     private static DyeColor dyeColorOf(BlockState blockState) {
         Block block = blockState.getBlock();
         for (DyeColor color : DyeColor.values()) {
@@ -167,60 +125,37 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Curt
         return DyeColor.WHITE;
     }
 
-    private AnimatedBlockModel resolveModel(
-            BlockAndTintGetter tintGetter,
-            CurtainBlockEntity blockEntity,
-            AnimationResourceRef.Rig rig,
-            String[] boneNames,
-            StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet,
-            LargeCurtainVariant variant
-    ) {
-        AnimatedBlockModel cached = cachedModels.get(variant);
-        if (cached != null) {
-            return cached;
-        }
-        // Each bone binds its own per-bone model file: the set keys pair the
-        // dye color with the bone name.
-        BlockStateModel[] models = new BlockStateModel[boneNames.length];
-        for (int index = 0; index < boneNames.length; index++) {
-            models[index] = modelSet.get(
-                    new BlockModelRegistry.CurtainBoneKey(variant.color(), boneNames[index]));
-        }
-        AnimatedBlockModel baked = bakeModel(tintGetter, blockEntity, rig, boneNames, models);
-        cachedModels.put(variant, baked);
-        return baked;
-    }
-
     private static AnimatedBlockModel bakeModel(
             BlockAndTintGetter tintGetter,
-            CurtainBlockEntity blockEntity,
-            AnimationResourceRef.Rig rig,
-            String[] boneNames,
-            BlockStateModel[] models
+            LargeCurtainBlockEntity blockEntity
     ) {
-        var blockState = blockEntity.getBlockState();
+        BlockState blockState = blockEntity.getBlockState();
         BlockPos pos = blockEntity.getBlockPos();
-        List<AnimatedBlockModel.Binding> bindings = new ArrayList<>(boneNames.length);
+        List<AnimatedBlockModel.Binding> bindings = new ArrayList<>(BONES.length);
         boolean hasAnyParts = false;
-        for (int index = 0; index < boneNames.length; index++) {
-            BlockStateModel model = models[index];
+        for (String bone : BONES) {
+            StandaloneBlockModel model = BlockModelRegistry.LARGE_CURTAIN_BONE_MODELS.get(bone);
             if (model == null) {
+                continue;
+            }
+            BlockStateModel baked = model.get();
+            if (baked == null) {
                 continue;
             }
             List<BlockStateModelPart> parts = new ArrayList<>();
             PART_COLLECT_RANDOM.setSeed(42L);
-            model.collectParts(tintGetter, pos, blockState, PART_COLLECT_RANDOM, parts);
+            baked.collectParts(tintGetter, pos, blockState, PART_COLLECT_RANDOM, parts);
             if (parts.isEmpty()) {
                 continue;
             }
             hasAnyParts = true;
-            boolean hasTranslucency = model.hasMaterialFlag(
+            boolean hasTranslucency = baked.hasMaterialFlag(
                     tintGetter, pos, blockState, BakedQuad.FLAG_TRANSLUCENT
             );
             bindings.add(new AnimatedBlockModel.Binding(
-                    rig, boneNames[index], List.copyOf(parts), hasTranslucency, TINTS));
+                    RIG, bone, List.copyOf(parts), hasTranslucency, TINTS));
         }
-        return hasAnyParts ? new AnimatedBlockModel(rig, bindings) : null;
+        return hasAnyParts ? new AnimatedBlockModel(RIG, bindings) : null;
     }
 
     @Override

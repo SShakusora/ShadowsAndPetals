@@ -1,7 +1,0 @@
-{
-  "parent": "shadowsandpetals:block/large_curtain/large_curtain_upper_inner_left",
-  "textures": {
-    "1": "shadowsandpetals:block/curtain/red",
-    "particle": "shadowsandpetals:block/curtain/red"
-  }
-}
