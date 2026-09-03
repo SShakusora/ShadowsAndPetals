@@ -166,7 +166,10 @@ public class LargeCurtainBlock extends BaseEntityBlock {
             curtain.setChanged();
             level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), Block.UPDATE_CLIENTS);
         }
-        level.setBlock(pos, state.setValue(OPEN, open).setValue(POWERED, open)
+        // POWERED tracks the live redstone signal, never the open target:
+        // a wrongly-stuck POWERED would lock the curtain against manual use.
+        boolean powered = level.hasNeighborSignal(pos);
+        level.setBlock(pos, state.setValue(OPEN, open).setValue(POWERED, powered)
                         .setValue(ANIMATING, true), Block.UPDATE_ALL);
         level.scheduleTick(pos, state.getBlock(), ANIMATION_TICKS);
     }
