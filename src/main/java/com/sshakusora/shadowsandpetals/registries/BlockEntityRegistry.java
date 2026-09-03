@@ -60,5 +60,11 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.BONSAI)
             .register();
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CurtainBlockEntity>> CURTAIN = SAPRegistries
+            .<CurtainBlockEntity>blockEntity("curtain")
+            .factory(CurtainBlockEntity::new)
+            .validBlocks(BlockRegistry.CURTAINS.toArray())
+            .register();
+
     public static void init() {}
 }

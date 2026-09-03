@@ -203,7 +203,7 @@ public final class BonsaiBlock extends BaseEntityBlock implements BlockOutlinePr
         if (block instanceof SaplingBlock) {
             BonsaiTreeResolver.Result resolved = level instanceof ServerLevel serverLevel
                     ? BonsaiTreeResolver.resolve(serverLevel, pos, block)
-                    : BonsaiTreeResolver.resolve(block);
+                    : BonsaiTreeResolver.resolve(block, null);
             if (resolved != null) {
                 bonsai.plant(resolved.trunkBlock(), resolved.leavesBlock(), stack, false);
                 if (!player.isCreative()) {

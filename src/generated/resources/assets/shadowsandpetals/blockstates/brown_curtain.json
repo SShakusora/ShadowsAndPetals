@@ -1,0 +1,244 @@
+{
+  "variants": {
+    "animating=false,facing=east,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown",
+      "y": 90
+    },
+    "animating=false,facing=east,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown",
+      "y": 90
+    },
+    "animating=false,facing=north,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown"
+    },
+    "animating=false,facing=north,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown"
+    },
+    "animating=false,facing=north,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown"
+    },
+    "animating=false,facing=north,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown"
+    },
+    "animating=false,facing=north,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown"
+    },
+    "animating=false,facing=north,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown"
+    },
+    "animating=false,facing=north,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown"
+    },
+    "animating=false,facing=north,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown"
+    },
+    "animating=false,facing=south,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown",
+      "y": 180
+    },
+    "animating=false,facing=south,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown",
+      "y": 180
+    },
+    "animating=false,facing=west,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown",
+      "y": 270
+    },
+    "animating=false,facing=west,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown",
+      "y": 270
+    },
+    "animating=true,facing=east,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown",
+      "y": 90
+    },
+    "animating=true,facing=east,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown",
+      "y": 90
+    },
+    "animating=true,facing=north,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown"
+    },
+    "animating=true,facing=north,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown"
+    },
+    "animating=true,facing=north,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown"
+    },
+    "animating=true,facing=north,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown"
+    },
+    "animating=true,facing=north,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown"
+    },
+    "animating=true,facing=north,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown"
+    },
+    "animating=true,facing=north,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown"
+    },
+    "animating=true,facing=north,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown"
+    },
+    "animating=true,facing=south,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown",
+      "y": 180
+    },
+    "animating=true,facing=south,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown",
+      "y": 180
+    },
+    "animating=true,facing=west,half=lower,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=lower,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=lower,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_l_open_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=lower,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_lower_r_open_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=upper,open=false,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=upper,open=false,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=upper,open=true,side=left": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_l_open_brown",
+      "y": 270
+    },
+    "animating=true,facing=west,half=upper,open=true,side=right": {
+      "model": "shadowsandpetals:block/curtain/curtain_upper_r_open_brown",
+      "y": 270
+    }
+  }
+}

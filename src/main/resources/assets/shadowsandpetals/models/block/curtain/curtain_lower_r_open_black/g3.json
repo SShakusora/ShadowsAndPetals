@@ -1,0 +1,77 @@
+{
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/black",
+    "particle": "shadowsandpetals:block/curtain/black"
+  },
+  "elements": [
+    {
+      "name": "g2",
+      "from": [
+        2.01253,
+        3,
+        12.69657
+      ],
+      "to": [
+        3.01253,
+        16,
+        16.69657
+      ],
+      "faces": {
+        "east": {
+          "uv": [
+            0,
+            3,
+            4,
+            16
+          ],
+          "texture": "#1"
+        },
+        "south": {
+          "uv": [
+            0,
+            3,
+            1,
+            16
+          ],
+          "texture": "#1"
+        },
+        "west": {
+          "uv": [
+            4,
+            3,
+            0,
+            16
+          ],
+          "texture": "#1"
+        },
+        "north": {
+          "uv": [
+            3,
+            3,
+            4,
+            16
+          ],
+          "texture": "#1"
+        },
+        "up": {
+          "uv": [
+            4,
+            3,
+            0,
+            4
+          ],
+          "texture": "#1"
+        },
+        "down": {
+          "uv": [
+            4,
+            15,
+            0,
+            16
+          ],
+          "texture": "#1"
+        }
+      }
+    }
+  ]
+}

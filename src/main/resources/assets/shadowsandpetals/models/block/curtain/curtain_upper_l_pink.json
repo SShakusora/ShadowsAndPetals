@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/curtain/curtain_upper_l",
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/pink",
+    "particle": "shadowsandpetals:block/curtain/pink"
+  }
+}

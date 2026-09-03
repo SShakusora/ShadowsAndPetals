@@ -9,7 +9,14 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
+import net.minecraft.advancements.criterion.StatePropertiesPredicate;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 import java.util.Set;
 
@@ -43,6 +50,21 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
 
     public void dropOre(Block block, ItemLike item) {
         add(block, createOreDrop(block, item.asItem()));
+    }
+
+    /**
+     * Drops the item only when the broken block state is the lower half,
+     * like vanilla doors: one item per curtain no matter which half broke.
+     */
+    public void dropSelfLowerHalfOnly(Block block) {
+        add(block, LootTable.lootTable().withPool(
+                LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                .setProperties(StatePropertiesPredicate.Builder.properties()
+                                        .hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)))
+                        .add(LootItem.lootTableItem(block))
+        ));
     }
 
     public void addTable(Block block, LootTable.Builder builder) {
