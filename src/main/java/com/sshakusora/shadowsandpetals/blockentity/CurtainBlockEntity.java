@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -29,7 +30,17 @@ public class CurtainBlockEntity extends BlockEntity {
     private long transitionStartTick = Long.MIN_VALUE;
 
     public CurtainBlockEntity(BlockPos pos, BlockState blockState) {
-        super(BlockEntityRegistry.CURTAIN.get(), pos, blockState);
+        this(BlockEntityRegistry.CURTAIN.get(), pos, blockState);
+    }
+
+    /**
+     * Shared clock block entity for both curtain families: the small
+     * {@code curtain} type and the large {@code large_curtain} type inject
+     * their own {@link BlockEntityType}, whose valid-blocks check otherwise
+     * rejects the placed block state.
+     */
+    public CurtainBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
+        super(type, pos, blockState);
         // The OPEN block-state property is the single source of truth; the
         // constructor sees it before any data packet arrives.
         this.open = blockState.hasProperty(CurtainBlock.OPEN)

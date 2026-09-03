@@ -66,9 +66,9 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.CURTAINS.toArray())
             .register();
 
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CurtainBlockEntity>> LARGE_CURTAIN = SAPRegistries
-            .<CurtainBlockEntity>blockEntity("large_curtain")
-            .factory(CurtainBlockEntity::new)
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LargeCurtainBlockEntity>> LARGE_CURTAIN = SAPRegistries
+            .<LargeCurtainBlockEntity>blockEntity("large_curtain")
+            .factory(LargeCurtainBlockEntity::new)
             .validBlocks(BlockRegistry.LARGE_CURTAINS.toArray())
             .register();
 
