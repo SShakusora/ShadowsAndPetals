@@ -49,14 +49,14 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
     /** Beyond this local time the clip has clamped to its final keyframe. */
     private static final float FALLBACK_END_POSE_SECONDS = 1.0F;
 
-    private static final AnimationResourceRef.Rig UPPER_R_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_upper_r"));
-    private static final AnimationResourceRef.Rig LOWER_R_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_lower_r"));
-    private static final AnimationResourceRef.Rig UPPER_L_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_upper_l"));
-    private static final AnimationResourceRef.Rig LOWER_L_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("animation/curtain_lower_l"));
+    private static final AnimationResourceRef.Rig UPPER_RIGHT_RIG =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/upper_right"));
+    private static final AnimationResourceRef.Rig LOWER_RIGHT_RIG =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/lower_right"));
+    private static final AnimationResourceRef.Rig UPPER_LEFT_RIG =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/upper_left"));
+    private static final AnimationResourceRef.Rig LOWER_LEFT_RIG =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/lower_left"));
 
     private static final String[] UPPER_BONES = BlockModelRegistry.CURTAIN_UPPER_BONES;
     private static final String[] LOWER_BONES = BlockModelRegistry.CURTAIN_LOWER_BONES;
@@ -107,13 +107,13 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
         AnimationResourceRef.Rig rig;
         if (upper) {
-            rig = left ? UPPER_L_RIG : UPPER_R_RIG;
+            rig = left ? UPPER_LEFT_RIG : UPPER_RIGHT_RIG;
         } else {
-            rig = left ? LOWER_L_RIG : LOWER_R_RIG;
+            rig = left ? LOWER_LEFT_RIG : LOWER_RIGHT_RIG;
         }
         StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet = upper
-                ? (left ? BlockModelRegistry.CURTAIN_UPPER_L : BlockModelRegistry.CURTAIN_UPPER_R)
-                : (left ? BlockModelRegistry.CURTAIN_LOWER_L : BlockModelRegistry.CURTAIN_LOWER_R);
+                ? (left ? BlockModelRegistry.CURTAIN_UPPER_LEFT : BlockModelRegistry.CURTAIN_UPPER_RIGHT)
+                : (left ? BlockModelRegistry.CURTAIN_LOWER_LEFT : BlockModelRegistry.CURTAIN_LOWER_RIGHT);
         DyeColor color = dyeColorOf(blockEntity.getBlockState());
         AnimatedBlockModel model = resolveModel(
                 tintGetter, blockEntity, rig, upper ? UPPER_BONES : LOWER_BONES, modelSet,
@@ -134,7 +134,7 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         }
         state.animationPose = AnimationControllerEvaluator.sample(
                 rig.id(),
-                state.open ? "on" : "off",
+                state.open ? "open" : "closed",
                 seconds
         );
         state.model = model;

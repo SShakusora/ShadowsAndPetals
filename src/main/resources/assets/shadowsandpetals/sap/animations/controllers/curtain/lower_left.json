@@ -1,0 +1,41 @@
+{
+  "format_version": 1,
+  "rig": "shadowsandpetals:curtain/lower_left",
+  "initial": "open",
+  "states": {
+    "open": {
+      "clip": "shadowsandpetals:curtain/lower_left/opening",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "panel_1",
+        "panel_2",
+        "panel_3",
+        "panel_4"
+      ]
+    },
+    "closed": {
+      "clip": "shadowsandpetals:curtain/lower_left/closing",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "panel_1",
+        "panel_2",
+        "panel_3",
+        "panel_4"
+      ]
+    }
+  },
+  "transitions": [
+    {
+      "from": "open",
+      "to": "closed",
+      "duration": 0.08
+    },
+    {
+      "from": "closed",
+      "to": "open",
+      "duration": 0.08
+    }
+  ]
+}

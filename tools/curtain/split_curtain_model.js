@@ -3,16 +3,16 @@
 /**
  * Generates and splits the curtain model family.
  *
- * Stage 0 - bake open pose: reads the "on" clip keyframes and the upper rig
- * pivots to compute the open-pose transform of every bone, then bakes the
- * closed white masters into open-pose masters (curtain_<part>_open.json).
+ * Stage 0 - bake open pose: reads each part's "opening" clip keyframes and
+ * the rig pivots to compute the open-pose transform of every bone, then bakes
+ * the closed white masters into open-pose masters (curtain_<part>_open.json).
  * Panels rotate 22.5 (authored) + 67.5 (clip) = 90 degrees about their rig
  * pivot, which maps their boxes onto new axis-aligned boxes, so the baked
  * model needs no element rotation at all. Faces are permuted to follow the
  * rotated geometry; texture UVs stay attached to their face.
  *
- * Stage 1 - derive: reads the white masters (curtain_upper_r/l.json,
- * curtain_lower_r/l.json aggregate models and the white_curtain.json hand
+ * Stage 1 - derive: reads the white masters (curtain_upper_right/left.json,
+ * curtain_lower_right/left.json aggregate models and the white_curtain.json hand
  * model) and writes one file per dye color:
  *   - curtain_<half>_<side>_<color>.json        closed aggregate model
  *   - curtain_<half>_<side>_open_<color>.json   open-pose aggregate model
@@ -55,41 +55,42 @@ const WHITE_TEXTURE = NS + "white";
  */
 const PARTS = [
     {
-        name: "curtain_upper_r",
+        name: "curtain_upper_right",
         // Element 9 is the rail-end outcrop; it rides the static rail bone.
-        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group", "group"]
+        boneOfElement: ["panel_1_fabric", "panel_1_anchor", "panel_2_fabric", "panel_2_anchor",
+            "panel_3_fabric", "panel_3_anchor", "panel_4_fabric", "panel_4_anchor", "rail", "rail"]
     },
     {
-        name: "curtain_lower_r",
-        // Lower panels bind straight to the g1..g4 bones; each panel carries
-        // both the gx translation and the gx_1 rotation of the upper rig.
-        boneOfElement: ["g1", "g2", "g3", "g4"]
+        name: "curtain_lower_right",
+        // Lower panels bind straight to the panel bones.
+        boneOfElement: ["panel_1", "panel_2", "panel_3", "panel_4"]
     },
     {
-        name: "curtain_upper_l",
-        boneOfElement: ["g1_1", "g1", "g2_1", "g2", "g3_1", "g3", "g4_1", "g4", "group", "group"]
+        name: "curtain_upper_left",
+        boneOfElement: ["panel_1_fabric", "panel_1_anchor", "panel_2_fabric", "panel_2_anchor",
+            "panel_3_fabric", "panel_3_anchor", "panel_4_fabric", "panel_4_anchor", "rail", "rail"]
     },
     {
-        name: "curtain_lower_l",
+        name: "curtain_lower_left",
         // Left mirrors bind like the right ones.
-        boneOfElement: ["g1", "g2", "g3", "g4"]
+        boneOfElement: ["panel_1", "panel_2", "panel_3", "panel_4"]
     }
 ];
 
-// Clip resource per part: [open clip for the upper rig, lower clip].
+// Clip resource per part used to bake the open pose.
 const OPEN_CLIPS = {
-    curtain_upper_r: "neoforge/animations/entity/curtain/on.json",
-    curtain_lower_r: "neoforge/animations/entity/curtain/on_lower.json",
-    curtain_upper_l: "neoforge/animations/entity/curtain/on_l.json",
-    curtain_lower_l: "neoforge/animations/entity/curtain/on_l_lower.json"
+    curtain_upper_right: "neoforge/animations/entity/curtain/upper_right/opening.json",
+    curtain_lower_right: "neoforge/animations/entity/curtain/lower_right/opening.json",
+    curtain_upper_left: "neoforge/animations/entity/curtain/upper_left/opening.json",
+    curtain_lower_left: "neoforge/animations/entity/curtain/lower_left/opening.json"
 };
 
 // Rig resource per part (pivots for baking rotations).
 const RIGS = {
-    curtain_upper_r: "sap/animations/rigs/animation/curtain_upper_r.json",
-    curtain_lower_r: "sap/animations/rigs/animation/curtain_lower_r.json",
-    curtain_upper_l: "sap/animations/rigs/animation/curtain_upper_l.json",
-    curtain_lower_l: "sap/animations/rigs/animation/curtain_lower_l.json"
+    curtain_upper_right: "sap/animations/rigs/curtain/upper_right.json",
+    curtain_lower_right: "sap/animations/rigs/curtain/lower_right.json",
+    curtain_upper_left: "sap/animations/rigs/curtain/upper_left.json",
+    curtain_lower_left: "sap/animations/rigs/curtain/lower_left.json"
 };
 
 function fail(message) {

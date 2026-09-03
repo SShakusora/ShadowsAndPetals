@@ -121,20 +121,21 @@ public final class BlockModelRegistry {
      * {@code block/curtain/curtain_<half>_<side>[_<color>]/<bone>}.
      */
     public static final String[] CURTAIN_UPPER_BONES = {
-            "g1", "g1_1", "g2", "g2_1", "g3", "g3_1", "g4", "g4_1", "group"
+            "panel_1_anchor", "panel_1_fabric", "panel_2_anchor", "panel_2_fabric",
+            "panel_3_anchor", "panel_3_fabric", "panel_4_anchor", "panel_4_fabric", "rail"
     };
     public static final String[] CURTAIN_LOWER_BONES = {
-            "g1", "g2", "g3", "g4"
+            "panel_1", "panel_2", "panel_3", "panel_4"
     };
 
-    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_R =
-            curtainBoneSet("curtain_upper_r", CURTAIN_UPPER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_R =
-            curtainBoneSet("curtain_lower_r", CURTAIN_LOWER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_L =
-            curtainBoneSet("curtain_upper_l", CURTAIN_UPPER_BONES);
-    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_L =
-            curtainBoneSet("curtain_lower_l", CURTAIN_LOWER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_RIGHT =
+            curtainBoneSet("curtain_upper_right", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_RIGHT =
+            curtainBoneSet("curtain_lower_right", CURTAIN_LOWER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_UPPER_LEFT =
+            curtainBoneSet("curtain_upper_left", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_LEFT =
+            curtainBoneSet("curtain_lower_left", CURTAIN_LOWER_BONES);
 
     /** A dye color paired with one rig bone of a curtain part. */
     public record CurtainBoneKey(DyeColor color, String bone) {

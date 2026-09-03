@@ -30,21 +30,21 @@ public final class CurtainModels {
                 : "white";
         String variantSuffix = color.equals("white") ? "" : "_" + color;
         MultiVariant upperRightClosed = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_upper_r" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_upper_right" + variantSuffix));
         MultiVariant lowerRightClosed = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_lower_r" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_lower_right" + variantSuffix));
         MultiVariant upperLeftClosed = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_upper_l" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_upper_left" + variantSuffix));
         MultiVariant lowerLeftClosed = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_lower_l" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_lower_left" + variantSuffix));
         MultiVariant upperRightOpen = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_upper_r_open" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_upper_right_open" + variantSuffix));
         MultiVariant lowerRightOpen = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_lower_r_open" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_lower_right_open" + variantSuffix));
         MultiVariant upperLeftOpen = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_upper_l_open" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_upper_left_open" + variantSuffix));
         MultiVariant lowerLeftOpen = BlockModelGenerators.plainVariant(
-                generator.modLoc("block/curtain/curtain_lower_l_open" + variantSuffix));
+                generator.modLoc("block/curtain/curtain_lower_left_open" + variantSuffix));
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(CurtainBlock.HALF, CurtainBlock.SIDE, CurtainBlock.OPEN, CurtainBlock.ANIMATING)
                         .select(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, true, true, upperRightOpen)
