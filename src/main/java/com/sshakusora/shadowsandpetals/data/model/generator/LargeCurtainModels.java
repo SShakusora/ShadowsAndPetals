@@ -34,7 +34,7 @@ public final class LargeCurtainModels {
                         LargeCurtainBlock.OPEN,
                         LargeCurtainBlock.ANIMATING)
                 .generate((half, column, open, animating) -> {
-                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "r" : "l")
+                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "l" : "r")
                             + (half == DoubleBlockHalf.UPPER ? "1" : "2");
                     String suffix = open ? "open_" + quadrant : quadrant;
                     return BlockModelGenerators.plainVariant(
