@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.data;
 
+import com.sshakusora.shadowsandpetals.block.decoration.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.advancements.criterion.StatePropertiesPredicate;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -63,6 +65,22 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
                         .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
                                 .setProperties(StatePropertiesPredicate.Builder.properties()
                                         .hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)))
+                        .add(LootItem.lootTableItem(block))
+        ));
+    }
+
+    /**
+     * Drops the item only from the anchor block (lower outer corner) of a
+     * four-block curtain: one item per structure no matter which block broke.
+     */
+    public void dropSelfAnchorOnly(Block block, EnumProperty<LargeCurtainBlock.Column> column) {
+        add(block, LootTable.lootTable().withPool(
+                LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                .setProperties(StatePropertiesPredicate.Builder.properties()
+                                        .hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
+                                        .hasProperty(column, LargeCurtainBlock.Column.OUTER)))
                         .add(LootItem.lootTableItem(block))
         ));
     }

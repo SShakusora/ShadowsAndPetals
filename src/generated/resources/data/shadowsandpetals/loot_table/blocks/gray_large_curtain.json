@@ -5,7 +5,12 @@
       "bonus_rolls": 0.0,
       "conditions": [
         {
-          "condition": "minecraft:survives_explosion"
+          "block": "shadowsandpetals:gray_large_curtain",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "column": "outer",
+            "half": "lower"
+          }
         }
       ],
       "entries": [
