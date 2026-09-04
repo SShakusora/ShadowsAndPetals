@@ -302,22 +302,26 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         if (level.isClientSide()) {
             return;
         }
+        // A partner block may already be AIR mid-removal (the whole structure
+        // is torn down together); nothing left to react for then.
         BlockPos anchor = anchorOf(pos, state);
-        boolean powered = hasAnyRedstoneSignal(level, anchor);
+        if (!(level.getBlockState(anchor).getBlock() instanceof LargeCurtainBlock)) {
+            return;
+        }
+        boolean powered = hasAnyRedstoneSignal(level, anchor, innerStep(state));
         if (powered != state.getValue(POWERED)) {
             if (powered != state.getValue(OPEN)) {
                 toggleCurtain(level, anchor, state, powered);
             } else {
-                setCurtainFlag(level, anchor, state, POWERED, powered);
+                setCurtainFlag(level, anchor, innerStep(state), POWERED, powered);
             }
         }
     }
 
     /** Sets a flag on every block of the curtain anchored at {@code anchor}. */
     private static void setCurtainFlag(
-            Level level, BlockPos anchor, BlockState state, BooleanProperty flag, boolean value
+            Level level, BlockPos anchor, Direction inner, BooleanProperty flag, boolean value
     ) {
-        Direction inner = innerStep(state);
         for (BlockPos part : new BlockPos[]{
                 anchor, anchor.relative(inner), anchor.above(), anchor.above().relative(inner)
         }) {
@@ -329,8 +333,7 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     }
 
     /** True if any of the four blocks of this curtain sees redstone. */
-    private static boolean hasAnyRedstoneSignal(Level level, BlockPos anchor) {
-        Direction inner = innerStep(level.getBlockState(anchor));
+    private static boolean hasAnyRedstoneSignal(Level level, BlockPos anchor, Direction inner) {
         for (BlockPos pos : new BlockPos[]{
                 anchor, anchor.relative(inner), anchor.above(), anchor.above().relative(inner)
         }) {
@@ -341,13 +344,14 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         return false;
     }
 
+
     /** Toggles all four blocks of the curtain anchored at {@code anchor}. */
     private static void toggleCurtain(Level level, BlockPos anchor, BlockState state, boolean open) {
         long gameTime = level.getGameTime();
         Direction inner = innerStep(state);
         // POWERED tracks the live redstone signal, never the open target: a
         // wrongly-stuck POWERED would lock the curtain against manual use.
-        boolean powered = hasAnyRedstoneSignal(level, anchor);
+        boolean powered = hasAnyRedstoneSignal(level, anchor, inner);
         for (BlockPos part : new BlockPos[]{
                 anchor, anchor.relative(inner), anchor.above(), anchor.above().relative(inner)
         }) {
