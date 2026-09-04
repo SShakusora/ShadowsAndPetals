@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-04T17:22:40.4248116	Model Definitions - shadowsandpetals
+// 26.1.2	2026-09-05T01:41:27.4076633	Model Definitions - shadowsandpetals
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 da1d6483fa8034770bc5617a41a2d33e76939b28 assets/shadowsandpetals/blockstates/acacia_window_pane.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
@@ -491,7 +491,7 @@ a7e429b01ba9289fcb666bd9d4f33bab3562d563 assets/shadowsandpetals/items/white_roo
 37b658ce038ff8c237d676dd280139e10a5eddd9 assets/shadowsandpetals/items/white_roof_tile_stairs.json
 77c12e7b07fd0dffc37ec978efaccfc98d62cde1 assets/shadowsandpetals/items/white_roof_tile_vertical_slab.json
 a17a191ae8dc83b04a8901d60c699ea49eac1e15 assets/shadowsandpetals/items/wind_chime.json
-bd25903aa3abc8ebd9882b502774f22d0374edf7 assets/shadowsandpetals/items/wooden_barrel.json
+2b08c82e6be5cc7f30be37ee8df596827e65686f assets/shadowsandpetals/items/wooden_barrel.json
 c64a137b05c201f82b0a06d0a943ab141a779731 assets/shadowsandpetals/items/yellow_cafe_chair.json
 048368fe1d0b9881e491b4e6dc6b098556d0ea07 assets/shadowsandpetals/items/yellow_curtain.json
 1efb15cc513153ae3c666da191845f5cd3b0a273 assets/shadowsandpetals/items/yellow_roof_tile.json

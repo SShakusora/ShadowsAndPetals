@@ -8,6 +8,7 @@ import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
+import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
 import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;
 import com.sshakusora.shadowsandpetals.client.outline.*;
@@ -112,6 +113,7 @@ public class ClientRenderEvents {
     @SubscribeEvent
     public static void registerItemModels(RegisterItemModelsEvent event) {
         WindChimeItemModel.register(event);
+        WoodenBarrelItemModel.register(event);
     }
 
     @SubscribeEvent

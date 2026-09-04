@@ -1,7 +1,6 @@
 package com.sshakusora.shadowsandpetals.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.sshakusora.shadowsandpetals.blockentity.WoodenBarrelBlockEntity;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -11,7 +10,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
@@ -28,17 +26,8 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
     private static final float FLUID_LEVEL_SNAP_EPSILON = 0.5F;
     private static final double MAX_ANIMATION_GAP_TICKS = 20.0D;
 
-    private static final float MIN_X = 4.5F / 16.0F;
-    private static final float MAX_X = 11.5F / 16.0F;
-    private static final float MIN_Z = 4.5F / 16.0F;
-    private static final float MAX_Z = 11.5F / 16.0F;
-    private static final float MIN_SURFACE_Y = 1.05F / 16.0F;
-    private static final float MAX_SURFACE_Y = 8.45F / 16.0F;
-    private static final float SURFACE_TEXTURE_MAX_U = 7.0F / 16.0F;
-    private static final float SURFACE_TEXTURE_MAX_V = 7.0F / 16.0F;
-
-    private final ShishiOdoshiFluidRenderInfo.Cache<WoodenBarrelBlockEntity> fluidRenderInfoCache =
-            new ShishiOdoshiFluidRenderInfo.Cache<>();
+    private final ClientFluidRenderInfo.Cache<WoodenBarrelBlockEntity> fluidRenderInfoCache =
+            new ClientFluidRenderInfo.Cache<>();
     private final Map<WoodenBarrelBlockEntity, FluidLevelAnimation> fluidLevelAnimations = new WeakHashMap<>();
 
     public WoodenBarrelBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -112,8 +101,12 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
                 0.0F,
                 1.0F
         );
-        float surfaceY = Mth.lerp(fillRatio, MIN_SURFACE_Y, MAX_SURFACE_Y);
-        int lightCoords = ShishiOdoshiFluidRenderInfo.applyLightEmission(
+        float surfaceY = Mth.lerp(
+                fillRatio,
+                WoodenBarrelFluidGeometry.MIN_SURFACE_Y,
+                WoodenBarrelFluidGeometry.MAX_SURFACE_Y
+        );
+        int lightCoords = ClientFluidRenderInfo.applyLightEmission(
                 state.lightCoords,
                 state.fluidLightEmission
         );
@@ -123,7 +116,7 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
         submitNodeCollector.submitCustomGeometry(
                 poseStack,
                 Sheets.translucentBlockSheet(),
-                (pose, buffer) -> renderSurface(
+                (pose, buffer) -> WoodenBarrelFluidGeometry.renderSurface(
                         buffer,
                         pose,
                         sprite,
@@ -133,48 +126,6 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
                 )
         );
         poseStack.popPose();
-    }
-
-    private static void renderSurface(
-            VertexConsumer buffer,
-            PoseStack.Pose pose,
-            TextureAtlasSprite sprite,
-            float surfaceY,
-            int color,
-            int lightCoords
-    ) {
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MIN_Z, color, 0.0F, 0.0F, lightCoords, 0.0F, 1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MAX_Z, color, 0.0F, SURFACE_TEXTURE_MAX_V, lightCoords, 0.0F, 1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MAX_Z, color, SURFACE_TEXTURE_MAX_U, SURFACE_TEXTURE_MAX_V, lightCoords, 0.0F, 1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MIN_Z, color, SURFACE_TEXTURE_MAX_U, 0.0F, lightCoords, 0.0F, 1.0F, 0.0F);
-
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MIN_Z, color, SURFACE_TEXTURE_MAX_U, 0.0F, lightCoords, 0.0F, -1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MAX_Z, color, SURFACE_TEXTURE_MAX_U, SURFACE_TEXTURE_MAX_V, lightCoords, 0.0F, -1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MAX_Z, color, 0.0F, SURFACE_TEXTURE_MAX_V, lightCoords, 0.0F, -1.0F, 0.0F);
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MIN_Z, color, 0.0F, 0.0F, lightCoords, 0.0F, -1.0F, 0.0F);
-    }
-
-    private static void addVertex(
-            VertexConsumer buffer,
-            PoseStack.Pose pose,
-            TextureAtlasSprite sprite,
-            float x,
-            float y,
-            float z,
-            int color,
-            float u,
-            float v,
-            int lightCoords,
-            float normalX,
-            float normalY,
-            float normalZ
-    ) {
-        buffer.addVertex(pose, x, y, z)
-                .setColor(color)
-                .setUv(sprite.getU(u), sprite.getV(v))
-                .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(lightCoords)
-                .setNormal(pose, normalX, normalY, normalZ);
     }
 
     public static class State extends BlockEntityRenderState {

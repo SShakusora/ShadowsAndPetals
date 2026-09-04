@@ -42,8 +42,8 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
     private static final float FLOW_UV_SCROLL_PER_TICK = 1.0F / 40.0F;
     private static final float FLOW_U_CENTER = 0.5F;
     private static final float FLOW_UV_WRAP_EPSILON = 1.0E-4F;
-    private final ShishiOdoshiFluidRenderInfo.Cache<ShishiOdoshiPipeBlockEntity> fluidRenderInfoCache =
-            new ShishiOdoshiFluidRenderInfo.Cache<>();
+    private final ClientFluidRenderInfo.Cache<ShishiOdoshiPipeBlockEntity> fluidRenderInfoCache =
+            new ClientFluidRenderInfo.Cache<>();
 
     public ShishiOdoshiPipeBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -153,7 +153,7 @@ public class ShishiOdoshiPipeBlockEntityRenderer implements BlockEntityRenderer<
         }
 
         PipeChannel channel = PipeChannel.forLength(state.length);
-        int lightCoords = ShishiOdoshiFluidRenderInfo.applyLightEmission(
+        int lightCoords = ClientFluidRenderInfo.applyLightEmission(
                 state.lightCoords, state.fluidLightEmission
         );
         int waterColor = state.waterColor;

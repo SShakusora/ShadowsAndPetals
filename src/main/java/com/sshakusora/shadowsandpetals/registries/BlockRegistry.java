@@ -18,6 +18,7 @@ import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelTooltipModifier;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -663,15 +664,39 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A wooden vessel for _storing fluids_.",
+                            "用于_储存流体_的木制容器。"
+                    )
+                    .behaviour(
+                            "When exposed to rain:", "暴露在雨中时：",
+                            "_Slowly collects water_.", "_缓慢收集雨水_。"
+                    )
+                    .behaviour(
+                            "When broken:", "被破坏时：",
+                            "Keeps its _stored fluid_.", "保留其中_储存的流体_。"
+                    )
+                    .action(
+                            "Use a fluid container:", "使用流体容器：",
+                            "_Fill or drain_ the barrel.", "向木桶_灌入或抽取_流体。"
+                    )
+                    .action(
+                            "Use a water bottle:", "使用水瓶：",
+                            "Transfer _250 mB of water_.", "转移 _250 mB 水_。"
+                    )
+            )
+            .tooltipModifier(new WoodenBarrelTooltipModifier())
             .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
                     context,
                     generator,
                     generator.modLoc("block/wooden_barrel/wooden_barrel")
             ))
+            .customClientItem(ShadowsAndPetals.asResource("wooden_barrel"))
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
-                    .define('S', ItemTags.SLABS)
+                    .define('S', ItemTags.WOODEN_SLABS)
                     .pattern(" S ")
                     .pattern("SSS")
                     .pattern(" S ")

@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data.model;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
 import com.sshakusora.shadowsandpetals.registries.FluidRegistry;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -91,6 +92,9 @@ public final class SAPItemModelGenerator {
     private static ItemModel.Unbaked customItemModel(Identifier type) {
         if (type.equals(WindChimeItemModel.TYPE)) {
             return WindChimeItemModel.Unbaked.INSTANCE;
+        }
+        if (type.equals(WoodenBarrelItemModel.TYPE)) {
+            return WoodenBarrelItemModel.Unbaked.INSTANCE;
         }
         if (type.equals(TEA_BUCKET_MODEL_TYPE)) {
             return new DynamicFluidContainerModel.Unbaked(

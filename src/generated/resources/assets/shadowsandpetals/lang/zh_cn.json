@@ -864,6 +864,15 @@
   "item.shadowsandpetals.wind_chime.tooltip.control1": "右键点击",
   "item.shadowsandpetals.wind_chime.tooltip.summary": "悬绳与短册可_分别染色_的悬挂饰物。",
   "item.shadowsandpetals.wooden_barrel": "木桶",
+  "item.shadowsandpetals.wooden_barrel.tooltip.action1": "向木桶_灌入或抽取_流体。",
+  "item.shadowsandpetals.wooden_barrel.tooltip.action2": "转移 _250 mB 水_。",
+  "item.shadowsandpetals.wooden_barrel.tooltip.behaviour1": "_缓慢收集雨水_。",
+  "item.shadowsandpetals.wooden_barrel.tooltip.behaviour2": "保留其中_储存的流体_。",
+  "item.shadowsandpetals.wooden_barrel.tooltip.condition1": "暴露在雨中时：",
+  "item.shadowsandpetals.wooden_barrel.tooltip.condition2": "被破坏时：",
+  "item.shadowsandpetals.wooden_barrel.tooltip.control1": "使用流体容器：",
+  "item.shadowsandpetals.wooden_barrel.tooltip.control2": "使用水瓶：",
+  "item.shadowsandpetals.wooden_barrel.tooltip.summary": "用于_储存流体_的木制容器。",
   "item.shadowsandpetals.yellow_cafe_chair": "黄色咖啡椅",
   "item.shadowsandpetals.yellow_cafe_chair.tooltip.action1": "为椅子_重新染色_。",
   "item.shadowsandpetals.yellow_cafe_chair.tooltip.behaviour1": "_坐_在椅子上。",
@@ -899,5 +908,6 @@
   "tooltip.shadowsandpetals.rockery.holdForPreview": "按住 [%s] 显示预览",
   "tooltip.shadowsandpetals.wind_chime.colors": "当前颜色：",
   "tooltip.shadowsandpetals.wind_chime.ribbon_color": "悬绳：%s",
-  "tooltip.shadowsandpetals.wind_chime.vane_color": "短册：%s"
+  "tooltip.shadowsandpetals.wind_chime.vane_color": "短册：%s",
+  "tooltip.shadowsandpetals.wooden_barrel.fluid": "%s %s"
 }

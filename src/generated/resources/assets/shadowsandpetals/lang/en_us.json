@@ -864,6 +864,15 @@
   "item.shadowsandpetals.wind_chime.tooltip.control1": "Right-click",
   "item.shadowsandpetals.wind_chime.tooltip.summary": "A hanging ornament with independently dyeable _ribbon_ and _vane_.",
   "item.shadowsandpetals.wooden_barrel": "Wooden Barrel",
+  "item.shadowsandpetals.wooden_barrel.tooltip.action1": "_Fill or drain_ the barrel.",
+  "item.shadowsandpetals.wooden_barrel.tooltip.action2": "Transfer _250 mB of water_.",
+  "item.shadowsandpetals.wooden_barrel.tooltip.behaviour1": "_Slowly collects water_.",
+  "item.shadowsandpetals.wooden_barrel.tooltip.behaviour2": "Keeps its _stored fluid_.",
+  "item.shadowsandpetals.wooden_barrel.tooltip.condition1": "When exposed to rain:",
+  "item.shadowsandpetals.wooden_barrel.tooltip.condition2": "When broken:",
+  "item.shadowsandpetals.wooden_barrel.tooltip.control1": "Use a fluid container:",
+  "item.shadowsandpetals.wooden_barrel.tooltip.control2": "Use a water bottle:",
+  "item.shadowsandpetals.wooden_barrel.tooltip.summary": "A wooden vessel for _storing fluids_.",
   "item.shadowsandpetals.yellow_cafe_chair": "Yellow Cafe Chair",
   "item.shadowsandpetals.yellow_cafe_chair.tooltip.action1": "_Recolor_ the chair.",
   "item.shadowsandpetals.yellow_cafe_chair.tooltip.behaviour1": "_Sit_ on the chair.",
@@ -899,5 +908,6 @@
   "tooltip.shadowsandpetals.rockery.holdForPreview": "Hold [%s] for Preview",
   "tooltip.shadowsandpetals.wind_chime.colors": "Current colors:",
   "tooltip.shadowsandpetals.wind_chime.ribbon_color": "Ribbon: %s",
-  "tooltip.shadowsandpetals.wind_chime.vane_color": "Vane: %s"
+  "tooltip.shadowsandpetals.wind_chime.vane_color": "Vane: %s",
+  "tooltip.shadowsandpetals.wooden_barrel.fluid": "%s %s"
 }
