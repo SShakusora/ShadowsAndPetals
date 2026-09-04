@@ -33,5 +33,10 @@ public class CapabilityRegistry {
                 BlockEntityRegistry.COPPER_TEAPOT.get(),
                 (blockEntity, side) -> blockEntity.getFluidTank()
         );
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                BlockEntityRegistry.WOODEN_BARREL.get(),
+                (blockEntity, side) -> blockEntity.getFluidTank()
+        );
     }
 }

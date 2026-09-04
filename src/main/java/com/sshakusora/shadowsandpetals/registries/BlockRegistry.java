@@ -657,6 +657,30 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "盆栽")
             .register();
 
+    public static final DeferredBlock<WoodenBarrelBlock> WOODEN_BARREL = SAPRegistries
+            .block("wooden_barrel", WoodenBarrelBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.BARREL)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.MAIN)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
+                    context,
+                    generator,
+                    generator.modLoc("block/wooden_barrel/wooden_barrel")
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                    .define('S', ItemTags.SLABS)
+                    .pattern(" S ")
+                    .pattern("SSS")
+                    .pattern(" S ")
+                    .unlockedBy(provider.hasName(Items.OAK_PLANKS), provider.hasItem(Items.OAK_PLANKS))
+                    .save(provider.output()))
+            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Wooden Barrel")
+            .lang(DatagenLangRegistry.ZH_CN, "木桶")
+            .register();
+
     public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
             .block(color.getName() + "_roof_tile", RoofTileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICKS)
