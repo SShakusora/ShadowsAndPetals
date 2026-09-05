@@ -4,7 +4,6 @@ import com.sshakusora.shadowsandpetals.client.tooltip.TooltipHelper;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -16,16 +15,13 @@ import java.util.List;
 public class WindChimeTooltipModifier implements TooltipModifier {
     @Override
     public void modify(ItemTooltipEvent event) {
-        if (!Minecraft.getInstance().hasShiftDown()) {
-            return;
-        }
         WindChimeColors colors = WindChimeColors.fromStack(event.getItemStack());
         event.getToolTip().addAll(1, List.of(
-                CommonComponents.EMPTY,
                 Component.translatable(BuiltinLanguageKeys.WIND_CHIME_COLORS.key())
                         .withStyle(ChatFormatting.GRAY),
                 colorLine(BuiltinLanguageKeys.WIND_CHIME_RIBBON_COLOR.key(), colors.ribbon()),
-                colorLine(BuiltinLanguageKeys.WIND_CHIME_VANE_COLOR.key(), colors.vane())
+                colorLine(BuiltinLanguageKeys.WIND_CHIME_VANE_COLOR.key(), colors.vane()),
+                CommonComponents.EMPTY
         ));
     }
 

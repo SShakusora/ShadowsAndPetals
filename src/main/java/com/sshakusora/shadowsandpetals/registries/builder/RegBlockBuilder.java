@@ -521,18 +521,18 @@ public class RegBlockBuilder<B extends Block> {
             applyItemDatagenUnchecked(deferredBlock, blockItem);
         }
 
-        if (tooltipModifier != null) {
-            if (!withItem) {
-                throw new IllegalStateException("Block '" + name + "' cannot have an item tooltip modifier without an item");
-            }
-            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
-        }
-
         if (hasTooltipDescription && withItem) {
             Identifier itemId = ShadowsAndPetals.asResource(name);
             TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
                 BuiltInRegistries.ITEM.getValue(itemId)));
             registerTooltipDescription();
+        }
+
+        if (tooltipModifier != null) {
+            if (!withItem) {
+                throw new IllegalStateException("Block '" + name + "' cannot have an item tooltip modifier without an item");
+            }
+            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
         }
 
         if (tooltipComponentFactory != null) {

@@ -912,5 +912,6 @@
   "tooltip.shadowsandpetals.wind_chime.colors": "当前颜色：",
   "tooltip.shadowsandpetals.wind_chime.ribbon_color": "悬绳：%s",
   "tooltip.shadowsandpetals.wind_chime.vane_color": "短册：%s",
-  "tooltip.shadowsandpetals.wooden_barrel.fluid": "%s %s"
+  "tooltip.shadowsandpetals.wooden_barrel.fluid": "%s %s",
+  "tooltip.shadowsandpetals.wooden_barrel.fluid_header": "当前流体："
 }

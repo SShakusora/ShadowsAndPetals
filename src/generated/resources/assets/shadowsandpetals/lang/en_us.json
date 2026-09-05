@@ -912,5 +912,6 @@
   "tooltip.shadowsandpetals.wind_chime.colors": "Current colors:",
   "tooltip.shadowsandpetals.wind_chime.ribbon_color": "Ribbon: %s",
   "tooltip.shadowsandpetals.wind_chime.vane_color": "Vane: %s",
-  "tooltip.shadowsandpetals.wooden_barrel.fluid": "%s %s"
+  "tooltip.shadowsandpetals.wooden_barrel.fluid": "%s %s",
+  "tooltip.shadowsandpetals.wooden_barrel.fluid_header": "Current fluid:"
 }
