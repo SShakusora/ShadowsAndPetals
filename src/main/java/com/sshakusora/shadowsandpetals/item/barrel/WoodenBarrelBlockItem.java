@@ -1,10 +1,12 @@
 package com.sshakusora.shadowsandpetals.item.barrel;
 
 import com.sshakusora.shadowsandpetals.blockentity.WoodenBarrelBlockEntity;
+import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -14,6 +16,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -29,6 +32,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import org.jspecify.annotations.Nullable;
 
 /**
  * A placeable wooden barrel item that can also pick up a full source fluid,
@@ -72,6 +76,28 @@ public class WoodenBarrelBlockItem extends BlockItem {
 
         InteractionResult pickup = tryPickupFluid(level, player, hand);
         return pickup.consumesAction() ? pickup : super.use(level, player, hand);
+    }
+
+    @Override
+    protected boolean updateCustomBlockEntityTag(
+            BlockPos pos,
+            Level level,
+            @Nullable Player player,
+            ItemStack itemStack,
+            BlockState placedState
+    ) {
+        if (!level.isClientSide()) {
+            return super.updateCustomBlockEntityTag(pos, level, player, itemStack, placedState);
+        }
+
+        TypedEntityData<?> blockEntityData = itemStack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (blockEntityData == null
+                || blockEntityData.type() != BlockEntityRegistry.WOODEN_BARREL.get()
+                || !(level.getBlockEntity(pos) instanceof WoodenBarrelBlockEntity barrel)) {
+            return false;
+        }
+
+        return blockEntityData.loadInto(barrel, level.registryAccess());
     }
 
     private InteractionResult tryPlaceStoredFluid(Level level, Player player, InteractionHand hand) {
