@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.blockentity;
 
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -11,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
@@ -154,7 +156,7 @@ public class WoodenBarrelBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return saveCustomOnly(registries);
     }
 
@@ -164,7 +166,7 @@ public class WoodenBarrelBlockEntity extends BlockEntity {
         }
 
         @Override
-        protected void onContentsChanged(int index, net.neoforged.neoforge.fluids.FluidStack previousContents) {
+        protected void onContentsChanged(int index, FluidStack previousContents) {
             WoodenBarrelBlockEntity.this.onFluidChanged();
         }
 

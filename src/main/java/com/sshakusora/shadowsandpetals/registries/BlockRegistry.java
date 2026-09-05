@@ -14,11 +14,12 @@ import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
 import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelBlockItem;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
-import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelTooltipModifier;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.particles.ColorParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -33,12 +34,14 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -663,7 +666,7 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.BARREL)
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
-            .withItem()
+            .withCustomItem(WoodenBarrelBlockItem::new)
             .tooltipDescription(tooltip -> tooltip
                     .summary(
                             "A wooden vessel for _storing fluids_.",
@@ -685,24 +688,40 @@ public class BlockRegistry {
                             "Use a water bottle:", "使用水瓶：",
                             "Transfer _250 mB of water_.", "转移 _250 mB 水_。"
                     )
+                    .action(
+                            "Shift + Right-click with a filled barrel:", "手持装液木桶 Shift + 右键：",
+                            "_Place one bucket_ of its fluid.", "_放出一桶_内部流体。"
+                    )
             )
             .tooltipModifier(new WoodenBarrelTooltipModifier())
-            .creativeTab(CreativeTabKey.MAIN)
-            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
-                    context,
-                    generator,
-                    generator.modLoc("block/wooden_barrel/wooden_barrel")
-            ))
+            .creativeTab(CreativeTabKey.COOKING)
+            .blockstate(() -> DecorationBlockModels::woodenBarrel)
             .customClientItem(ShadowsAndPetals.asResource("wooden_barrel"))
             .loot((provider, block) -> provider.dropSelf(block.get()))
-            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
-                    .define('S', ItemTags.WOODEN_SLABS)
-                    .pattern(" S ")
-                    .pattern("SSS")
-                    .pattern(" S ")
-                    .unlockedBy(provider.hasName(Items.OAK_PLANKS), provider.hasItem(Items.OAK_PLANKS))
-                    .save(provider.output()))
-            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Wooden Barrel")
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                        .define('S', ItemTags.WOODEN_SLABS)
+                        .pattern(" S ")
+                        .pattern("SSS")
+                        .pattern(" S ")
+                        .unlockedBy(provider.hasName(Items.OAK_PLANKS), provider.hasItem(Items.OAK_PLANKS))
+                        .save(provider.output());
+
+                DatagenRecipeFactory.woodenBarrelFluid(
+                        provider,
+                        block,
+                        Fluids.WATER,
+                        Tags.Items.BUCKETS_WATER,
+                        "wooden_barrel_from_water_bucket"
+                );
+                DatagenRecipeFactory.woodenBarrelFluid(
+                        provider,
+                        block,
+                        NeoForgeMod.MILK.value(),
+                        Tags.Items.BUCKETS_MILK,
+                        "wooden_barrel_from_milk_bucket"
+                );
+            })
             .lang(DatagenLangRegistry.ZH_CN, "木桶")
             .register();
 
@@ -1015,7 +1034,6 @@ public class BlockRegistry {
                             .setRolls(ConstantValue.exactly(1.0F))
                             .add(LootItem.lootTableItem(Items.SAND)))
             ))
-            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Sand Excavation")
             .lang(DatagenLangRegistry.ZH_CN, "挖掘中的沙子")
             .register();
 

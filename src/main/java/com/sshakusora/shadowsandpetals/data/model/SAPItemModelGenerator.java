@@ -1,8 +1,8 @@
 package com.sshakusora.shadowsandpetals.data.model;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.registries.FluidRegistry;
 import net.minecraft.client.data.models.BlockModelGenerators;
 import net.minecraft.client.data.models.ItemModelOutput;

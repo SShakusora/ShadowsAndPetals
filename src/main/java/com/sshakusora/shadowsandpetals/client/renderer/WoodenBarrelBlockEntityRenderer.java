@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.sshakusora.shadowsandpetals.block.decoration.WoodenBarrelBlock;
 import com.sshakusora.shadowsandpetals.blockentity.WoodenBarrelBlockEntity;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -12,9 +13,11 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
@@ -43,7 +46,7 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
             WoodenBarrelBlockEntity blockEntity,
             State state,
             float partialTicks,
-            net.minecraft.world.phys.Vec3 cameraPosition,
+            Vec3 cameraPosition,
             ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
@@ -52,6 +55,7 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
         state.capacity = WoodenBarrelBlockEntity.FLUID_CAPACITY;
         state.fluidColor = 0;
         state.fluidLightEmission = 0;
+        state.axis = blockEntity.getBlockState().getValue(WoodenBarrelBlock.AXIS);
 
         var level = blockEntity.getLevel();
         if (level == null) {
@@ -122,7 +126,8 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
                         sprite,
                         surfaceY,
                         state.fluidColor,
-                        lightCoords
+                        lightCoords,
+                        state.axis
                 )
         );
         poseStack.popPose();
@@ -133,6 +138,7 @@ public class WoodenBarrelBlockEntityRenderer implements BlockEntityRenderer<Wood
         public int capacity;
         public int fluidColor;
         public int fluidLightEmission;
+        public Direction.Axis axis = Direction.Axis.Z;
         public @Nullable TextureAtlasSprite fluidSprite;
     }
 

@@ -9,11 +9,7 @@ import com.sshakusora.shadowsandpetals.client.renderer.WoodenBarrelFluidSpecialR
 import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelItemFluid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
-import net.minecraft.client.renderer.item.ItemModel;
-import net.minecraft.client.renderer.item.ItemModelResolver;
-import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.item.ModelRenderProperties;
+import net.minecraft.client.renderer.item.*;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.ResolvedModel;
@@ -30,8 +26,10 @@ import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 
 public final class WoodenBarrelItemModel implements ItemModel {
@@ -43,7 +41,7 @@ public final class WoodenBarrelItemModel implements ItemModel {
     private final ModelRenderProperties properties;
     private final Matrix4fc transformation;
     private final Supplier<Vector3fc[]> fluidExtents = () -> {
-        java.util.Set<Vector3fc> extents = new java.util.HashSet<>();
+        Set<Vector3fc> extents = new HashSet<>();
         WoodenBarrelFluidGeometry.addExtents(extents::add);
         return extents.toArray(Vector3fc[]::new);
     };

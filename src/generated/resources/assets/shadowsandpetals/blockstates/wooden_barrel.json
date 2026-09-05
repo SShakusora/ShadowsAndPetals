@@ -1,6 +1,17 @@
 {
   "variants": {
-    "": {
+    "axis=x,waterlogged=false": {
+      "model": "shadowsandpetals:block/wooden_barrel/wooden_barrel",
+      "y": 90
+    },
+    "axis=x,waterlogged=true": {
+      "model": "shadowsandpetals:block/wooden_barrel/wooden_barrel",
+      "y": 90
+    },
+    "axis=z,waterlogged=false": {
+      "model": "shadowsandpetals:block/wooden_barrel/wooden_barrel"
+    },
+    "axis=z,waterlogged=true": {
       "model": "shadowsandpetals:block/wooden_barrel/wooden_barrel"
     }
   }

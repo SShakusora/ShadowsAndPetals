@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "neoforge:ingredient_type": "neoforge:components",
+      "components": {
+        "!minecraft:block_entity_data": {}
+      },
+      "items": "shadowsandpetals:wooden_barrel"
+    },
+    "#c:buckets/milk"
+  ],
+  "result": {
+    "components": {
+      "minecraft:block_entity_data": {
+        "id": "shadowsandpetals:wooden_barrel",
+        "stacks": [
+          {
+            "amount": 1000,
+            "id": "minecraft:milk"
+          }
+        ]
+      }
+    },
+    "id": "shadowsandpetals:wooden_barrel"
+  }
+}

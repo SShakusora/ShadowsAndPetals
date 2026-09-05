@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.Direction;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -46,15 +47,27 @@ public final class WoodenBarrelFluidGeometry {
             int color,
             int lightCoords
     ) {
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MIN_Z, color, 0.0F, 0.0F, lightCoords, 1.0F);
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MAX_Z, color, 0.0F, SURFACE_TEXTURE_MAX_V, lightCoords, 1.0F);
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MAX_Z, color, SURFACE_TEXTURE_MAX_U, SURFACE_TEXTURE_MAX_V, lightCoords, 1.0F);
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MIN_Z, color, SURFACE_TEXTURE_MAX_U, 0.0F, lightCoords, 1.0F);
+        renderSurface(buffer, pose, sprite, surfaceY, color, lightCoords, Direction.Axis.Y);
+    }
 
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MIN_Z, color, SURFACE_TEXTURE_MAX_U, 0.0F, lightCoords, -1.0F);
-        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MAX_Z, color, SURFACE_TEXTURE_MAX_U, SURFACE_TEXTURE_MAX_V, lightCoords, -1.0F);
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MAX_Z, color, 0.0F, SURFACE_TEXTURE_MAX_V, lightCoords, -1.0F);
-        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MIN_Z, color, 0.0F, 0.0F, lightCoords, -1.0F);
+    public static void renderSurface(
+            VertexConsumer buffer,
+            PoseStack.Pose pose,
+            TextureAtlasSprite sprite,
+            float surfaceY,
+            int color,
+            int lightCoords,
+            Direction.Axis axis
+    ) {
+        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MIN_Z, color, 0.0F, 0.0F, lightCoords, 1.0F, axis);
+        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MAX_Z, color, 0.0F, SURFACE_TEXTURE_MAX_V, lightCoords, 1.0F, axis);
+        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MAX_Z, color, SURFACE_TEXTURE_MAX_U, SURFACE_TEXTURE_MAX_V, lightCoords, 1.0F, axis);
+        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MIN_Z, color, SURFACE_TEXTURE_MAX_U, 0.0F, lightCoords, 1.0F, axis);
+
+        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MIN_Z, color, SURFACE_TEXTURE_MAX_U, 0.0F, lightCoords, -1.0F, axis);
+        addVertex(buffer, pose, sprite, MAX_X, surfaceY, MAX_Z, color, SURFACE_TEXTURE_MAX_U, SURFACE_TEXTURE_MAX_V, lightCoords, -1.0F, axis);
+        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MAX_Z, color, 0.0F, SURFACE_TEXTURE_MAX_V, lightCoords, -1.0F, axis);
+        addVertex(buffer, pose, sprite, MIN_X, surfaceY, MIN_Z, color, 0.0F, 0.0F, lightCoords, -1.0F, axis);
     }
 
     private static void addVertex(
@@ -68,9 +81,16 @@ public final class WoodenBarrelFluidGeometry {
             float u,
             float v,
             int lightCoords,
-            float normalY
+            float normalY,
+            Direction.Axis axis
     ) {
-        buffer.addVertex(pose, x, y, z)
+        // The X block-state variant applies a clockwise 90-degree Y rotation;
+        // the Z variant and the item geometry keep the base orientation.
+        float transformedX = axis == Direction.Axis.X ? 1.0F - z : x;
+        float transformedY = y;
+        float transformedZ = axis == Direction.Axis.X ? x : z;
+
+        buffer.addVertex(pose, transformedX, transformedY, transformedZ)
                 .setColor(color)
                 .setUv(sprite.getU(u), sprite.getV(v))
                 .setOverlay(OverlayTexture.NO_OVERLAY)

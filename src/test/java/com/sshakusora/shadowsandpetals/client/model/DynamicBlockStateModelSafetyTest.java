@@ -8,6 +8,7 @@ import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiPotBlockStateMo
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -164,7 +165,7 @@ class DynamicBlockStateModelSafetyTest {
 
     private static final class RecordingPart implements BlockStateModelPart {
         @Override
-        public List<net.minecraft.client.resources.model.geometry.BakedQuad> getQuads(@Nullable Direction direction) {
+        public List<BakedQuad> getQuads(@Nullable Direction direction) {
             return List.of();
         }
 

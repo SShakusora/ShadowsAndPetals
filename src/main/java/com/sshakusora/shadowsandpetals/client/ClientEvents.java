@@ -8,8 +8,8 @@ import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
-import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;
 import com.sshakusora.shadowsandpetals.client.outline.*;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
@@ -43,7 +43,7 @@ import net.neoforged.neoforge.resource.NeoForgeReloadListeners;
 import java.util.List;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID, value = Dist.CLIENT)
-public class ClientRenderEvents {
+public class ClientEvents {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         HammerClientExtensions.clientTick();

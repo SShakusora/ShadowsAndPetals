@@ -11,6 +11,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.fluids.FluidStackTemplate;
@@ -96,6 +97,10 @@ public class ModRecipeProvider extends RecipeProvider {
 
     public ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemLike item, int count) {
         return super.shapeless(category, item, count);
+    }
+
+    public ShapelessRecipeBuilder shapeless(RecipeCategory category, ItemStackTemplate result) {
+        return ShapelessRecipeBuilder.shapeless(items, category, result);
     }
 
     public void stonecutter(RecipeCategory category, ItemLike result, int count, ItemLike ingredient) {
