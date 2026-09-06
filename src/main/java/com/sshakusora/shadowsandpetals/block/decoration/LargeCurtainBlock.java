@@ -118,6 +118,21 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     private static final VoxelShape NORTH_SHAPE = box(0, 0, 14, 16, 16, 15);
     private static final Map<Direction, VoxelShape> SHAPES =
             VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE);
+    /**
+     * Open-pose slices for FACING=north, mirroring the open quadrant
+     * models: the fabric piles into the inner column (right curtain at
+     * local x 1..9, left curtain at x 7..15), the outer column keeps only
+     * the rail band in its upper block, and the lower outer block is empty.
+     */
+    private static final VoxelShape NORTH_OPEN_RAIL = box(0, 14, 14, 16, 15, 15);
+    private static final VoxelShape NORTH_OPEN_PILE_RIGHT = box(1, 0, 14, 9, 16, 15);
+    private static final VoxelShape NORTH_OPEN_PILE_LEFT = box(7, 0, 14, 15, 16, 15);
+    private static final Map<Direction, VoxelShape> OPEN_RAIL_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_RAIL);
+    private static final Map<Direction, VoxelShape> OPEN_PILE_RIGHT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_RIGHT);
+    private static final Map<Direction, VoxelShape> OPEN_PILE_LEFT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_LEFT);
 
     public LargeCurtainBlock(Properties properties) {
         super(properties);
@@ -221,7 +236,18 @@ public class LargeCurtainBlock extends BaseEntityBlock {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES.get(state.getValue(FACING));
+        Direction facing = state.getValue(FACING);
+        if (!state.getValue(OPEN)) {
+            return SHAPES.get(facing);
+        }
+        if (state.getValue(COLUMN) == Column.OUTER) {
+            return state.getValue(HALF) == DoubleBlockHalf.UPPER
+                    ? OPEN_RAIL_SHAPES.get(facing)
+                    : Shapes.empty();
+        }
+        return (state.getValue(SIDE) == Side.LEFT
+                ? OPEN_PILE_LEFT_SHAPES
+                : OPEN_PILE_RIGHT_SHAPES).get(facing);
     }
 
     @Override
