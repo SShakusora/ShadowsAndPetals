@@ -1,0 +1,6 @@
+{
+  "parent": "shadowsandpetals:block/large_curtain/large_curtain_right_open_l1",
+  "textures": {
+    "particle": "shadowsandpetals:block/curtain/gray"
+  }
+}

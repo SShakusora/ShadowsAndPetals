@@ -1057,7 +1057,8 @@ public class BlockRegistry {
                 .withItem()
                 .creativeTab(CreativeTabKey.MAIN)
                 .blockstate(() -> LargeCurtainModels::block)
-                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/large_curtain"))
+                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/"
+                        + (color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain")))
                 .loot((provider, block) -> provider.dropSelfAnchorOnly(block.get(), LargeCurtainBlock.COLUMN))
                 .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "大窗帘")
                 .register()

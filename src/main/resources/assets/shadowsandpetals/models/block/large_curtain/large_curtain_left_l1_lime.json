@@ -1,0 +1,6 @@
+{
+  "parent": "shadowsandpetals:block/large_curtain/large_curtain_left_l1",
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/lime"
+  }
+}

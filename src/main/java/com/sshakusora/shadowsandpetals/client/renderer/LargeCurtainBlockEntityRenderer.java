@@ -10,7 +10,7 @@ import com.sshakusora.shadowsandpetals.client.animation.AnimationControllerEvalu
 import com.sshakusora.shadowsandpetals.client.animation.AnimationResourceRef;
 import com.sshakusora.shadowsandpetals.client.animation.RigPose;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
-import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModel;
+import com.sshakusora.shadowsandpetals.client.model.registry.StandaloneBlockModelSet;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
@@ -33,6 +33,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,9 +55,11 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
             new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("large_curtain/left"));
 
     private static final String[] BONES = BlockModelRegistry.LARGE_CURTAIN_BONES;
-    /** Lazily baked whole-rig models, one per curtain side. */
-    private @Nullable AnimatedBlockModel modelCacheRight;
-    private @Nullable AnimatedBlockModel modelCacheLeft;
+    /** Lazily baked whole-rig models keyed by (side, dye color). */
+    private final Map<CurtainVariant, AnimatedBlockModel> cachedModels = new HashMap<>();
+
+    private record CurtainVariant(boolean left, DyeColor color) {
+    }
 
     public LargeCurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -100,13 +103,8 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         boolean left = state.side == LargeCurtainBlock.Side.LEFT;
         AnimationResourceRef.Rig rig = left ? RIG_LEFT : RIG_RIGHT;
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        AnimatedBlockModel model = left
-                ? (modelCacheLeft != null ? modelCacheLeft
-                        : (modelCacheLeft = bakeModel(tintGetter, blockEntity, rig,
-                                BlockModelRegistry.LARGE_CURTAIN_LEFT_BONE_MODELS)))
-                : (modelCacheRight != null ? modelCacheRight
-                        : (modelCacheRight = bakeModel(tintGetter, blockEntity, rig,
-                                BlockModelRegistry.LARGE_CURTAIN_BONE_MODELS)));
+        AnimatedBlockModel model = resolveModel(
+                tintGetter, blockEntity, rig, left, dyeColorOf(blockState));
         if (model == null) {
             return;
         }
@@ -140,22 +138,44 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         return DyeColor.WHITE;
     }
 
+    private AnimatedBlockModel resolveModel(
+            BlockAndTintGetter tintGetter,
+            LargeCurtainBlockEntity blockEntity,
+            AnimationResourceRef.Rig rig,
+            boolean left,
+            DyeColor color
+    ) {
+        CurtainVariant variant = new CurtainVariant(left, color);
+        AnimatedBlockModel cached = cachedModels.get(variant);
+        if (cached != null) {
+            return cached;
+        }
+        StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet = left
+                ? BlockModelRegistry.LARGE_CURTAIN_LEFT
+                : BlockModelRegistry.LARGE_CURTAIN_RIGHT;
+        BlockStateModel[] models = new BlockStateModel[BONES.length];
+        for (int index = 0; index < BONES.length; index++) {
+            models[index] = modelSet.get(
+                    new BlockModelRegistry.CurtainBoneKey(color, BONES[index]));
+        }
+        AnimatedBlockModel baked = bakeModel(tintGetter, blockEntity, rig, models);
+        cachedModels.put(variant, baked);
+        return baked;
+    }
+
     private static AnimatedBlockModel bakeModel(
             BlockAndTintGetter tintGetter,
             LargeCurtainBlockEntity blockEntity,
             AnimationResourceRef.Rig rig,
-            Map<String, StandaloneBlockModel> boneModels
+            BlockStateModel[] models
     ) {
         BlockState blockState = blockEntity.getBlockState();
         BlockPos pos = blockEntity.getBlockPos();
         List<AnimatedBlockModel.Binding> bindings = new ArrayList<>(BONES.length);
         boolean hasAnyParts = false;
-        for (String bone : BONES) {
-            StandaloneBlockModel model = boneModels.get(bone);
-            if (model == null) {
-                continue;
-            }
-            BlockStateModel baked = model.get();
+        for (int index = 0; index < BONES.length; index++) {
+            String bone = BONES[index];
+            BlockStateModel baked = models[index];
             if (baked == null) {
                 continue;
             }

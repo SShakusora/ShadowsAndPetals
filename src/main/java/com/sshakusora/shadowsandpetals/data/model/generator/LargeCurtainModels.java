@@ -25,6 +25,12 @@ public final class LargeCurtainModels {
             SAPBlockModelGenerator generator
     ) {
         LargeCurtainBlock block = context.get();
+        // The white block id is plain "large_curtain"; other colors prefix it.
+        String path = context.id().getPath();
+        String color = path.endsWith("_large_curtain")
+                ? path.substring(0, path.length() - "_large_curtain".length())
+                : "white";
+        String variantSuffix = color.equals("white") ? "" : "_" + color;
         // Quadrant naming from the authored files: l/r = column, 1/2 = row.
         PropertyDispatch<MultiVariant> dispatch = PropertyDispatch.initial(
                         LargeCurtainBlock.HALF,
@@ -40,7 +46,7 @@ public final class LargeCurtainModels {
                             + (half == DoubleBlockHalf.UPPER ? "1" : "2");
                     String suffix = open ? "open_" + quadrant : quadrant;
                     String modelName = (side == LargeCurtainBlock.Side.RIGHT
-                            ? "large_curtain_right_" : "large_curtain_left_") + suffix;
+                            ? "large_curtain_right_" : "large_curtain_left_") + suffix + variantSuffix;
                     return BlockModelGenerators.plainVariant(
                             generator.modLoc("block/large_curtain/" + modelName));
                 });
@@ -50,7 +56,8 @@ public final class LargeCurtainModels {
         StandardBlockModels.parentBlockItem(
                 block,
                 generator,
-                generator.modLoc("block/large_curtain/large_curtain")
+                generator.modLoc("block/large_curtain/"
+                        + (color.equals("white") ? "large_curtain" : color + "_large_curtain"))
         );
     }
 }

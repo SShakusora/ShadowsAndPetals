@@ -47,6 +47,17 @@ const animDir = curtainRoot;
 
 const WHITE_TEXTURE = "shadowsandpetals:block/curtain/white";
 const DECO_TEXTURE = "shadowsandpetals:block/curtain/curtain_deco";
+const NS = "shadowsandpetals:block/curtain/";
+
+const COLORS = [
+    "white", "orange", "magenta", "light_blue", "yellow", "lime", "pink",
+    "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red", "black"
+];
+
+/** Texture keys of a model that point at the white curtain texture. */
+function whiteTextureKeys(model) {
+    return Object.keys(model.textures || {}).filter(key => model.textures[key] === WHITE_TEXTURE);
+}
 
 function fail(message) {
     console.error("split_large_curtain_model: " + message);
@@ -306,6 +317,62 @@ function main() {
         bonesDirName: "large_curtain_left",
         writeMasters: false
     });
+    deriveColorVariants();
+}
+
+/**
+ * Derives every dye-color variant as a tiny parent-reference stub that only
+ * overrides the fabric texture keys: one stub per static quadrant master,
+ * one per per-bone renderer model (both sides), and one item display model.
+ */
+function deriveColorVariants() {
+    // Static quadrant masters: closed and open, both sides.
+    for (const side of ["right", "left"]) {
+        for (const quadrant of ["l1", "r1", "l2", "r2", "open_l1", "open_r1", "open_l2", "open_r2"]) {
+            const base = "large_curtain_" + side + "_" + quadrant;
+            const master = readJson("models/block/large_curtain/" + base + ".json");
+            const keys = whiteTextureKeys(master);
+            for (const color of COLORS) {
+                if (color === "white") continue;
+                const stub = { parent: "shadowsandpetals:block/large_curtain/" + base, textures: {} };
+                for (const key of keys) stub.textures[key] = NS + color;
+                writeJson(path.join(outDir, base + "_" + color + ".json"), stub);
+            }
+        }
+    }
+    console.log("derive: 16 quadrant masters -> " + (COLORS.length - 1) + " color stubs each");
+
+    // Per-bone renderer models: white bones keep the geometry; colored bones
+    // are texture-override stubs of the white bone, one directory per color.
+    for (const bonesDirName of ["large_curtain", "large_curtain_left"]) {
+        const bonesDir = path.join(outDir, bonesDirName);
+        const boneFiles = fs.readdirSync(bonesDir).filter(file => file.endsWith(".json"));
+        for (const boneFile of boneFiles) {
+            const bone = boneFile.slice(0, -".json".length);
+            const whiteBone = readJson("models/block/large_curtain/" + bonesDirName + "/" + boneFile);
+            const keys = whiteTextureKeys(whiteBone);
+            for (const color of COLORS) {
+                if (color === "white") continue;
+                const stub = {
+                    parent: "shadowsandpetals:block/large_curtain/" + bonesDirName + "/" + bone,
+                    textures: {}
+                };
+                for (const key of keys) stub.textures[key] = NS + color;
+                writeJson(path.join(outDir, bonesDirName + "_" + color, bone + ".json"), stub);
+            }
+        }
+        console.log("derive: " + bonesDirName + "/ -> " + (COLORS.length - 1) + " colored bone dirs");
+    }
+
+    // Item display models: parented to the white whole-curtain model.
+    for (const color of COLORS) {
+        if (color === "white") continue;
+        writeJson(path.join(outDir, color + "_large_curtain.json"), {
+            parent: "shadowsandpetals:block/large_curtain/large_curtain",
+            textures: { "1": NS + color }
+        });
+    }
+    console.log("derive: large_curtain -> " + (COLORS.length - 1) + " color hand models");
 }
 
 function processSide({ side, modelFile, animationFile, bonesDirName, writeMasters }) {
