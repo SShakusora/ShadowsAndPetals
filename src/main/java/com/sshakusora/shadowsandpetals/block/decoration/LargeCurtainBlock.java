@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
@@ -41,8 +42,9 @@ import java.util.Map;
  * then, so the moving curtain is drawn exactly once.
  *
  * <p>Structure: {@link DoubleBlockHalf} picks the row and {@link Column}
- * picks the block of that row — {@code OUTER} is the column the fabric
- * bunches to when opening, {@code INNER} faces the partner curtain.
+ * picks the block of that row — {@code OUTER} is the anchor column (in a
+ * window pair the two OUTER columns meet at the window center) and
+ * {@code INNER} is the column the fabric bunches to when opening.
  * {@link Side} marks which side of the window the whole 2x2 curtain hangs
  * on, mirroring {@link CurtainBlock}: the LEFT curtain bunches to the
  * observer's left and pairs with the RIGHT curtain on its right, and vice
@@ -141,10 +143,11 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     }
 
     /**
-     * The in-world direction from the outer to the inner column: toward the
-     * partner curtain. The RIGHT curtain bunches to the observer's right
-     * when facing it, so its inner column is on the observer's left. The
-     * LEFT curtain mirrors that.
+     * The in-world direction from the anchor (outer) column to the
+     * bunching (inner) column: away from the window center, toward this
+     * curtain's outer edge. The RIGHT curtain bunches to the observer's
+     * right when facing it, so the step points to the observer's right.
+     * The LEFT curtain mirrors that.
      */
     private static Direction innerStep(BlockState state) {
         Direction facing = state.getValue(FACING);
@@ -386,24 +389,17 @@ public class LargeCurtainBlock extends BaseEntityBlock {
 
     /**
      * The anchor of the partner curtain in a window pair, or null. Linking
-     * is geometric like {@link CurtainBlock}'s: this curtain's inner column
-     * borders the partner's inner column, and the partner's anchor (its own
-     * lower outer block) lies one cell further. Two same-side curtains
-     * never link.
+     * is geometric like {@link CurtainBlock}'s: the two curtains' anchors
+     * (their lower outer columns) sit side by side at the window center, so
+     * the partner's anchor is the next cell opposite this curtain's
+     * bunching direction. Two same-side curtains never link.
      */
     private static @Nullable BlockPos partnerAnchor(Level level, BlockPos anchor, BlockState state) {
-        Direction inner = innerStep(state);
-        BlockState partnerInner = level.getBlockState(anchor.relative(inner, 2));
-        if (!isLinkedPartner(partnerInner, state)
-                || partnerInner.getValue(COLUMN) != Column.INNER
-                || partnerInner.getValue(HALF) != DoubleBlockHalf.LOWER) {
-            return null;
-        }
-        BlockPos partnerAnchor = anchor.relative(inner, 3);
-        BlockState partnerOuter = level.getBlockState(partnerAnchor);
-        if (!isLinkedPartner(partnerOuter, state)
-                || partnerOuter.getValue(COLUMN) != Column.OUTER
-                || partnerOuter.getValue(HALF) != DoubleBlockHalf.LOWER) {
+        BlockPos partnerAnchor = anchor.relative(innerStep(state).getOpposite());
+        BlockState partner = level.getBlockState(partnerAnchor);
+        if (!isLinkedPartner(partner, state)
+                || partner.getValue(COLUMN) != Column.OUTER
+                || partner.getValue(HALF) != DoubleBlockHalf.LOWER) {
             return null;
         }
         return partnerAnchor;

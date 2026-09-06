@@ -33,8 +33,9 @@ public final class LargeCurtainModels {
                         LargeCurtainBlock.OPEN,
                         LargeCurtainBlock.ANIMATING)
                 .generate((half, column, side, open, animating) -> {
-                    // Quadrant naming is observer-relative for both sides:
-                    // l = outer (bunching) column, r = inner column.
+                    // Quadrant naming from the authored files, same for both
+                    // sides: l = outer (anchor) column, r = inner (bunching)
+                    // column; the open pile lives in the r quadrants.
                     String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "l" : "r")
                             + (half == DoubleBlockHalf.UPPER ? "1" : "2");
                     String suffix = open ? "open_" + quadrant : quadrant;
