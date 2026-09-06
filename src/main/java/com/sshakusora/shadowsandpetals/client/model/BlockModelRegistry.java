@@ -151,9 +151,6 @@ public final class BlockModelRegistry {
 
     public static final Map<String, StandaloneBlockModel> LARGE_CURTAIN_BONE_MODELS = registerLargeCurtainBones();
 
-    /** Per-bone baked models for the mirrored left half of the large curtain. */
-    public static final Map<String, StandaloneBlockModel> LARGE_CURTAIN_LEFT_BONE_MODELS = registerLargeCurtainLeftBones();
-
     /** A dye color paired with one rig bone of a curtain part. */
     public record CurtainBoneKey(DyeColor color, String bone) {
     }
@@ -176,17 +173,6 @@ public final class BlockModelRegistry {
             models.put(bone, ClientModelRegistry
                     .blockState("large_curtain_" + bone)
                     .model(ShadowsAndPetals.asResource("block/large_curtain/large_curtain/" + bone))
-                    .register());
-        }
-        return Map.copyOf(models);
-    }
-
-    private static Map<String, StandaloneBlockModel> registerLargeCurtainLeftBones() {
-        Map<String, StandaloneBlockModel> models = new HashMap<>();
-        for (String bone : LARGE_CURTAIN_BONES) {
-            models.put(bone, ClientModelRegistry
-                    .blockState("large_curtain_left_" + bone)
-                    .model(ShadowsAndPetals.asResource("block/large_curtain/large_curtain_left/" + bone))
                     .register());
         }
         return Map.copyOf(models);
