@@ -42,13 +42,18 @@ import java.util.Map;
  *
  * <p>Structure: {@link DoubleBlockHalf} picks the row and {@link Column}
  * picks the block of that row — {@code OUTER} is the column the fabric
- * bunches to when opening, {@code INNER} faces the partner curtain.</p>
+ * bunches to when opening, {@code INNER} faces the partner curtain.
+ * {@link Side} marks which side of the window the whole 2x2 curtain hangs
+ * on, mirroring {@link CurtainBlock}: the LEFT curtain bunches to the
+ * observer's left and pairs with the RIGHT curtain on its right, and vice
+ * versa.</p>
  */
 public class LargeCurtainBlock extends BaseEntityBlock {
     public static final MapCodec<LargeCurtainBlock> CODEC = simpleCodec(LargeCurtainBlock::new);
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
+    public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     /**
@@ -61,6 +66,27 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
     /** Server ticks to hold ANIMATING: ceil of the 0.29167 s clip length. */
     public static final int ANIMATION_TICKS = 6;
+
+    /** Which side of the window this whole 2x2 curtain belongs to. */
+    public enum Side implements StringRepresentable {
+        LEFT("left"),
+        RIGHT("right");
+
+        private final String name;
+
+        Side(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+
+        public Side mirror() {
+            return this == LEFT ? RIGHT : LEFT;
+        }
+    }
 
     /** Which column of the two-wide curtain this block is. */
     public enum Column implements StringRepresentable {
@@ -97,6 +123,7 @@ public class LargeCurtainBlock extends BaseEntityBlock {
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
+                .setValue(SIDE, Side.RIGHT)
                 .setValue(OPEN, false)
                 .setValue(POWERED, false)
                 .setValue(ANIMATING, false)
@@ -110,17 +137,20 @@ public class LargeCurtainBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, COLUMN, OPEN, POWERED, ANIMATING, ANCHOR);
+        builder.add(FACING, HALF, COLUMN, SIDE, OPEN, POWERED, ANIMATING, ANCHOR);
     }
 
     /**
      * The in-world direction from the outer to the inner column: toward the
-     * partner curtain. The RIGHT curtain (authored model) bunches to the
-     * observer's right when facing it, so the inner column lies to the left.
+     * partner curtain. The RIGHT curtain bunches to the observer's right
+     * when facing it, so its inner column is on the observer's left. The
+     * LEFT curtain mirrors that.
      */
     private static Direction innerStep(BlockState state) {
         Direction facing = state.getValue(FACING);
-        return facing.getClockWise().getOpposite();
+        return state.getValue(SIDE) == Side.RIGHT
+                ? facing.getClockWise().getOpposite()
+                : facing.getClockWise();
     }
 
     /**
@@ -133,10 +163,13 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         BlockPos clickedPos = context.getClickedPos();
         Level level = context.getLevel();
         Direction facing = context.getHorizontalDirection().getOpposite();
+        Side side = sideForNeighbour(level, clickedPos, facing,
+                context.getPlayer() != null && context.getPlayer().isSecondaryUseActive());
         BlockState anchor = defaultBlockState()
                 .setValue(FACING, facing)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
+                .setValue(SIDE, side)
                 .setValue(ANCHOR, true);
         BlockPos inner = clickedPos.relative(innerStep(anchor));
         if (!level.getBlockState(inner).canBeReplaced(context)
@@ -148,6 +181,39 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         return anchor
                 .setValue(POWERED, powered)
                 .setValue(OPEN, powered);
+    }
+
+    /**
+     * Chooses the side from the neighbouring large curtain of the same
+     * facing, mirroring {@link CurtainBlock}'s wall geometry: the neighbour
+     * on the observer's left marks this curtain's window position as the
+     * observer's right, so the curtain is RIGHT, and vice versa. Sneaking
+     * keeps the neighbour's side instead (same-side pairing). Without a
+     * neighbouring curtain the curtain defaults to LEFT.
+     *
+     * <p>Because each curtain is two blocks wide, the partner of a window
+     * pair sits two cells away from this anchor (its inner column borders
+     * this curtain's inner column), while a directly adjacent curtain is
+     * one cell away; both distances are probed.</p>
+     */
+    private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
+        Direction leftDir = facing.getClockWise();
+        Direction[] both = {leftDir, leftDir.getOpposite()};
+        for (Direction direction : both) {
+            for (int distance = 1; distance <= 2; distance++) {
+                BlockState neighbour = level.getBlockState(lowerPos.relative(direction, distance));
+                if (neighbour.getBlock() instanceof LargeCurtainBlock
+                        && neighbour.getValue(FACING) == facing) {
+                    if (sneaking) {
+                        return neighbour.getValue(SIDE);
+                    }
+                    // This curtain sits on the opposite window side from the
+                    // neighbour: neighbour at observer-left => this is RIGHT.
+                    return direction == leftDir ? Side.RIGHT : Side.LEFT;
+                }
+            }
+        }
+        return Side.LEFT;
     }
 
     @Override
@@ -282,14 +348,14 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     protected InteractionResult useWithoutItem(
             BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
-        if (state.getValue(POWERED)) {
+        if (isPoweredPair(level, pos, state)) {
             return InteractionResult.PASS;
         }
         boolean open = !state.getValue(OPEN);
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
-        toggleCurtain(level, anchorOf(pos, state), state, open);
+        togglePair(level, anchorOf(pos, state), state, open);
         return InteractionResult.SUCCESS_SERVER;
     }
 
@@ -311,10 +377,77 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         boolean powered = hasAnyRedstoneSignal(level, anchor, innerStep(state));
         if (powered != state.getValue(POWERED)) {
             if (powered != state.getValue(OPEN)) {
-                toggleCurtain(level, anchor, state, powered);
+                togglePair(level, anchor, state, powered);
             } else {
                 setCurtainFlag(level, anchor, innerStep(state), POWERED, powered);
             }
+        }
+    }
+
+    /**
+     * The anchor of the partner curtain in a window pair, or null. Linking
+     * is geometric like {@link CurtainBlock}'s: this curtain's inner column
+     * borders the partner's inner column, and the partner's anchor (its own
+     * lower outer block) lies one cell further. Two same-side curtains
+     * never link.
+     */
+    private static @Nullable BlockPos partnerAnchor(Level level, BlockPos anchor, BlockState state) {
+        Direction inner = innerStep(state);
+        BlockState partnerInner = level.getBlockState(anchor.relative(inner, 2));
+        if (!isLinkedPartner(partnerInner, state)
+                || partnerInner.getValue(COLUMN) != Column.INNER
+                || partnerInner.getValue(HALF) != DoubleBlockHalf.LOWER) {
+            return null;
+        }
+        BlockPos partnerAnchor = anchor.relative(inner, 3);
+        BlockState partnerOuter = level.getBlockState(partnerAnchor);
+        if (!isLinkedPartner(partnerOuter, state)
+                || partnerOuter.getValue(COLUMN) != Column.OUTER
+                || partnerOuter.getValue(HALF) != DoubleBlockHalf.LOWER) {
+            return null;
+        }
+        return partnerAnchor;
+    }
+
+    private static boolean isLinkedPartner(BlockState neighbour, BlockState state) {
+        return neighbour.getBlock() instanceof LargeCurtainBlock
+                && neighbour.getValue(FACING) == state.getValue(FACING)
+                && neighbour.getValue(SIDE) != state.getValue(SIDE);
+    }
+
+    /**
+     * True when this curtain or its linked partner is powered; a powered
+     * pair ignores manual use, mirroring {@link CurtainBlock}.
+     */
+    private static boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
+        BlockPos anchor = anchorOf(pos, state);
+        if (state.getValue(POWERED) || hasAnyRedstoneSignal(level, anchor, innerStep(state))) {
+            return true;
+        }
+        BlockPos partner = partnerAnchor(level, anchor, state);
+        if (partner == null) {
+            return false;
+        }
+        BlockState partnerState = level.getBlockState(partner);
+        return partnerState.getValue(POWERED)
+                || hasAnyRedstoneSignal(level, partner, innerStep(partnerState));
+    }
+
+    /**
+     * Toggles this curtain plus its linked partner curtain, mirroring
+     * {@link CurtainBlock#togglePair}: a redstone signal on either curtain
+     * forces both open.
+     */
+    private static void togglePair(Level level, BlockPos anchor, BlockState state, boolean open) {
+        BlockPos partner = partnerAnchor(level, anchor, state);
+        boolean powered = hasAnyRedstoneSignal(level, anchor, innerStep(state));
+        boolean partnerPowered = partner != null
+                && hasAnyRedstoneSignal(level, partner, innerStep(level.getBlockState(partner)));
+        boolean targetOpen = open || powered || partnerPowered;
+
+        toggleCurtain(level, anchor, state, targetOpen);
+        if (partner != null) {
+            toggleCurtain(level, partner, level.getBlockState(partner), targetOpen);
         }
     }
 

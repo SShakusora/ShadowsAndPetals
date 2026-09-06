@@ -6,8 +6,11 @@
  * cell, like a fence). Right-curtain probe build only.
  *
  * Source of truth (editor coordinates, authored in Blockbench):
- *   models/block/large_curtain/large_curtain_right.json        closed pose
- *   models/block/large_curtain/large_curtain.animation.json    OPENING/CLOSING
+ *   models/block/large_curtain/large_curtain_right.json        closed pose (right)
+ *   models/block/large_curtain/large_curtain_right.animation.json  OPENING/CLOSING (right)
+ *   models/block/large_curtain/large_curtain_left.json         closed pose (left, mirrored)
+ *   models/block/large_curtain/large_curtain_left.animation.json  OPENING/CLOSING
+ *      (left; every operation value negated so the mirror lands left-bunching)
  *
  * The .animation.json is Blockbench's native Bedrock export: its X position
  * and Y rotation channels are mirrored relative to the editor model, so
@@ -22,10 +25,11 @@
  * Outputs:
  *   models/block/large_curtain/large_curtain.json          closed master
  *   models/block/large_curtain/large_curtain_open.json     baked open master
- *   models/block/large_curtain/large_curtain/<bone>.json   per-bone parents
- *   sap/animations/rigs/large_curtain/right.json           rig (local pivots)
- *   sap/animations/controllers/large_curtain/right.json    controller
- *   neoforge/animations/entity/large_curtain/right/*.json  opening/closing
+ *   models/block/large_curtain/large_curtain/<bone>.json   per-bone parents (right)
+ *   models/block/large_curtain/large_curtain_left/<bone>.json  per-bone parents (left)
+ *   sap/animations/rigs/large_curtain/<side>.json          rig (local pivots)
+ *   sap/animations/controllers/large_curtain/<side>.json   controller
+ *   neoforge/animations/entity/large_curtain/<side>/*.json opening/closing
  *
  * Usage:  node tools/curtain/split_large_curtain_model.js
  */
@@ -70,12 +74,12 @@ function masterTextures() {
 // Source loading
 // ---------------------------------------------------------------------------
 
-function loadSources() {
-    const closed = readJson("models/block/large_curtain/large_curtain_right.json");
+function loadSources(modelFile, animationFile) {
+    const closed = readJson("models/block/large_curtain/" + modelFile);
     if (!Array.isArray(closed.elements) || !closed.elements.length) {
         fail("source model has no elements");
     }
-    const animation = readJson("models/block/large_curtain/large_curtain.animation.json");
+    const animation = readJson("models/block/large_curtain/" + animationFile);
     const opening = animation.animations.OPENING;
     const closing = animation.animations.CLOSING;
     if (!opening || !closing) fail("animation file lacks OPENING/CLOSING clips");
@@ -283,7 +287,29 @@ function toLocal(element) {
 // ---------------------------------------------------------------------------
 
 function main() {
-    const { closed, opening, closing } = loadSources();
+    // Right curtain: authored export + masters (the large_curtain.json item
+    // display stub parents the right model).
+    processSide({
+        side: "right",
+        modelFile: "large_curtain_right.json",
+        animationFile: "large_curtain_right.animation.json",
+        bonesDirName: "large_curtain",
+        writeMasters: true
+    });
+    // Left curtain: mirrored editor model; its animation source has every
+    // operation value negated so the Bedrock mirror below lands on the
+    // left-bunching pose.
+    processSide({
+        side: "left",
+        modelFile: "large_curtain_left.json",
+        animationFile: "large_curtain_left.animation.json",
+        bonesDirName: "large_curtain_left",
+        writeMasters: false
+    });
+}
+
+function processSide({ side, modelFile, animationFile, bonesDirName, writeMasters }) {
+    const { closed, opening, closing } = loadSources(modelFile, animationFile);
     const boneOf = boneBindings(closed);
     const pivots = groupPivots(closed, boneOf);
     const pose = poseOf(opening);
@@ -300,25 +326,27 @@ function main() {
     if (pileMax - pileMin > 10 + 1.0e-4) {
         fail("baked pile is " + (pileMax - pileMin).toFixed(2) + "px wide, expected ~8");
     }
-    console.log("bake: fabric pile x " + pileMin.toFixed(2) + ".." + pileMax.toFixed(2));
+    console.log("bake[" + side + "]: fabric pile x " + pileMin.toFixed(2) + ".." + pileMax.toFixed(2));
 
-    // Static masters in the verbatim frame. The closed master is a plain
-    // parent stub of the authored export; only the open pose needs baked
-    // geometry (the export has no open-pose file).
-    writeJson(path.join(outDir, "large_curtain.json"), {
-        parent: "shadowsandpetals:block/large_curtain/large_curtain_right"
-    });
-    const openLocal = openElements.map(toLocal);
-    writeJson(path.join(outDir, "large_curtain_open.json"), {
-        textures: masterTextures(),
-        elements: openLocal
-    });
-    console.log("masters: large_curtain.json (parent stub) + large_curtain_open.json ("
-            + openLocal.length + " baked elements)");
+    if (writeMasters) {
+        // Static masters in the verbatim frame. The closed master is a plain
+        // parent stub of the authored export; only the open pose needs baked
+        // geometry (the export has no open-pose file).
+        writeJson(path.join(outDir, "large_curtain.json"), {
+            parent: "shadowsandpetals:block/large_curtain/large_curtain_right"
+        });
+        const openLocal = openElements.map(toLocal);
+        writeJson(path.join(outDir, "large_curtain_open.json"), {
+            textures: masterTextures(),
+            elements: openLocal
+        });
+        console.log("masters: large_curtain.json (parent stub) + large_curtain_open.json ("
+                + openLocal.length + " baked elements)");
+    }
 
     // Per-bone parents for the animation renderer (closed pose, verbatim).
     const bones = [...new Set(boneOf)];
-    const bonesDir = path.join(outDir, "large_curtain");
+    const bonesDir = path.join(outDir, bonesDirName);
     fs.rmSync(bonesDir, { recursive: true, force: true });
     for (const bone of bones) {
         const elements = closed.elements
@@ -329,7 +357,7 @@ function main() {
             elements
         });
     }
-    console.log("split: " + bones.length + " per-bone parents under large_curtain/");
+    console.log("split[" + side + "]: " + bones.length + " per-bone parents under " + bonesDirName + "/");
 
     // Rig with verbatim pivots; controller; runtime clips.
     const rigBones = bones.map(bone => {
@@ -344,25 +372,25 @@ function main() {
         }
         return entry;
     });
-    writeJson(path.join(curtainRoot, "sap", "animations", "rigs", "large_curtain", "right.json"),
+    writeJson(path.join(curtainRoot, "sap", "animations", "rigs", "large_curtain", side + ".json"),
             { format_version: 1, bones: rigBones });
-    writeJson(path.join(curtainRoot, "neoforge", "animations", "entity", "large_curtain", "right", "opening.json"),
+    writeJson(path.join(curtainRoot, "neoforge", "animations", "entity", "large_curtain", side, "opening.json"),
             runtimeClip(opening));
-    writeJson(path.join(curtainRoot, "neoforge", "animations", "entity", "large_curtain", "right", "closing.json"),
+    writeJson(path.join(curtainRoot, "neoforge", "animations", "entity", "large_curtain", side, "closing.json"),
             runtimeClip(closing));
     const controller = {
         format_version: 1,
-        rig: "shadowsandpetals:large_curtain/right",
+        rig: "shadowsandpetals:large_curtain/" + side,
         initial: "closed",
         states: {
             open: {
-                clip: "shadowsandpetals:large_curtain/right/opening",
+                clip: "shadowsandpetals:large_curtain/" + side + "/opening",
                 speed: 1,
                 wrap: "clamp",
                 mask: bones
             },
             closed: {
-                clip: "shadowsandpetals:large_curtain/right/closing",
+                clip: "shadowsandpetals:large_curtain/" + side + "/closing",
                 speed: 1,
                 wrap: "clamp",
                 mask: bones
@@ -373,8 +401,8 @@ function main() {
             { from: "closed", to: "open", duration: 0.08 }
         ]
     };
-    writeJson(path.join(curtainRoot, "sap", "animations", "controllers", "large_curtain", "right.json"), controller);
-    console.log("anim: large_curtain/right rig(" + rigBones.length + " bones) + controller + 2 clips");
+    writeJson(path.join(curtainRoot, "sap", "animations", "controllers", "large_curtain", side + ".json"), controller);
+    console.log("anim[" + side + "]: large_curtain/" + side + " rig(" + rigBones.length + " bones) + controller + 2 clips");
 }
 
 main();

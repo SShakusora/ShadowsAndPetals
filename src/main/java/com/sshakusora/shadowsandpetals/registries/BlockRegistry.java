@@ -1045,7 +1045,7 @@ public class BlockRegistry {
                 .register()
     );
 
-    /** Probe build: one white single-block large curtain, right side only. */
+    /** Sixteen dye colors of the 2x2 large curtain; the side is a blockstate property. */
     public static final DyedBlockList<LargeCurtainBlock> LARGE_CURTAINS = new DyedBlockList<>(color -> SAPRegistries
                 .block(color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain", LargeCurtainBlock::new)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
