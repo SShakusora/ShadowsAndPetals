@@ -187,6 +187,12 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         poseStack.translate(0.5D, 0.0D, 0.5D);
         poseStack.mulPose(Axis.YP.rotationDegrees(-state.facing.toYRot() + 180.0F));
         poseStack.translate(-0.5D, 0.0D, -0.5D);
+        if (state.side == LargeCurtainBlock.Side.LEFT) {
+            // The left rig is a mirror of the right rig about x=0, so its
+            // frame covers the anchor cell and the cell beyond the outer
+            // column; shift it one cell toward the inner column.
+            poseStack.translate(1.0D, 0.0D, 0.0D);
+        }
 
         model.submit(pose, poseStack, submitNodeCollector, state.lightCoords);
 
