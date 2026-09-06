@@ -7,11 +7,9 @@ import com.sshakusora.shadowsandpetals.client.renderer.BonsaiPartCacheKey;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
-import net.minecraft.client.renderer.block.BlockModelResolver;
+import net.minecraft.client.renderer.block.BlockStateModelSet;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
-import net.minecraft.client.renderer.entity.DisplayRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -48,13 +46,12 @@ public final class BonsaiTreeGeometryCache {
     public static final int TRUNK_TINT_INDEX = 0;
     public static final int LEAVES_TINT_INDEX = 1;
 
-    private static @Nullable TextureAtlasSprite baseLogSprite;
-    private static @Nullable TextureAtlasSprite baseLeavesSprite;
+    private static volatile @Nullable TextureAtlasSprite baseLogSprite;
+    private static volatile @Nullable TextureAtlasSprite baseLeavesSprite;
     private static final Map<BonsaiPartCacheKey, CachedParts> PART_CACHE =
             new ConcurrentHashMap<>();
     private static final Map<Identifier, Optional<ResolvedMaterial>> MATERIAL_CACHE =
             new ConcurrentHashMap<>();
-    private static @Nullable BlockModelResolver blockModelResolver;
 
     private BonsaiTreeGeometryCache() {
     }
@@ -523,14 +520,19 @@ public final class BonsaiTreeGeometryCache {
             return Optional.empty();
         }
         BlockState blockState = block.defaultBlockState();
-        BlockModelRenderState renderState = new BlockModelRenderState();
-        getBlockModelResolver().update(
-                renderState,
+        BlockStateModelSet modelSet = Minecraft.getInstance()
+                .getModelManager()
+                .getBlockStateModelSet();
+        BlockStateModel model = modelSet.get(blockState);
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(
+                BlockAndTintGetter.EMPTY,
+                BlockPos.ZERO,
                 blockState,
-                DisplayRenderer.BLOCK_DISPLAY_CONTEXT
+                RandomSource.create(42L),
+                parts
         );
-        List<BlockStateModelPart> parts = renderState.modelParts;
-        if (parts == null || parts.isEmpty()) {
+        if (parts.isEmpty()) {
             return Optional.empty();
         }
         Material.Baked particleMaterial = parts.getFirst().particleMaterial();
@@ -543,15 +545,6 @@ public final class BonsaiTreeGeometryCache {
                 materialInfo,
                 hasTranslucency
         ));
-    }
-
-    private static synchronized BlockModelResolver getBlockModelResolver() {
-        if (blockModelResolver == null) {
-            blockModelResolver = new BlockModelResolver(
-                    Minecraft.getInstance().getModelManager()
-            );
-        }
-        return blockModelResolver;
     }
 
     private static BakedQuad.@Nullable MaterialInfo findMaterialInfo(
@@ -618,11 +611,10 @@ public final class BonsaiTreeGeometryCache {
     }
 
     /** Drops all references to models and atlas sprites after a resource reload. */
-    public static void invalidate() {
+    public static synchronized void invalidate() {
         PART_CACHE.clear();
         MATERIAL_CACHE.clear();
         baseLogSprite = null;
         baseLeavesSprite = null;
-        blockModelResolver = null;
     }
 }
