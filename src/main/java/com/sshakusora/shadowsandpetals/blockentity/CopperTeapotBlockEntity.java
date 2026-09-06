@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.blockentity;
 
+import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
 import com.sshakusora.shadowsandpetals.menu.TeapotMenu;
@@ -289,7 +290,8 @@ public class CopperTeapotBlockEntity extends RandomizableContainerBlockEntity {
         if (belowState.hasProperty(BlockStateProperties.LIT) && belowState.getValue(BlockStateProperties.LIT)) {
             return true;
         }
-        return level.getBlockEntity(belowPos) instanceof IroriBlockEntity irori
+        return IroriBlock.hasGrill(belowState)
+                && level.getBlockEntity(belowPos) instanceof IroriBlockEntity irori
                 && irori.getBurnTime() > 0;
     }
 

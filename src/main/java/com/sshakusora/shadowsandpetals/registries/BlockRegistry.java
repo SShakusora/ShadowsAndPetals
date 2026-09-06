@@ -380,33 +380,33 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A modular _hearth_ for burning fuel, cooking food, and keeping watch.",
-                            "能够燃烧燃料、烹饪食物并守护周围的组合式_围炉_。")
+                            "A modular _hearth_ that shares its grill, fuel, and fire across connected blocks.",
+                            "在相连方块间共享炉架、燃料与火焰的组合式_围炉_。")
                     .behaviour(
                             "While burning:", "燃烧时：",
-                            "Cook campfire and smoking recipes, repel nearby _Phantoms_, and suppress their spawning.",
-                            "烹饪篝火与烟熏配方，驱散附近的_幻翼_并抑制其生成。")
+                            "Cook campfire and smoking recipes on the grill, repel nearby _Phantoms_, and suppress their spawning.",
+                            "在炉架上烹饪篝火与烟熏配方，驱散附近的_幻翼_并抑制其生成。")
                     .behaviour(
-                            "When fuel burns out:", "燃料耗尽时：",
+                            "When all fuel is exhausted:", "所有燃料耗尽时：",
                             "Leave behind ash that can be collected as _Bone Meal_.", "留下可收集为_骨粉_的灰烬。")
                     .action(
-                            "Drop Fuel into the Basin:", "将燃料丢入炉膛：",
-                            "_Load_ the hearth with fuel.", "为围炉_添加_燃料。")
+                            "Right-click with an Iron Ingot:", "手持铁锭右键：",
+                            "_Install_ a grill across the connected hearth.", "为整组围炉_安装_炉架。")
+                    .action(
+                            "Shift Right-click:", "Shift+右键：",
+                            "Open the shared _menu_ to add or retrieve fuel.", "打开共享_界面_以存取燃料。")
                     .action(
                             "Use Flint and Steel or a Fire Charge:", "使用打火石或火焰弹：",
                             "_Ignite_ the loaded fuel.", "_点燃_已添加的燃料。")
                     .action(
-                            "Right-click the Center with Cookable Food:", "手持可烹饪食物右键中心：",
+                            "Right-click the Grill with Cookable Food:", "手持可烹饪食物右键炉架：",
                             "Place one item on the _grill_.", "将一份食物放上_炉架_。")
                     .action(
                             "Empty-hand Right-click the Food:", "空手右键炉架上的食物：",
                             "Take it from the _grill_.", "从_炉架_上取回食物。")
                     .action(
                             "Right-click the Ash:", "右键点击灰烬：",
-                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。")
-                    .action(
-                            "Shift Right-click:", "Shift+右键：",
-                            "Open the master hearth _menu_.", "打开主围炉_界面_。"))
+                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。"))
             .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::irori)
             .loot((provider, irori) -> provider.dropSelf(irori.get()))

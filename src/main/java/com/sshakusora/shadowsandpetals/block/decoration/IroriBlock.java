@@ -17,12 +17,10 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.InsideBlockEffectApplier;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.level.BlockGetter;
@@ -41,6 +39,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -67,12 +66,16 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty HAS_GRILL = BooleanProperty.create("has_grill");
 
+    /** Returns whether this state represents a cell covered by the installed grill. */
+    public static boolean hasGrill(BlockState state) {
+        return state.getBlock() instanceof IroriBlock
+                && state.hasProperty(HAS_GRILL)
+                && state.getValue(HAS_GRILL);
+    }
+
     private static final double STANDALONE_BASIN_MIN = 3.0D / 16.0D;
     private static final double STANDALONE_BASIN_MAX = 13.0D / 16.0D;
     private static final double CONNECTED_BASIN_INSET = 4.0D / 16.0D;
-    private static final double BASIN_FLOOR_Y = 10.0D / 16.0D;
-    private static final double ITEM_BASIN_VERTICAL_EPSILON = 1.0D / 16.0D;
-
     private static final VoxelShape BASE_SHAPE = box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D);
     private static final VoxelShape GRILL_SHAPE = box(1.0D, 10.0D, 1.0D, 15.0D, 21.5D, 15.0D);
     private static final VoxelShape STANDALONE_SHAPE = Shapes.or(
@@ -249,45 +252,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
-    protected void entityInside(
-            BlockState state,
-            Level level,
-            BlockPos pos,
-            Entity entity,
-            InsideBlockEffectApplier effectApplier,
-            boolean isPrecise
-    ) {
-        if (level.isClientSide()
-                || state.getValue(WATERLOGGED)
-                || !(entity instanceof ItemEntity itemEntity)
-                || !isItemInBasin(state, pos, itemEntity)) {
-            return;
-        }
-
-        ItemStack droppedStack = itemEntity.getItem();
-        if (!isFuel(droppedStack, level)) {
-            return;
-        }
-
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (!(blockEntity instanceof IroriBlockEntity irori)) {
-            return;
-        }
-        IroriBlockEntity master = irori.resolveMaster();
-        if (!isCenterPosition(pos, master, level)) {
-            return;
-        }
-
-        if (tryAddDroppedFuel(droppedStack, master, level, pos)) {
-            if (droppedStack.isEmpty()) {
-                itemEntity.discard();
-            } else {
-                itemEntity.setItem(droppedStack);
-            }
-        }
-    }
-
-    @Override
     protected InteractionResult useItemOn(
             ItemStack stack,
             BlockState state,
@@ -300,6 +264,41 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         if (stack.isEmpty()) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
+
+        if (stack.is(Items.IRON_INGOT)) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (!(blockEntity instanceof IroriBlockEntity irori)) {
+                return InteractionResult.PASS;
+            }
+
+            IroriBlockEntity master = irori.resolveMaster();
+            if (master.hasInstalledGrill()) {
+                return InteractionResult.PASS;
+            }
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (!master.installGrill()) {
+                return InteractionResult.PASS;
+            }
+
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            level.playSound(
+                    null,
+                    master.getBlockPos(),
+                    SoundEvents.METAL_PLACE,
+                    SoundSource.BLOCKS,
+                    0.9F,
+                    0.95F + level.getRandom().nextFloat() * 0.1F
+            );
+            level.gameEvent(player, GameEvent.BLOCK_CHANGE, master.getBlockPos());
+            master.setChanged();
+            master.syncToClient();
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
         if (player.isSecondaryUseActive()) {
             return openMasterMenu(level, pos, player);
         }
@@ -410,44 +409,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return InteractionResult.PASS;
     }
 
-    private static boolean canAcceptFuel(ItemStack currentFuel, ItemStack heldStack) {
-        return currentFuel.isEmpty()
-                || ItemStack.isSameItemSameComponents(currentFuel, heldStack) && currentFuel.getCount() < currentFuel.getMaxStackSize();
-    }
-
-    private static boolean tryAddDroppedFuel(ItemStack droppedStack, IroriBlockEntity master, Level level, BlockPos soundPos) {
-        if (!isFuel(droppedStack, level)) {
-            return false;
-        }
-
-        ItemStack currentFuel = master.getFuelStack();
-        if (!canAcceptFuel(currentFuel, droppedStack)) {
-            return false;
-        }
-
-        int currentCount = currentFuel.isEmpty() ? 0 : currentFuel.getCount();
-        int maxCount = currentFuel.isEmpty() ? droppedStack.getMaxStackSize() : currentFuel.getMaxStackSize();
-        int insertCount = Math.min(droppedStack.getCount(), maxCount - currentCount);
-        if (insertCount <= 0) {
-            return false;
-        }
-
-        ItemStack updatedFuel = currentFuel.isEmpty() ? droppedStack.copyWithCount(insertCount) : currentFuel.copy();
-        if (!currentFuel.isEmpty()) {
-            updatedFuel.grow(insertCount);
-        }
-
-        master.clearAshAndDropResults();
-        master.setFuelStack(updatedFuel, level.getRandom());
-        level.playSound(null, soundPos, SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 0.9F, 0.95F + level.getRandom().nextFloat() * 0.1F);
-        droppedStack.shrink(insertCount);
-        return true;
-    }
-
-    private static boolean isFuel(ItemStack stack, Level level) {
-        return IroriApi.getFuelBurnTime(stack, level) > 0;
-    }
-
     private static boolean isCenterPosition(BlockPos pos, IroriBlockEntity master, Level level) {
         return IroriComponentTopology.bounds(level, master.getBlockPos()).containsCenter(pos);
     }
@@ -458,13 +419,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         return isBasinPosition(state, pos, hitResult.getLocation());
-    }
-
-    private static boolean isItemInBasin(BlockState state, BlockPos pos, ItemEntity itemEntity) {
-        double localY = itemEntity.getY() - pos.getY();
-        return localY >= BASIN_FLOOR_Y - ITEM_BASIN_VERTICAL_EPSILON
-                && localY <= 1.0D + itemEntity.getBbHeight()
-                && isBasinPosition(state, pos, itemEntity.position());
     }
 
     private static boolean isBasinPosition(BlockState state, BlockPos pos, Vec3 location) {
