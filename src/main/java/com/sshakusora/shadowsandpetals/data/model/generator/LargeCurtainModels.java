@@ -35,10 +35,14 @@ public final class LargeCurtainModels {
                         LargeCurtainBlock.OPEN,
                         LargeCurtainBlock.ANIMATING)
                 .generate((half, column, side, open, animating) -> {
-                    // The authored RIGHT model has outer (bunching) column "r"
-                    // and inner column "l"; the LEFT model is its mirror.
-                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "r" : "l")
-                            + (half == DoubleBlockHalf.UPPER ? "1" : "2");
+                    // l/r are observer-relative: right curtain bunches to the
+                    // observer's right (outer→r), left curtain bunches to the
+                    // observer's left (outer→l). The authored right model has
+                    // outer=r and inner=l; the left model mirrors that.
+                    String quadrant = column == LargeCurtainBlock.Column.OUTER
+                            ? (side == LargeCurtainBlock.Side.RIGHT ? "r" : "l")
+                            : (side == LargeCurtainBlock.Side.RIGHT ? "l" : "r");
+                    quadrant += half == DoubleBlockHalf.UPPER ? "1" : "2";
                     String suffix = open ? "open_" + quadrant : quadrant;
                     String modelName = side == LargeCurtainBlock.Side.RIGHT
                             ? "large_curtain_right_" + suffix
