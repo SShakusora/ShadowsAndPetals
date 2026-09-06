@@ -47,13 +47,16 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
     /** Beyond this local time the clip has clamped to its final keyframe. */
     private static final float FALLBACK_END_POSE_SECONDS = 1.0F;
 
-    private static final AnimationResourceRef.Rig RIG =
+    private static final AnimationResourceRef.Rig RIG_RIGHT =
             new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("large_curtain/right"));
 
+    private static final AnimationResourceRef.Rig RIG_LEFT =
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("large_curtain/left"));
+
     private static final String[] BONES = BlockModelRegistry.LARGE_CURTAIN_BONES;
-    /** Lazily baked whole-rig model; the geometry is side/color-agnostic. */
+    /** Lazily baked whole-rig model for the right curtain. */
     private @Nullable AnimatedBlockModel modelCache;
-    /** Lazily baked mirrored rig model for the left half. */
+    /** Lazily baked whole-rig model for the left curtain. */
     private @Nullable AnimatedBlockModel modelCacheLeft;
 
     public LargeCurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -97,9 +100,10 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
         boolean left = state.side == LargeCurtainBlock.Side.LEFT;
+        AnimationResourceRef.Rig rig = left ? RIG_LEFT : RIG_RIGHT;
         AnimatedBlockModel model = left
-                ? (modelCacheLeft != null ? modelCacheLeft : (modelCacheLeft = bakeModel(tintGetter, blockEntity, true)))
-                : (modelCache != null ? modelCache : (modelCache = bakeModel(tintGetter, blockEntity, false)));
+                ? (modelCacheLeft != null ? modelCacheLeft : (modelCacheLeft = bakeModel(tintGetter, blockEntity, rig, BlockModelRegistry.LARGE_CURTAIN_LEFT_BONE_MODELS)))
+                : (modelCache != null ? modelCache : (modelCache = bakeModel(tintGetter, blockEntity, rig, BlockModelRegistry.LARGE_CURTAIN_BONE_MODELS)));
         if (model == null) {
             return;
         }
@@ -115,7 +119,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
             seconds = FALLBACK_END_POSE_SECONDS;
         }
         state.animationPose = AnimationControllerEvaluator.sample(
-                RIG.id(),
+                rig.id(),
                 state.open ? "open" : "closed",
                 seconds
         );
@@ -136,13 +140,11 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
     private static AnimatedBlockModel bakeModel(
             BlockAndTintGetter tintGetter,
             LargeCurtainBlockEntity blockEntity,
-            boolean mirrorX
+            AnimationResourceRef.Rig rig,
+            Map<String, StandaloneBlockModel> boneModels
     ) {
         BlockState blockState = blockEntity.getBlockState();
         BlockPos pos = blockEntity.getBlockPos();
-        Map<String, StandaloneBlockModel> boneModels = mirrorX
-                ? BlockModelRegistry.LARGE_CURTAIN_LEFT_BONE_MODELS
-                : BlockModelRegistry.LARGE_CURTAIN_BONE_MODELS;
         List<AnimatedBlockModel.Binding> bindings = new ArrayList<>(BONES.length);
         boolean hasAnyParts = false;
         for (String bone : BONES) {
@@ -165,9 +167,9 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
                     tintGetter, pos, blockState, BakedQuad.FLAG_TRANSLUCENT
             );
             bindings.add(new AnimatedBlockModel.Binding(
-                    RIG, bone, List.copyOf(parts), hasTranslucency, TINTS, mirrorX));
+                    rig, bone, List.copyOf(parts), hasTranslucency, TINTS));
         }
-        return hasAnyParts ? new AnimatedBlockModel(RIG, bindings) : null;
+        return hasAnyParts ? new AnimatedBlockModel(rig, bindings) : null;
     }
 
     @Override
