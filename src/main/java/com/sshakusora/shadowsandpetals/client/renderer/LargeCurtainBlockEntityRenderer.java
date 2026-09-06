@@ -34,6 +34,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Renderer for the single-block large curtain. Submits the whole closed
@@ -52,6 +53,8 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
     private static final String[] BONES = BlockModelRegistry.LARGE_CURTAIN_BONES;
     /** Lazily baked whole-rig model; the geometry is side/color-agnostic. */
     private @Nullable AnimatedBlockModel modelCache;
+    /** Lazily baked mirrored rig model for the left half. */
+    private @Nullable AnimatedBlockModel modelCacheLeft;
 
     public LargeCurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -77,6 +80,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
         BlockState blockState = blockEntity.getBlockState();
         state.facing = blockState.getValue(LargeCurtainBlock.FACING);
+        state.side = blockState.getValue(LargeCurtainBlock.SIDE);
         state.animationPose = null;
         state.model = null;
         // Outside the animation window every block renders its own static
@@ -92,8 +96,10 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         state.open = beSynced ? blockEntity.isOpen() : stateOpen;
 
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        AnimatedBlockModel model = modelCache != null ? modelCache : bakeModel(tintGetter, blockEntity);
-        modelCache = model;
+        boolean left = state.side == LargeCurtainBlock.Side.LEFT;
+        AnimatedBlockModel model = left
+                ? (modelCacheLeft != null ? modelCacheLeft : (modelCacheLeft = bakeModel(tintGetter, blockEntity, true)))
+                : (modelCache != null ? modelCache : (modelCache = bakeModel(tintGetter, blockEntity, false)));
         if (model == null) {
             return;
         }
@@ -129,14 +135,18 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
     private static AnimatedBlockModel bakeModel(
             BlockAndTintGetter tintGetter,
-            LargeCurtainBlockEntity blockEntity
+            LargeCurtainBlockEntity blockEntity,
+            boolean mirrorX
     ) {
         BlockState blockState = blockEntity.getBlockState();
         BlockPos pos = blockEntity.getBlockPos();
+        Map<String, StandaloneBlockModel> boneModels = mirrorX
+                ? BlockModelRegistry.LARGE_CURTAIN_LEFT_BONE_MODELS
+                : BlockModelRegistry.LARGE_CURTAIN_BONE_MODELS;
         List<AnimatedBlockModel.Binding> bindings = new ArrayList<>(BONES.length);
         boolean hasAnyParts = false;
         for (String bone : BONES) {
-            StandaloneBlockModel model = BlockModelRegistry.LARGE_CURTAIN_BONE_MODELS.get(bone);
+            StandaloneBlockModel model = boneModels.get(bone);
             if (model == null) {
                 continue;
             }
@@ -155,7 +165,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
                     tintGetter, pos, blockState, BakedQuad.FLAG_TRANSLUCENT
             );
             bindings.add(new AnimatedBlockModel.Binding(
-                    RIG, bone, List.copyOf(parts), hasTranslucency, TINTS));
+                    RIG, bone, List.copyOf(parts), hasTranslucency, TINTS, mirrorX));
         }
         return hasAnyParts ? new AnimatedBlockModel(RIG, bindings) : null;
     }
@@ -170,7 +180,9 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.0D, 0.5D);
-        poseStack.mulPose(Axis.YP.rotationDegrees(-state.facing.toYRot() + 180.0F));
+        // Same rotation the block-state model uses; the rig was authored for
+        // the RIGHT curtain, and the left half mirrors it through the binding.
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.facing.toYRot()));
         poseStack.translate(-0.5D, 0.0D, -0.5D);
 
         model.submit(pose, poseStack, submitNodeCollector, state.lightCoords);
@@ -180,6 +192,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
     public static class State extends BlockEntityRenderState {
         public Direction facing = Direction.NORTH;
+        public LargeCurtainBlock.Side side = LargeCurtainBlock.Side.RIGHT;
         public boolean open = true;
         public @Nullable RigPose animationPose;
         public @Nullable AnimatedBlockModel model;

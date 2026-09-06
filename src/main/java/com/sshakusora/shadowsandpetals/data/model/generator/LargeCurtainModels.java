@@ -31,14 +31,20 @@ public final class LargeCurtainModels {
         PropertyDispatch<MultiVariant> dispatch = PropertyDispatch.initial(
                         LargeCurtainBlock.HALF,
                         LargeCurtainBlock.COLUMN,
+                        LargeCurtainBlock.SIDE,
                         LargeCurtainBlock.OPEN,
                         LargeCurtainBlock.ANIMATING)
-                .generate((half, column, open, animating) -> {
-                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "l" : "r")
+                .generate((half, column, side, open, animating) -> {
+                    // The authored RIGHT model has outer (bunching) column "r"
+                    // and inner column "l"; the LEFT model is its mirror.
+                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "r" : "l")
                             + (half == DoubleBlockHalf.UPPER ? "1" : "2");
                     String suffix = open ? "open_" + quadrant : quadrant;
+                    String modelName = side == LargeCurtainBlock.Side.RIGHT
+                            ? "large_curtain_right_" + suffix
+                            : "large_curtain_left_" + suffix;
                     return BlockModelGenerators.plainVariant(
-                            generator.modLoc("block/large_curtain/large_curtain_right_" + suffix));
+                            generator.modLoc("block/large_curtain/" + modelName));
                 });
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(dispatch)

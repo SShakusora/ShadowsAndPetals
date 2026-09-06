@@ -49,6 +49,7 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
+    public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
     public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     /**
@@ -61,6 +62,27 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
     /** Server ticks to hold ANIMATING: ceil of the 0.29167 s clip length. */
     public static final int ANIMATION_TICKS = 6;
+
+    /** Which side of the window this whole 2x2 curtain belongs to. */
+    public enum Side implements StringRepresentable {
+        LEFT("left"),
+        RIGHT("right");
+
+        private final String name;
+
+        Side(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+
+        public Side mirror() {
+            return this == LEFT ? RIGHT : LEFT;
+        }
+    }
 
     /** Which column of the two-wide curtain this block is. */
     public enum Column implements StringRepresentable {
@@ -97,6 +119,7 @@ public class LargeCurtainBlock extends BaseEntityBlock {
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
+                .setValue(SIDE, Side.RIGHT)
                 .setValue(OPEN, false)
                 .setValue(POWERED, false)
                 .setValue(ANIMATING, false)
@@ -110,17 +133,47 @@ public class LargeCurtainBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, COLUMN, OPEN, POWERED, ANIMATING, ANCHOR);
+        builder.add(FACING, HALF, COLUMN, SIDE, OPEN, POWERED, ANIMATING, ANCHOR);
     }
 
     /**
      * The in-world direction from the outer to the inner column: toward the
-     * partner curtain. The RIGHT curtain (authored model) bunches to the
-     * observer's right when facing it, so the inner column lies to the left.
+     * partner curtain. The RIGHT curtain bunches to the observer's right
+     * when facing it, so its inner column is on the observer's left. The
+     * LEFT curtain mirrors that.
      */
     private static Direction innerStep(BlockState state) {
         Direction facing = state.getValue(FACING);
-        return facing.getClockWise().getOpposite();
+        return state.getValue(SIDE) == Side.RIGHT
+                ? facing.getClockWise().getOpposite()
+                : facing.getClockWise();
+    }
+
+    /**
+     * Chooses the side from the neighbouring large curtain of the same facing,
+     * using wall geometry: the neighbour on the observer's left marks this
+     * curtain's window position as the observer's right, so the curtain is
+     * RIGHT, and vice versa. Sneaking keeps the neighbour's side instead
+     * (same-side pairing). Without a neighbouring curtain the curtain
+     * defaults to LEFT.
+     */
+    private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
+        Direction leftDir = facing.getClockWise();
+        Direction[] both = {leftDir, leftDir.getOpposite()};
+        for (Direction direction : both) {
+            BlockPos neighbourPos = lowerPos.relative(direction);
+            BlockState neighbour = level.getBlockState(neighbourPos);
+            if (neighbour.getBlock() instanceof LargeCurtainBlock
+                    && neighbour.getValue(FACING) == facing) {
+                if (sneaking) {
+                    return neighbour.getValue(SIDE);
+                }
+                // This curtain sits on the opposite window side from the
+                // neighbour: neighbour at observer-left => this is RIGHT.
+                return direction == leftDir ? Side.RIGHT : Side.LEFT;
+            }
+        }
+        return Side.LEFT;
     }
 
     /**
@@ -133,18 +186,26 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         BlockPos clickedPos = context.getClickedPos();
         Level level = context.getLevel();
         Direction facing = context.getHorizontalDirection().getOpposite();
+        boolean belowReplaceable = level.getBlockState(clickedPos.below()).canBeReplaced(context);
+        BlockPos lowerPos = belowReplaceable ? clickedPos.below() : clickedPos;
+        if (!level.getBlockState(lowerPos).canBeReplaced(context)
+                || !level.getBlockState(lowerPos.above()).canBeReplaced(context)) {
+            return null;
+        }
+        Side side = sideForNeighbour(level, lowerPos, facing,
+                context.getPlayer() != null && context.getPlayer().isSecondaryUseActive());
         BlockState anchor = defaultBlockState()
                 .setValue(FACING, facing)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
+                .setValue(SIDE, side)
                 .setValue(ANCHOR, true);
-        BlockPos inner = clickedPos.relative(innerStep(anchor));
+        BlockPos inner = lowerPos.relative(innerStep(anchor));
         if (!level.getBlockState(inner).canBeReplaced(context)
-                || !level.getBlockState(clickedPos.above()).canBeReplaced(context)
                 || !level.getBlockState(inner.above()).canBeReplaced(context)) {
             return null;
         }
-        boolean powered = level.hasNeighborSignal(clickedPos);
+        boolean powered = level.hasNeighborSignal(lowerPos);
         return anchor
                 .setValue(POWERED, powered)
                 .setValue(OPEN, powered);
@@ -193,10 +254,11 @@ public class LargeCurtainBlock extends BaseEntityBlock {
             return;
         }
         BlockPos innerPos = pos.relative(innerStep(state));
-        level.setBlock(innerPos, state.setValue(COLUMN, Column.INNER).setValue(ANCHOR, false), Block.UPDATE_ALL);
-        level.setBlock(pos.above(), state.setValue(HALF, DoubleBlockHalf.UPPER).setValue(ANCHOR, false), Block.UPDATE_ALL);
+        BlockState base = state.setValue(ANCHOR, false);
+        level.setBlock(innerPos, base.setValue(COLUMN, Column.INNER), Block.UPDATE_ALL);
+        level.setBlock(pos.above(), base.setValue(HALF, DoubleBlockHalf.UPPER), Block.UPDATE_ALL);
         level.setBlock(innerPos.above(),
-                state.setValue(HALF, DoubleBlockHalf.UPPER).setValue(COLUMN, Column.INNER).setValue(ANCHOR, false),
+                base.setValue(HALF, DoubleBlockHalf.UPPER).setValue(COLUMN, Column.INNER),
                 Block.UPDATE_ALL);
     }
 
