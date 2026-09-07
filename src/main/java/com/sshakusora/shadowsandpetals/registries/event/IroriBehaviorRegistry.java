@@ -2,7 +2,6 @@ package com.sshakusora.shadowsandpetals.registries.event;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.api.irori.*;
-import com.sshakusora.shadowsandpetals.registries.BlockTagRegistry;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,19 +29,6 @@ public final class IroriBehaviorRegistry {
     }
 
     public static void register(RegisterIroriBehaviorsEvent event) {
-        event.registerGrillRule(
-                ShadowsAndPetals.asResource("block_tag_requires_grill"),
-                (irori, content) -> content instanceof IroriContent.BlockContent blockContent
-                        && blockContent.state().is(BlockTagRegistry.REQUIRES_IRORI_GRILL)
-                        ? GrillRequirement.REQUIRE
-                        : GrillRequirement.PASS
-        );
-        event.registerGrillRule(
-                ShadowsAndPetals.asResource("placed_item_requires_grill"),
-                (irori, content) -> content instanceof IroriContent.ItemContent
-                        ? GrillRequirement.REQUIRE
-                        : GrillRequirement.PASS
-        );
         event.registerFuelRule(
                 ShadowsAndPetals.asResource("vanilla_fuel"),
                 Integer.MIN_VALUE,

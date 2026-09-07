@@ -269,15 +269,15 @@ public class RegItemBuilder<I extends Item> {
                     creativeTabOrders.getOrDefault(tab, CreativeTabOrder.DEFAULT));
         }
 
-        if (tooltipModifier != null) {
-            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
-        }
-
         if (hasTooltipDescription) {
             Identifier itemId = ShadowsAndPetals.asResource(name);
             TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
                 BuiltInRegistries.ITEM.getValue(itemId)));
             registerTooltipDescription();
+        }
+
+        if (tooltipModifier != null) {
+            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
         }
 
         if (tooltipComponentFactory != null) {

@@ -9,6 +9,7 @@ import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.RecessedLampCompositeClientExtensions;
 import com.sshakusora.shadowsandpetals.client.model.WindChimeItemModel;
+import com.sshakusora.shadowsandpetals.client.model.WoodenBarrelItemModel;
 import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;
 import com.sshakusora.shadowsandpetals.client.outline.*;
 import com.sshakusora.shadowsandpetals.client.particle.FallingLeafParticle;
@@ -70,6 +71,7 @@ public class ClientEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI.get(), ShishiOdoshiBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.WOODEN_BARREL.get(), WoodenBarrelBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.CURTAIN.get(), CurtainBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.LARGE_CURTAIN.get(), LargeCurtainBlockEntityRenderer::new);
@@ -112,6 +114,7 @@ public class ClientEvents {
     @SubscribeEvent
     public static void registerItemModels(RegisterItemModelsEvent event) {
         WindChimeItemModel.register(event);
+        WoodenBarrelItemModel.register(event);
     }
 
     @SubscribeEvent

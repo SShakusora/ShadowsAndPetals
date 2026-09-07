@@ -49,8 +49,8 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
     private @Nullable BlockStateModel cachedMainModel;
     private List<BlockStateModelPart> cachedMainModelParts = List.of();
     private boolean cachedMainHasTranslucency;
-    private final ShishiOdoshiFluidRenderInfo.Cache<ShishiOdoshiBlockEntity> fluidRenderInfoCache =
-            new ShishiOdoshiFluidRenderInfo.Cache<>();
+    private final ClientFluidRenderInfo.Cache<ShishiOdoshiBlockEntity> fluidRenderInfoCache =
+            new ClientFluidRenderInfo.Cache<>();
 
     public ShishiOdoshiBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -307,7 +307,7 @@ public class ShishiOdoshiBlockEntityRenderer implements BlockEntityRenderer<Shis
         public boolean mainHasTranslucency;
 
         private int fluidLightCoords() {
-            return ShishiOdoshiFluidRenderInfo.applyLightEmission(lightCoords, fluidLightEmission);
+            return ClientFluidRenderInfo.applyLightEmission(lightCoords, fluidLightEmission);
         }
     }
 }

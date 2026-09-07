@@ -111,6 +111,16 @@ public final class BuiltinLanguageKeys {
             .en_us("Vane: %s")
             .zh_cn("短册：%s");
 
+    public static final DatagenLangRegistry.TranslationKey WOODEN_BARREL_FLUID = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wooden_barrel.fluid")
+            .en_us("%s %s")
+            .zh_cn("%s %s");
+
+    public static final DatagenLangRegistry.TranslationKey WOODEN_BARREL_FLUID_HEADER = DatagenLangRegistry
+            .key("tooltip.shadowsandpetals.wooden_barrel.fluid_header")
+            .en_us("Current fluid:")
+            .zh_cn("当前流体：");
+
     public static final DatagenLangRegistry.TranslationKey TOOLTIP_HOLD_KEY_SHIFT = DatagenLangRegistry
             .key("tooltip.shadowsandpetals.holdKey.shift")
             .en_us("Shift")

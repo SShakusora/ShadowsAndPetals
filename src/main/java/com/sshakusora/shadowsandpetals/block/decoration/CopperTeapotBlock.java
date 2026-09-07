@@ -101,15 +101,17 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos placementPos = context.getClickedPos();
-        if (context.getLevel().getBlockEntity(placementPos.below()) instanceof IroriBlockEntity irori
-                && irori.hasCookingItem(placementPos.below())) {
+        BlockPos belowPos = placementPos.below();
+        if (context.getLevel().getBlockEntity(belowPos) instanceof IroriBlockEntity irori
+                && irori.hasCookingItem(belowPos)) {
             return null;
         }
 
+        BlockState belowState = context.getLevel().getBlockState(belowPos);
         return defaultBlockState()
                 .setValue(FACING, context.getHorizontalDirection().getOpposite())
                 .setValue(WATERLOGGED, context.getLevel().getFluidState(placementPos).getType() == Fluids.WATER)
-                .setValue(ON_IRORI, context.getLevel().getBlockState(placementPos.below()).getBlock() instanceof IroriBlock);
+                .setValue(ON_IRORI, IroriBlock.hasGrill(belowState));
     }
 
     @Override
@@ -133,7 +135,7 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        boolean onIrori = level.getBlockState(pos.below()).getBlock() instanceof IroriBlock;
+        boolean onIrori = IroriBlock.hasGrill(level.getBlockState(pos.below()));
         if (state.getValue(ON_IRORI) != onIrori) {
             state = state.setValue(ON_IRORI, onIrori);
             level.setBlock(pos, state, Block.UPDATE_ALL);
@@ -165,7 +167,7 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         if (direction == Direction.DOWN) {
-            state = state.setValue(ON_IRORI, neighborState.getBlock() instanceof IroriBlock);
+            state = state.setValue(ON_IRORI, IroriBlock.hasGrill(neighborState));
         }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }

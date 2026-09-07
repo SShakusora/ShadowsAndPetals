@@ -7,12 +7,15 @@ import com.sshakusora.shadowsandpetals.worldgen.SAPFeatures;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForgeMod;
 
 @Mod(ShadowsAndPetals.MOD_ID)
 public class ShadowsAndPetals {
     public static final String MOD_ID = "shadowsandpetals";
 
     public ShadowsAndPetals(IEventBus modEventBus) {
+        NeoForgeMod.enableMilkFluid();
+
         SAPRegistries.register(modEventBus);
         CustomEventBootstrap.register(modEventBus);
         SandExcavationDataMaps.register(modEventBus);

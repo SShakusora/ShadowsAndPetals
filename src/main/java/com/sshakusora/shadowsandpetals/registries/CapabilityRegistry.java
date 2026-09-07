@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.blockentity.ShishiOdoshiBlockEntity;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelItemFluidHandler;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -32,6 +33,16 @@ public class CapabilityRegistry {
                 Capabilities.Fluid.BLOCK,
                 BlockEntityRegistry.COPPER_TEAPOT.get(),
                 (blockEntity, side) -> blockEntity.getFluidTank()
+        );
+        event.registerBlockEntity(
+                Capabilities.Fluid.BLOCK,
+                BlockEntityRegistry.WOODEN_BARREL.get(),
+                (blockEntity, side) -> blockEntity.getFluidTank()
+        );
+        event.registerItem(
+                Capabilities.Fluid.ITEM,
+                (stack, itemAccess) -> new WoodenBarrelItemFluidHandler(itemAccess),
+                BlockRegistry.WOODEN_BARREL.get()
         );
     }
 }

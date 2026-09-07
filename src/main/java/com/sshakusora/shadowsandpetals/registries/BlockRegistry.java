@@ -14,6 +14,8 @@ import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
 import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelBlockItem;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
@@ -32,12 +34,14 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
@@ -376,33 +380,33 @@ public class BlockRegistry {
             .withItem()
             .tooltipDescription(tooltip -> tooltip
                     .summary(
-                            "A modular _hearth_ for burning fuel, cooking food, and keeping watch.",
-                            "能够燃烧燃料、烹饪食物并守护周围的组合式_围炉_。")
+                            "A modular _hearth_ that shares its grill, fuel, and fire across connected blocks.",
+                            "在相连方块间共享炉架、燃料与火焰的组合式_围炉_。")
                     .behaviour(
                             "While burning:", "燃烧时：",
-                            "Cook campfire and smoking recipes, repel nearby _Phantoms_, and suppress their spawning.",
-                            "烹饪篝火与烟熏配方，驱散附近的_幻翼_并抑制其生成。")
+                            "Cook campfire and smoking recipes on the grill, repel nearby _Phantoms_, and suppress their spawning.",
+                            "在炉架上烹饪篝火与烟熏配方，驱散附近的_幻翼_并抑制其生成。")
                     .behaviour(
-                            "When fuel burns out:", "燃料耗尽时：",
+                            "When all fuel is exhausted:", "所有燃料耗尽时：",
                             "Leave behind ash that can be collected as _Bone Meal_.", "留下可收集为_骨粉_的灰烬。")
                     .action(
-                            "Drop Fuel into the Basin:", "将燃料丢入炉膛：",
-                            "_Load_ the hearth with fuel.", "为围炉_添加_燃料。")
+                            "Right-click with an Iron Ingot:", "手持铁锭右键：",
+                            "_Install_ a grill across the connected hearth.", "为整组围炉_安装_炉架。")
+                    .action(
+                            "Shift Right-click:", "Shift+右键：",
+                            "Open the shared _menu_ to add or retrieve fuel.", "打开共享_界面_以存取燃料。")
                     .action(
                             "Use Flint and Steel or a Fire Charge:", "使用打火石或火焰弹：",
                             "_Ignite_ the loaded fuel.", "_点燃_已添加的燃料。")
                     .action(
-                            "Right-click the Center with Cookable Food:", "手持可烹饪食物右键中心：",
+                            "Right-click the Grill with Cookable Food:", "手持可烹饪食物右键炉架：",
                             "Place one item on the _grill_.", "将一份食物放上_炉架_。")
                     .action(
                             "Empty-hand Right-click the Food:", "空手右键炉架上的食物：",
                             "Take it from the _grill_.", "从_炉架_上取回食物。")
                     .action(
                             "Right-click the Ash:", "右键点击灰烬：",
-                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。")
-                    .action(
-                            "Shift Right-click:", "Shift+右键：",
-                            "Open the master hearth _menu_.", "打开主围炉_界面_。"))
+                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。"))
             .creativeTab(CreativeTabKey.MAIN)
             .blockstate(() -> DecorationBlockModels::irori)
             .loot((provider, irori) -> provider.dropSelf(irori.get()))
@@ -655,6 +659,70 @@ public class BlockRegistry {
                     .save(provider.output()))
             .blockstate(() -> BonsaiBlockModels::block)
             .lang(DatagenLangRegistry.ZH_CN, "盆栽")
+            .register();
+
+    public static final DeferredBlock<WoodenBarrelBlock> WOODEN_BARREL = SAPRegistries
+            .block("wooden_barrel", WoodenBarrelBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.BARREL)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withCustomItem(WoodenBarrelBlockItem::new)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A wooden vessel for _storing fluids_.",
+                            "用于_储存流体_的木制容器。"
+                    )
+                    .behaviour(
+                            "When exposed to rain:", "暴露在雨中时：",
+                            "_Slowly collects water_.", "_缓慢收集雨水_。"
+                    )
+                    .behaviour(
+                            "When broken:", "被破坏时：",
+                            "Keeps its _stored fluid_.", "保留其中_储存的流体_。"
+                    )
+                    .action(
+                            "Use a fluid container:", "使用流体容器：",
+                            "_Fill or drain_ the barrel.", "向木桶_灌入或抽取_流体。"
+                    )
+                    .action(
+                            "Use a water bottle:", "使用水瓶：",
+                            "Transfer _250 mB of water_.", "转移 _250 mB 水_。"
+                    )
+                    .action(
+                            "Shift + Right-click with a filled barrel:", "手持装液木桶 Shift + 右键：",
+                            "_Place one bucket_ of its fluid.", "_放出一桶_内部流体。"
+                    )
+            )
+            .tooltipModifier(new WoodenBarrelTooltipModifier())
+            .creativeTab(CreativeTabKey.COOKING)
+            .blockstate(() -> DecorationBlockModels::woodenBarrel)
+            .customClientItem(ShadowsAndPetals.asResource("wooden_barrel"))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                        .define('S', ItemTags.WOODEN_SLABS)
+                        .pattern(" S ")
+                        .pattern("SSS")
+                        .pattern(" S ")
+                        .unlockedBy(provider.hasName(Items.OAK_PLANKS), provider.hasItem(Items.OAK_PLANKS))
+                        .save(provider.output());
+
+                DatagenRecipeFactory.woodenBarrelFluid(
+                        provider,
+                        block,
+                        Fluids.WATER,
+                        Tags.Items.BUCKETS_WATER,
+                        "wooden_barrel_from_water_bucket"
+                );
+                DatagenRecipeFactory.woodenBarrelFluid(
+                        provider,
+                        block,
+                        NeoForgeMod.MILK.value(),
+                        Tags.Items.BUCKETS_MILK,
+                        "wooden_barrel_from_milk_bucket"
+                );
+            })
+            .lang(DatagenLangRegistry.ZH_CN, "木桶")
             .register();
 
     public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
@@ -966,7 +1034,6 @@ public class BlockRegistry {
                             .setRolls(ConstantValue.exactly(1.0F))
                             .add(LootItem.lootTableItem(Items.SAND)))
             ))
-            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Sand Excavation")
             .lang(DatagenLangRegistry.ZH_CN, "挖掘中的沙子")
             .register();
 

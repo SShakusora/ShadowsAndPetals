@@ -48,6 +48,12 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.COPPER_TEAPOT)
             .register();
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WoodenBarrelBlockEntity>> WOODEN_BARREL = SAPRegistries
+            .<WoodenBarrelBlockEntity>blockEntity("wooden_barrel")
+            .factory(WoodenBarrelBlockEntity::new)
+            .validBlocks(BlockRegistry.WOODEN_BARREL)
+            .register();
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RecessedLampBlockEntity>> RECESSED_LAMP = SAPRegistries
             .<RecessedLampBlockEntity>blockEntity("recessed_lamp")
             .factory(RecessedLampBlockEntity::new)

@@ -37,6 +37,29 @@ public final class DecorationBlockModels {
         StandardBlockModels.parentBlockItem(block, generator, bottom);
     }
 
+    public static void woodenBarrel(
+            BlockModelContext<? extends WoodenBarrelBlock> context,
+            SAPBlockModelGenerator generator
+    ) {
+        WoodenBarrelBlock block = context.get();
+        Identifier model = generator.modLoc("block/wooden_barrel/wooden_barrel");
+        generator.blockState(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(WoodenBarrelBlock.AXIS)
+                        .select(
+                                Direction.Axis.X,
+                                BlockModelGenerators.plainVariant(model)
+                                        .with(BlockModelGenerators.Y_ROT_90)
+                        )
+                        .select(
+                                Direction.Axis.Z,
+                                BlockModelGenerators.plainVariant(model)
+                        ))
+                .with(PropertyDispatch.modify(WoodenBarrelBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
+        StandardBlockModels.parentBlockItem(block, generator, model);
+    }
+
     public static void vanity(
             BlockModelContext<? extends VanityBlock> context,
             SAPBlockModelGenerator generator

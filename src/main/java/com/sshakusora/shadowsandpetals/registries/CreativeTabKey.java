@@ -7,5 +7,6 @@ package com.sshakusora.shadowsandpetals.registries;
 public enum CreativeTabKey {
     MAIN,
     NATURE,
-    AGRICULTURE
+    AGRICULTURE,
+    COOKING
 }
