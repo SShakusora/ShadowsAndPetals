@@ -7,25 +7,18 @@ import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -50,45 +43,11 @@ import java.util.Map;
  * observer's left and pairs with the RIGHT curtain on its right, and vice
  * versa.</p>
  */
-public class LargeCurtainBlock extends BaseEntityBlock {
+public class LargeCurtainBlock extends CurtainBlock {
     public static final MapCodec<LargeCurtainBlock> CODEC = simpleCodec(LargeCurtainBlock::new);
-    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
-    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
-    public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
-    public static final BooleanProperty OPEN = BlockStateProperties.OPEN;
-    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    /**
-     * True only during the open/close animation window: the anchor's
-     * block-entity renderer owns the pose then. Once false, every block
-     * renders its own static quadrant model.
-     */
-    public static final BooleanProperty ANIMATING = BooleanProperty.create("animating");
     /** Marks the block that drives the rig (placed block, lower outer). */
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
-    /** Server ticks to hold ANIMATING: ceil of the 0.29167 s clip length. */
-    public static final int ANIMATION_TICKS = 6;
-
-    /** Which side of the window this whole 2x2 curtain belongs to. */
-    public enum Side implements StringRepresentable {
-        LEFT("left"),
-        RIGHT("right");
-
-        private final String name;
-
-        Side(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String getSerializedName() {
-            return name;
-        }
-
-        public Side mirror() {
-            return this == LEFT ? RIGHT : LEFT;
-        }
-    }
 
     /** Which column of the two-wide curtain this block is. */
     public enum Column implements StringRepresentable {
@@ -251,30 +210,8 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        // Static chunk-mesh rendering outside the animation window; during
-        // it only the anchor's block-entity renderer draws the curtain.
-        return state.getValue(ANIMATING) ? RenderShape.INVISIBLE : RenderShape.MODEL;
-    }
-
-    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return BlockEntityRegistry.LARGE_CURTAIN.get().create(pos, state);
-    }
-
-    @Override
-    protected void tick(BlockState state, net.minecraft.server.level.ServerLevel level,
-                        BlockPos pos, net.minecraft.util.RandomSource random) {
-        if (state.getValue(ANIMATING)) {
-            level.setBlock(pos, state.setValue(ANIMATING, false), Block.UPDATE_ALL);
-        }
-    }
-
-    @Override
-    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-            Level level, BlockState state, BlockEntityType<T> type
-    ) {
-        return null;
     }
 
     @Override
@@ -283,7 +220,8 @@ public class LargeCurtainBlock extends BaseEntityBlock {
             net.minecraft.world.entity.@Nullable LivingEntity placer,
             net.minecraft.world.item.ItemStack stack
     ) {
-        super.setPlacedBy(level, pos, state, placer, stack);
+        // Do not call super: CurtainBlock.setPlacedBy would place a second
+        // vertical half meant for the one-column curtain.
         if (!state.getValue(ANCHOR)) {
             return;
         }
@@ -373,46 +311,6 @@ public class LargeCurtainBlock extends BaseEntityBlock {
         }
     }
 
-    @Override
-    protected InteractionResult useWithoutItem(
-            BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
-    ) {
-        if (isPoweredPair(level, pos, state)) {
-            return InteractionResult.PASS;
-        }
-        boolean open = !state.getValue(OPEN);
-        if (level.isClientSide()) {
-            return InteractionResult.SUCCESS;
-        }
-        togglePair(level, anchorOf(pos, state), state, open);
-        return InteractionResult.SUCCESS_SERVER;
-    }
-
-    @Override
-    protected void neighborChanged(
-            BlockState state, Level level, BlockPos pos, Block block,
-            net.minecraft.world.level.redstone.@Nullable Orientation orientation,
-            boolean movedByPiston
-    ) {
-        if (level.isClientSide()) {
-            return;
-        }
-        // A partner block may already be AIR mid-removal (the whole structure
-        // is torn down together); nothing left to react for then.
-        BlockPos anchor = anchorOf(pos, state);
-        if (!(level.getBlockState(anchor).getBlock() instanceof LargeCurtainBlock)) {
-            return;
-        }
-        boolean powered = hasAnyRedstoneSignal(level, anchor, innerStep(state));
-        if (powered != state.getValue(POWERED)) {
-            if (powered != state.getValue(OPEN)) {
-                togglePair(level, anchor, state, powered);
-            } else {
-                setCurtainFlag(level, anchor, innerStep(state), POWERED, powered);
-            }
-        }
-    }
-
     /**
      * The anchor of the partner curtain in a window pair, or null. Linking
      * is geometric like {@link CurtainBlock}'s: the two curtains' anchors
@@ -437,11 +335,22 @@ public class LargeCurtainBlock extends BaseEntityBlock {
                 && neighbour.getValue(SIDE) != state.getValue(SIDE);
     }
 
+    @Override
+    protected boolean hasRedstoneSignal(Level level, BlockPos pos, BlockState state) {
+        return hasAnyRedstoneSignal(level, anchorOf(pos, state), innerStep(state));
+    }
+
+    @Override
+    protected void setPairPowered(Level level, BlockPos pos, BlockState state, boolean powered) {
+        setCurtainFlag(level, anchorOf(pos, state), innerStep(state), POWERED, powered);
+    }
+
     /**
      * True when this curtain or its linked partner is powered; a powered
      * pair ignores manual use, mirroring {@link CurtainBlock}.
      */
-    private static boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
+    @Override
+    protected boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
         BlockPos anchor = anchorOf(pos, state);
         if (state.getValue(POWERED) || hasAnyRedstoneSignal(level, anchor, innerStep(state))) {
             return true;
@@ -458,9 +367,11 @@ public class LargeCurtainBlock extends BaseEntityBlock {
     /**
      * Toggles this curtain plus its linked partner curtain, mirroring
      * {@link CurtainBlock#togglePair}: a redstone signal on either curtain
-     * forces both open.
+     * forces both open. {@code pos} is any block of this curtain.
      */
-    private static void togglePair(Level level, BlockPos anchor, BlockState state, boolean open) {
+    @Override
+    protected void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
+        BlockPos anchor = anchorOf(pos, state);
         BlockPos partner = partnerAnchor(level, anchor, state);
         boolean powered = hasAnyRedstoneSignal(level, anchor, innerStep(state));
         boolean partnerPowered = partner != null
