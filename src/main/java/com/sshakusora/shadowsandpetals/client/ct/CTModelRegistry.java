@@ -12,7 +12,7 @@ import net.neoforged.neoforge.client.event.ModelEvent;
  * connected-texture blocks with {@link CTBlockStateModel}.
  * <p>
  * Call {@link #wrapModels(ModelEvent.ModifyBakingResult)} from the client
- * event listener (e.g. {@code ClientRenderEvents}).
+ * event listener (e.g. {@code ClientEvents}).
  */
 public final class CTModelRegistry {
 
