@@ -3,7 +3,7 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.decoration.CurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.blockentity.CurtainBlockEntity;
 import com.sshakusora.shadowsandpetals.client.animation.AnimatedBlockModel;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationControllerEvaluator;

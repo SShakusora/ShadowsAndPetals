@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "shadowsandpetals:block/curtain/brown_curtain"
+    "model": "shadowsandpetals:block/curtain/item/brown"
   }
 }

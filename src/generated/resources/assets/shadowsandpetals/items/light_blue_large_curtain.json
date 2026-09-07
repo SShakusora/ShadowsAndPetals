@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "shadowsandpetals:block/large_curtain/light_blue_large_curtain"
+    "model": "shadowsandpetals:block/large_curtain/item/light_blue"
   }
 }

@@ -5,6 +5,8 @@ import com.sshakusora.shadowsandpetals.block.*;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
@@ -1106,15 +1108,14 @@ public class BlockRegistry {
                 .creativeTab(CreativeTabKey.MAIN)
                 .blockstate(() -> CurtainModels::block)
                 .clientItem(block -> ShadowsAndPetals.asResource(
-                        "block/curtain/" + color.getName() + "_curtain"))
+                        "block/curtain/item/" + color.getName()))
                 .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
                 .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "窗帘")
                 .register()
     );
 
-    /** Sixteen dye colors of the 2x2 large curtain; the side is a blockstate property. */
     public static final DyedBlockList<LargeCurtainBlock> LARGE_CURTAINS = new DyedBlockList<>(color -> SAPRegistries
-                .block(color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain", LargeCurtainBlock::new)
+                .block(color.getName() + "_large_curtain", LargeCurtainBlock::new)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
                         .strength(1.0F)
                         .sound(SoundType.WOOL)
@@ -1124,8 +1125,8 @@ public class BlockRegistry {
                 .withItem()
                 .creativeTab(CreativeTabKey.MAIN)
                 .blockstate(() -> LargeCurtainModels::block)
-                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/"
-                        + (color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain")))
+                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/item/"
+                        + color.getName()))
                 .loot((provider, block) -> provider.dropSelfAnchorOnly(block.get(), LargeCurtainBlock.COLUMN))
                 .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "大窗帘")
                 .register()

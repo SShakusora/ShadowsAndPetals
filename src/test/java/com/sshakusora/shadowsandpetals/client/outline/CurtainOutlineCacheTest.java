@@ -19,14 +19,14 @@ import static org.junit.jupiter.api.Assertions.*;
 class CurtainOutlineCacheTest {
     private static final double EPSILON = 1.0E-6D;
     private static final List<String> MODEL_NAMES = List.of(
-            "curtain_upper_right",
-            "curtain_upper_right_open",
-            "curtain_upper_left",
-            "curtain_upper_left_open",
-            "curtain_lower_right",
-            "curtain_lower_right_open",
-            "curtain_lower_left",
-            "curtain_lower_left_open"
+            "static/right/closed/white/upper",
+            "static/right/open/white/upper",
+            "static/left/closed/white/upper",
+            "static/left/open/white/upper",
+            "static/right/closed/white/lower",
+            "static/right/open/white/lower",
+            "static/left/closed/white/lower",
+            "static/left/open/white/lower"
     );
 
     @Test

@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.data.model.generator;
 
-import com.sshakusora.shadowsandpetals.block.decoration.LargeCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelContext;
 import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -25,13 +25,10 @@ public final class LargeCurtainModels {
             SAPBlockModelGenerator generator
     ) {
         LargeCurtainBlock block = context.get();
-        // The white block id is plain "large_curtain"; other colors prefix it.
+        // Every registered block, including white, carries its dye color in
+        // the id (for example, white_large_curtain).
         String path = context.id().getPath();
-        String color = path.endsWith("_large_curtain")
-                ? path.substring(0, path.length() - "_large_curtain".length())
-                : "white";
-        String variantSuffix = color.equals("white") ? "" : "_" + color;
-        // Quadrant naming from the authored files: l/r = column, 1/2 = row.
+        String color = path.substring(0, path.length() - "_large_curtain".length());
         PropertyDispatch<MultiVariant> dispatch = PropertyDispatch.initial(
                         LargeCurtainBlock.HALF,
                         LargeCurtainBlock.COLUMN,
@@ -39,14 +36,12 @@ public final class LargeCurtainModels {
                         LargeCurtainBlock.OPEN,
                         LargeCurtainBlock.ANIMATING)
                 .generate((half, column, side, open, animating) -> {
-                    // Quadrant naming from the authored files, same for both
-                    // sides: l = outer (anchor) column, r = inner (bunching)
-                    // column; the open pile lives in the r quadrants.
-                    String quadrant = (column == LargeCurtainBlock.Column.OUTER ? "l" : "r")
-                            + (half == DoubleBlockHalf.UPPER ? "1" : "2");
-                    String suffix = open ? "open_" + quadrant : quadrant;
-                    String modelName = (side == LargeCurtainBlock.Side.RIGHT
-                            ? "large_curtain_right_" : "large_curtain_left_") + suffix + variantSuffix;
+                    String halfName = half == DoubleBlockHalf.UPPER ? "upper" : "lower";
+                    String columnName = column == LargeCurtainBlock.Column.OUTER ? "outer" : "inner";
+                    String sideName = side == LargeCurtainBlock.Side.RIGHT ? "right" : "left";
+                    String poseName = open ? "open" : "closed";
+                    String modelName = "static/" + sideName + "/" + poseName + "/" + color
+                            + "/" + halfName + "_" + columnName;
                     return BlockModelGenerators.plainVariant(
                             generator.modLoc("block/large_curtain/" + modelName));
                 });
@@ -56,8 +51,7 @@ public final class LargeCurtainModels {
         StandardBlockModels.parentBlockItem(
                 block,
                 generator,
-                generator.modLoc("block/large_curtain/"
-                        + (color.equals("white") ? "large_curtain" : color + "_large_curtain"))
+                generator.modLoc("block/large_curtain/item/" + color)
         );
     }
 }

@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.data;
 
-import com.sshakusora.shadowsandpetals.block.decoration.LargeCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
 import net.minecraft.advancements.criterion.StatePropertiesPredicate;

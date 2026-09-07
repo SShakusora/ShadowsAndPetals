@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-07T15:54:49.7251346	Loot Tables
+// 26.1.2	2026-09-07T16:15:27.5403104	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 739ec947b0aa2b8abdfaaed06b9257b426b17150 data/shadowsandpetals/loot_table/blocks/acacia_window_pane.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
@@ -94,7 +94,6 @@ d0e8b7844f23e31a3db9b1ff8239d39bcc7dd2ec data/shadowsandpetals/loot_table/blocks
 16ff0bdb0781574f3b24481c4c7be2595a44a5b1 data/shadowsandpetals/loot_table/blocks/irori.json
 d91e11cc0569c0f1a7d4cb99c947994b91824822 data/shadowsandpetals/loot_table/blocks/jungle_vanity.json
 83960ca27d34d7ad7a7ade5d26f836b06dc4ce5a data/shadowsandpetals/loot_table/blocks/jungle_window_pane.json
-444b4bde0b4d8f91e32e2bc45dd799fb1b59da29 data/shadowsandpetals/loot_table/blocks/large_curtain.json
 2e6688a03cef00ce51bfb08c3f1fab5c5e25424a data/shadowsandpetals/loot_table/blocks/light_blue_cafe_chair.json
 36a186bde2a7b9b052a5c57a1075c48db323a76e data/shadowsandpetals/loot_table/blocks/light_blue_curtain.json
 490b2a4512a40a5f229b5574ab6ffc12eec6b0b4 data/shadowsandpetals/loot_table/blocks/light_blue_large_curtain.json
@@ -248,6 +247,7 @@ d1fd8185a6d473bc614f00e3660c25783218882f data/shadowsandpetals/loot_table/blocks
 9bb43f356539e7bd983c38477c96618247cc004f data/shadowsandpetals/loot_table/blocks/warped_window_pane.json
 26d0efee81810da18e93e833ed6d32148ffe4df4 data/shadowsandpetals/loot_table/blocks/white_cafe_chair.json
 9e86ea4018ed06fa0e38f64b2442f7668e1e51b4 data/shadowsandpetals/loot_table/blocks/white_curtain.json
+e52d98eeebec587d3ccff8c6d3ac49fd8991c5ef data/shadowsandpetals/loot_table/blocks/white_large_curtain.json
 29a190dae4886c196187b29bd0e4a7516c262a34 data/shadowsandpetals/loot_table/blocks/white_roof_tile.json
 613b9526d4339e9d00789d85d3310ad38205ab16 data/shadowsandpetals/loot_table/blocks/white_roof_tile_slab.json
 38bd4cb477879faed37daaf0bc562fdd26586840 data/shadowsandpetals/loot_table/blocks/white_roof_tile_stairs.json

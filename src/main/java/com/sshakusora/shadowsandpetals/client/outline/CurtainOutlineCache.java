@@ -6,7 +6,7 @@ import com.mojang.logging.LogUtils;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
-import com.sshakusora.shadowsandpetals.block.decoration.CurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -31,9 +31,9 @@ import java.util.Map;
  *
  * <p>The curtain's collision shape is deliberately a thin, axis-aligned slice,
  * while its block-state model contains the folded panels and decorative rail.
- * This cache reads the eight white model masters (half, side and open state)
- * once per client resource reload and derives the four horizontal facings from
- * each master. Colored curtain models only override textures, so they share the
+ * This cache reads the eight white static masters (half, side and pose) once
+ * per client resource reload and derives the four horizontal facings from each
+ * master. Colored curtain models only override textures, so they share the
  * same geometry.</p>
  */
 public final class CurtainOutlineCache
@@ -85,7 +85,8 @@ public final class CurtainOutlineCache
     }
 
     private static OutlineGeometry load(ResourceManager manager, Pose pose) {
-        Identifier modelId = ShadowsAndPetals.asResource("models/block/curtain/" + pose.modelName + ".json");
+        Identifier modelId = ShadowsAndPetals.asResource(
+                "models/block/curtain/" + pose.modelPath + ".json");
         Resource resource = manager.getResource(modelId).orElseThrow(() ->
                 new IllegalArgumentException("Missing curtain outline model " + modelId));
         try (Reader reader = resource.openAsReader()) {
@@ -110,25 +111,33 @@ public final class CurtainOutlineCache
     }
 
     enum Pose {
-        UPPER_RIGHT_CLOSED(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, false, "curtain_upper_right"),
-        UPPER_RIGHT_OPEN(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, true, "curtain_upper_right_open"),
-        UPPER_LEFT_CLOSED(DoubleBlockHalf.UPPER, CurtainBlock.Side.LEFT, false, "curtain_upper_left"),
-        UPPER_LEFT_OPEN(DoubleBlockHalf.UPPER, CurtainBlock.Side.LEFT, true, "curtain_upper_left_open"),
-        LOWER_RIGHT_CLOSED(DoubleBlockHalf.LOWER, CurtainBlock.Side.RIGHT, false, "curtain_lower_right"),
-        LOWER_RIGHT_OPEN(DoubleBlockHalf.LOWER, CurtainBlock.Side.RIGHT, true, "curtain_lower_right_open"),
-        LOWER_LEFT_CLOSED(DoubleBlockHalf.LOWER, CurtainBlock.Side.LEFT, false, "curtain_lower_left"),
-        LOWER_LEFT_OPEN(DoubleBlockHalf.LOWER, CurtainBlock.Side.LEFT, true, "curtain_lower_left_open");
+        UPPER_RIGHT_CLOSED(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, false,
+                "static/right/closed/white/upper"),
+        UPPER_RIGHT_OPEN(DoubleBlockHalf.UPPER, CurtainBlock.Side.RIGHT, true,
+                "static/right/open/white/upper"),
+        UPPER_LEFT_CLOSED(DoubleBlockHalf.UPPER, CurtainBlock.Side.LEFT, false,
+                "static/left/closed/white/upper"),
+        UPPER_LEFT_OPEN(DoubleBlockHalf.UPPER, CurtainBlock.Side.LEFT, true,
+                "static/left/open/white/upper"),
+        LOWER_RIGHT_CLOSED(DoubleBlockHalf.LOWER, CurtainBlock.Side.RIGHT, false,
+                "static/right/closed/white/lower"),
+        LOWER_RIGHT_OPEN(DoubleBlockHalf.LOWER, CurtainBlock.Side.RIGHT, true,
+                "static/right/open/white/lower"),
+        LOWER_LEFT_CLOSED(DoubleBlockHalf.LOWER, CurtainBlock.Side.LEFT, false,
+                "static/left/closed/white/lower"),
+        LOWER_LEFT_OPEN(DoubleBlockHalf.LOWER, CurtainBlock.Side.LEFT, true,
+                "static/left/open/white/lower");
 
         private final DoubleBlockHalf half;
         private final CurtainBlock.Side side;
         private final boolean open;
-        private final String modelName;
+        private final String modelPath;
 
-        Pose(DoubleBlockHalf half, CurtainBlock.Side side, boolean open, String modelName) {
+        Pose(DoubleBlockHalf half, CurtainBlock.Side side, boolean open, String modelPath) {
             this.half = half;
             this.side = side;
             this.open = open;
-            this.modelName = modelName;
+            this.modelPath = modelPath;
         }
 
         private static Pose from(BlockState state) {

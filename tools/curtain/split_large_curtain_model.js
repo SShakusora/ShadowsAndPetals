@@ -1,32 +1,31 @@
 "use strict";
 
 /**
- * Generates the large-curtain model family in single-block form: ONE block
- * carries the whole eight-panel curtain (the geometry overhangs the block
- * cell, like a fence). Right-curtain probe build only.
+ * Generates the large-curtain model family for the four-block (2x2) curtain.
  *
  * Source of truth (editor coordinates, authored in Blockbench):
- *   models/block/large_curtain/large_curtain_right.json        closed pose (right)
- *   models/block/large_curtain/large_curtain_right.animation.json  OPENING/CLOSING (right)
- *   models/block/large_curtain/large_curtain_left.json         closed pose (left, mirrored)
- *   models/block/large_curtain/large_curtain_left.animation.json  OPENING/CLOSING
- *      (left; every operation value negated so the mirror lands left-bunching)
+ *   tools/curtain/source/large_curtain/right/model.json
+ *   tools/curtain/source/large_curtain/right/animation.json
+ *   tools/curtain/source/large_curtain/left/model.json
+ *   tools/curtain/source/large_curtain/left/animation.json
+ *   (the left animation has every operation value negated so the mirror lands
+ *   in the left-bunching pose; the .bbmodel files are intentionally untouched)
  *
  * The .animation.json is Blockbench's native Bedrock export: its X position
  * and Y rotation channels are mirrored relative to the editor model, so
  * editor = negate bedrock x / negate bedrock rotY.
  *
  * Coordinate frame: VERBATIM editor coordinates everywhere. The authored
- * export large_curtain_right.json is the base model as-is (block-local
+ * export right/model.json is the base model as-is (block-local
  * per the Blockbench block workspace centered convention), and the
  * per-bone models, rig pivots and baked open pose all reuse that same
  * frame untouched, so the static and animated renders always agree.
  * *
  * Outputs:
- *   models/block/large_curtain/large_curtain.json          closed master
- *   models/block/large_curtain/large_curtain_open.json     baked open master
- *   models/block/large_curtain/large_curtain/<bone>.json   per-bone parents (right)
- *   models/block/large_curtain/large_curtain_left/<bone>.json  per-bone parents (left)
+ *   models/block/large_curtain/item/white.json             white item display model
+ *   models/block/large_curtain/animated/<side>/white/<bone>.json
+ *   models/block/large_curtain/animated/<side>/<color>/<bone>.json
+ *   models/block/large_curtain/static/<side>/<pose>/<color>/<quadrant>.json
  *   sap/animations/rigs/large_curtain/<side>.json          rig (local pivots)
  *   sap/animations/controllers/large_curtain/<side>.json   controller
  *   neoforge/animations/entity/large_curtain/<side>/*.json opening/closing
@@ -41,8 +40,8 @@ const repoRoot = path.resolve(__dirname, "..", "..");
 const curtainRoot = path.join(
     repoRoot, "src", "main", "resources", "assets", "shadowsandpetals"
 );
-const sourceDir = path.join(curtainRoot, "models", "block", "large_curtain");
-const outDir = sourceDir;
+const sourceDir = path.join(repoRoot, "tools", "curtain", "source", "large_curtain");
+const outDir = path.join(curtainRoot, "models", "block", "large_curtain");
 const animDir = curtainRoot;
 
 const WHITE_TEXTURE = "shadowsandpetals:block/curtain/white";
@@ -70,6 +69,12 @@ function readJson(relPath) {
     return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
+function readSourceJson(relPath) {
+    const file = path.join(sourceDir, relPath);
+    if (!fs.existsSync(file)) fail("missing source file: " + relPath);
+    return JSON.parse(fs.readFileSync(file, "utf8"));
+}
+
 function writeJson(file, value) {
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, JSON.stringify(value, null, 2) + "\n");
@@ -86,11 +91,11 @@ function masterTextures() {
 // ---------------------------------------------------------------------------
 
 function loadSources(modelFile, animationFile) {
-    const closed = readJson("models/block/large_curtain/" + modelFile);
+    const closed = readSourceJson(modelFile);
     if (!Array.isArray(closed.elements) || !closed.elements.length) {
         fail("source model has no elements");
     }
-    const animation = readJson("models/block/large_curtain/" + animationFile);
+    const animation = readSourceJson(animationFile);
     const opening = animation.animations.OPENING;
     const closing = animation.animations.CLOSING;
     if (!opening || !closing) fail("animation file lacks OPENING/CLOSING clips");
@@ -298,13 +303,11 @@ function toLocal(element) {
 // ---------------------------------------------------------------------------
 
 function main() {
-    // Right curtain: authored export + masters (the large_curtain.json item
-    // display stub parents the right model).
+    // Right curtain: authored export + the white item display model.
     processSide({
         side: "right",
-        modelFile: "large_curtain_right.json",
-        animationFile: "large_curtain_right.animation.json",
-        bonesDirName: "large_curtain",
+        modelFile: "right/model.json",
+        animationFile: "right/animation.json",
         writeMasters: true
     });
     // Left curtain: mirrored editor model; its animation source has every
@@ -312,9 +315,8 @@ function main() {
     // left-bunching pose.
     processSide({
         side: "left",
-        modelFile: "large_curtain_left.json",
-        animationFile: "large_curtain_left.animation.json",
-        bonesDirName: "large_curtain_left",
+        modelFile: "left/model.json",
+        animationFile: "left/animation.json",
         writeMasters: false
     });
     deriveColorVariants();
@@ -326,17 +328,25 @@ function main() {
  * one per per-bone renderer model (both sides), and one item display model.
  */
 function deriveColorVariants() {
-    // Static quadrant masters: closed and open, both sides.
+    // Static quadrant masters: closed and open, both sides. The long names
+    // make SIDE, pose, color, row and column explicit in the resource path.
     for (const side of ["right", "left"]) {
-        for (const quadrant of ["l1", "r1", "l2", "r2", "open_l1", "open_r1", "open_l2", "open_r2"]) {
-            const base = "large_curtain_" + side + "_" + quadrant;
-            const master = readJson("models/block/large_curtain/" + base + ".json");
-            const keys = whiteTextureKeys(master);
-            for (const color of COLORS) {
-                if (color === "white") continue;
-                const stub = { parent: "shadowsandpetals:block/large_curtain/" + base, textures: {} };
-                for (const key of keys) stub.textures[key] = NS + color;
-                writeJson(path.join(outDir, base + "_" + color + ".json"), stub);
+        for (const pose of ["closed", "open"]) {
+            for (const half of ["upper", "lower"]) {
+                for (const column of ["outer", "inner"]) {
+                    const quadrant = half + "_" + column;
+                    const masterRel = path.join("static", side, pose, "white", quadrant + ".json");
+                    const master = readJson("models/block/large_curtain/" + masterRel);
+                    const keys = whiteTextureKeys(master);
+                    const parent = "shadowsandpetals:block/large_curtain/"
+                            + masterRel.slice(0, -".json".length).replaceAll(path.sep, "/");
+                    for (const color of COLORS) {
+                        if (color === "white") continue;
+                        const stub = { parent, textures: {} };
+                        for (const key of keys) stub.textures[key] = NS + color;
+                        writeJson(path.join(outDir, "static", side, pose, color, quadrant + ".json"), stub);
+                    }
+                }
             }
         }
     }
@@ -344,38 +354,38 @@ function deriveColorVariants() {
 
     // Per-bone renderer models: white bones keep the geometry; colored bones
     // are texture-override stubs of the white bone, one directory per color.
-    for (const bonesDirName of ["large_curtain", "large_curtain_left"]) {
-        const bonesDir = path.join(outDir, bonesDirName);
+    for (const side of ["right", "left"]) {
+        const bonesDir = path.join(outDir, "animated", side, "white");
         const boneFiles = fs.readdirSync(bonesDir).filter(file => file.endsWith(".json"));
         for (const boneFile of boneFiles) {
             const bone = boneFile.slice(0, -".json".length);
-            const whiteBone = readJson("models/block/large_curtain/" + bonesDirName + "/" + boneFile);
+            const whiteBone = readJson("models/block/large_curtain/animated/" + side + "/white/" + boneFile);
             const keys = whiteTextureKeys(whiteBone);
             for (const color of COLORS) {
                 if (color === "white") continue;
                 const stub = {
-                    parent: "shadowsandpetals:block/large_curtain/" + bonesDirName + "/" + bone,
+                    parent: "shadowsandpetals:block/large_curtain/animated/" + side + "/white/" + bone,
                     textures: {}
                 };
                 for (const key of keys) stub.textures[key] = NS + color;
-                writeJson(path.join(outDir, bonesDirName + "_" + color, bone + ".json"), stub);
+                writeJson(path.join(outDir, "animated", side, color, bone + ".json"), stub);
             }
         }
-        console.log("derive: " + bonesDirName + "/ -> " + (COLORS.length - 1) + " colored bone dirs");
+        console.log("derive: animated/" + side + "/white/ -> " + (COLORS.length - 1) + " colored bone dirs");
     }
 
     // Item display models: parented to the white whole-curtain model.
     for (const color of COLORS) {
         if (color === "white") continue;
-        writeJson(path.join(outDir, color + "_large_curtain.json"), {
-            parent: "shadowsandpetals:block/large_curtain/large_curtain",
+        writeJson(path.join(outDir, "item", color + ".json"), {
+            parent: "shadowsandpetals:block/large_curtain/item/white",
             textures: { "1": NS + color }
         });
     }
-    console.log("derive: large_curtain -> " + (COLORS.length - 1) + " color hand models");
+    console.log("derive: item/white -> " + (COLORS.length - 1) + " color item models");
 }
 
-function processSide({ side, modelFile, animationFile, bonesDirName, writeMasters }) {
+function processSide({ side, modelFile, animationFile, writeMasters }) {
     const { closed, opening, closing } = loadSources(modelFile, animationFile);
     const boneOf = boneBindings(closed);
     const pivots = groupPivots(closed, boneOf);
@@ -396,24 +406,16 @@ function processSide({ side, modelFile, animationFile, bonesDirName, writeMaster
     console.log("bake[" + side + "]: fabric pile x " + pileMin.toFixed(2) + ".." + pileMax.toFixed(2));
 
     if (writeMasters) {
-        // Static masters in the verbatim frame. The closed master is a plain
-        // parent stub of the authored export; only the open pose needs baked
-        // geometry (the export has no open-pose file).
-        writeJson(path.join(outDir, "large_curtain.json"), {
-            parent: "shadowsandpetals:block/large_curtain/large_curtain_right"
-        });
-        const openLocal = openElements.map(toLocal);
-        writeJson(path.join(outDir, "large_curtain_open.json"), {
-            textures: masterTextures(),
-            elements: openLocal
-        });
-        console.log("masters: large_curtain.json (parent stub) + large_curtain_open.json ("
-                + openLocal.length + " baked elements)");
+        // Keep the complete authored model only as the white item display
+        // model. Static block quadrants are curated files and animation uses
+        // the per-bone models below.
+        writeJson(path.join(outDir, "item", "white.json"), closed);
+        console.log("masters: item/white.json (" + closed.elements.length + " authored elements)");
     }
 
     // Per-bone parents for the animation renderer (closed pose, verbatim).
     const bones = [...new Set(boneOf)];
-    const bonesDir = path.join(outDir, bonesDirName);
+    const bonesDir = path.join(outDir, "animated", side, "white");
     fs.rmSync(bonesDir, { recursive: true, force: true });
     for (const bone of bones) {
         const elements = closed.elements
@@ -424,7 +426,7 @@ function processSide({ side, modelFile, animationFile, bonesDirName, writeMaster
             elements
         });
     }
-    console.log("split[" + side + "]: " + bones.length + " per-bone parents under " + bonesDirName + "/");
+    console.log("split[" + side + "]: " + bones.length + " per-bone parents under animated/" + side + "/white/");
 
     // Rig with verbatim pivots; controller; runtime clips.
     const rigBones = bones.map(bone => {
