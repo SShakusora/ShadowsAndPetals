@@ -137,6 +137,25 @@ public final class BlockModelRegistry {
     public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_LEFT =
             curtainBoneSet("curtain_lower_left", CURTAIN_LOWER_BONES);
 
+    /**
+     * Per-bone baked models of the single-block large-curtain rig. The whole
+     * curtain (eight panels + rail) hangs off one block, so one model per
+     * rig bone suffices — no color or column variants yet.
+     */
+    public static final String[] LARGE_CURTAIN_BONES = {
+            "panel_1_anchor", "panel_1_fabric", "panel_2_anchor", "panel_2_fabric",
+            "panel_3_anchor", "panel_3_fabric", "panel_4_anchor", "panel_4_fabric",
+            "panel_5_anchor", "panel_5_fabric", "panel_6_anchor", "panel_6_fabric",
+            "panel_7_anchor", "panel_7_fabric", "panel_8_anchor", "panel_8_fabric", "rail"
+    };
+
+    /** Per-bone baked models of the large-curtain rigs, keyed by (dye color, bone). */
+    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_RIGHT =
+            largeCurtainBoneSet("large_curtain");
+    /** Per-bone baked models for the mirrored left half of the large curtain. */
+    public static final StandaloneBlockModelSet<CurtainBoneKey> LARGE_CURTAIN_LEFT =
+            largeCurtainBoneSet("large_curtain_left");
+
     /** A dye color paired with one rig bone of a curtain part. */
     public record CurtainBoneKey(DyeColor color, String bone) {
     }
@@ -148,6 +167,22 @@ public final class BlockModelRegistry {
                 .keyPath(key -> key.color().getName() + "/" + key.bone())
                 .model(key -> ShadowsAndPetals.asResource(
                         "block/curtain/" + part
+                                + (key.color() == DyeColor.WHITE ? "" : "_" + key.color().getName())
+                                + "/" + key.bone()))
+                .register();
+    }
+
+    /**
+     * Large-curtain bone set: the white bones live in {@code <part>/} and
+     * each colored bone is a texture-override stub in {@code <part>_<color>/}.
+     */
+    private static StandaloneBlockModelSet<CurtainBoneKey> largeCurtainBoneSet(String part) {
+        return ClientModelRegistry
+                .<CurtainBoneKey>blockStateSet(part)
+                .keys(() -> curtainBoneKeys(LARGE_CURTAIN_BONES))
+                .keyPath(key -> key.color().getName() + "/" + key.bone())
+                .model(key -> ShadowsAndPetals.asResource(
+                        "block/large_curtain/" + part
                                 + (key.color() == DyeColor.WHITE ? "" : "_" + key.color().getName())
                                 + "/" + key.bone()))
                 .register();

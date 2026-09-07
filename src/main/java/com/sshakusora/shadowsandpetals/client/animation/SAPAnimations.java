@@ -68,6 +68,24 @@ public final class SAPAnimations {
                     .defaultState("open")
                     .register();
 
+    public static final BlockAnimationDefinition LARGE_CURTAIN_RIGHT =
+            SAPAnimationRegistries.blockAnimation("large_curtain/right")
+                    .rig("large_curtain/right")
+                    .controller("large_curtain/right")
+                    .clip("large_curtain/right/opening")
+                    .clip("large_curtain/right/closing")
+                    .defaultState("closed")
+                    .register();
+
+    public static final BlockAnimationDefinition LARGE_CURTAIN_LEFT =
+            SAPAnimationRegistries.blockAnimation("large_curtain/left")
+                    .rig("large_curtain/left")
+                    .controller("large_curtain/left")
+                    .clip("large_curtain/left/opening")
+                    .clip("large_curtain/left/closing")
+                    .defaultState("closed")
+                    .register();
+
     private SAPAnimations() {
     }
 

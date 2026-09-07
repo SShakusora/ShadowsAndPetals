@@ -21,3 +21,7 @@ hs_err_pid*
 run
 logs
 /reference/
+.tmp_nfsx/
+
+# Agent skill scratch files
+.agents/skills/render-block-model/

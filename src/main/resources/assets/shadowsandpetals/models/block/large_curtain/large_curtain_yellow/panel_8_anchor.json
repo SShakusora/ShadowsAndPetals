@@ -1,0 +1,7 @@
+{
+  "parent": "shadowsandpetals:block/large_curtain/large_curtain/panel_8_anchor",
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/yellow",
+    "particle": "shadowsandpetals:block/curtain/yellow"
+  }
+}

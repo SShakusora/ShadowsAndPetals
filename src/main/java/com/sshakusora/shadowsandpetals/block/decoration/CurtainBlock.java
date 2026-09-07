@@ -110,7 +110,7 @@ public class CurtainBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected MapCodec<CurtainBlock> codec() {
+    protected MapCodec<? extends CurtainBlock> codec() {
         return CODEC;
     }
 
@@ -292,14 +292,19 @@ public class CurtainBlock extends BaseEntityBlock {
                 togglePair(level, pos, state, powered);
             } else {
                 // Only the POWERED flag changes; keep the current pose.
-                level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_ALL);
-                BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
-                        ? Direction.UP : Direction.DOWN);
-                BlockState otherState = level.getBlockState(otherPos);
-                if (otherState.getBlock() instanceof CurtainBlock) {
-                    level.setBlock(otherPos, otherState.setValue(POWERED, powered), Block.UPDATE_ALL);
-                }
+                setPairPowered(level, pos, state, powered);
             }
+        }
+    }
+
+    /** Sets the POWERED flag on both halves of this curtain column. */
+    protected void setPairPowered(Level level, BlockPos pos, BlockState state, boolean powered) {
+        level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_ALL);
+        BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
+                ? Direction.UP : Direction.DOWN);
+        BlockState otherState = level.getBlockState(otherPos);
+        if (otherState.getBlock() instanceof CurtainBlock) {
+            level.setBlock(otherPos, otherState.setValue(POWERED, powered), Block.UPDATE_ALL);
         }
     }
 
@@ -310,8 +315,11 @@ public class CurtainBlock extends BaseEntityBlock {
      * <p>Linking is geometric: in a window pair the LEFT curtain stands on
      * the observer's left, so its RIGHT partner is toward the observer's
      * right, and vice versa. Two same-side curtains never link.</p>
+     *
+     * <p>Instance method so wider curtains can override the pairing
+     * geometry; {@code pos} is any block of this curtain.</p>
      */
-    private static void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
+    protected void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
         long gameTime = level.getGameTime();
         BlockPos neighbourPos = linkedNeighbourPos(pos, state);
         BlockState neighbour = level.getBlockState(neighbourPos);
@@ -350,13 +358,13 @@ public class CurtainBlock extends BaseEntityBlock {
         }
     }
 
-    private static boolean hasRedstoneSignal(Level level, BlockPos pos, BlockState state) {
+    protected boolean hasRedstoneSignal(Level level, BlockPos pos, BlockState state) {
         BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
                 ? Direction.UP : Direction.DOWN);
         return level.hasNeighborSignal(pos) || level.hasNeighborSignal(otherPos);
     }
 
-    private static boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
+    protected boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
         if (state.getValue(POWERED) || hasRedstoneSignal(level, pos, state)) {
             return true;
         }

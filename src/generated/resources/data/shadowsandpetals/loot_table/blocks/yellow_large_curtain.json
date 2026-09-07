@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "shadowsandpetals:yellow_large_curtain",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "column": "outer",
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "shadowsandpetals:yellow_large_curtain"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "shadowsandpetals:blocks/yellow_large_curtain"
+}

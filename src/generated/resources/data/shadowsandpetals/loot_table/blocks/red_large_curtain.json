@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "shadowsandpetals:red_large_curtain",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "column": "outer",
+            "half": "lower"
+          }
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "shadowsandpetals:red_large_curtain"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "shadowsandpetals:blocks/red_large_curtain"
+}

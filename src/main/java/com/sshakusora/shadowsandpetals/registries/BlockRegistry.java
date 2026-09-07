@@ -1112,6 +1112,25 @@ public class BlockRegistry {
                 .register()
     );
 
+    /** Sixteen dye colors of the 2x2 large curtain; the side is a blockstate property. */
+    public static final DyedBlockList<LargeCurtainBlock> LARGE_CURTAINS = new DyedBlockList<>(color -> SAPRegistries
+                .block(color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain", LargeCurtainBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                        .strength(1.0F)
+                        .sound(SoundType.WOOL)
+                        .mapColor(color)
+                        .noOcclusion())
+                .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.MAIN)
+                .blockstate(() -> LargeCurtainModels::block)
+                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/"
+                        + (color == DyeColor.WHITE ? "large_curtain" : color.getName() + "_large_curtain")))
+                .loot((provider, block) -> provider.dropSelfAnchorOnly(block.get(), LargeCurtainBlock.COLUMN))
+                .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "大窗帘")
+                .register()
+    );
+
     public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
             .block("orange_tree", OrangeTreeBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH)
