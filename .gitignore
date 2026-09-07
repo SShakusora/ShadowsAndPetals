@@ -25,3 +25,6 @@ logs
 
 # Agent skill scratch files
 .agents/skills/render-block-model/
+
+# Data generator hash cache
+src/generated/resources/.cache/

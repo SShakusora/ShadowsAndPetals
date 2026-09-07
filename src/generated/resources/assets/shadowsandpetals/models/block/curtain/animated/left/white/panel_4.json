@@ -1,0 +1,86 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#1",
+          "uv": [
+            4,
+            15,
+            0,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#1",
+          "uv": [
+            0,
+            3,
+            1,
+            16
+          ]
+        },
+        "north": {
+          "texture": "#1",
+          "uv": [
+            0,
+            3,
+            4,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#1",
+          "uv": [
+            4,
+            3,
+            0,
+            16
+          ]
+        },
+        "up": {
+          "texture": "#1",
+          "uv": [
+            4,
+            3,
+            0,
+            4
+          ]
+        },
+        "west": {
+          "texture": "#1",
+          "uv": [
+            3,
+            3,
+            4,
+            16
+          ]
+        }
+      },
+      "from": [
+        0.17464000000000013,
+        3,
+        14.19657
+      ],
+      "name": "panel_1",
+      "rotation": {
+        "angle": 22.5,
+        "axis": "y",
+        "origin": [
+          2.17464,
+          9.5,
+          14.69657
+        ]
+      },
+      "to": [
+        4.17464,
+        16,
+        15.19657
+      ]
+    }
+  ],
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/white",
+    "particle": "shadowsandpetals:block/curtain/white"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "shadowsandpetals:block/large_curtain/static/left/open/white/upper_outer",
+  "textures": {
+    "particle": "shadowsandpetals:block/curtain/red"
+  }
+}

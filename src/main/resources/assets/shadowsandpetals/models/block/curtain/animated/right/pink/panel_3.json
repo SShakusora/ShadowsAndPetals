@@ -1,7 +1,0 @@
-{
-  "parent": "shadowsandpetals:block/curtain/animated/right/white/panel_3",
-  "textures": {
-    "1": "shadowsandpetals:block/curtain/pink",
-    "particle": "shadowsandpetals:block/curtain/pink"
-  }
-}

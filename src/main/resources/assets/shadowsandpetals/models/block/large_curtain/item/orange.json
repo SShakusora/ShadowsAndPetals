@@ -1,6 +1,0 @@
-{
-  "parent": "shadowsandpetals:block/large_curtain/item/white",
-  "textures": {
-    "1": "shadowsandpetals:block/curtain/orange"
-  }
-}

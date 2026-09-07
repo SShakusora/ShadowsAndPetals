@@ -1,0 +1,163 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "texture": "#2",
+          "uv": [
+            0,
+            0,
+            16,
+            1
+          ]
+        },
+        "east": {
+          "texture": "#2",
+          "uv": [
+            15,
+            0,
+            16,
+            1
+          ]
+        },
+        "north": {
+          "texture": "#2",
+          "uv": [
+            16,
+            0,
+            0,
+            1
+          ]
+        },
+        "south": {
+          "texture": "#2",
+          "uv": [
+            0,
+            0,
+            16,
+            1
+          ]
+        },
+        "up": {
+          "texture": "#2",
+          "uv": [
+            0,
+            0,
+            16,
+            1
+          ]
+        },
+        "west": {
+          "texture": "#2",
+          "uv": [
+            0,
+            0,
+            1,
+            1
+          ]
+        }
+      },
+      "from": [
+        0,
+        14,
+        14
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          0,
+          14,
+          14
+        ]
+      },
+      "to": [
+        16,
+        15,
+        15
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "texture": "#2",
+          "uv": [
+            5,
+            3,
+            6,
+            5
+          ]
+        },
+        "east": {
+          "texture": "#2",
+          "uv": [
+            2,
+            1,
+            4,
+            3
+          ]
+        },
+        "north": {
+          "texture": "#2",
+          "uv": [
+            4,
+            1,
+            5,
+            3
+          ]
+        },
+        "south": {
+          "texture": "#2",
+          "uv": [
+            4,
+            3,
+            5,
+            5
+          ]
+        },
+        "up": {
+          "texture": "#2",
+          "uv": [
+            5,
+            1,
+            6,
+            3
+          ]
+        },
+        "west": {
+          "texture": "#2",
+          "uv": [
+            2,
+            3,
+            4,
+            5
+          ]
+        }
+      },
+      "from": [
+        -0.99,
+        13.5,
+        13.9
+      ],
+      "rotation": {
+        "angle": 0,
+        "axis": "y",
+        "origin": [
+          -1,
+          13,
+          14
+        ]
+      },
+      "to": [
+        0.01,
+        15.5,
+        15.9
+      ]
+    }
+  ],
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/white",
+    "2": "shadowsandpetals:block/curtain/curtain_deco",
+    "particle": "shadowsandpetals:block/curtain/white"
+  }
+}
