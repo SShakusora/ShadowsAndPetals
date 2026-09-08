@@ -1,12 +1,12 @@
-package com.sshakusora.shadowsandpetals.api.irori;
+package com.sshakusora.shadowsandpetals.blockentity.irori;
 
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
 
-/** Immutable result and duration selected for one item placed on an Irori grill. */
-public record IroriCookingProcess(ItemStack result, int cookingTime) {
-    public IroriCookingProcess {
+/** Internal cooking result selected for one item on an Irori grill. */
+record CookingProcess(ItemStack result, int cookingTime) {
+    CookingProcess {
         result = Objects.requireNonNull(result, "result").copy();
         if (result.isEmpty()) {
             throw new IllegalArgumentException("Irori cooking result must not be empty");

@@ -2,8 +2,8 @@ package com.sshakusora.shadowsandpetals.data.model.generator;
 
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelContext;
 import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
 import net.minecraft.client.data.models.BlockModelGenerators;

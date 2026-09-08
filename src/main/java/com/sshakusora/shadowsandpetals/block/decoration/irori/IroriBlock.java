@@ -1,9 +1,6 @@
 package com.sshakusora.shadowsandpetals.block.decoration.irori;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.api.irori.IroriApi;
-import com.sshakusora.shadowsandpetals.api.irori.IroriIgnitionBehavior;
-import com.sshakusora.shadowsandpetals.api.irori.IroriIgnitionContext;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriComponentTopology;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
@@ -328,7 +325,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         boolean hasAsh = master.hasAsh();
-        IroriIgnitionBehavior ignitionBehavior = IroriApi.findIgnitionBehavior(stack).orElse(null);
         if (hasAsh) {
             if (!level.isClientSide()) {
                 master.clearAshAndDropResults();
@@ -336,7 +332,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
-        if (ignitionBehavior != null) {
+        if (isIgnitionItem(stack)) {
             if (!master.canIgnite()) {
                 return InteractionResult.PASS;
             }
@@ -347,14 +343,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
                 return InteractionResult.PASS;
             }
 
-            ignitionBehavior.onIgnited(new IroriIgnitionContext(
-                    level,
-                    pos,
-                    master.getBlockPos(),
-                    player,
-                    hand,
-                    stack
-            ));
+            igniteWithItem(level, pos, player, hand, stack);
             return InteractionResult.SUCCESS_SERVER;
         }
 
@@ -432,6 +421,34 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     private static boolean isCenterPosition(BlockPos pos, IroriBlockEntity master, Level level) {
         return IroriComponentTopology.bounds(level, master.getBlockPos()).containsCenter(pos);
+    }
+
+    private static boolean isIgnitionItem(ItemStack stack) {
+        return stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE);
+    }
+
+    private static void igniteWithItem(
+            Level level,
+            BlockPos interactionPos,
+            Player player,
+            InteractionHand hand,
+            ItemStack stack
+    ) {
+        boolean flintAndSteel = stack.is(Items.FLINT_AND_STEEL);
+        level.playSound(
+                null,
+                interactionPos,
+                flintAndSteel ? SoundEvents.FLINTANDSTEEL_USE : SoundEvents.FIRECHARGE_USE,
+                SoundSource.BLOCKS,
+                1.0F,
+                level.getRandom().nextFloat() * 0.4F + 0.8F
+        );
+        level.gameEvent(player, GameEvent.BLOCK_CHANGE, interactionPos);
+        if (flintAndSteel) {
+            stack.hurtAndBreak(1, player, hand.asEquipmentSlot());
+        } else if (!player.isCreative()) {
+            stack.shrink(1);
+        }
     }
 
     private static boolean isBasinHit(BlockState state, BlockPos pos, BlockHitResult hitResult) {

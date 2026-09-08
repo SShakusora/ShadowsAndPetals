@@ -1,8 +1,6 @@
 package com.sshakusora.shadowsandpetals.registries.event;
 
 import com.mojang.logging.LogUtils;
-import com.sshakusora.shadowsandpetals.api.irori.IroriApi;
-import com.sshakusora.shadowsandpetals.api.irori.RegisterIroriBehaviorsEvent;
 import com.sshakusora.shadowsandpetals.api.shishiOdoshi.RegisterShishiOdoshiFluidsEvent;
 import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import net.neoforged.bus.api.IEventBus;
@@ -10,9 +8,7 @@ import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import org.slf4j.Logger;
 
-/**
- * Wires built-in behavior listeners and dispatches the public behavior registration events.
- */
+/** Wires custom mod events that still require a bootstrap dispatch. */
 public final class CustomEventBootstrap {
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -20,23 +16,12 @@ public final class CustomEventBootstrap {
     }
 
     public static void register(IEventBus modEventBus) {
-        modEventBus.addListener(IroriBehaviorRegistry::register);
         modEventBus.addListener(ShishiOdoshiFluidBehaviorRegistry::register);
         modEventBus.addListener(CustomEventBootstrap::commonSetup);
     }
 
     private static void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            ModLoader.postEvent(new RegisterIroriBehaviorsEvent());
-            LOGGER.debug(
-                    "Registered Irori behaviors: grill={}, fuel={}, ignition={}, ashDrops={}, cooking={}",
-                    IroriApi.registeredGrillRuleIds(),
-                    IroriApi.registeredFuelRuleIds(),
-                    IroriApi.registeredIgnitionBehaviorIds(),
-                    IroriApi.registeredAshDropProviderIds(),
-                    IroriApi.registeredCookingProviderIds()
-            );
-
             ModLoader.postEvent(new RegisterShishiOdoshiFluidsEvent());
             LOGGER.debug(
                     "Registered shishi-odoshi fluids: sources={}, animationSpeeds={}, renderProperties={}",

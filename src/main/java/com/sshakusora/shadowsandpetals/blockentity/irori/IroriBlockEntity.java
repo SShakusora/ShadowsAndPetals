@@ -1,12 +1,8 @@
 package com.sshakusora.shadowsandpetals.blockentity.irori;
 
-import com.sshakusora.shadowsandpetals.api.irori.IroriApi;
-import com.sshakusora.shadowsandpetals.api.irori.IroriAshDropContext;
-import com.sshakusora.shadowsandpetals.api.irori.IroriCookingContext;
-import com.sshakusora.shadowsandpetals.api.irori.IroriCookingProcess;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState.FirewoodModel;
 import com.sshakusora.shadowsandpetals.client.effect.IroriClientEffects;
 import com.sshakusora.shadowsandpetals.data.BuiltinLanguageKeys;
@@ -37,6 +33,10 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.AbstractCookingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -54,6 +54,8 @@ import java.util.*;
 public class IroriBlockEntity extends BlockEntity implements Container, MenuProvider {
     private static final String MASTER_POS_KEY = "MasterPos";
     private static final String GRILL_INSTALLED_KEY = "GrillInstalled";
+    private static final int MIN_ASH_BONE_MEAL_DROPS = 1;
+    private static final int MAX_ASH_BONE_MEAL_DROPS = 3;
     private static final FirewoodRenderOffset ZERO_RENDER_OFFSET = new FirewoodRenderOffset(0.0D, 0.0D);
 
     private @Nullable BlockPos masterPos;
@@ -347,11 +349,12 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             drops.add(new ItemStack(Items.IRON_INGOT));
         }
         if (fuelState.isBurning() || isAshModel()) {
-            drops.addAll(IroriApi.getAshDrops(new IroriAshDropContext(
-                    level,
-                    worldPosition,
-                    level.getRandom()
-            )));
+            drops.add(new ItemStack(
+                    Items.BONE_MEAL,
+                    MIN_ASH_BONE_MEAL_DROPS + level.getRandom().nextInt(
+                            MAX_ASH_BONE_MEAL_DROPS - MIN_ASH_BONE_MEAL_DROPS + 1
+                    )
+            ));
         }
         return List.copyOf(drops);
     }
@@ -412,13 +415,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             return false;
         }
 
-        IroriCookingContext context = new IroriCookingContext(
-                level,
-                master.getBlockPos(),
-                cookingPos,
-                heldStack
-        );
-        IroriCookingProcess process = IroriApi.findCookingProcess(context).orElse(null);
+        CookingProcess process = findCookingProcess(level, heldStack).orElse(null);
         if (process == null) {
             return false;
         }
@@ -936,10 +933,10 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
 
         RandomSource random = level.getRandom();
-        IroriAshDropContext context = new IroriAshDropContext(level, dropPos, random);
-        for (ItemStack drop : IroriApi.getAshDrops(context)) {
-            dropItemStack(level, dropPos, drop);
-        }
+        int count = MIN_ASH_BONE_MEAL_DROPS + random.nextInt(
+                MAX_ASH_BONE_MEAL_DROPS - MIN_ASH_BONE_MEAL_DROPS + 1
+        );
+        dropItemStack(level, dropPos, new ItemStack(Items.BONE_MEAL, count));
     }
 
     private boolean isValidCookingPosition(BlockPos cookingPos) {
@@ -948,6 +945,29 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         }
         Set<BlockPos> component = IroriComponentTopology.collectConnectedComponent(level, worldPosition);
         return IroriComponentTopology.centerPositions(component, worldPosition).contains(cookingPos);
+    }
+
+    private static Optional<CookingProcess> findCookingProcess(ServerLevel level, ItemStack input) {
+        SingleRecipeInput recipeInput = new SingleRecipeInput(input);
+        return findRecipeProcess(level, recipeInput, RecipeType.CAMPFIRE_COOKING)
+                .or(() -> findRecipeProcess(level, recipeInput, RecipeType.SMOKING));
+    }
+
+    private static <T extends AbstractCookingRecipe> Optional<CookingProcess> findRecipeProcess(
+            ServerLevel level,
+            SingleRecipeInput input,
+            RecipeType<T> recipeType
+    ) {
+        return level.recipeAccess()
+                .getRecipeFor(recipeType, input, level)
+                .map(RecipeHolder::value)
+                .flatMap(recipe -> {
+                    ItemStack result = recipe.assemble(input);
+                    if (result.isEmpty() || !result.isItemEnabled(level.enabledFeatures())) {
+                        return Optional.empty();
+                    }
+                    return Optional.of(new CookingProcess(result, recipe.cookingTime()));
+                });
     }
 
     private void finishCooking(ServerLevel level, List<BlockPos> completedPositions) {

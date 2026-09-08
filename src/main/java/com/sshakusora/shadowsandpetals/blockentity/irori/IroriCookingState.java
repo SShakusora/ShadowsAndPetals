@@ -1,6 +1,5 @@
 package com.sshakusora.shadowsandpetals.blockentity.irori;
 
-import com.sshakusora.shadowsandpetals.api.irori.IroriCookingProcess;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.storage.ValueInput;
@@ -32,7 +31,7 @@ final class IroriCookingState {
         return slots.containsKey(cookingPos);
     }
 
-    boolean place(BlockPos cookingPos, ItemStack input, IroriCookingProcess process) {
+    boolean place(BlockPos cookingPos, ItemStack input, CookingProcess process) {
         if (input.isEmpty() || slots.containsKey(cookingPos)) {
             return false;
         }
