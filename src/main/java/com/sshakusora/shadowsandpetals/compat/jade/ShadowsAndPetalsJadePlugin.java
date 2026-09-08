@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.compat.jade;
 
-import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.RecessedLampCompositeBlock;
 import net.minecraft.world.level.block.Block;
 import snownee.jade.api.IWailaClientRegistration;

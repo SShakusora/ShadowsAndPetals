@@ -1,6 +1,9 @@
 package com.sshakusora.shadowsandpetals.data.model.generator;
 
 import com.sshakusora.shadowsandpetals.block.decoration.*;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelContext;
 import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
 import net.minecraft.client.data.models.BlockModelGenerators;
@@ -99,6 +102,25 @@ public final class DecorationBlockModels {
                         .select(false, BlockModelGenerators.NOP)
                         .select(true, BlockModelGenerators.NOP)));
         StandardBlockModels.parentBlockItem(block, generator, generator.modLoc("block/irori/block"));
+    }
+
+    public static void iroriGrill(
+            BlockModelContext<? extends IroriGrillBlock> context,
+            SAPBlockModelGenerator generator
+    ) {
+        IroriGrillBlock block = context.get();
+        generator.blockState(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(IroriGrillBlock.GRILL_PART)
+                        .generate(part -> {
+                            var variant = BlockModelGenerators.plainVariant(
+                                    generator.modLoc("block/grill/double/" + part.modelName() + "_upper"));
+                            return part == IroriGrillPart.STRIP_WEST || part == IroriGrillPart.STRIP_EAST
+                                    ? variant.with(BlockModelGenerators.Y_ROT_90)
+                                    : variant;
+                        }))
+                .with(PropertyDispatch.modify(IroriGrillBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP)));
     }
 
     public static void copperTeapot(

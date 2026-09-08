@@ -1,6 +1,6 @@
 package com.sshakusora.shadowsandpetals.client.effect;
 
-import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriComponentTopology;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState.FirewoodModel;

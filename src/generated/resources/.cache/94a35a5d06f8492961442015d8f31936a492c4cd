@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-07T16:15:27.5581826	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-09-09T00:50:52.5328256	Tags for minecraft:block mod id shadowsandpetals
 853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
 9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/fences.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/block/fence_gates.json
@@ -7,7 +7,7 @@
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs_that_burn.json
 f7d1f77346d3f3440bf1d53797318f3c8cbc0b01 data/minecraft/tags/block/mineable/axe.json
 bc7582f4a3b986423d68f0e3fc5c74d791473a20 data/minecraft/tags/block/mineable/hoe.json
-4f3c76eb301e5177cbc58dd95305297550dba9b0 data/minecraft/tags/block/mineable/pickaxe.json
+a2c7410bd9d7b91e940c0ff8d6719614165b0b72 data/minecraft/tags/block/mineable/pickaxe.json
 0e0d8c1b2029eb3131315384f9ae503dc0895800 data/minecraft/tags/block/mineable/shovel.json
 40be6ad479a78b3441e5dac20024ea90e4f87fe3 data/minecraft/tags/block/needs_iron_tool.json
 12be2911e2d67b1765f7da0579500e659eaea68f data/minecraft/tags/block/needs_stone_tool.json

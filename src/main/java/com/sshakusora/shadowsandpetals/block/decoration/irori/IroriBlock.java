@@ -1,4 +1,4 @@
-package com.sshakusora.shadowsandpetals.block.decoration;
+package com.sshakusora.shadowsandpetals.block.decoration.irori;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.api.irori.IroriApi;
@@ -77,7 +77,6 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     private static final double STANDALONE_BASIN_MAX = 13.0D / 16.0D;
     private static final double CONNECTED_BASIN_INSET = 4.0D / 16.0D;
     private static final VoxelShape BASE_SHAPE = box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D);
-    private static final VoxelShape GRILL_SHAPE = box(1.0D, 10.0D, 1.0D, 15.0D, 21.5D, 15.0D);
     private static final VoxelShape STANDALONE_SHAPE = Shapes.or(
             BASE_SHAPE,
             box(0.0D, 10.0D, 0.0D, 16.0D, 15.0D, 1.0D),
@@ -122,7 +121,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     private static final Map<Direction, VoxelShape> CORNER_SHAPES = VoxelShapeUtils.rotateHorizontal(CORNER_NORTH_EAST_SHAPE);
     private static final Map<Direction, VoxelShape> END_SHAPES = createEndShapes();
     private static final VoxelShape[] SHAPES_BY_CONNECTIONS = createShapes();
-    private static final VoxelShape[] SHAPES_WITH_GRILL_BY_CONNECTIONS = createGrillShapes();
+    private static final Map<IroriGrillPart, VoxelShape[]> SHAPES_WITH_GRILL_BY_PART = createGrillShapes();
 
     public IroriBlock(BlockBehaviour.Properties properties) {
         super(properties);
@@ -196,7 +195,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         int connectionMask = getConnectionMask(state);
         return state.getValue(HAS_GRILL)
-                ? SHAPES_WITH_GRILL_BY_CONNECTIONS[connectionMask]
+                ? SHAPES_WITH_GRILL_BY_PART.get(resolveGrillPart(level, pos))[connectionMask]
                 : SHAPES_BY_CONNECTIONS[connectionMask];
     }
 
@@ -253,6 +252,18 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     protected InteractionResult useItemOn(
+            ItemStack stack,
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand,
+            BlockHitResult hitResult
+    ) {
+        return interactWithItem(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    static InteractionResult interactWithItem(
             ItemStack stack,
             BlockState state,
             Level level,
@@ -363,6 +374,16 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
+        return interactWithoutItem(state, level, pos, player, hitResult);
+    }
+
+    static InteractionResult interactWithoutItem(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            BlockHitResult hitResult
+    ) {
         if (player.isSecondaryUseActive()) {
             return openMasterMenu(level, pos, player);
         }
@@ -476,12 +497,29 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return shapes;
     }
 
-    private static VoxelShape[] createGrillShapes() {
-        VoxelShape[] shapes = new VoxelShape[SHAPES_BY_CONNECTIONS.length];
-        for (int mask = 0; mask < shapes.length; mask++) {
-            shapes[mask] = Shapes.or(SHAPES_BY_CONNECTIONS[mask], GRILL_SHAPE).optimize();
+    private static Map<IroriGrillPart, VoxelShape[]> createGrillShapes() {
+        Map<IroriGrillPart, VoxelShape[]> shapesByPart = new EnumMap<>(IroriGrillPart.class);
+        for (IroriGrillPart part : IroriGrillPart.values()) {
+            VoxelShape[] shapes = new VoxelShape[SHAPES_BY_CONNECTIONS.length];
+            VoxelShape grillShape = IroriGrillVoxelShapes.lower(part);
+            for (int mask = 0; mask < shapes.length; mask++) {
+                shapes[mask] = Shapes.or(SHAPES_BY_CONNECTIONS[mask], grillShape).optimize();
+            }
+            shapesByPart.put(part, shapes);
         }
-        return shapes;
+        return Map.copyOf(shapesByPart);
+    }
+
+    private static IroriGrillPart resolveGrillPart(BlockGetter level, BlockPos pos) {
+        BlockState upperState = level.getBlockState(pos.above());
+        if (upperState.getBlock() instanceof IroriGrillBlock
+                && upperState.hasProperty(IroriGrillBlock.GRILL_PART)) {
+            IroriGrillPart part = upperState.getValue(IroriGrillBlock.GRILL_PART);
+            if (hasGrill(level.getBlockState(part.masterPosition(pos.above())))) {
+                return part;
+            }
+        }
+        return IroriGrillPart.SINGLE;
     }
 
     private static VoxelShape getShapeForEdges(boolean north, boolean east, boolean south, boolean west) {

@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-07T16:15:27.5403104	Loot Tables
+// 26.1.2	2026-09-09T00:50:52.5178267	Loot Tables
 93b903d8c746ec46f5c8aad9ca1d845786e4d78a data/shadowsandpetals/loot_table/blocks/acacia_vanity.json
 739ec947b0aa2b8abdfaaed06b9257b426b17150 data/shadowsandpetals/loot_table/blocks/acacia_window_pane.json
 0f2d2f048a7438d26b82ffd237d3eaf2d2ac7bef data/shadowsandpetals/loot_table/blocks/aluminum_block.json
@@ -92,6 +92,7 @@ d0e8b7844f23e31a3db9b1ff8239d39bcc7dd2ec data/shadowsandpetals/loot_table/blocks
 8a4fc0905287624bb6c84457086686fe0d474387 data/shadowsandpetals/loot_table/blocks/green_roof_tile_vertical_slab.json
 0bc1b64df7196efae94b219d0975b1233f6897ec data/shadowsandpetals/loot_table/blocks/iron_ingot_pile.json
 16ff0bdb0781574f3b24481c4c7be2595a44a5b1 data/shadowsandpetals/loot_table/blocks/irori.json
+f5092574c262edc832037f37893f0eae51a6d225 data/shadowsandpetals/loot_table/blocks/irori_grill.json
 d91e11cc0569c0f1a7d4cb99c947994b91824822 data/shadowsandpetals/loot_table/blocks/jungle_vanity.json
 83960ca27d34d7ad7a7ade5d26f836b06dc4ce5a data/shadowsandpetals/loot_table/blocks/jungle_window_pane.json
 2e6688a03cef00ce51bfb08c3f1fab5c5e25424a data/shadowsandpetals/loot_table/blocks/light_blue_cafe_chair.json

@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-07T21:10:39.6681796	Model Definitions - shadowsandpetals
+// 26.1.2	2026-09-09T00:50:52.5238259	Model Definitions - shadowsandpetals
 a44ab5a980aac4e21b5790b26af0c92c703d1a8b assets/shadowsandpetals/blockstates/acacia_vanity.json
 da1d6483fa8034770bc5617a41a2d33e76939b28 assets/shadowsandpetals/blockstates/acacia_window_pane.json
 0da1fdb03c789b504150d84d96f0b1554397c653 assets/shadowsandpetals/blockstates/aluminum_block.json
@@ -92,6 +92,7 @@ ed417f7b8b8979a5c1b6f45ec5bd7f3634a2435d assets/shadowsandpetals/blockstates/gre
 4e46162f71ad223fc21b3dc27355a5cb73f40450 assets/shadowsandpetals/blockstates/green_roof_tile_vertical_slab.json
 fb1b5b04392bea0da84f306e1932a1392fcea05f assets/shadowsandpetals/blockstates/iron_ingot_pile.json
 1921b380fe0923b0375c8e53bb611e8b147a52ad assets/shadowsandpetals/blockstates/irori.json
+54e36865c7b6e1cda2759d395fc43fcbe221a1bb assets/shadowsandpetals/blockstates/irori_grill.json
 e28f915ccf546cafb78cef3a4ce0abd94cd0aa1f assets/shadowsandpetals/blockstates/jungle_vanity.json
 3b0406114d711dd0a2dbda8df9dda81b1d670a4f assets/shadowsandpetals/blockstates/jungle_window_pane.json
 d33478b5e65989d82f33da0402ed806ec74a0a53 assets/shadowsandpetals/blockstates/light_blue_cafe_chair.json

@@ -63,8 +63,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     private final ItemModelResolver itemModelResolver;
     private final Map<IroriFuelState.FirewoodModel, CachedFirewoodModel> firewoodModelCache =
             new EnumMap<>(IroriFuelState.FirewoodModel.class);
-    private final Map<IroriBlockEntity.GrillModel, CachedGrillModel> grillModelCache =
-            new EnumMap<>(IroriBlockEntity.GrillModel.class);
     private @Nullable TextureAtlasSprite burningSprite;
 
     public IroriBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -87,7 +85,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
         resetFrameState(state);
-        updateGrillRenderState(blockEntity, state);
         updateCookingItemRenderState(blockEntity, state);
 
         if (!blockEntity.shouldRenderFirewood()) {
@@ -137,26 +134,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
 
     @Override
     public void submit(State state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
-        if (!state.grillModelParts.isEmpty()) {
-            poseStack.pushPose();
-            poseStack.translate(state.grillOffsetX, 10.0 / 16.0D, state.grillOffsetZ);
-            if (state.grillRotated) {
-                poseStack.translate(0.5D, 0.0D, 0.5D);
-                poseStack.mulPose(Axis.YP.rotationDegrees(90.0F));
-                poseStack.translate(-0.5D, 0.0D, -0.5D);
-            }
-            submitNodeCollector.submitMultiLayerBlockModel(
-                    poseStack,
-                    state.grillModelParts,
-                    state.grillHasTranslucency,
-                    BlockModelRenderState.EMPTY_TINTS,
-                    state.lightCoords,
-                    OverlayTexture.NO_OVERLAY,
-                    0
-            );
-            poseStack.popPose();
-        }
-
         for (CookingItemState cookingItem : state.cookingItems) {
             if (cookingItem.itemState().isEmpty()) {
                 continue;
@@ -244,11 +221,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     }
 
     private static void resetFrameState(State state) {
-        state.grillModelParts = List.of();
-        state.grillHasTranslucency = false;
-        state.grillOffsetX = 0.0D;
-        state.grillOffsetZ = 0.0D;
-        state.grillRotated = false;
         state.firewoodOffsetX = 0.0D;
         state.firewoodOffsetZ = 0.0D;
         state.firewoodAppearProgress = 1.0F;
@@ -287,49 +259,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
             ));
         }
         state.cookingItems = List.copyOf(cookingItems);
-    }
-
-    private void updateGrillRenderState(IroriBlockEntity blockEntity, State state) {
-        IroriBlockEntity.GrillRenderInfo grillInfo = blockEntity.getGrillRenderInfo();
-        if (grillInfo == null || blockEntity.getLevel() == null) {
-            return;
-        }
-
-        BlockStateModel model = BlockModelRegistry.IRORI_GRILL.get(grillInfo.model());
-        if (model == null) {
-            return;
-        }
-
-        BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
-        CachedGrillModel cached = grillModelCache.get(grillInfo.model());
-        if (cached == null || cached.model() != model) {
-            List<BlockStateModelPart> parts = new ArrayList<>();
-            firewoodRandom.setSeed(FIREWOOD_RENDER_SEED);
-            model.collectParts(
-                    tintGetter,
-                    blockEntity.getBlockPos(),
-                    blockEntity.getBlockState(),
-                    firewoodRandom,
-                    parts
-            );
-            cached = new CachedGrillModel(
-                    model,
-                    List.copyOf(parts),
-                    model.hasMaterialFlag(
-                            tintGetter,
-                            blockEntity.getBlockPos(),
-                            blockEntity.getBlockState(),
-                            BakedQuad.FLAG_TRANSLUCENT
-                    )
-            );
-            grillModelCache.put(grillInfo.model(), cached);
-        }
-
-        state.grillModelParts = cached.parts();
-        state.grillHasTranslucency = cached.hasTranslucency();
-        state.grillOffsetX = grillInfo.offsetX();
-        state.grillOffsetZ = grillInfo.offsetZ();
-        state.grillRotated = grillInfo.rotated();
     }
 
     @Override
@@ -438,11 +367,6 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
     }
 
     public static class State extends BlockEntityRenderState {
-        public List<BlockStateModelPart> grillModelParts = List.of();
-        public boolean grillHasTranslucency;
-        public double grillOffsetX;
-        public double grillOffsetZ;
-        public boolean grillRotated;
         public List<BlockStateModelPart> firewoodModelParts = List.of();
         public boolean firewoodHasTranslucency;
         public double firewoodOffsetX;
@@ -470,9 +394,4 @@ public class IroriBlockEntityRenderer implements BlockEntityRenderer<IroriBlockE
             boolean hasTranslucency
     ) {}
 
-    private record CachedGrillModel(
-            BlockStateModel model,
-            List<BlockStateModelPart> parts,
-            boolean hasTranslucency
-    ) {}
 }

@@ -3,11 +3,11 @@ package com.sshakusora.shadowsandpetals.client.model;
 import com.mojang.math.Quadrant;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
-import com.sshakusora.shadowsandpetals.block.decoration.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
-import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState;
 import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiPotBlockStateModel;
 import com.sshakusora.shadowsandpetals.client.model.registry.BlockStateModelDecoratorRegistry;
@@ -47,10 +47,14 @@ public final class BlockModelRegistry {
                     .model(model -> ShadowsAndPetals.asResource("block/irori/firewood/" + model.modelName()))
                     .register();
 
-    public static final StandaloneBlockModelSet<IroriBlockEntity.GrillModel> IRORI_GRILL =
-            ClientModelRegistry.enumBlockStateSet("irori_grill", IroriBlockEntity.GrillModel.class)
-                    .keyPath(IroriBlockEntity.GrillModel::modelName)
-                    .model(model -> ShadowsAndPetals.asResource("block/grill/" + model.modelName()))
+    public static final StandaloneBlockModelSet<IroriGrillPart> IRORI_GRILL_LOWER =
+            ClientModelRegistry.enumBlockStateSet("irori_grill_lower", IroriGrillPart.class)
+                    .keyPath(IroriGrillPart::modelName)
+                    .model(part -> ShadowsAndPetals.asResource(
+                            "block/grill/double/" + part.modelName() + "_lower"))
+                    .rotation(part -> isHorizontalGrillPart(part)
+                            ? rotatedModelState(0, 90)
+                            : BlockModelRotation.IDENTITY)
                     .register();
 
     public static final StandaloneBlockModelSet<WoodBlockList.WoodType> VANITY_DRAWER =
@@ -323,6 +327,10 @@ public final class BlockModelRegistry {
             case 270 -> Quadrant.R270;
             default -> throw new IllegalArgumentException("Unsupported rotation: " + degrees);
         };
+    }
+
+    private static boolean isHorizontalGrillPart(IroriGrillPart part) {
+        return part == IroriGrillPart.STRIP_WEST || part == IroriGrillPart.STRIP_EAST;
     }
 
     private static WoodBlockList.WoodType vanityWoodTypeFor(Block vanityBlock) {

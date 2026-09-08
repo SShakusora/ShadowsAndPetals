@@ -1,0 +1,62 @@
+{
+  "variants": {
+    "grill_part=quad_north_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/quad_north_east_upper"
+    },
+    "grill_part=quad_north_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/quad_north_east_upper"
+    },
+    "grill_part=quad_north_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/quad_north_west_upper"
+    },
+    "grill_part=quad_north_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/quad_north_west_upper"
+    },
+    "grill_part=quad_south_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/quad_south_east_upper"
+    },
+    "grill_part=quad_south_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/quad_south_east_upper"
+    },
+    "grill_part=quad_south_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/quad_south_west_upper"
+    },
+    "grill_part=quad_south_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/quad_south_west_upper"
+    },
+    "grill_part=single,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/single_upper"
+    },
+    "grill_part=single,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/single_upper"
+    },
+    "grill_part=strip_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/strip_east_upper",
+      "y": 90
+    },
+    "grill_part=strip_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/strip_east_upper",
+      "y": 90
+    },
+    "grill_part=strip_north,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/strip_north_upper"
+    },
+    "grill_part=strip_north,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/strip_north_upper"
+    },
+    "grill_part=strip_south,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/strip_south_upper"
+    },
+    "grill_part=strip_south,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/strip_south_upper"
+    },
+    "grill_part=strip_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/grill/double/strip_west_upper",
+      "y": 90
+    },
+    "grill_part=strip_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/grill/double/strip_west_upper",
+      "y": 90
+    }
+  }
+}

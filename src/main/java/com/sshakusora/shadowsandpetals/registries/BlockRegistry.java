@@ -7,6 +7,8 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
@@ -422,6 +424,19 @@ public class BlockRegistry {
                     .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
                     .save(provider.output()))
             .lang(DatagenLangRegistry.ZH_CN, "日式围炉")
+            .register();
+
+    public static final DeferredBlock<IroriGrillBlock> IRORI_GRILL = SAPRegistries
+            .block("irori_grill", IroriGrillBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .pushReaction(PushReaction.BLOCK))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .blockstate(() -> DecorationBlockModels::iroriGrill)
+            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .lang(DatagenLangRegistry.ZH_CN, "围炉烤架")
             .register();
 
     public static final DeferredBlock<BedroomLampBlock> BEDROOM_LAMP = SAPRegistries

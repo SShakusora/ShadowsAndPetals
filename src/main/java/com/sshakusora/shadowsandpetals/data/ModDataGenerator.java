@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.data.curtain.ModCurtainAssetProvider;
+import com.sshakusora.shadowsandpetals.data.irori.ModIroriGrillAssetProvider;
 import com.sshakusora.shadowsandpetals.data.model.ModModelProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
@@ -27,6 +28,7 @@ public class ModDataGenerator {
 
         generator.addProvider(true, new ModModelProvider(output));
         generator.addProvider(true, new ModCurtainAssetProvider(output));
+        generator.addProvider(true, new ModIroriGrillAssetProvider(output));
         generator.addProvider(true, new ModRockeryModelProvider(output));
         generator.addProvider(true, new ModConnectedTextureProvider(output));
         generator.addProvider(true, new ModLanguageProvider(output, DatagenLangRegistry.DEFAULT_LOCALE));
