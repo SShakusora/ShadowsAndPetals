@@ -49,7 +49,7 @@ public final class IroriGrillCopperTeapotBlock extends CopperTeapotBlock impleme
         return Shapes.or(
                 getIroriShape(state.getValue(FACING)),
                 IroriGrillVoxelShapes.upper(state.getValue(IroriGrillBlock.GRILL_PART))
-        );
+        ).optimize();
     }
 
     @Override
@@ -61,8 +61,10 @@ public final class IroriGrillCopperTeapotBlock extends CopperTeapotBlock impleme
     ) {
         return Shapes.or(
                 getIroriShape(state.getValue(FACING)),
-                IroriGrillVoxelShapes.upper(state.getValue(IroriGrillBlock.GRILL_PART))
-        );
+                IroriGrillVoxelShapes.upperSurface(
+                        state.getValue(IroriGrillBlock.GRILL_PART)
+                )
+        ).optimize();
     }
 
     @Override

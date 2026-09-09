@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -77,7 +78,7 @@ public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlo
     public VoxelShape getCollisionShape(
             BlockState state, BlockGetter level, BlockPos pos, CollisionContext context
     ) {
-        return IroriGrillVoxelShapes.upper(state.getValue(GRILL_PART));
+        return IroriGrillVoxelShapes.upperSurface(state.getValue(GRILL_PART));
     }
 
     @Override
@@ -157,15 +158,33 @@ public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlo
             BlockHitResult hitResult
     ) {
         BlockPos lowerPos = pos.below();
-        return IroriBlock.interactWithItem(
+        BlockState lowerState = level.getBlockState(lowerPos);
+        if (!isValidLower(lowerState)) {
+            return InteractionResult.PASS;
+        }
+        if (stack.isEmpty()) {
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
+        }
+        if (player.isSecondaryUseActive()) {
+            return IroriBlock.openMasterMenu(level, lowerPos, player);
+        }
+
+        if (lowerState.getValue(IroriBlock.WATERLOGGED)) {
+            return InteractionResult.PASS;
+        }
+
+        InteractionResult baseResult = IroriBlock.interactWithBaseItem(
                 stack,
-                level.getBlockState(lowerPos),
                 level,
                 lowerPos,
                 player,
-                hand,
-                hitResult
+                hand
         );
+        if (baseResult != InteractionResult.PASS) {
+            return baseResult;
+        }
+
+        return tryPlaceCookingItem(stack, state, level, lowerPos, player, hitResult);
     }
 
     @Override
@@ -177,13 +196,59 @@ public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlo
             BlockHitResult hitResult
     ) {
         BlockPos lowerPos = pos.below();
-        return IroriBlock.interactWithoutItem(
-                level.getBlockState(lowerPos),
-                level,
-                lowerPos,
-                player,
-                hitResult
-        );
+        BlockState lowerState = level.getBlockState(lowerPos);
+        if (!isValidLower(lowerState)) {
+            return InteractionResult.PASS;
+        }
+        if (player.isSecondaryUseActive()) {
+            return IroriBlock.openMasterMenu(level, lowerPos, player);
+        }
+
+        if (lowerState.getValue(IroriBlock.WATERLOGGED)) {
+            return InteractionResult.PASS;
+        }
+
+        if (hitResult.getDirection() == Direction.UP
+                && level.getBlockEntity(lowerPos) instanceof IroriBlockEntity irori
+                && irori.hasCookingItem(lowerPos)) {
+            if (!level.isClientSide()) {
+                irori.takeCookingItem(lowerPos, player);
+            }
+            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        }
+
+        return IroriBlock.interactWithBaseEmptyHand(level, lowerPos, player);
+    }
+
+    /** Places one item on the lower Irori cell represented by this upper grill block. */
+    private static InteractionResult tryPlaceCookingItem(
+            ItemStack stack,
+            BlockState grillState,
+            Level level,
+            BlockPos cookingPos,
+            Player player,
+            BlockHitResult hitResult
+    ) {
+        if (hitResult.getDirection() != Direction.UP || grillState.getValue(WATERLOGGED)) {
+            return InteractionResult.PASS;
+        }
+
+        boolean builtInCookingInput = level.recipeAccess()
+                .propertySet(RecipePropertySet.CAMPFIRE_INPUT)
+                .test(stack)
+                || level.recipeAccess()
+                .propertySet(RecipePropertySet.SMOKER_INPUT)
+                .test(stack);
+
+        if (level instanceof ServerLevel serverLevel
+                && level.getBlockEntity(cookingPos) instanceof IroriBlockEntity irori
+                && irori.tryPlaceCookingItem(serverLevel, cookingPos, player, stack)) {
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
+        return builtInCookingInput
+                ? level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.CONSUME
+                : InteractionResult.PASS;
     }
 
     @Override

@@ -5,17 +5,22 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
-import java.util.Map;
+import java.util.*;
 
 /**
- * Collision shapes for the split grill models.
+ * Geometry for the split grill models.
  *
  * <p>The coordinates in this class are the cuboid coordinates exported by the
- * generated {@code grill/double/*} models. Keeping the model cuboids here makes
- * the upper block collision follow the visible grill bars instead of filling
- * the whole half-block.</p>
+ * generated {@code grill/double/*} models. The detailed upper geometry is kept
+ * for selection outlines, while the physical upper surface is represented by
+ * the model geometry intersecting one one-pixel-thick Y slice. For each Z slice,
+ * only the outermost X extents are retained, so internal grill bars do not add
+ * internal edges to the physical surface.</p>
  */
 final class IroriGrillVoxelShapes {
+    private static final double UPPER_SURFACE_MIN_Y = 4.0D;
+    private static final double UPPER_SURFACE_MAX_Y = 5.0D;
+
     private static final VoxelShape SINGLE_LOWER_SHAPE = shape(
             3.0D, 14.0D, 3.0D, 4.0D, 16.0D, 4.0D,
             3.0D, 14.0D, 12.0D, 4.0D, 16.0D, 13.0D,
@@ -295,6 +300,8 @@ final class IroriGrillVoxelShapes {
             IroriGrillPart.QUAD_SOUTH_WEST, QUAD_SOUTH_WEST_UPPER_SHAPE,
             IroriGrillPart.QUAD_SOUTH_EAST, QUAD_SOUTH_EAST_UPPER_SHAPE
     );
+    private static final Map<IroriGrillPart, VoxelShape> UPPER_SURFACE_SHAPES =
+            createUpperSurfaceShapes();
 
     private IroriGrillVoxelShapes() {
     }
@@ -304,7 +311,66 @@ final class IroriGrillVoxelShapes {
     }
 
     static VoxelShape upper(IroriGrillPart part) {
-        return UPPER_SHAPES.get(part);
+        return upperOutline(part);
+    }
+
+    static VoxelShape upperSurface(IroriGrillPart part) {
+        return UPPER_SURFACE_SHAPES.get(part);
+    }
+
+    static VoxelShape upperOutline(IroriGrillPart part) {
+        return Shapes.or(UPPER_SHAPES.get(part), upperSurface(part)).optimize();
+    }
+
+    private static Map<IroriGrillPart, VoxelShape> createUpperSurfaceShapes() {
+        Map<IroriGrillPart, VoxelShape> surfaces = new EnumMap<>(IroriGrillPart.class);
+        for (Map.Entry<IroriGrillPart, VoxelShape> entry : UPPER_SHAPES.entrySet()) {
+            surfaces.put(entry.getKey(), projectToUpperSurface(entry.getValue()));
+        }
+        return Map.copyOf(surfaces);
+    }
+
+    private static VoxelShape projectToUpperSurface(VoxelShape modelShape) {
+        double minY = UPPER_SURFACE_MIN_Y / 16.0D;
+        double maxY = UPPER_SURFACE_MAX_Y / 16.0D;
+        List<SurfaceBox> surfaceBoxes = new ArrayList<>();
+        TreeSet<Double> zCoordinates = new TreeSet<>();
+        modelShape.forAllBoxes((minX, boxMinY, minZ, maxX, boxMaxY, maxZ) -> {
+            if (boxMinY < maxY && boxMaxY > minY) {
+                surfaceBoxes.add(new SurfaceBox(minX, minZ, maxX, maxZ));
+                zCoordinates.add(minZ);
+                zCoordinates.add(maxZ);
+            }
+        });
+
+        if (surfaceBoxes.isEmpty()) {
+            return Shapes.empty();
+        }
+
+        List<Double> rows = List.copyOf(zCoordinates);
+        VoxelShape[] projected = {Shapes.empty()};
+        for (int index = 0; index + 1 < rows.size(); index++) {
+            double rowMinZ = rows.get(index);
+            double rowMaxZ = rows.get(index + 1);
+            double rowMinX = Double.POSITIVE_INFINITY;
+            double rowMaxX = Double.NEGATIVE_INFINITY;
+            for (SurfaceBox box : surfaceBoxes) {
+                if (box.minZ < rowMaxZ && box.maxZ > rowMinZ) {
+                    rowMinX = Math.min(rowMinX, box.minX);
+                    rowMaxX = Math.max(rowMaxX, box.maxX);
+                }
+            }
+            if (rowMinX < rowMaxX) {
+                projected[0] = Shapes.or(
+                        projected[0],
+                        Shapes.box(rowMinX, minY, rowMinZ, rowMaxX, maxY, rowMaxZ)
+                );
+            }
+        }
+        return projected[0].optimize();
+    }
+
+    private record SurfaceBox(double minX, double minZ, double maxX, double maxZ) {
     }
 
     private static VoxelShape shape(double... bounds) {

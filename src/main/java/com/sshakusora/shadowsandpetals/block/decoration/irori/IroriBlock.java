@@ -19,7 +19,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.crafting.RecipePropertySet;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -274,37 +273,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         if (stack.is(Items.IRON_INGOT)) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (!(blockEntity instanceof IroriBlockEntity irori)) {
-                return InteractionResult.PASS;
-            }
-
-            IroriBlockEntity master = irori.resolveMaster();
-            if (master.hasInstalledGrill()) {
-                return InteractionResult.PASS;
-            }
-            if (level.isClientSide()) {
-                return InteractionResult.SUCCESS;
-            }
-            if (!master.installGrill()) {
-                return InteractionResult.PASS;
-            }
-
-            if (!player.isCreative()) {
-                stack.shrink(1);
-            }
-            level.playSound(
-                    null,
-                    master.getBlockPos(),
-                    SoundEvents.METAL_PLACE,
-                    SoundSource.BLOCKS,
-                    0.9F,
-                    0.95F + level.getRandom().nextFloat() * 0.1F
-            );
-            level.gameEvent(player, GameEvent.BLOCK_CHANGE, master.getBlockPos());
-            master.setChanged();
-            master.syncToClient();
-            return InteractionResult.SUCCESS_SERVER;
+            return interactWithBaseItem(stack, level, pos, player, hand);
         }
 
         if (player.isSecondaryUseActive()) {
@@ -324,27 +293,9 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return InteractionResult.PASS;
         }
 
-        boolean hasAsh = master.hasAsh();
-        if (hasAsh) {
-            if (!level.isClientSide()) {
-                master.clearAshAndDropResults();
-            }
-            return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
-        }
-
-        if (isIgnitionItem(stack)) {
-            if (!master.canIgnite()) {
-                return InteractionResult.PASS;
-            }
-            if (level.isClientSide()) {
-                return InteractionResult.SUCCESS;
-            }
-            if (!master.tryIgnite(level, level.getRandom())) {
-                return InteractionResult.PASS;
-            }
-
-            igniteWithItem(level, pos, player, hand, stack);
-            return InteractionResult.SUCCESS_SERVER;
+        InteractionResult baseResult = interactWithBaseItem(stack, level, pos, player, hand);
+        if (baseResult != InteractionResult.PASS) {
+            return baseResult;
         }
 
         if (stack.getItem() instanceof BlockItem blockItem
@@ -353,12 +304,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return InteractionResult.FAIL;
         }
 
-        boolean builtInCookingInput = level.recipeAccess().propertySet(RecipePropertySet.CAMPFIRE_INPUT).test(stack) || level.recipeAccess().propertySet(RecipePropertySet.SMOKER_INPUT).test(stack);
-        if (level instanceof ServerLevel serverLevel
-                && master.tryPlaceCookingItem(serverLevel, pos, player, stack)) {
-            return InteractionResult.SUCCESS_SERVER;
-        }
-        return builtInCookingInput ? InteractionResult.CONSUME : InteractionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
@@ -390,13 +336,83 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
             return InteractionResult.PASS;
         }
 
-        if (master.hasCookingItem(pos)) {
+        return interactWithBaseEmptyHand(level, pos, player);
+    }
+
+    /** Handles item actions owned by the lower Irori block, excluding cooking. */
+    static InteractionResult interactWithBaseItem(
+            ItemStack stack,
+            Level level,
+            BlockPos pos,
+            Player player,
+            InteractionHand hand
+    ) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof IroriBlockEntity irori)) {
+            return InteractionResult.PASS;
+        }
+
+        IroriBlockEntity master = irori.resolveMaster();
+        if (stack.is(Items.IRON_INGOT)) {
+            if (master.hasInstalledGrill()) {
+                return InteractionResult.PASS;
+            }
+            if (level.isClientSide()) {
+                return InteractionResult.SUCCESS;
+            }
+            if (!master.installGrill()) {
+                return InteractionResult.PASS;
+            }
+
+            if (!player.isCreative()) {
+                stack.shrink(1);
+            }
+            level.playSound(
+                    null,
+                    master.getBlockPos(),
+                    SoundEvents.METAL_PLACE,
+                    SoundSource.BLOCKS,
+                    0.9F,
+                    0.95F + level.getRandom().nextFloat() * 0.1F
+            );
+            level.gameEvent(player, GameEvent.BLOCK_CHANGE, master.getBlockPos());
+            master.setChanged();
+            master.syncToClient();
+            return InteractionResult.SUCCESS_SERVER;
+        }
+
+        if (master.hasAsh()) {
             if (!level.isClientSide()) {
-                master.takeCookingItem(pos, player);
+                master.clearAshAndDropResults();
             }
             return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
+        if (!isIgnitionItem(stack)) {
+            return InteractionResult.PASS;
+        }
+        if (!master.canIgnite()) {
+            return InteractionResult.PASS;
+        }
+        if (level.isClientSide()) {
+            return InteractionResult.SUCCESS;
+        }
+        if (!master.tryIgnite(level, level.getRandom())) {
+            return InteractionResult.PASS;
+        }
+
+        igniteWithItem(level, pos, player, hand, stack);
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    /** Handles empty-hand actions owned by the lower Irori block, excluding cooking retrieval. */
+    static InteractionResult interactWithBaseEmptyHand(Level level, BlockPos pos, Player player) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (!(blockEntity instanceof IroriBlockEntity irori)) {
+            return InteractionResult.PASS;
+        }
+
+        IroriBlockEntity master = irori.resolveMaster();
         if (!master.hasAsh()) {
             return InteractionResult.PASS;
         }
@@ -407,7 +423,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
-    private static InteractionResult openMasterMenu(Level level, BlockPos pos, Player player) {
+    static InteractionResult openMasterMenu(Level level, BlockPos pos, Player player) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
