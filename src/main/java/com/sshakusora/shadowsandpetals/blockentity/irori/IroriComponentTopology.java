@@ -176,6 +176,15 @@ public final class IroriComponentTopology {
         );
     }
 
+    static boolean hasWaterloggedState(Iterable<Boolean> waterloggedStates) {
+        for (Boolean waterlogged : waterloggedStates) {
+            if (waterlogged) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static ComponentTraversal traverseCandidate(
             BlockGetter level,
             BlockPos origin,

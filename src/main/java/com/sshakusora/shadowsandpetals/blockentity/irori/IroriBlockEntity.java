@@ -601,10 +601,16 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         if (!blockEntity.isValidMaster() || !blockEntity.getBlockPos().equals(pos)) {
             return;
         }
-        if (state.getValue(IroriBlock.WATERLOGGED)) {
+        Set<BlockPos> component = IroriComponentTopology.collectConnectedComponent(level, pos);
+        List<Boolean> componentWaterlogged = component.stream()
+                .map(level::getBlockState)
+                .map(componentState -> componentState.hasProperty(IroriBlock.WATERLOGGED)
+                        && componentState.getValue(IroriBlock.WATERLOGGED))
+                .toList();
+        if (IroriComponentTopology.hasWaterloggedState(componentWaterlogged)) {
             if (blockEntity.fuelState.isBurning()) {
                 blockEntity.fuelState.extinguish(level.getRandom(), level);
-                syncFirewoodLightState(level, IroriComponentTopology.collectConnectedComponent(level, pos), pos, false);
+                syncFirewoodLightState(level, component, pos, false);
                 blockEntity.setChanged();
                 blockEntity.syncToClient();
             }
