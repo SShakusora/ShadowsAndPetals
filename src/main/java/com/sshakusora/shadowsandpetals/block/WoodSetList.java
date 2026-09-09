@@ -259,7 +259,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
                 .tooltipDescription(WoodSetList::woodPostTooltip)
-                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_POSTS)
+                .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate(() -> (context, generator) -> WoodBlockModels.post(
                         context,
@@ -288,7 +288,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
                 .tooltipDescription(WoodSetList::woodPostTooltip)
-                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_POSTS)
+                .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_STRIPPED_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate(() -> (context, generator) -> WoodBlockModels.post(
                         context,
@@ -317,7 +317,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
                 .tooltipDescription(WoodSetList::woodPostTooltip)
-                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_WOOD_POSTS)
+                .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_WOOD_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate(() -> (context, generator) -> WoodBlockModels.post(
                         context,
@@ -346,7 +346,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .tags(BlockTags.MINEABLE_WITH_AXE)
                 .withItem()
                 .tooltipDescription(WoodSetList::woodPostTooltip)
-                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_WOOD_POSTS)
+                .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_STRIPPED_WOOD_POSTS)
                 .lang("zh_cn", zhName)
                 .blockstate(() -> (context, generator) -> WoodBlockModels.post(
                         context,

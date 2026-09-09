@@ -5,8 +5,9 @@ package com.sshakusora.shadowsandpetals.registries;
  * The registered tab holders live in {@link CreativeTabRegistry}.
  */
 public enum CreativeTabKey {
-    MAIN,
     NATURE,
-    AGRICULTURE,
-    COOKING
+    ARCHITECTURE,
+    FURNISHINGS,
+    TRADITIONS,
+    CUISINE
 }

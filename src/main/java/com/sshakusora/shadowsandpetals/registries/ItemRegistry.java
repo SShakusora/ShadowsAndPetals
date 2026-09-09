@@ -23,7 +23,7 @@ public class ItemRegistry {
             .properties(properties -> properties.craftRemainder(Items.BUCKET).stacksTo(1))
             .customClientItem(ShadowsAndPetals.asResource("tea_bucket"))
             .lang(DatagenLangRegistry.ZH_CN, "茶桶")
-            .creativeTab(CreativeTabKey.MAIN)
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_TEA)
             .register();
 
     public static final DeferredItem<BlockItem> ORANGE_SEED = SAPRegistries.item(
@@ -32,7 +32,7 @@ public class ItemRegistry {
             )
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "蜜柑种子")
-            .creativeTab(CreativeTabKey.AGRICULTURE)
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
             .register();
 
     public static final DeferredItem<Item> ORANGE = SAPRegistries.item("orange")
@@ -48,34 +48,34 @@ public class ItemRegistry {
                         .save(provider.output());
             })
             .lang(DatagenLangRegistry.ZH_CN, "蜜柑")
-            .creativeTab(CreativeTabKey.AGRICULTURE)
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
             .register();
 
     public static final DeferredItem<Item> BEAN_POD =
-            registerAgricultureItem("bean_pod", "豆荚");
+            registerCuisineCropItem("bean_pod", "豆荚");
 
     public static final DeferredItem<Item> CHINESE_CABBAGE =
-            registerAgricultureItem("chinese_cabbage", "白菜");
+            registerCuisineCropItem("chinese_cabbage", "白菜");
 
     public static final DeferredItem<Item> STRAW =
-            registerAgricultureItem("straw", "稻草");
+            registerCuisineCropItem("straw", "稻草");
 
     public static final DeferredItem<Item> CORN =
-            registerAgricultureItem("corn", "玉米");
+            registerCuisineCropItem("corn", "玉米");
 
     public static final DeferredItem<Item> DRIED_RICE =
-            registerAgricultureItem("dried_rice", "干水稻");
+            registerCuisineCropItem("dried_rice", "干水稻");
 
     public static final DeferredItem<Item> RICE =
-            registerAgricultureItem("rice", "水稻");
+            registerCuisineCropItem("rice", "水稻");
 
     public static final DeferredItem<Item> CABBAGE =
-            registerAgricultureItem("cabbage", "卷心菜");
+            registerCuisineCropItem("cabbage", "卷心菜");
 
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "粗矾土")
-            .creativeTab(CreativeTabKey.MAIN)
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
             .register();
 
     public static final DeferredItem<Item> ALUMINUM_INGOT = SAPRegistries.item("aluminum_ingot")
@@ -89,13 +89,13 @@ public class ItemRegistry {
                         .save(provider.output(), provider.id("aluminum_ingot_from_blasting").toString());
             })
             .lang(DatagenLangRegistry.ZH_CN, "铝锭")
-            .creativeTab(CreativeTabKey.MAIN)
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
             .register();
 
     public static final DeferredItem<Item> CLAM = SAPRegistries.item("clam")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "蛤蜊")
-            .creativeTab(CreativeTabKey.AGRICULTURE)
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
             .register();
 
     public static final DeferredItem<Item> CHISEL = SAPRegistries.item("chisel")
@@ -115,7 +115,7 @@ public class ItemRegistry {
                         .save(provider.output());
             })
             .lang(DatagenLangRegistry.ZH_CN, "凿子")
-            .creativeTab(CreativeTabKey.MAIN)
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_TOOLS)
             .register();
 
     public static final DeferredItem<HammerItem> HAMMER = SAPRegistries.item("hammer", HammerItem::new)
@@ -137,7 +137,7 @@ public class ItemRegistry {
                         .save(provider.output());
             })
             .lang(DatagenLangRegistry.ZH_CN, "锤子")
-            .creativeTab(CreativeTabKey.MAIN)
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_TOOLS)
             .register();
 
     public static final DeferredItem<HarrowItem> HARROW = SAPRegistries.item("harrow", HarrowItem::new)
@@ -165,14 +165,15 @@ public class ItemRegistry {
                         .save(provider.output());
             })
             .lang(DatagenLangRegistry.ZH_CN, "耙子")
-            .creativeTab(CreativeTabKey.MAIN)
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_TOOLS)
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_TOOLS)
             .register();
 
-    private static DeferredItem<Item> registerAgricultureItem(String id, String zhName) {
+    private static DeferredItem<Item> registerCuisineCropItem(String id, String zhName) {
         return SAPRegistries.item(id)
                 .model(() -> (context, generator) -> generator.generatedItem(context.get()))
                 .lang(DatagenLangRegistry.ZH_CN, zhName)
-                .creativeTab(CreativeTabKey.AGRICULTURE)
+                .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
                 .register();
     }
 
