@@ -51,6 +51,27 @@ public class ItemRegistry {
             .creativeTab(CreativeTabKey.AGRICULTURE)
             .register();
 
+    public static final DeferredItem<Item> BEAN_POD =
+            registerAgricultureItem("bean_pod", "豆荚");
+
+    public static final DeferredItem<Item> CHINESE_CABBAGE =
+            registerAgricultureItem("chinese_cabbage", "白菜");
+
+    public static final DeferredItem<Item> STRAW =
+            registerAgricultureItem("straw", "稻草");
+
+    public static final DeferredItem<Item> CORN =
+            registerAgricultureItem("corn", "玉米");
+
+    public static final DeferredItem<Item> DRIED_RICE =
+            registerAgricultureItem("dried_rice", "干水稻");
+
+    public static final DeferredItem<Item> RICE =
+            registerAgricultureItem("rice", "水稻");
+
+    public static final DeferredItem<Item> CABBAGE =
+            registerAgricultureItem("cabbage", "卷心菜");
+
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "粗矾土")
@@ -146,6 +167,14 @@ public class ItemRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "耙子")
             .creativeTab(CreativeTabKey.MAIN)
             .register();
+
+    private static DeferredItem<Item> registerAgricultureItem(String id, String zhName) {
+        return SAPRegistries.item(id)
+                .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+                .lang(DatagenLangRegistry.ZH_CN, zhName)
+                .creativeTab(CreativeTabKey.AGRICULTURE)
+                .register();
+    }
 
     public static void init() {}
 }
