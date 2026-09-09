@@ -1,63 +1,33 @@
 {
   "variants": {
-    "facing=east,on_irori=false,waterlogged=false": {
+    "facing=east,waterlogged=false": {
       "model": "shadowsandpetals:block/teapot/copper/main",
       "y": 90
     },
-    "facing=east,on_irori=false,waterlogged=true": {
+    "facing=east,waterlogged=true": {
       "model": "shadowsandpetals:block/teapot/copper/main",
       "y": 90
     },
-    "facing=east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
-    },
-    "facing=east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
-    },
-    "facing=north,on_irori=false,waterlogged=false": {
+    "facing=north,waterlogged=false": {
       "model": "shadowsandpetals:block/teapot/copper/main"
     },
-    "facing=north,on_irori=false,waterlogged=true": {
+    "facing=north,waterlogged=true": {
       "model": "shadowsandpetals:block/teapot/copper/main"
     },
-    "facing=north,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=south,on_irori=false,waterlogged=false": {
+    "facing=south,waterlogged=false": {
       "model": "shadowsandpetals:block/teapot/copper/main",
       "y": 180
     },
-    "facing=south,on_irori=false,waterlogged=true": {
+    "facing=south,waterlogged=true": {
       "model": "shadowsandpetals:block/teapot/copper/main",
       "y": 180
     },
-    "facing=south,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=west,on_irori=false,waterlogged=false": {
+    "facing=west,waterlogged=false": {
       "model": "shadowsandpetals:block/teapot/copper/main",
       "y": 270
     },
-    "facing=west,on_irori=false,waterlogged=true": {
+    "facing=west,waterlogged=true": {
       "model": "shadowsandpetals:block/teapot/copper/main",
-      "y": 270
-    },
-    "facing=west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
       "y": 270
     }
   }

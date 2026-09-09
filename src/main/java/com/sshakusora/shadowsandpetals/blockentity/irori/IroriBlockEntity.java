@@ -1,6 +1,5 @@
 package com.sshakusora.shadowsandpetals.blockentity.irori;
 
-import com.sshakusora.shadowsandpetals.block.decoration.CopperTeapotBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.*;
 import com.sshakusora.shadowsandpetals.blockentity.CopperTeapotBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState.FirewoodModel;
@@ -760,8 +759,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
             if (current.getBlock() instanceof IroriGrillCopperTeapotBlock) {
                 BlockState updated = current
                         .setValue(IroriGrillBlock.GRILL_PART, entry.getValue())
-                        .setValue(IroriGrillBlock.WATERLOGGED, waterlogged)
-                        .setValue(CopperTeapotBlock.ON_IRORI, true);
+                        .setValue(IroriGrillBlock.WATERLOGGED, waterlogged);
                 if (!current.equals(updated)) {
                     level.setBlock(upperPos, updated, Block.UPDATE_ALL);
                 }

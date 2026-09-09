@@ -225,7 +225,7 @@ public class BlockRegistry {
                     .sound(SoundType.COPPER)
                     .noOcclusion()
                     .requiresCorrectToolForDrops())
-            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.REQUIRES_IRORI_GRILL)
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withCustomItem(CopperTeapotBlockItem::new)
             .creativeTab(CreativeTabKey.MAIN)
             .tooltipDescription(tooltip -> tooltip
@@ -449,9 +449,9 @@ public class BlockRegistry {
                     .noOcclusion()
                     .requiresCorrectToolForDrops()
                     .pushReaction(PushReaction.BLOCK))
-            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.REQUIRES_IRORI_GRILL)
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.OCCUPIES_IRORI_GRILL_SURFACE)
             .blockstate(() -> DecorationBlockModels::iroriGrillCopperTeapot)
-            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .loot((provider, block) -> provider.dropOther(block.get(), COPPER_TEAPOT.get()))
             .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Copper Teapot")
             .lang(DatagenLangRegistry.ZH_CN, "铜茶壶")
             .register();

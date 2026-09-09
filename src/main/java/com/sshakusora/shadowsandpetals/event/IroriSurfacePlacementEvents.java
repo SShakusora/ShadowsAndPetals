@@ -15,7 +15,7 @@ public final class IroriSurfacePlacementEvents {
 
     @SubscribeEvent
     public static void onBlockPlaced(BlockEvent.EntityPlaceEvent event) {
-        if (!event.getPlacedBlock().is(BlockTagRegistry.REQUIRES_IRORI_GRILL)) {
+        if (!event.getPlacedBlock().is(BlockTagRegistry.OCCUPIES_IRORI_GRILL_SURFACE)) {
             return;
         }
 

@@ -348,7 +348,7 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
         }
 
         if (stack.getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock().defaultBlockState().is(BlockTagRegistry.REQUIRES_IRORI_GRILL)
+                && blockItem.getBlock().defaultBlockState().is(BlockTagRegistry.OCCUPIES_IRORI_GRILL_SURFACE)
                 && master.isSurfacePositionOccupied(pos)) {
             return InteractionResult.FAIL;
         }

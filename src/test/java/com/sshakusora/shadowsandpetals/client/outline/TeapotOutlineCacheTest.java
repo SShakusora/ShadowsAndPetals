@@ -41,7 +41,7 @@ class TeapotOutlineCacheTest {
     }
 
     @Test
-    void onIroriOutlinesFollowTheTranslatedBlockStateModel() throws IOException {
+    void raisedOutlinesFollowTheTranslatedBlockStateModel() throws IOException {
         OutlineGeometry base = RockeryOutlineGeometry.fromModel(loadModel());
         assertNotNull(base);
         Map<Boolean, Map<Direction, OutlineGeometry>> directions = TeapotOutlineCache.buildDirections(base);

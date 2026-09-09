@@ -54,6 +54,10 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
         add(block, createOreDrop(block, item.asItem()));
     }
 
+    public void dropOther(Block block, ItemLike item) {
+        add(block, createSingleItemTable(item));
+    }
+
     /**
      * Drops the item only when the broken block state is the lower half,
      * like vanilla doors: one item per curtain no matter which half broke.

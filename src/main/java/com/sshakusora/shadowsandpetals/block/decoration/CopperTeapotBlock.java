@@ -1,7 +1,6 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.blockentity.CopperTeapotBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
@@ -43,7 +42,6 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
     public static final MapCodec<CopperTeapotBlock> CODEC = simpleCodec(CopperTeapotBlock::new);
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    public static final BooleanProperty ON_IRORI = BooleanProperty.create("on_irori");
     public static final double IRORI_RENDER_OFFSET = 5.0D / 16.0D;
 
     private static final VoxelShape NORTH_SHAPE = Shapes.or(
@@ -62,19 +60,18 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
             Block.box(5.5D, 1.0D, 5.5D, 10.5D, 2.0D, 10.5D)
     );
     private static final Map<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class);
-    private static final Map<Direction, VoxelShape> ON_IRORI_SHAPES = new EnumMap<>(Direction.class);
+    private static final Map<Direction, VoxelShape> IRORI_SHAPES = new EnumMap<>(Direction.class);
 
     static {
         SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE));
-        ON_IRORI_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE.move(0.0D, IRORI_RENDER_OFFSET, 0.0D)));
+        IRORI_SHAPES.putAll(VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE.move(0.0D, IRORI_RENDER_OFFSET, 0.0D)));
     }
 
     public CopperTeapotBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(WATERLOGGED, false)
-                .setValue(ON_IRORI, false));
+                .setValue(WATERLOGGED, false));
     }
 
     @Override
@@ -108,11 +105,9 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
             return null;
         }
 
-        BlockState belowState = context.getLevel().getBlockState(belowPos);
         return defaultBlockState()
                 .setValue(FACING, context.getHorizontalDirection().getOpposite())
-                .setValue(WATERLOGGED, context.getLevel().getFluidState(placementPos).getType() == Fluids.WATER)
-                .setValue(ON_IRORI, IroriBlock.hasGrill(belowState));
+                .setValue(WATERLOGGED, context.getLevel().getFluidState(placementPos).getType() == Fluids.WATER);
     }
 
     @Override
@@ -136,11 +131,6 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        boolean onIrori = IroriBlock.hasGrill(level.getBlockState(pos.below()));
-        if (state.getValue(ON_IRORI) != onIrori) {
-            state = state.setValue(ON_IRORI, onIrori);
-            level.setBlock(pos, state, Block.UPDATE_ALL);
-        }
         if (level.getBlockEntity(pos) instanceof CopperTeapotBlockEntity teapot) {
             teapot.recheckOpen();
         }
@@ -167,9 +157,6 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
         if (state.getValue(WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        if (direction == Direction.DOWN) {
-            state = state.setValue(ON_IRORI, IroriBlock.hasGrill(neighborState));
-        }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
@@ -180,7 +167,7 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED, ON_IRORI);
+        builder.add(FACING, WATERLOGGED);
     }
 
     @Override
@@ -195,7 +182,10 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Map<Direction, VoxelShape> shapes = state.getValue(ON_IRORI) ? ON_IRORI_SHAPES : SHAPES;
-        return shapes.get(state.getValue(FACING));
+        return SHAPES.get(state.getValue(FACING));
+    }
+
+    protected static VoxelShape getIroriShape(Direction facing) {
+        return IRORI_SHAPES.get(facing);
     }
 }

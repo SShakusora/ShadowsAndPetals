@@ -1,4 +1,4 @@
-// 26.1.2	2026-09-09T12:32:22.4804864	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-09-09T17:07:26.5747231	Tags for minecraft:block mod id shadowsandpetals
 853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
 9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/fences.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/block/fence_gates.json
@@ -23,5 +23,5 @@ c1c91c0ef279b763580b2fbc41d6853e9b25ef2b data/minecraft/tags/block/overworld_nat
 6bc11a2d4177a0d9611945df44d13193b6a789ff data/minecraft/tags/block/wooden_slabs.json
 9644ee46dbcf0b61308350c014ab90f94fb07807 data/minecraft/tags/block/wooden_stairs.json
 612c5ab318233536442a3066b18af4f9c0f6825c data/minecraft/tags/block/wool.json
-377ec77dc59d395a2054c76a570afb38102cf0e2 data/shadowsandpetals/tags/block/requires_irori_grill.json
+f4bd83cf9e2e690b3e36110dc030848de93d65f9 data/shadowsandpetals/tags/block/occupies_irori_grill_surface.json
 ec58bd8d4702fc49cc7ac761f4d1674e1ffa2234 data/shadowsandpetals/tags/block/wood_post_hanging_connections.json

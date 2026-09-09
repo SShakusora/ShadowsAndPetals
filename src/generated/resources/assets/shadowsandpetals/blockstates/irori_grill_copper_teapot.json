@@ -1,543 +1,273 @@
 {
   "variants": {
-    "facing=east,grill_part=quad_north_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_north_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_north_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_north_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_north_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_south_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_south_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_south_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_north_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=quad_south_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=single,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=single,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_north,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_north,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_south,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=quad_south_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_south,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=single,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=single,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=east,grill_part=strip_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 90
     },
-    "facing=east,grill_part=single,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_north_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=single,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_north_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_north_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_north_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_south_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_south_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_north,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_south_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_north,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=quad_south_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_north,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=single,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_north,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=single,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_south,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_south,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_south,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_north,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_south,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_north,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_south,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_south,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=east,grill_part=strip_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 90
+    "facing=north,grill_part=strip_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill"
     },
-    "facing=north,grill_part=quad_north_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_north_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=quad_south_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=single,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=single,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=single,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=single,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_north,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_north,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_north,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_north,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_south,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_south,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_south,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_south,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=north,grill_part=strip_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori"
-    },
-    "facing=south,grill_part=quad_north_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_north_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_north_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_north_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_north_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_south_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_south_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_south_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_north_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=quad_south_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=single,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=single,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_north,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_north,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_south,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=quad_south_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_south,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=single,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=single,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=south,grill_part=strip_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 180
     },
-    "facing=south,grill_part=single,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=single,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_north,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_north,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_north,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_north,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_south,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_south,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_south,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_south,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=south,grill_part=strip_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 180
-    },
-    "facing=west,grill_part=quad_north_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_north_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_north_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_north_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_north_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_south_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_south_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_south_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_north_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=quad_south_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=single,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=single,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_east,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_east,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_north,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_north,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_south,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=quad_south_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_south,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=single,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_west,waterlogged=false": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     },
-    "facing=west,grill_part=single,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=single,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=single,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_east,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_east,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_east,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_east,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_north,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_north,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_north,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_north,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_south,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_south,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_south,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_south,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_west,on_irori=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_west,on_irori=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_west,on_irori=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
-      "y": 270
-    },
-    "facing=west,grill_part=strip_west,on_irori=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/teapot/copper/main_on_irori",
+    "facing=west,grill_part=strip_west,waterlogged=true": {
+      "model": "shadowsandpetals:block/teapot/copper/main_on_grill",
       "y": 270
     }
   }

@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.block.decoration.CopperTeapotBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
 import com.sshakusora.shadowsandpetals.blockentity.CopperTeapotBlockEntity;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.util.MathUtils;
@@ -59,7 +60,7 @@ public class CopperTeapotBlockEntityRenderer implements
         BlockState blockState = blockEntity.getBlockState();
         state.facing = blockState.getValue(CopperTeapotBlock.FACING);
         state.lidProgress = blockEntity.getLidProgress(partialTicks);
-        state.onIrori = blockState.getValue(CopperTeapotBlock.ON_IRORI);
+        state.raised = blockState.getBlock() instanceof IroriGrillCopperTeapotBlock;
 
         if (blockEntity.getLevel() == null) {
             return;
@@ -104,7 +105,7 @@ public class CopperTeapotBlockEntityRenderer implements
         poseStack.translate(-0.5D, 0.0D, -0.5D);
         poseStack.translate(
                 0.0D,
-                (state.onIrori ? CopperTeapotBlock.IRORI_RENDER_OFFSET : 0.0D)
+                (state.raised ? CopperTeapotBlock.IRORI_RENDER_OFFSET : 0.0D)
                         + MathUtils.easeOutCubic(state.lidProgress) * CopperTeapotBlockEntity.MAX_LID_LIFT,
                 0.0D
         );
@@ -131,6 +132,6 @@ public class CopperTeapotBlockEntityRenderer implements
         public Direction facing = Direction.NORTH;
         public float lidProgress;
         public boolean lidHasTranslucency;
-        public boolean onIrori;
+        public boolean raised;
     }
 }

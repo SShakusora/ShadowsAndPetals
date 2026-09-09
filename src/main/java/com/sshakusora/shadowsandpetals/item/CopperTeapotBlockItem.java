@@ -60,7 +60,6 @@ public final class CopperTeapotBlockItem extends BlockItem {
                 .defaultBlockState()
                 .setValue(CopperTeapotBlock.FACING, context.getHorizontalDirection().getOpposite())
                 .setValue(CopperTeapotBlock.WATERLOGGED, compositeContext.waterlogged)
-                .setValue(CopperTeapotBlock.ON_IRORI, true)
                 .setValue(IroriGrillBlock.GRILL_PART, compositeContext.part);
         return canPlace(context, placementState) ? placementState : null;
     }

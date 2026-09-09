@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.block.decoration.irori;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriBlockEntity;
+import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -183,6 +184,17 @@ public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlo
                 player,
                 hitResult
         );
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(
+            LevelReader level,
+            BlockPos pos,
+            BlockState state,
+            boolean includeData,
+            Player player
+    ) {
+        return BlockRegistry.IRORI.toStack();
     }
 
     public static boolean isValidLower(BlockState state) {

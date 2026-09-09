@@ -82,7 +82,7 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
             BlockState state,
             Map<Boolean, Map<Direction, OutlineGeometry>> outlines
     ) {
-        Map<Direction, OutlineGeometry> byDirection = outlines.get(state.getValue(CopperTeapotBlock.ON_IRORI));
+        Map<Direction, OutlineGeometry> byDirection = outlines.get(false);
         return byDirection == null ? null : byDirection.get(state.getValue(CopperTeapotBlock.FACING));
     }
 
@@ -135,7 +135,7 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
     }
 
     static Map<Boolean, Map<Direction, OutlineGeometry>> buildDirections(OutlineGeometry base) {
-        OutlineGeometry onIrori = RockeryOutlineGeometry.translate(
+        OutlineGeometry raised = RockeryOutlineGeometry.translate(
                 base,
                 0.0D,
                 CopperTeapotBlock.IRORI_RENDER_OFFSET * MODEL_UNITS_PER_BLOCK,
@@ -143,7 +143,7 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
         );
         return Map.of(
                 false, buildHorizontalDirections(base),
-                true, buildHorizontalDirections(onIrori)
+                true, buildHorizontalDirections(raised)
         );
     }
 

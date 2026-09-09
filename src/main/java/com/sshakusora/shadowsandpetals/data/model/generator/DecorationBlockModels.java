@@ -130,12 +130,7 @@ public final class DecorationBlockModels {
     ) {
         CopperTeapotBlock block = context.get();
         Identifier main = generator.modLoc("block/teapot/copper/main");
-        Identifier mainOnIrori = generator.modLoc("block/teapot/copper/main_on_irori");
-        generator.translatedParentModel(mainOnIrori, main, 0.0F, 0.3125F, 0.0F);
-        generator.blockState(MultiVariantGenerator.dispatch(block)
-                .with(PropertyDispatch.initial(CopperTeapotBlock.ON_IRORI)
-                        .select(false, BlockModelGenerators.plainVariant(main))
-                        .select(true, BlockModelGenerators.plainVariant(mainOnIrori)))
+        generator.blockState(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(main))
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
                 .with(PropertyDispatch.modify(CopperTeapotBlock.WATERLOGGED)
                         .select(false, BlockModelGenerators.NOP)
@@ -147,11 +142,10 @@ public final class DecorationBlockModels {
             SAPBlockModelGenerator generator
     ) {
         IroriGrillCopperTeapotBlock block = context.get();
-        Identifier model = generator.modLoc("block/teapot/copper/main_on_irori");
-        generator.blockState(MultiVariantGenerator.dispatch(block)
-                .with(PropertyDispatch.initial(CopperTeapotBlock.ON_IRORI)
-                        .select(false, BlockModelGenerators.plainVariant(model))
-                        .select(true, BlockModelGenerators.plainVariant(model)))
+        Identifier main = generator.modLoc("block/teapot/copper/main");
+        Identifier model = generator.modLoc("block/teapot/copper/main_on_grill");
+        generator.translatedParentModel(model, main, 0.0F, 0.3125F, 0.0F);
+        generator.blockState(MultiVariantGenerator.dispatch(block, BlockModelGenerators.plainVariant(model))
                 .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
                 .with(PropertyDispatch.modify(CopperTeapotBlock.WATERLOGGED)
                         .select(false, BlockModelGenerators.NOP)
