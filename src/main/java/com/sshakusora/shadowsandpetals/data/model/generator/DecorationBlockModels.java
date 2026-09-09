@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.data.model.generator;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelContext;
 import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
@@ -139,6 +140,32 @@ public final class DecorationBlockModels {
                 .with(PropertyDispatch.modify(CopperTeapotBlock.WATERLOGGED)
                         .select(false, BlockModelGenerators.NOP)
                         .select(true, BlockModelGenerators.NOP)));
+    }
+
+    public static void iroriGrillCopperTeapot(
+            BlockModelContext<? extends IroriGrillCopperTeapotBlock> context,
+            SAPBlockModelGenerator generator
+    ) {
+        IroriGrillCopperTeapotBlock block = context.get();
+        Identifier model = generator.modLoc("block/teapot/copper/main_on_irori");
+        generator.blockState(MultiVariantGenerator.dispatch(block)
+                .with(PropertyDispatch.initial(CopperTeapotBlock.ON_IRORI)
+                        .select(false, BlockModelGenerators.plainVariant(model))
+                        .select(true, BlockModelGenerators.plainVariant(model)))
+                .with(BlockModelGenerators.ROTATION_HORIZONTAL_FACING)
+                .with(PropertyDispatch.modify(CopperTeapotBlock.WATERLOGGED)
+                        .select(false, BlockModelGenerators.NOP)
+                        .select(true, BlockModelGenerators.NOP))
+                .with(PropertyDispatch.modify(IroriGrillBlock.GRILL_PART)
+                        .select(IroriGrillPart.SINGLE, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.STRIP_NORTH, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.STRIP_SOUTH, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.STRIP_WEST, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.STRIP_EAST, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.QUAD_NORTH_WEST, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.QUAD_NORTH_EAST, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.QUAD_SOUTH_WEST, BlockModelGenerators.NOP)
+                        .select(IroriGrillPart.QUAD_SOUTH_EAST, BlockModelGenerators.NOP)));
     }
 
     public static void bedroomLamp(

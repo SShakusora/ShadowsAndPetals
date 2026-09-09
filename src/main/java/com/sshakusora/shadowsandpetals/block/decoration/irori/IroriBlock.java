@@ -529,10 +529,9 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
 
     private static IroriGrillPart resolveGrillPart(BlockGetter level, BlockPos pos) {
         BlockState upperState = level.getBlockState(pos.above());
-        if (upperState.getBlock() instanceof IroriGrillBlock
-                && upperState.hasProperty(IroriGrillBlock.GRILL_PART)) {
-            IroriGrillPart part = upperState.getValue(IroriGrillBlock.GRILL_PART);
-            if (hasGrill(level.getBlockState(part.masterPosition(pos.above())))) {
+        if (IroriGrillPartHolder.isGrillPart(upperState)) {
+            IroriGrillPart part = IroriGrillPartHolder.getGrillPart(upperState);
+            if (hasGrill(level.getBlockState(IroriGrillPartHolder.masterPosition(pos.above(), upperState)))) {
                 return part;
             }
         }

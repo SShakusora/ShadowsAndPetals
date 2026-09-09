@@ -32,7 +32,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlock {
+public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlock, IroriGrillPartHolder {
     public static final MapCodec<IroriGrillBlock> CODEC = simpleCodec(IroriGrillBlock::new);
     public static final EnumProperty<IroriGrillPart> GRILL_PART =
             EnumProperty.create("grill_part", IroriGrillPart.class);
@@ -133,7 +133,12 @@ public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlo
         // to disappear without dropping the component-wide grill; the next
         // Irori reconciliation rebuilds the new footprint.  A direct upper
         // break still has a valid lower support and therefore drops the grill.
-        if (level.getBlockState(pos).getBlock() != this
+        BlockState replacement = level.getBlockState(pos);
+        boolean preservesGrillPart = IroriGrillPartHolder.isGrillPart(replacement)
+                && IroriGrillPartHolder.masterPosition(pos, state)
+                .equals(IroriGrillPartHolder.masterPosition(pos, replacement));
+        if (replacement.getBlock() != this
+                && !preservesGrillPart
                 && isValidLower(level.getBlockState(pos.below()))) {
             IroriBlockEntity.removeInstalledGrill(level, pos.below(), pos, true);
         }
@@ -185,6 +190,6 @@ public final class IroriGrillBlock extends Block implements SimpleWaterloggedBlo
     }
 
     public static BlockPos masterPosition(BlockPos upperPos, BlockState upperState) {
-        return upperState.getValue(GRILL_PART).masterPosition(upperPos);
+        return IroriGrillPartHolder.masterPosition(upperPos, upperState);
     }
 }

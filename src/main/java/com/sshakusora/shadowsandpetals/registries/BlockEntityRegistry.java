@@ -45,7 +45,7 @@ public class BlockEntityRegistry {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CopperTeapotBlockEntity>> COPPER_TEAPOT = SAPRegistries
             .<CopperTeapotBlockEntity>blockEntity("copper_teapot")
             .factory(CopperTeapotBlockEntity::new)
-            .validBlocks(BlockRegistry.COPPER_TEAPOT)
+            .validBlocks(BlockRegistry.COPPER_TEAPOT, BlockRegistry.IRORI_GRILL_COPPER_TEAPOT)
             .register();
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WoodenBarrelBlockEntity>> WOODEN_BARREL = SAPRegistries

@@ -118,6 +118,20 @@ class DynamicBlockStateModelSafetyTest {
         assertNotNull(model.createGeometryKey(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create()));
     }
 
+    @Test
+    void iroriGrillCopperTeapotFallsBackForBreakingOverlayState() {
+        Block block = null;
+        RecordingModel delegate = new RecordingModel();
+        IroriGrillCopperTeapotBlockStateModel model =
+                new IroriGrillCopperTeapotBlockStateModel(block, delegate, Map.of());
+
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create(), parts);
+
+        assertEquals(1, delegate.contextFreeCollects);
+        assertNotNull(model.createGeometryKey(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create()));
+    }
+
     private static final class RecordingModel implements BlockStateModel {
         private int contextFreeCollects;
         private final BlockStateModelPart part = new RecordingPart();

@@ -9,6 +9,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
@@ -17,6 +18,7 @@ import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
+import com.sshakusora.shadowsandpetals.item.CopperTeapotBlockItem;
 import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
 import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelBlockItem;
 import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelTooltipModifier;
@@ -224,7 +226,7 @@ public class BlockRegistry {
                     .noOcclusion()
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.REQUIRES_IRORI_GRILL)
-            .withItem()
+            .withCustomItem(CopperTeapotBlockItem::new)
             .creativeTab(CreativeTabKey.MAIN)
             .tooltipDescription(tooltip -> tooltip
                     .summary(
@@ -437,6 +439,21 @@ public class BlockRegistry {
             .blockstate(() -> DecorationBlockModels::iroriGrill)
             .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
             .lang(DatagenLangRegistry.ZH_CN, "围炉烤架")
+            .register();
+
+    public static final DeferredBlock<IroriGrillCopperTeapotBlock> IRORI_GRILL_COPPER_TEAPOT = SAPRegistries
+            .block("irori_grill_copper_teapot", IroriGrillCopperTeapotBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.BLOCK))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.REQUIRES_IRORI_GRILL)
+            .blockstate(() -> DecorationBlockModels::iroriGrillCopperTeapot)
+            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Copper Teapot")
+            .lang(DatagenLangRegistry.ZH_CN, "铜茶壶")
             .register();
 
     public static final DeferredBlock<BedroomLampBlock> BEDROOM_LAMP = SAPRegistries

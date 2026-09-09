@@ -138,6 +138,7 @@ public class ClientEvents {
         BlockModelRegistry.wrapBlockStateModels(event);
         CTModelRegistry.wrapModels(event);
         BlockModelRegistry.wrapRecessedLampCompositeModels(event);
+        BlockModelRegistry.wrapIroriGrillCopperTeapotModels(event);
     }
 
     @SubscribeEvent

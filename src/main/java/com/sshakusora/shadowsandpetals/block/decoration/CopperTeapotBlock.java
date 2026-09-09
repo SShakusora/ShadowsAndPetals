@@ -78,7 +78,7 @@ public class CopperTeapotBlock extends BaseEntityBlock implements SimpleWaterlog
     }
 
     @Override
-    protected MapCodec<CopperTeapotBlock> codec() {
+    protected MapCodec<? extends CopperTeapotBlock> codec() {
         return CODEC;
     }
 

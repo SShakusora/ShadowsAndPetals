@@ -7,6 +7,8 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
 import com.sshakusora.shadowsandpetals.block.decoration.CopperTeapotBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -21,7 +23,9 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -38,10 +42,12 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
     private static final Identifier RELOAD_ID = ShadowsAndPetals.asResource("teapot_outlines");
     private static final Identifier MAIN_MODEL =
             ShadowsAndPetals.asResource("models/block/teapot/copper/main.json");
+    private static final String GRILL_MODEL_PREFIX = "models/block/grill/double/";
     private static final double MODEL_UNITS_PER_BLOCK = 16.0D;
     private static final TeapotOutlineCache INSTANCE = new TeapotOutlineCache();
 
     private volatile Map<Boolean, Map<Direction, OutlineGeometry>> outlines = Map.of();
+    private volatile Map<IroriGrillPart, Map<Direction, OutlineGeometry>> compositeOutlines = Map.of();
 
     private TeapotOutlineCache() {
     }
@@ -52,12 +58,23 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
      */
     public static void register(AddClientReloadListenersEvent event) {
         BlockOutlineRegistry.register(BlockRegistry.COPPER_TEAPOT.get(), TeapotOutlineCache::getOutline);
+        BlockOutlineRegistry.register(
+                BlockRegistry.IRORI_GRILL_COPPER_TEAPOT.get(),
+                TeapotOutlineCache::getCompositeOutline
+        );
         event.addListener(RELOAD_ID, INSTANCE);
     }
 
     @Nullable
     private static OutlineGeometry getOutline(BlockState state, BlockOutlineContext context) {
         return selectOutline(state, INSTANCE.outlines);
+    }
+
+    @Nullable
+    private static OutlineGeometry getCompositeOutline(BlockState state, BlockOutlineContext context) {
+        Map<Direction, OutlineGeometry> byDirection =
+                INSTANCE.compositeOutlines.get(state.getValue(IroriGrillBlock.GRILL_PART));
+        return byDirection == null ? null : byDirection.get(state.getValue(CopperTeapotBlock.FACING));
     }
 
     @Nullable
@@ -71,28 +88,50 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
 
     @Override
     protected Prepared prepare(ResourceManager manager, ProfilerFiller profiler) {
-        return new Prepared(buildDirections(load(manager)));
+        Map<Boolean, Map<Direction, OutlineGeometry>> teapotOutlines = buildDirections(load(manager, MAIN_MODEL));
+        return new Prepared(
+                teapotOutlines,
+                buildCompositeOutlines(teapotOutlines.get(true), loadGrillOutlines(manager))
+        );
     }
 
     @Override
     protected void apply(Prepared prepared, ResourceManager manager, ProfilerFiller profiler) {
         outlines = prepared.outlines();
-        LOGGER.debug("Loaded model outlines for the copper teapot");
+        compositeOutlines = prepared.compositeOutlines();
+        LOGGER.debug("Loaded model outlines for the copper teapot and its Irori grill composite");
     }
 
-    private static OutlineGeometry load(ResourceManager manager) {
-        Resource resource = manager.getResource(MAIN_MODEL).orElseThrow(() ->
-                new IllegalArgumentException("Missing teapot outline model " + MAIN_MODEL));
+    private static OutlineGeometry load(ResourceManager manager, Identifier modelId) {
+        Resource resource = manager.getResource(modelId).orElseThrow(() ->
+                new IllegalArgumentException("Missing outline model " + modelId));
         try (Reader reader = resource.openAsReader()) {
             JsonObject model = JsonParser.parseReader(reader).getAsJsonObject();
             OutlineGeometry geometry = RockeryOutlineGeometry.fromModel(model);
             if (geometry == null || geometry.lines().isEmpty()) {
-                throw new IllegalArgumentException("Teapot outline model has no visible geometry " + MAIN_MODEL);
+                throw new IllegalArgumentException("Outline model has no visible geometry " + modelId);
             }
             return geometry;
         } catch (IOException | RuntimeException exception) {
-            throw new IllegalArgumentException("Failed to load teapot outline model " + MAIN_MODEL, exception);
+            throw new IllegalArgumentException("Failed to load outline model " + modelId, exception);
         }
+    }
+
+    private static Map<IroriGrillPart, OutlineGeometry> loadGrillOutlines(ResourceManager manager) {
+        EnumMap<IroriGrillPart, OutlineGeometry> result = new EnumMap<>(IroriGrillPart.class);
+        for (IroriGrillPart part : IroriGrillPart.values()) {
+            Identifier modelId = ShadowsAndPetals.asResource(
+                    GRILL_MODEL_PREFIX + part.modelName() + "_upper.json"
+            );
+            result.put(part, orientGrillOutline(part, load(manager, modelId)));
+        }
+        return Map.copyOf(result);
+    }
+
+    static OutlineGeometry orientGrillOutline(IroriGrillPart part, OutlineGeometry geometry) {
+        return part == IroriGrillPart.STRIP_WEST || part == IroriGrillPart.STRIP_EAST
+                ? RockeryOutlineGeometry.rotateClockwise(geometry)
+                : geometry;
     }
 
     static Map<Boolean, Map<Direction, OutlineGeometry>> buildDirections(OutlineGeometry base) {
@@ -117,6 +156,40 @@ public final class TeapotOutlineCache extends SimplePreparableReloadListener<Tea
         return Map.copyOf(result);
     }
 
-    public record Prepared(Map<Boolean, Map<Direction, OutlineGeometry>> outlines) {
+    static Map<IroriGrillPart, Map<Direction, OutlineGeometry>> buildCompositeOutlines(
+            Map<Direction, OutlineGeometry> teapotOutlines,
+            Map<IroriGrillPart, OutlineGeometry> grillOutlines
+    ) {
+        EnumMap<IroriGrillPart, Map<Direction, OutlineGeometry>> result =
+                new EnumMap<>(IroriGrillPart.class);
+        for (IroriGrillPart part : IroriGrillPart.values()) {
+            OutlineGeometry grill = grillOutlines.get(part);
+            if (grill == null) {
+                continue;
+            }
+
+            EnumMap<Direction, OutlineGeometry> byDirection = new EnumMap<>(Direction.class);
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                OutlineGeometry teapot = teapotOutlines.get(direction);
+                if (teapot != null) {
+                    byDirection.put(direction, combine(teapot, grill));
+                }
+            }
+            result.put(part, Map.copyOf(byDirection));
+        }
+        return Map.copyOf(result);
+    }
+
+    static OutlineGeometry combine(OutlineGeometry first, OutlineGeometry second) {
+        List<OutlineGeometry.Line> lines = new ArrayList<>(first.lines().size() + second.lines().size());
+        lines.addAll(first.lines());
+        lines.addAll(second.lines());
+        return OutlineGeometry.of(lines);
+    }
+
+    public record Prepared(
+            Map<Boolean, Map<Direction, OutlineGeometry>> outlines,
+            Map<IroriGrillPart, Map<Direction, OutlineGeometry>> compositeOutlines
+    ) {
     }
 }

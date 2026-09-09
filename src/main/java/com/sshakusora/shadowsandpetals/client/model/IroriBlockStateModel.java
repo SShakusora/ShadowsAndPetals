@@ -1,8 +1,8 @@
 package com.sshakusora.shadowsandpetals.client.model;
 
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
-import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPartHolder;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
@@ -125,11 +125,11 @@ public final class IroriBlockStateModel extends DelegateBlockStateModel implemen
             return null;
         }
         BlockState upperState = level.getBlockState(pos.above());
-        if (!(upperState.getBlock() instanceof IroriGrillBlock)) {
+        if (!IroriGrillPartHolder.isGrillPart(upperState)) {
             return null;
         }
-        IroriGrillPart part = upperState.getValue(IroriGrillBlock.GRILL_PART);
-        BlockPos masterPos = part.masterPosition(pos.above());
+        IroriGrillPart part = IroriGrillPartHolder.getGrillPart(upperState);
+        BlockPos masterPos = IroriGrillPartHolder.masterPosition(pos.above(), upperState);
         if (!IroriBlock.hasGrill(level.getBlockState(masterPos))) {
             return null;
         }

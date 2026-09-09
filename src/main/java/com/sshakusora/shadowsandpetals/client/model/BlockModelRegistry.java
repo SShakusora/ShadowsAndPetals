@@ -6,6 +6,7 @@ import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillPart;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.blockentity.irori.IroriFuelState;
@@ -233,6 +234,25 @@ public final class BlockModelRegistry {
                 state.is(BlockRegistry.RECESSED_LAMP_COMPOSITE.get())
                         ? new RecessedLampCompositeBlockStateModel(
                                 state.getBlock(), model, immutableSlabModels)
+                        : model
+        );
+    }
+
+    public static void wrapIroriGrillCopperTeapotModels(ModelEvent.ModifyBakingResult event) {
+        Map<BlockState, BlockStateModel> bakedModels =
+                Map.copyOf(event.getBakingResult().blockStateModels());
+        Map<BlockState, BlockStateModel> grillModels = new HashMap<>();
+        bakedModels.forEach((state, model) -> {
+            if (state.getBlock() instanceof IroriGrillBlock) {
+                grillModels.put(state, model);
+            }
+        });
+        Map<BlockState, BlockStateModel> immutableGrillModels = Map.copyOf(grillModels);
+
+        event.getBakingResult().blockStateModels().replaceAll((state, model) ->
+                state.is(BlockRegistry.IRORI_GRILL_COPPER_TEAPOT.get())
+                        ? new IroriGrillCopperTeapotBlockStateModel(
+                                state.getBlock(), model, immutableGrillModels)
                         : model
         );
     }
