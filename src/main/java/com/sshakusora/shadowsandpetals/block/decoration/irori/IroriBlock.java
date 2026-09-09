@@ -38,8 +38,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -48,9 +46,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 
 public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
@@ -221,6 +217,15 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     }
 
     @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide() && !oldState.is(this)) {
+            IroriBlockEntity.markTopologyPlacementPending(level, pos);
+            level.scheduleTick(pos, this, 1);
+        }
+    }
+
+    @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         IroriBlockEntity.reconcileComponent(level, pos);
     }
@@ -228,22 +233,9 @@ public class IroriBlock extends BaseEntityBlock implements SimpleWaterloggedBloc
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide() && level.getBlockEntity(pos) instanceof IroriBlockEntity irori) {
-            IroriBlockEntity master = irori.resolveMaster();
-            if (master.getBlockPos().equals(pos)) {
-                master.dropContentsOnRemoval(pos);
-            }
+            irori.ejectContentsForTopologyChange(pos);
         }
         return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
-        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-        if (blockEntity instanceof IroriBlockEntity irori && irori.isValidMaster()) {
-            drops.addAll(irori.getStoredDropsForRemoval());
-        }
-        return List.copyOf(drops);
     }
 
     @Override

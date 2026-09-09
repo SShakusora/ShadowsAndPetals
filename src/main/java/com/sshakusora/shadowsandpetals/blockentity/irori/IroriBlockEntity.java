@@ -54,16 +54,19 @@ import java.util.*;
 public class IroriBlockEntity extends BlockEntity implements Container, MenuProvider {
     private static final String MASTER_POS_KEY = "MasterPos";
     private static final String GRILL_INSTALLED_KEY = "GrillInstalled";
+    private static final String TOPOLOGY_PLACEMENT_PENDING_KEY = "TopologyPlacementPending";
     private static final int MIN_ASH_BONE_MEAL_DROPS = 1;
     private static final int MAX_ASH_BONE_MEAL_DROPS = 3;
     private static final FirewoodRenderOffset ZERO_RENDER_OFFSET = new FirewoodRenderOffset(0.0D, 0.0D);
+    private static final Map<Level, Set<BlockPos>> PENDING_TOPOLOGY_PLACEMENTS = new WeakHashMap<>();
 
     private @Nullable BlockPos masterPos;
     private final IroriFuelState fuelState = new IroriFuelState();
     private final IroriCookingState cookingState = new IroriCookingState();
     private boolean grillInstalled;
-    /** Guards the deliberate block-state churn while a grill footprint is rebuilt. */
     private boolean mutatingGrillStructure;
+    private boolean topologyEjectionInProgress;
+    private boolean topologyPlacementPending;
     private double cachedRenderOffsetX;
     private double cachedRenderOffsetZ;
     private int cachedComponentWidth = 1;
@@ -121,8 +124,19 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     public void onLoad() {
         super.onLoad();
         if (level instanceof ServerLevel serverLevel) {
+            if (consumePendingTopologyPlacement(level, worldPosition)) {
+                topologyPlacementPending = true;
+            }
             serverLevel.scheduleTick(worldPosition, getBlockState().getBlock(), 1);
         }
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState newState) {
+        if (level instanceof ServerLevel && !(newState.getBlock() instanceof IroriBlock)) {
+            ejectContentsForTopologyChange(pos);
+        }
+        super.preRemoveSideEffects(pos, newState);
     }
 
     public IroriBlockEntity getMaster() {
@@ -165,6 +179,42 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
 
     public @Nullable BlockPos getMasterPos() {
         return masterPos;
+    }
+
+    /**
+     * Marks a newly placed cell so its first server reconciliation can distinguish an actual
+     * component expansion or merge from a normal load or neighbor-state refresh.
+     */
+    public static void markTopologyPlacementPending(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        synchronized (PENDING_TOPOLOGY_PLACEMENTS) {
+            PENDING_TOPOLOGY_PLACEMENTS
+                    .computeIfAbsent(level, ignored -> new HashSet<>())
+                    .add(pos.immutable());
+        }
+    }
+
+    private static boolean consumePendingTopologyPlacement(Level level, BlockPos pos) {
+        synchronized (PENDING_TOPOLOGY_PLACEMENTS) {
+            Set<BlockPos> positions = PENDING_TOPOLOGY_PLACEMENTS.get(level);
+            if (positions == null || !positions.remove(pos)) {
+                return false;
+            }
+            if (positions.isEmpty()) {
+                PENDING_TOPOLOGY_PLACEMENTS.remove(level);
+            }
+            return true;
+        }
+    }
+
+    private boolean hasTopologyPlacementPending() {
+        return topologyPlacementPending;
+    }
+
+    private void clearTopologyPlacementPending() {
+        topologyPlacementPending = false;
     }
 
     public boolean canIgnite() {
@@ -295,75 +345,62 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         master.syncToClient();
     }
 
-    public void dropContentsOnRemoval(BlockPos dropPos) {
+    /**
+     * Ejects the shared state before a connected-component topology change.
+     *
+     * <p>The fuel item consumed for the current burn cycle is not reconstructable and is therefore
+     * not refunded.  Fuel remaining in the shared slot, placed cooking contents, a logical grill,
+     * and already formed ash are dropped.  The method is idempotent so both player-destruction and
+     * the block removal callback may invoke it safely.</p>
+     */
+    public boolean ejectContentsForTopologyChange(BlockPos dropPos) {
         if (level == null || level.isClientSide()) {
-            return;
+            return false;
         }
 
         IroriBlockEntity master = resolveMaster();
+        if (master.topologyEjectionInProgress) {
+            return false;
+        }
         if (master.fuelState.isFuelEmpty()
+                && !master.fuelState.isBurning()
+                && master.fuelState.getBurnTimeTotal() <= 0
                 && master.fuelState.getFirewoodModel() == null
                 && master.cookingState.isEmpty()
                 && !master.grillInstalled) {
-            return;
+            return false;
         }
 
-        if (master.grillInstalled) {
-            master.grillInstalled = false;
-            master.mutatingGrillStructure = true;
-            try {
-                master.removeGrillParts(Set.of(), true);
-            } finally {
-                master.mutatingGrillStructure = false;
+        master.topologyEjectionInProgress = true;
+        try {
+            master.dropFuel(dropPos);
+            master.dropCookingContents();
+
+            if (master.grillInstalled) {
+                master.grillInstalled = false;
+                master.mutatingGrillStructure = true;
+                try {
+                    master.removeGrillParts(Set.of(), true);
+                } finally {
+                    master.mutatingGrillStructure = false;
+                }
+                master.refreshGrillState();
+                dropItemStack(level, dropPos, new ItemStack(Items.IRON_INGOT));
             }
-            dropItemStack(level, dropPos, new ItemStack(Items.IRON_INGOT));
-            master.refreshGrillState();
-        }
-        master.dropFuel(dropPos);
-        master.dropCookingContents();
-        if (master.fuelState.isBurning() || master.isAshModel()) {
-            master.dropAshResults(dropPos);
-        }
-        master.resetStoredState();
-        syncFirewoodLightState(level, IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos()), master.getBlockPos(), false);
-        master.setChanged();
-        master.syncToClient();
-    }
 
-    /**
-     * Returns defensive copies of contents that must join the normal block loot path when
-     * the master is removed without going through {@link #dropContentsOnRemoval(BlockPos)}.
-     */
-    public List<ItemStack> getStoredDropsForRemoval() {
-        if (level == null || level.isClientSide()) {
-            return List.of();
-        }
+            if (master.isAshModel()) {
+                master.dropAshResults(dropPos);
+            }
 
-        IroriBlockEntity master = resolveMaster();
-        if (master != this) {
-            return master.getStoredDropsForRemoval();
+            Set<BlockPos> component = IroriComponentTopology.collectConnectedComponent(level, master.getBlockPos());
+            master.resetStoredState();
+            syncFirewoodLightState(level, component, master.getBlockPos(), false);
+            master.setChanged();
+            master.syncToClient();
+            return true;
+        } finally {
+            master.topologyEjectionInProgress = false;
         }
-
-        List<ItemStack> drops = new ArrayList<>();
-        ItemStack fuel = fuelState.getFuelStack();
-        if (!fuel.isEmpty()) {
-            drops.add(fuel.copy());
-        }
-        for (IroriCookingState.PlacedItem item : cookingState.placedItems()) {
-            drops.add(item.stack());
-        }
-        if (master.grillInstalled) {
-            drops.add(new ItemStack(Items.IRON_INGOT));
-        }
-        if (fuelState.isBurning() || isAshModel()) {
-            drops.add(new ItemStack(
-                    Items.BONE_MEAL,
-                    MIN_ASH_BONE_MEAL_DROPS + level.getRandom().nextInt(
-                            MAX_ASH_BONE_MEAL_DROPS - MIN_ASH_BONE_MEAL_DROPS + 1
-                    )
-            ));
-        }
-        return List.copyOf(drops);
     }
 
     public boolean clearAshAndDropResults() {
@@ -529,6 +566,37 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         return cachedComponentWidth > 1 && cachedComponentDepth > 1;
     }
 
+    private static void ejectComponentSourcesForPlacement(
+            ServerLevel level,
+            Set<BlockPos> component,
+            BlockPos placedPos
+    ) {
+        Set<BlockPos> sourceMasterPositions = new HashSet<>();
+        for (BlockPos componentPos : component) {
+            if (componentPos.equals(placedPos)) {
+                continue;
+            }
+            if (level.getBlockEntity(componentPos) instanceof IroriBlockEntity irori) {
+                IroriBlockEntity sourceMaster = irori.resolveMaster();
+                if (!sourceMaster.getBlockPos().equals(placedPos)) {
+                    sourceMasterPositions.add(sourceMaster.getBlockPos());
+                }
+            }
+        }
+
+        for (BlockPos sourceMasterPos : sourceMasterPositions) {
+            if (level.getBlockEntity(sourceMasterPos) instanceof IroriBlockEntity sourceMaster) {
+                sourceMaster.ejectContentsForTopologyChange(placedPos);
+            }
+        }
+
+        for (BlockPos componentPos : component) {
+            if (level.getBlockEntity(componentPos) instanceof IroriBlockEntity irori) {
+                irori.clearTopologyPlacementPending();
+            }
+        }
+    }
+
     public static void reconcileComponent(ServerLevel level, BlockPos origin) {
         if (!(level.getBlockState(origin).getBlock() instanceof IroriBlock)) {
             return;
@@ -540,6 +608,13 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
                 level.scheduleTick(origin, level.getBlockState(origin).getBlock(), 1);
                 return;
             }
+        }
+
+        boolean placementPending = level.getBlockEntity(origin) instanceof IroriBlockEntity placed
+                && placed.hasTopologyPlacementPending();
+        if (placementPending && component.size() > 1) {
+            ejectComponentSourcesForPlacement(level, component, origin);
+            component = IroriComponentTopology.collectConnectedComponent(level, origin);
         }
 
         BlockPos masterPos = IroriComponentTopology.electMaster(component);
@@ -648,6 +723,9 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
         if (masterPos != null) {
             output.putLong(MASTER_POS_KEY, masterPos.asLong());
         }
+        if (topologyPlacementPending) {
+            output.putBoolean(TOPOLOGY_PLACEMENT_PENDING_KEY, true);
+        }
         if (isValidMaster()) {
             if (grillInstalled) {
                 output.putBoolean(GRILL_INSTALLED_KEY, true);
@@ -661,6 +739,7 @@ public class IroriBlockEntity extends BlockEntity implements Container, MenuProv
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         masterPos = input.getLong(MASTER_POS_KEY).map(BlockPos::of).orElse(null);
+        topologyPlacementPending = input.getBooleanOr(TOPOLOGY_PLACEMENT_PENDING_KEY, false);
         grillInstalled = input.getBooleanOr(GRILL_INSTALLED_KEY, false);
         fuelState.load(input);
         cookingState.load(input, worldPosition);
