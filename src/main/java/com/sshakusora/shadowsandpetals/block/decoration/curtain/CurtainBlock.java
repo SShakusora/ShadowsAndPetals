@@ -280,11 +280,22 @@ public class CurtainBlock extends BaseEntityBlock {
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide()
+        if (handlesVanillaPairedBreak()
+                && !level.isClientSide()
                 && (player.isCreative() || !player.hasCorrectToolForDrops(state, level, pos))) {
             DoublePlantBlock.preventDropFromBottomPart(level, pos, state, player);
         }
         return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    /**
+     * Whether the vanilla two-block companion cleanup should run before the
+     * normal player-destruction pipeline. Wider curtains perform their own
+     * atomic teardown and must opt out so this helper cannot remove a part
+     * before that transaction starts.
+     */
+    protected boolean handlesVanillaPairedBreak() {
+        return true;
     }
 
     @Override

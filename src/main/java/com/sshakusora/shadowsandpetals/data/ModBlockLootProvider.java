@@ -84,7 +84,8 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
                         .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
                                 .setProperties(StatePropertiesPredicate.Builder.properties()
                                         .hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
-                                        .hasProperty(column, LargeCurtainBlock.Column.OUTER)))
+                                        .hasProperty(column, LargeCurtainBlock.Column.OUTER)
+                                        .hasProperty(LargeCurtainBlock.ANCHOR, true)))
                         .add(LootItem.lootTableItem(block))
         ));
     }

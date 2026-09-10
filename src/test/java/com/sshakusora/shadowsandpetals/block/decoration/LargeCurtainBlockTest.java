@@ -104,21 +104,6 @@ class LargeCurtainBlockTest {
     }
 
     @Test
-    void breakingAnyNonAnchorPartPlansAnAnchorDropAndPreservesTheHit() {
-        BlockPos anchor = new BlockPos(7, 11, -3);
-        Direction inner = Direction.WEST;
-        BlockPos[] parts = LargeCurtainGeometry.structurePositions(anchor, inner);
-        for (BlockPos hit : parts) {
-            LargeCurtainGeometry.BreakPlan plan = LargeCurtainGeometry.breakPlan(hit, anchor, inner);
-            assertEquals(!hit.equals(anchor), plan.preDropAnchor());
-            assertEquals(anchor, plan.anchor());
-            assertFalse(plan.partsToRemove().contains(hit));
-            assertEquals(3, plan.partsToRemove().size());
-            assertEquals(!hit.equals(anchor), plan.partsToRemove().contains(anchor));
-        }
-    }
-
-    @Test
     void openQuadrantModelsContainTheExpectedRailAndPileGeometry() throws IOException {
         assertEquals(1, elementCount("static/right/open/white/upper_outer.json"));
         assertEquals(0, elementCount("static/right/open/white/lower_outer.json"));
@@ -187,7 +172,7 @@ class LargeCurtainBlockTest {
     }
 
     @Test
-    void generatedLootOnlyTargetsTheLowerOuterAnchor() throws IOException {
+    void generatedLootOnlyTargetsTheExplicitAnchorState() throws IOException {
         for (DyeColor color : DyeColor.values()) {
             String id = color.getName() + "_large_curtain";
             JsonObject loot = loadJson("data/shadowsandpetals/loot_table/blocks/" + id + ".json");
@@ -196,6 +181,7 @@ class LargeCurtainBlockTest {
                     .getAsJsonObject("properties");
             assertEquals("outer", properties.get("column").getAsString(), id);
             assertEquals("lower", properties.get("half").getAsString(), id);
+            assertEquals("true", properties.get("anchor").getAsString(), id);
         }
     }
 

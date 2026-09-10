@@ -8,6 +8,7 @@
           "block": "shadowsandpetals:light_gray_large_curtain",
           "condition": "minecraft:block_state_property",
           "properties": {
+            "anchor": "true",
             "column": "outer",
             "half": "lower"
           }

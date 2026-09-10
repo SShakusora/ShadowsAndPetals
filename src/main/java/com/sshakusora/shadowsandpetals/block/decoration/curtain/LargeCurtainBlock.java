@@ -24,12 +24,16 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Experimental four-block large curtain: each block renders its own
@@ -52,9 +56,9 @@ public class LargeCurtainBlock extends CurtainBlock {
     public static final MapCodec<LargeCurtainBlock> CODEC = simpleCodec(LargeCurtainBlock::new);
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
-    private static final int STRUCTURE_REMOVAL_FLAGS = Block.UPDATE_CLIENTS
-                    | Block.UPDATE_KNOWN_SHAPE
-                    | Block.UPDATE_SUPPRESS_DROPS;
+    private static final int STRUCTURE_REMOVAL_FLAGS = Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS;
+    private static final ThreadLocal<Deque<Set<BlockPos>>> ACTIVE_TEARDOWNS =
+            ThreadLocal.withInitial(ArrayDeque::new);
 
     /** Which column of the two-wide curtain this block is. */
     public enum Column implements StringRepresentable {
@@ -296,6 +300,13 @@ public class LargeCurtainBlock extends CurtainBlock {
             if (direction != expected) {
                 continue;
             }
+            if (isTeardownPosition(pos)) {
+                // CurtainBlock's vertical-pair check would otherwise turn
+                // this part into AIR while the hit block is being removed.
+                // Keep every part alive until the explicit teardown below
+                // removes it with UPDATE_SUPPRESS_DROPS.
+                return state;
+            }
             if (!isSameCurtain(level.getBlockState(neighborPos), state)) {
                 return Blocks.AIR.defaultBlockState();
             }
@@ -335,22 +346,51 @@ public class LargeCurtainBlock extends CurtainBlock {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide()) {
-            // The game-mode removal/drop sequence only calls playerDestroy for
-            // the block the player actually hit. Preserve that sequence for the
-            // hit block and explicitly drop the anchor when a different part is
-            // broken; otherwise updateShape would remove the anchor first and
-            // the lower/outer-only loot table would never be evaluated.
-            BlockPos anchor = anchorOf(pos, state);
-            Direction inner = innerStep(state);
-            LargeCurtainGeometry.BreakPlan breakPlan = LargeCurtainGeometry.breakPlan(pos, anchor, inner);
-            if (breakPlan.preDropAnchor()) {
-                dropAnchorForBreak(level, anchor, state, player);
-            }
-            removeStructure(level, breakPlan, state);
+    protected boolean handlesVanillaPairedBreak() {
+        return false;
+    }
+
+    /**
+     * Removes the complete 2x2 structure as one player-destruction
+     * transaction. The guard keeps the four parts alive while the normal
+     * removal of the hit block sends its neighbor updates, then the remaining
+     * parts are removed with normal notifications but suppressed drops.
+     */
+    @Override
+    public boolean onDestroyedByPlayer(
+            BlockState state,
+            Level level,
+            BlockPos pos,
+            Player player,
+            ItemStack toolStack,
+            boolean willHarvest,
+            FluidState fluid
+    ) {
+        if (level.isClientSide()) {
+            return super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
         }
-        return super.playerWillDestroy(level, pos, state, player);
+
+        BlockPos anchor = anchorOf(pos, state);
+        Set<BlockPos> structure = Set.of(structurePositions(anchor, state));
+        beginTeardown(structure);
+        try {
+            boolean removed = super.onDestroyedByPlayer(state, level, pos, player, toolStack, willHarvest, fluid);
+            if (!removed) {
+                return false;
+            }
+
+            // The hit block is removed through the normal game-mode path above.
+            // A non-anchor hit therefore needs exactly one explicit anchor
+            // drop, with the real player/tool context, before the anchor is
+            // removed as a non-dropping companion.
+            if (!pos.equals(anchor) && willHarvest) {
+                dropAnchorForBreak(level, anchor, state, player, toolStack);
+            }
+            removeStructure(level, structure, anchor, pos, state);
+            return true;
+        } finally {
+            endTeardown();
+        }
     }
 
     /**
@@ -359,11 +399,16 @@ public class LargeCurtainBlock extends CurtainBlock {
      * the break statistic, tool damage, and anchor drops when the anchor itself
      * is clicked.
      */
-    private static void dropAnchorForBreak(Level level, BlockPos anchor, BlockState brokenState, Player player) {
+    private static void dropAnchorForBreak(
+            Level level,
+            BlockPos anchor,
+            BlockState brokenState,
+            Player player,
+            ItemStack toolStack
+    ) {
         BlockState anchorState = level.getBlockState(anchor);
         if (!isAnchorState(anchorState, brokenState)
-                || player.preventsBlockDrops()
-                || !anchorState.canHarvestBlock(level, anchor, player)) {
+                || player.preventsBlockDrops()) {
             return;
         }
         Block.dropResources(
@@ -372,7 +417,7 @@ public class LargeCurtainBlock extends CurtainBlock {
                 anchor,
                 level.getBlockEntity(anchor),
                 player,
-                player.getMainHandItem().copy()
+                toolStack.copy()
         );
     }
 
@@ -385,31 +430,53 @@ public class LargeCurtainBlock extends CurtainBlock {
                 && candidate.getValue(ANCHOR);
     }
 
-    /** Removes the other three blocks without notifying neighbours prematurely. */
+    /** Removes the parts other than the block already handled by the game mode. */
     private static void removeStructure(
-            Level level, LargeCurtainGeometry.BreakPlan breakPlan, BlockState state
+            Level level, Set<BlockPos> structure, BlockPos anchor, BlockPos hit, BlockState state
     ) {
-        for (BlockPos part : breakPlan.partsToRemove()) {
-            // Keep the block currently being destroyed in the world until
-            // ServerPlayerGameMode performs its normal removal. For a
-            // non-anchor hit the anchor has already been dropped explicitly,
-            // so removing it here also prevents an upper-inner hit from
-            // leaving an orphaned anchor that is not a direct neighbour.
+        for (BlockPos part : structure) {
+            if (part.equals(hit)) {
+                continue;
+            }
             BlockState partState = level.getBlockState(part);
-            if (isPartOfStructure(partState, state)) {
-                // UPDATE_KNOWN_SHAPE prevents a partial teardown from making
-                // the anchor return AIR through updateShape. Without it,
-                // Block.updateOrDestroy would destroy the anchor with a null
-                // breaker and evaluate its loot table even in creative mode.
+            if (isPartOfStructure(part, partState, anchor, state)) {
+                // UPDATE_ALL keeps surrounding blocks consistent. The
+                // teardown guard prevents these notifications from recursively
+                // destroying another curtain part; UPDATE_SUPPRESS_DROPS is a
+                // final safety net for any future shape/update path.
                 level.setBlock(part, Blocks.AIR.defaultBlockState(), STRUCTURE_REMOVAL_FLAGS);
             }
         }
     }
 
-    private static boolean isPartOfStructure(BlockState candidate, BlockState reference) {
+    private static boolean isPartOfStructure(
+            BlockPos pos, BlockState candidate, BlockPos anchor, BlockState reference
+    ) {
         return candidate.getBlock() == reference.getBlock()
                 && candidate.getValue(FACING) == reference.getValue(FACING)
-                && candidate.getValue(SIDE) == reference.getValue(SIDE);
+                && candidate.getValue(SIDE) == reference.getValue(SIDE)
+                && anchorOf(pos, candidate).equals(anchor);
+    }
+
+    private static void beginTeardown(Set<BlockPos> structure) {
+        ACTIVE_TEARDOWNS.get().push(structure);
+    }
+
+    private static void endTeardown() {
+        Deque<Set<BlockPos>> stack = ACTIVE_TEARDOWNS.get();
+        stack.pop();
+        if (stack.isEmpty()) {
+            ACTIVE_TEARDOWNS.remove();
+        }
+    }
+
+    private static boolean isTeardownPosition(BlockPos pos) {
+        for (Set<BlockPos> structure : ACTIVE_TEARDOWNS.get()) {
+            if (structure.contains(pos)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

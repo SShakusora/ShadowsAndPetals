@@ -4,8 +4,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.jspecify.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Predicate;
 
 /** Pure coordinate rules shared by the large curtain block and its tests. */
@@ -77,16 +75,6 @@ final class LargeCurtainGeometry {
         return leftSide
                 ? new CollisionBox(7, minY, 12, 15, 16, 17)
                 : new CollisionBox(1, minY, 12, 9, 16, 17);
-    }
-
-    static BreakPlan breakPlan(BlockPos hit, BlockPos anchor, Direction inner) {
-        List<BlockPos> partsToRemove = Arrays.stream(structurePositions(anchor, inner))
-                .filter(part -> !part.equals(hit))
-                .toList();
-        return new BreakPlan(anchor, partsToRemove, !hit.equals(anchor));
-    }
-
-    record BreakPlan(BlockPos anchor, List<BlockPos> partsToRemove, boolean preDropAnchor) {
     }
 
     record CollisionBox(
