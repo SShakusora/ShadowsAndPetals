@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
@@ -85,19 +86,41 @@ public class CurtainBlock extends BaseEntityBlock {
 
     public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
     /**
-     * Collision slices for FACING=north. Closed curtains cover the full
-     * width of the wall face; open curtains only cover the bunch of panels
-     * they gather to their own side of the window.
+     * Gameplay collision slices for FACING=north. The model is a thin curtain
+     * rather than a full block: closed fabric occupies roughly pixels 13..16
+     * along the wall normal, while the lower half starts at pixel 3. Open
+     * fabric gathers to its own side and reaches pixels 12..17 at the deepest
+     * folds. The upper open pose also retains a rail spanning the full cell.
      */
-    private static final VoxelShape NORTH_CLOSED = box(0, 0, 14, 16, 16, 15);
-    private static final VoxelShape NORTH_OPEN_RIGHT = box(0, 0, 14, 4, 16, 15);
-    private static final VoxelShape NORTH_OPEN_LEFT = box(12, 0, 14, 16, 16, 15);
-    private static final Map<Direction, VoxelShape> CLOSED_SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED);
-    private static final Map<Direction, VoxelShape> OPEN_RIGHT_SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_RIGHT);
-    private static final Map<Direction, VoxelShape> OPEN_LEFT_SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_LEFT);
+    private static final VoxelShape NORTH_CLOSED_LOWER = toShape(CurtainGeometry.closed(false));
+    private static final VoxelShape NORTH_CLOSED_UPPER = toShape(CurtainGeometry.closed(true));
+    private static final VoxelShape NORTH_OPEN_LOWER_RIGHT = toShape(CurtainGeometry.open(false, false));
+    private static final VoxelShape NORTH_OPEN_LOWER_LEFT = toShape(CurtainGeometry.open(false, true));
+    private static final VoxelShape NORTH_OPEN_UPPER_RIGHT = Shapes.or(
+            toShape(CurtainGeometry.open(true, false)),
+            box(0, 14, 14, 16, 16, 16)
+    ).optimize();
+    private static final VoxelShape NORTH_OPEN_UPPER_LEFT = Shapes.or(
+            toShape(CurtainGeometry.open(true, true)),
+            box(0, 14, 14, 16, 16, 16)
+    ).optimize();
+    private static final Map<Direction, VoxelShape> CLOSED_LOWER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED_LOWER);
+    private static final Map<Direction, VoxelShape> CLOSED_UPPER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED_UPPER);
+    private static final Map<Direction, VoxelShape> OPEN_LOWER_RIGHT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_LOWER_RIGHT);
+    private static final Map<Direction, VoxelShape> OPEN_LOWER_LEFT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_LOWER_LEFT);
+    private static final Map<Direction, VoxelShape> OPEN_UPPER_RIGHT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_UPPER_RIGHT);
+    private static final Map<Direction, VoxelShape> OPEN_UPPER_LEFT_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_UPPER_LEFT);
+
+    private static VoxelShape toShape(CurtainGeometry.CollisionBox box) {
+        return Block.box(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
+    }
+
     public CurtainBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
@@ -185,12 +208,14 @@ public class CurtainBlock extends BaseEntityBlock {
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction facing = state.getValue(FACING);
+        boolean upper = state.getValue(HALF) == DoubleBlockHalf.UPPER;
         if (!state.getValue(OPEN)) {
-            return CLOSED_SHAPES.get(facing);
+            return (upper ? CLOSED_UPPER_SHAPES : CLOSED_LOWER_SHAPES).get(facing);
         }
-        return (state.getValue(SIDE) == Side.LEFT
-                ? OPEN_LEFT_SHAPES
-                : OPEN_RIGHT_SHAPES).get(facing);
+        if (state.getValue(SIDE) == Side.LEFT) {
+            return (upper ? OPEN_UPPER_LEFT_SHAPES : OPEN_LOWER_LEFT_SHAPES).get(facing);
+        }
+        return (upper ? OPEN_UPPER_RIGHT_SHAPES : OPEN_LOWER_RIGHT_SHAPES).get(facing);
     }
 
     @Override

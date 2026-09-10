@@ -138,12 +138,28 @@ class LargeCurtainBlockTest {
         );
         assertNull(LargeCurtainGeometry.openCollisionBox(true, false, false));
         assertEquals(
-                new LargeCurtainGeometry.CollisionBox(1, 0, 14, 9, 16, 15),
+                new LargeCurtainGeometry.CollisionBox(1, 3, 12, 9, 16, 17),
                 LargeCurtainGeometry.openCollisionBox(false, false, false)
         );
         assertEquals(
-                new LargeCurtainGeometry.CollisionBox(7, 0, 14, 15, 16, 15),
+                new LargeCurtainGeometry.CollisionBox(7, 3, 12, 15, 16, 17),
                 LargeCurtainGeometry.openCollisionBox(false, false, true)
+        );
+        assertEquals(
+                new LargeCurtainGeometry.CollisionBox(1, 0, 12, 9, 16, 17),
+                LargeCurtainGeometry.openCollisionBox(false, true, false)
+        );
+    }
+
+    @Test
+    void closedCollisionBoxesFollowTheModelDepthAndVerticalHalf() {
+        assertEquals(
+                new LargeCurtainGeometry.CollisionBox(0, 3, 13, 16, 16, 16),
+                LargeCurtainGeometry.closedCollisionBox(false)
+        );
+        assertEquals(
+                new LargeCurtainGeometry.CollisionBox(0, 0, 13, 16, 16, 16),
+                LargeCurtainGeometry.closedCollisionBox(true)
         );
     }
 

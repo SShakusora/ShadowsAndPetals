@@ -58,8 +58,8 @@ final class LargeCurtainGeometry {
         return requestedOpen || localPowered || partnerPowered;
     }
 
-    static CollisionBox closedCollisionBox() {
-        return new CollisionBox(0, 0, 14, 16, 16, 15);
+    static CollisionBox closedCollisionBox(boolean upperHalf) {
+        return new CollisionBox(0, upperHalf ? 0 : 3, 13, 16, 16, 16);
     }
 
     /**
@@ -73,9 +73,10 @@ final class LargeCurtainGeometry {
         if (outerColumn) {
             return upperHalf ? new CollisionBox(0, 14, 14, 16, 15, 15) : null;
         }
+        double minY = upperHalf ? 0 : 3;
         return leftSide
-                ? new CollisionBox(7, 0, 14, 15, 16, 15)
-                : new CollisionBox(1, 0, 14, 9, 16, 15);
+                ? new CollisionBox(7, minY, 12, 15, 16, 17)
+                : new CollisionBox(1, minY, 12, 9, 16, 17);
     }
 
     static BreakPlan breakPlan(BlockPos hit, BlockPos anchor, Direction inner) {

@@ -51,8 +51,10 @@ import java.util.Map;
 public class LargeCurtainBlock extends CurtainBlock {
     public static final MapCodec<LargeCurtainBlock> CODEC = simpleCodec(LargeCurtainBlock::new);
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
-    /** Marks the block that drives the rig (placed block, lower outer). */
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
+    private static final int STRUCTURE_REMOVAL_FLAGS = Block.UPDATE_CLIENTS
+                    | Block.UPDATE_KNOWN_SHAPE
+                    | Block.UPDATE_SUPPRESS_DROPS;
 
     /** Which column of the two-wide curtain this block is. */
     public enum Column implements StringRepresentable {
@@ -76,12 +78,20 @@ public class LargeCurtainBlock extends CurtainBlock {
     }
 
     /**
-     * Collision slice for FACING=north: a thin strip along the wall face,
-     * inside the block's own cell (the model overhangs like a fence).
+     * Gameplay collision slices for FACING=north. The horizontal footprint is
+     * kept inside this block's cell even though folded model elements overhang
+     * by about one pixel; the wall-normal depth follows the visible folds.
      */
-    private static final VoxelShape NORTH_SHAPE = toShape(LargeCurtainGeometry.closedCollisionBox());
-    private static final Map<Direction, VoxelShape> SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_SHAPE);
+    private static final VoxelShape NORTH_CLOSED_LOWER = toShape(
+            LargeCurtainGeometry.closedCollisionBox(false)
+    );
+    private static final VoxelShape NORTH_CLOSED_UPPER = toShape(
+            LargeCurtainGeometry.closedCollisionBox(true)
+    );
+    private static final Map<Direction, VoxelShape> CLOSED_LOWER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED_LOWER);
+    private static final Map<Direction, VoxelShape> CLOSED_UPPER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_CLOSED_UPPER);
     /**
      * Open-pose slices for FACING=north, mirroring the open quadrant
      * models: the fabric piles into the inner column (right curtain at
@@ -91,18 +101,30 @@ public class LargeCurtainBlock extends CurtainBlock {
     private static final VoxelShape NORTH_OPEN_RAIL = toShape(
             LargeCurtainGeometry.openCollisionBox(true, true, false)
     );
-    private static final VoxelShape NORTH_OPEN_PILE_RIGHT = toShape(
+    private static final VoxelShape NORTH_OPEN_PILE_RIGHT_LOWER = toShape(
             LargeCurtainGeometry.openCollisionBox(false, false, false)
     );
-    private static final VoxelShape NORTH_OPEN_PILE_LEFT = toShape(
+    private static final VoxelShape NORTH_OPEN_PILE_RIGHT_UPPER = Shapes.or(
+            toShape(LargeCurtainGeometry.openCollisionBox(false, true, false)),
+            NORTH_OPEN_RAIL
+    ).optimize();
+    private static final VoxelShape NORTH_OPEN_PILE_LEFT_LOWER = toShape(
             LargeCurtainGeometry.openCollisionBox(false, false, true)
     );
+    private static final VoxelShape NORTH_OPEN_PILE_LEFT_UPPER = Shapes.or(
+            toShape(LargeCurtainGeometry.openCollisionBox(false, true, true)),
+            NORTH_OPEN_RAIL
+    ).optimize();
+    private static final Map<Direction, VoxelShape> OPEN_PILE_RIGHT_LOWER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_RIGHT_LOWER);
+    private static final Map<Direction, VoxelShape> OPEN_PILE_RIGHT_UPPER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_RIGHT_UPPER);
+    private static final Map<Direction, VoxelShape> OPEN_PILE_LEFT_LOWER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_LEFT_LOWER);
+    private static final Map<Direction, VoxelShape> OPEN_PILE_LEFT_UPPER_SHAPES =
+            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_LEFT_UPPER);
     private static final Map<Direction, VoxelShape> OPEN_RAIL_SHAPES =
             VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_RAIL);
-    private static final Map<Direction, VoxelShape> OPEN_PILE_RIGHT_SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_RIGHT);
-    private static final Map<Direction, VoxelShape> OPEN_PILE_LEFT_SHAPES =
-            VoxelShapeUtils.rotateHorizontal(NORTH_OPEN_PILE_LEFT);
 
     private static VoxelShape toShape(LargeCurtainGeometry.CollisionBox box) {
         return Block.box(box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ());
@@ -220,17 +242,19 @@ public class LargeCurtainBlock extends CurtainBlock {
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         Direction facing = state.getValue(FACING);
+        boolean upper = state.getValue(HALF) == DoubleBlockHalf.UPPER;
         if (!state.getValue(OPEN)) {
-            return SHAPES.get(facing);
+            return (upper ? CLOSED_UPPER_SHAPES : CLOSED_LOWER_SHAPES).get(facing);
         }
         if (state.getValue(COLUMN) == Column.OUTER) {
-            return state.getValue(HALF) == DoubleBlockHalf.UPPER
+            return upper
                     ? OPEN_RAIL_SHAPES.get(facing)
                     : Shapes.empty();
         }
-        return (state.getValue(SIDE) == Side.LEFT
-                ? OPEN_PILE_LEFT_SHAPES
-                : OPEN_PILE_RIGHT_SHAPES).get(facing);
+        if (state.getValue(SIDE) == Side.LEFT) {
+            return (upper ? OPEN_PILE_LEFT_UPPER_SHAPES : OPEN_PILE_LEFT_LOWER_SHAPES).get(facing);
+        }
+        return (upper ? OPEN_PILE_RIGHT_UPPER_SHAPES : OPEN_PILE_RIGHT_LOWER_SHAPES).get(facing);
     }
 
     @Override
@@ -373,10 +397,11 @@ public class LargeCurtainBlock extends CurtainBlock {
             // leaving an orphaned anchor that is not a direct neighbour.
             BlockState partState = level.getBlockState(part);
             if (isPartOfStructure(partState, state)) {
-                // UPDATE_CLIENTS deliberately omits UPDATE_NEIGHBORS. An
-                // UPDATE_ALL here would make the anchor self-destruct before
-                // the explicit drop above (or before the normal anchor drop).
-                level.setBlock(part, Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+                // UPDATE_KNOWN_SHAPE prevents a partial teardown from making
+                // the anchor return AIR through updateShape. Without it,
+                // Block.updateOrDestroy would destroy the anchor with a null
+                // breaker and evaluate its loot table even in creative mode.
+                level.setBlock(part, Blocks.AIR.defaultBlockState(), STRUCTURE_REMOVAL_FLAGS);
             }
         }
     }
