@@ -1,0 +1,81 @@
+{
+  "format_version": 1,
+  "bones": [
+    {
+      "name": "panel_1_anchor",
+      "pivot": [
+        2.5010399999999997,
+        6.5,
+        14.50523
+      ]
+    },
+    {
+      "name": "panel_1_fabric",
+      "pivot": [
+        2.5010399999999997,
+        6.5,
+        14.50523
+      ],
+      "parent": "panel_1_anchor"
+    },
+    {
+      "name": "panel_2_anchor",
+      "pivot": [
+        6.73775,
+        6.5,
+        14.50523
+      ]
+    },
+    {
+      "name": "panel_2_fabric",
+      "pivot": [
+        6.73775,
+        6.5,
+        14.50523
+      ],
+      "parent": "panel_2_anchor"
+    },
+    {
+      "name": "panel_3_anchor",
+      "pivot": [
+        10.51253,
+        6.5,
+        14.69657
+      ]
+    },
+    {
+      "name": "panel_3_fabric",
+      "pivot": [
+        10.51253,
+        6.5,
+        14.69657
+      ],
+      "parent": "panel_3_anchor"
+    },
+    {
+      "name": "panel_4_anchor",
+      "pivot": [
+        13.82536,
+        6.5,
+        14.69657
+      ]
+    },
+    {
+      "name": "panel_4_fabric",
+      "pivot": [
+        13.82536,
+        6.5,
+        14.69657
+      ],
+      "parent": "panel_4_anchor"
+    },
+    {
+      "name": "rail",
+      "pivot": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

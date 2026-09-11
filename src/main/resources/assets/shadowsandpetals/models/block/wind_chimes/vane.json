@@ -1,0 +1,19 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"particle": "shadowsandpetals:block/wind_chime/vane/pink",
+		"windchime0": "shadowsandpetals:block/wind_chime/vane/pink"
+	},
+	"elements": [
+		{
+			"from": [6.5, -4, 8],
+			"to": [9.5, 6, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 16, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 3, 10], "texture": "#windchime0"},
+				"south": {"uv": [3, 0, 0, 10], "texture": "#windchime0"}
+			}
+		}
+	]
+}

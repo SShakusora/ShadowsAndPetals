@@ -31,6 +31,8 @@ public class RegCreativeTabBuilder {
     private final List<Consumer<CreativeModeTab.Output>> simpleDisplayGenerators = new ArrayList<>();
     private CreativeModeTab.DisplayItemsGenerator fullGenerator;
     private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<ResourceLocation> tabsBefore = new ArrayList<>();
+    private final List<ResourceLocation> tabsAfter = new ArrayList<>();
 
     public RegCreativeTabBuilder(DeferredRegister<CreativeModeTab> registry, String name) {
         this.registry = registry;
@@ -131,10 +133,26 @@ public class RegCreativeTabBuilder {
     }
 
     /**
+     * Places this tab after the supplied tabs.
+     */
+    public RegCreativeTabBuilder withTabsBefore(ResourceLocation... tabs) {
+        this.tabsBefore.addAll(List.of(tabs));
+        return this;
+    }
+
+    /**
+     * Places this tab before the supplied tabs.
+     */
+    public RegCreativeTabBuilder withTabsAfter(ResourceLocation... tabs) {
+        this.tabsAfter.addAll(List.of(tabs));
+        return this;
+    }
+
+    /**
      * Adds a same-namespace registry alias for this creative tab.
      */
     public RegCreativeTabBuilder alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 
@@ -155,6 +173,8 @@ public class RegCreativeTabBuilder {
                 return CreativeModeTab.builder()
                         .title(title)
                         .icon(() -> new ItemStack(iconSupplier.get()))
+                        .withTabsBefore(tabsBefore.toArray(ResourceLocation[]::new))
+                        .withTabsAfter(tabsAfter.toArray(ResourceLocation[]::new))
                         .displayItems(fullGenerator)
                         .build();
             }
@@ -165,6 +185,8 @@ public class RegCreativeTabBuilder {
             return CreativeModeTab.builder()
                     .title(title)
                     .icon(() -> new ItemStack(iconSupplier.get()))
+                    .withTabsBefore(tabsBefore.toArray(ResourceLocation[]::new))
+                    .withTabsAfter(tabsAfter.toArray(ResourceLocation[]::new))
                     .displayItems((params, output) -> {
                         for (ItemStack stack : localItems) {
                             if (!stack.isEmpty() && stack.getItem().isEnabled(params.enabledFeatures())) {

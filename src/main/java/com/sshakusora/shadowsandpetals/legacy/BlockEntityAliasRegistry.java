@@ -104,7 +104,7 @@ public final class BlockEntityAliasRegistry {
         }
 
         public Builder alias(String oldPath) {
-            this.aliasId = ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath);
+            this.aliasId = ShadowsAndPetals.asResource(oldPath);
             return this;
         }
 

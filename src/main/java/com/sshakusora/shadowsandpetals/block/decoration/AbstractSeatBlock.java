@@ -1,8 +1,10 @@
 package com.sshakusora.shadowsandpetals.block.decoration;
 
+import com.sshakusora.shadowsandpetals.compat.InteractionResultCompat;
 import com.sshakusora.shadowsandpetals.entity.SeatEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -10,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
@@ -50,7 +53,14 @@ public abstract class AbstractSeatBlock extends Block implements SimpleWaterlogg
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+    protected BlockState updateShape(
+            BlockState state,
+            Direction direction,
+            BlockState neighborState,
+            LevelAccessor level,
+            BlockPos pos,
+            BlockPos neighborPos
+    ) {
         if (state.getValue(WATERLOGGED)) {
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
@@ -63,12 +73,10 @@ public abstract class AbstractSeatBlock extends Block implements SimpleWaterlogg
     }
 
     @Override
-    public ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+    protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         InteractionResult result = trySit(level, pos, player);
         if (result.consumesAction()) {
-            return result == InteractionResult.SUCCESS
-                    ? ItemInteractionResult.sidedSuccess(level.isClientSide)
-                    : ItemInteractionResult.CONSUME;
+            return InteractionResultCompat.asItem(result);
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
@@ -77,7 +85,7 @@ public abstract class AbstractSeatBlock extends Block implements SimpleWaterlogg
         if (player.isShiftKeyDown()) {
             return InteractionResult.PASS;
         }
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 

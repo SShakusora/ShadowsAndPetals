@@ -3,6 +3,8 @@ package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
+import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
@@ -32,6 +34,7 @@ public class ModBlockStateProvider extends BlockStateProvider {
         for (var generator : DatagenBlockStateRegistry.generators()) {
             generator.accept(this);
         }
+        ModelDatagenRegistry.generateBlocks(new SAPBlockModelGenerator(this));
     }
 
     public void logBlockWithItem(RotatedPillarBlock block) {

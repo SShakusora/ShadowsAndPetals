@@ -17,11 +17,12 @@ public class LegacyBlockEntity extends BlockEntity {
     }
 
     public CompoundTag getRawData() {
-        return rawData.copy();
+        return rawData;
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        this.rawData = tag.copy();
+    protected void loadAdditional(CompoundTag input, HolderLookup.Provider registries) {
+        super.loadAdditional(input, registries);
+        this.rawData = input.copy();
     }
 }

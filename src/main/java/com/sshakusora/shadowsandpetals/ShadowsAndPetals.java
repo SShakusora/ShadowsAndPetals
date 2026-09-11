@@ -1,25 +1,39 @@
 package com.sshakusora.shadowsandpetals;
 
-import com.mojang.logging.LogUtils;
+import com.sshakusora.shadowsandpetals.api.excavation.SandExcavationDataMaps;
 import com.sshakusora.shadowsandpetals.registries.*;
+import com.sshakusora.shadowsandpetals.registries.event.CustomEventBootstrap;
+import com.sshakusora.shadowsandpetals.worldgen.SAPFeatures;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
-import org.slf4j.Logger;
+import net.neoforged.neoforge.common.NeoForgeMod;
 
 @Mod(ShadowsAndPetals.MOD_ID)
 public class ShadowsAndPetals {
     public static final String MOD_ID = "shadowsandpetals";
-    private static final Logger LOGGER = LogUtils.getLogger();
 
     public ShadowsAndPetals(IEventBus modEventBus) {
-        SAPRegistries.register(modEventBus);
+        NeoForgeMod.enableMilkFluid();
 
+        SAPRegistries.register(modEventBus);
+        CustomEventBootstrap.register(modEventBus);
+        SandExcavationDataMaps.register(modEventBus);
+
+        FluidRegistry.init();
+        AttachmentRegistry.init();
         ItemRegistry.init();
         BlockRegistry.init();
         BlockEntityRegistry.init();
+        MenuRegistry.init();
         EntityRegistry.init();
+        ParticleRegistry.init();
+        SoundRegistry.init();
+        RecipeSerializerRegistry.init();
         CreativeTabRegistry.init();
+        TriggerRegistry.init();
+        AdvancementRegistry.init();
+        SAPFeatures.init();
     }
 
     public static ResourceLocation asResource(String path) {

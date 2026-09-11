@@ -1,0 +1,149 @@
+{
+  "format_version": 1,
+  "bones": [
+    {
+      "name": "first_person_right_arm",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "rest": {
+        "translation": [
+          5.55637,
+          -17.70322,
+          -11.83686
+        ],
+        "rotation": [
+          -84.98303,
+          34.87216,
+          -116.64613
+        ]
+      }
+    },
+    {
+      "name": "first_person_right_item",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "parent": "first_person_right_arm",
+      "rest": {
+        "translation": [
+          -8.31418,
+          5.28515,
+          -1.63448
+        ],
+        "rotation": [
+          -81.69401,
+          -60.22075,
+          137.80303
+        ]
+      }
+    },
+    {
+      "name": "first_person_left_arm",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "rest": {
+        "translation": [
+          -5.55637,
+          -17.70322,
+          -11.83686
+        ],
+        "rotation": [
+          -84.98303,
+          -34.87216,
+          116.64613
+        ]
+      }
+    },
+    {
+      "name": "first_person_left_item",
+      "pivot": [
+        0,
+        0,
+        0
+      ],
+      "parent": "first_person_left_arm",
+      "rest": {
+        "translation": [
+          8.31419,
+          5.28515,
+          -1.63448
+        ],
+        "rotation": [
+          -81.69401,
+          60.22075,
+          -137.80302
+        ]
+      }
+    },
+    {
+      "name": "root",
+      "pivot": [
+        0,
+        24,
+        0
+      ]
+    },
+    {
+      "name": "body",
+      "pivot": [
+        0,
+        24,
+        0
+      ],
+      "parent": "root"
+    },
+    {
+      "name": "head",
+      "pivot": [
+        0,
+        24,
+        0
+      ],
+      "parent": "root"
+    },
+    {
+      "name": "right_arm",
+      "pivot": [
+        -5,
+        22,
+        0
+      ],
+      "parent": "root"
+    },
+    {
+      "name": "left_arm",
+      "pivot": [
+        5,
+        22,
+        0
+      ],
+      "parent": "root"
+    },
+    {
+      "name": "right_leg",
+      "pivot": [
+        -1.9,
+        12,
+        0
+      ],
+      "parent": "root"
+    },
+    {
+      "name": "left_leg",
+      "pivot": [
+        1.9,
+        12,
+        0
+      ],
+      "parent": "root"
+    }
+  ]
+}

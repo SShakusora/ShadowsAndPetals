@@ -61,7 +61,7 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
      * Adds a same-namespace registry alias for the block entity type id.
      */
     public RegBlockEntityBuilder<T> alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 
@@ -106,7 +106,10 @@ public class RegBlockEntityBuilder<T extends BlockEntity> {
         }
 
         DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> type = registry.register(name, key ->
-                BlockEntityType.Builder.of(factory::apply, validBlocks.stream().map(Supplier::get).toArray(Block[]::new)).build(null)
+                BlockEntityType.Builder.of(
+                        factory::apply,
+                        validBlocks.stream().map(Supplier::get).toArray(Block[]::new)
+                ).build(null)
         );
 
         for (ResourceLocation alias : aliases) {

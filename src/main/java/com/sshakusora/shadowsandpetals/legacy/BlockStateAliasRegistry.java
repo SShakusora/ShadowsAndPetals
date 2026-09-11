@@ -36,8 +36,8 @@ public final class BlockStateAliasRegistry {
         }
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        int minY = chunk.getMinBuildHeight();
-        int maxY = chunk.getMaxBuildHeight();
+        int minY = chunk.getLevel().getMinBuildHeight();
+        int maxY = chunk.getLevel().getMaxBuildHeight();
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {

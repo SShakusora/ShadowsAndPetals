@@ -8,6 +8,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 public final class VoxelShapeUtils {
+
     private VoxelShapeUtils() {}
 
     public static Map<Direction, VoxelShape> rotateHorizontal(VoxelShape northShape) {
@@ -17,6 +18,25 @@ public final class VoxelShapeUtils {
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             shapes.put(direction, currentShape.optimize());
             currentShape = rotateClockwise(currentShape);
+        }
+
+        return shapes;
+    }
+
+    public static VoxelShape[] buildHorizontalConnectionShapes(VoxelShape coreShape, VoxelShape northArmShape) {
+        Map<Direction, VoxelShape> rotatedArms = rotateHorizontal(northArmShape);
+        VoxelShape[] shapes = new VoxelShape[16];
+
+        for (int mask = 0; mask < shapes.length; mask++) {
+            VoxelShape shape = coreShape;
+            int index = 0;
+            for (Direction direction : Direction.Plane.HORIZONTAL) {
+                if ((mask & (1 << index)) != 0) {
+                    shape = Shapes.or(shape, rotatedArms.get(direction));
+                }
+                index++;
+            }
+            shapes[mask] = shape.optimize();
         }
 
         return shapes;

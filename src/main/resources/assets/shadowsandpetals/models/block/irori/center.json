@@ -1,0 +1,28 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"3": "shadowsandpetals:block/irori/base",
+		"particle": "shadowsandpetals:block/irori/particle"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [16, 10, 16],
+			"faces": {
+				"up": {"uv": [4.25, 4.25, 0.25, 0.25], "texture": "#3"},
+				"down": {"uv": [8.75, 5.5, 4.75, 9.5], "texture": "#3"}
+			}
+		}
+	],
+	"groups": [
+		0,
+		{
+			"name": "group",
+			"origin": [0, 0, 0],
+			"scope": 0,
+			"color": 0,
+			"children": []
+		}
+	]
+}

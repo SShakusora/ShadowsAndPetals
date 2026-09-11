@@ -1,21 +1,34 @@
 package com.sshakusora.shadowsandpetals.registries.builder;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.data.*;
+import com.sshakusora.shadowsandpetals.client.tooltip.ItemDescription;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
+import com.sshakusora.shadowsandpetals.data.DatagenRecipeRegistry;
+import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
+import com.sshakusora.shadowsandpetals.data.lang.TooltipLangBuilder;
+import com.sshakusora.shadowsandpetals.data.model.ItemModelCallback;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
-import com.sshakusora.shadowsandpetals.registries.CreativeTabType;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabKey;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabOrder;
+import com.sshakusora.shadowsandpetals.tooltip.TooltipComponentRegistry;
+import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 /**
  * Fluent builder for item registration.
@@ -29,9 +42,17 @@ public class RegItemBuilder<I extends Item> {
     private Function<Item.Properties, I> itemFactory;
     private final Map<String, String> langNames = new LinkedHashMap<>();
     private BiConsumer<ModRecipeProvider, DeferredItem<I>> recipeGenerator;
-    private BiConsumer<ModItemModelProvider, DeferredItem<I>> itemModelGenerator;
-    private final List<CreativeTabType> creativeTabs = new ArrayList<>();
+    private Supplier<? extends ItemModelCallback<I>> itemModelGenerator;
+    private Function<DeferredItem<I>, ResourceLocation> clientItemModelFactory;
+    private Function<DeferredItem<I>, ResourceLocation> customClientItemTypeFactory;
+    private final List<CreativeTabKey> creativeTabs = new ArrayList<>();
+    private final Map<CreativeTabKey, CreativeTabOrder> creativeTabOrders = new EnumMap<>(CreativeTabKey.class);
     private final List<ResourceLocation> aliases = new ArrayList<>();
+    private boolean hasTooltipDescription;
+    private Consumer<TooltipLangBuilder> tooltipDescriptionGenerator;
+    private TooltipModifier tooltipModifier;
+    private BiFunction<I, ItemStack, @Nullable TooltipComponent> tooltipComponentFactory;
+    private int tooltipComponentMinimumWidth;
 
     public RegItemBuilder(DeferredRegister.Items registry, String name) {
         this.registry = registry;
@@ -79,6 +100,61 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
+     * Opts this item into the {@link ItemDescription} tooltip system.
+     * <p>
+     * When set, the item will display a three-state tooltip driven by
+     * localisation keys: a brief hint by default, a summary with behaviours
+     * when Shift is held, and controls when Ctrl is held.
+     * <p>
+     * The actual tooltip text must be registered separately via
+     * {@link TooltipLangBuilder}
+     * during data generation.
+     */
+    public RegItemBuilder<I> tooltipDescription() {
+        this.hasTooltipDescription = true;
+        return this;
+    }
+
+    /**
+     * Opts this item into the tooltip system and registers its localised text.
+     * The translation-key prefix is derived automatically from the item id.
+     */
+    public RegItemBuilder<I> tooltipDescription(Consumer<TooltipLangBuilder> generator) {
+        this.hasTooltipDescription = true;
+        this.tooltipDescriptionGenerator = Objects.requireNonNull(generator);
+        return this;
+    }
+
+    /**
+     * Adds a dynamic modifier to this item's foundation tooltip pipeline.
+     */
+    public RegItemBuilder<I> tooltipModifier(TooltipModifier modifier) {
+        this.tooltipModifier = Objects.requireNonNull(modifier);
+        return this;
+    }
+
+    /**
+     * Registers a custom component for this item's tooltip.
+     */
+    public RegItemBuilder<I> tooltipComponent(
+            BiFunction<I, ItemStack, @Nullable TooltipComponent> factory
+    ) {
+        return tooltipComponent(factory, 0);
+    }
+
+    /**
+     * Registers a custom component and minimum tooltip width for this item.
+     */
+    public RegItemBuilder<I> tooltipComponent(
+            BiFunction<I, ItemStack, @Nullable TooltipComponent> factory,
+            int minimumWidth
+    ) {
+        this.tooltipComponentFactory = Objects.requireNonNull(factory);
+        this.tooltipComponentMinimumWidth = Math.max(0, minimumWidth);
+        return this;
+    }
+
+    /**
      * Attaches a recipe datagen callback.
      */
     public RegItemBuilder<I> recipe(BiConsumer<ModRecipeProvider, DeferredItem<I>> generator) {
@@ -89,23 +165,62 @@ public class RegItemBuilder<I extends Item> {
     /**
      * Attaches an item-model datagen callback.
      */
-    public RegItemBuilder<I> model(BiConsumer<ModItemModelProvider, DeferredItem<I>> generator) {
-        this.itemModelGenerator = generator;
+    public RegItemBuilder<I> model(Supplier<? extends ItemModelCallback<I>> generator) {
+        this.itemModelGenerator = Objects.requireNonNull(generator);
         return this;
+    }
+
+    /**
+     * Attaches a client item-model mapping used by the unified model provider.
+     */
+    public RegItemBuilder<I> clientItem(Function<DeferredItem<I>, ResourceLocation> modelFactory) {
+        this.clientItemModelFactory = modelFactory;
+        return this;
+    }
+
+    /**
+     * Attaches a fixed client item-model mapping used by the unified model provider.
+     */
+    public RegItemBuilder<I> clientItem(ResourceLocation modelId) {
+        return clientItem(item -> modelId);
+    }
+
+    /**
+     * Attaches a custom client item-model type used by the unified model provider.
+     */
+    public RegItemBuilder<I> customClientItem(Function<DeferredItem<I>, ResourceLocation> modelTypeFactory) {
+        this.customClientItemTypeFactory = modelTypeFactory;
+        return this;
+    }
+
+    /**
+     * Attaches a fixed custom client item-model type used by the unified model provider.
+     */
+    public RegItemBuilder<I> customClientItem(ResourceLocation modelType) {
+        return customClientItem(item -> modelType);
     }
 
     /**
      * Adds the registered item to a creative tab.
      */
-    public RegItemBuilder<I> creativeTab(CreativeTabType tab) {
+    public RegItemBuilder<I> creativeTab(CreativeTabKey tab) {
         this.creativeTabs.add(tab);
+        return this;
+    }
+
+    /**
+     * Adds the registered item to a creative tab in an explicit sort group.
+     */
+    public RegItemBuilder<I> creativeTab(CreativeTabKey tab, CreativeTabOrder order) {
+        this.creativeTabs.add(tab);
+        this.creativeTabOrders.put(tab, order);
         return this;
     }
 
     /**
      * Adds the registered item to multiple creative tabs.
      */
-    public RegItemBuilder<I> creativeTabs(CreativeTabType... tabs) {
+    public RegItemBuilder<I> creativeTabs(CreativeTabKey... tabs) {
         this.creativeTabs.addAll(Arrays.asList(tabs));
         return this;
     }
@@ -114,7 +229,7 @@ public class RegItemBuilder<I extends Item> {
      * Adds a same-namespace registry alias for this item.
      */
     public RegItemBuilder<I> alias(String oldPath) {
-        this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+        this.aliases.add(ShadowsAndPetals.asResource(oldPath));
         return this;
     }
 
@@ -148,24 +263,64 @@ public class RegItemBuilder<I extends Item> {
         if (recipeGenerator != null) {
             DatagenRecipeRegistry.add(deferredItem.getId(), provider -> recipeGenerator.accept(provider, deferredItem));
         }
-        if (itemModelGenerator != null) {
-            DatagenItemModelRegistry.add(deferredItem.getId(), provider -> itemModelGenerator.accept(provider, deferredItem));
+        applyModelDatagen(deferredItem);
+        for (CreativeTabKey tab : creativeTabs) {
+            CreativeTabContentsRegistry.add(tab, deferredItem,
+                    creativeTabOrders.getOrDefault(tab, CreativeTabOrder.DEFAULT));
         }
-        for (CreativeTabType tab : creativeTabs) {
-            CreativeTabContentsRegistry.add(tab, deferredItem);
+
+        if (hasTooltipDescription) {
+            ResourceLocation itemId = ShadowsAndPetals.asResource(name);
+            TooltipModifier.register(itemId, new ItemDescription.Modifier(() ->
+                BuiltInRegistries.ITEM.get(itemId)));
+            registerTooltipDescription();
         }
+
+        if (tooltipModifier != null) {
+            TooltipModifier.register(ShadowsAndPetals.asResource(name), tooltipModifier);
+        }
+
+        if (tooltipComponentFactory != null) {
+            TooltipComponentRegistry.register(
+                    ShadowsAndPetals.asResource(name),
+                    stack -> tooltipComponentFactory.apply(deferredItem.get(), stack),
+                    tooltipComponentMinimumWidth);
+        }
+
         return deferredItem;
+    }
+
+    private void registerTooltipDescription() {
+        if (tooltipDescriptionGenerator == null) {
+            return;
+        }
+        TooltipLangBuilder tooltip = TooltipLangBuilder.of(
+                "item." + ShadowsAndPetals.MOD_ID + "." + name + ".tooltip");
+        tooltipDescriptionGenerator.accept(tooltip);
+        tooltip.register();
     }
 
     /**
      * Registers a plain {@link Item} using the current properties without extra hooks.
      */
     public DeferredItem<Item> simple() {
-        return registry.registerSimpleItem(name, properties);
+        DeferredItem<Item> deferredItem = registry.registerSimpleItem(name, properties);
+        ModelDatagenRegistry.addItem(deferredItem, null, null, null);
+        return deferredItem;
+    }
+
+    private void applyModelDatagen(DeferredItem<I> deferredItem) {
+        ResourceLocation clientModel = clientItemModelFactory != null
+                ? clientItemModelFactory.apply(deferredItem)
+                : null;
+        ResourceLocation customType = customClientItemTypeFactory != null
+                ? customClientItemTypeFactory.apply(deferredItem)
+                : null;
+        ModelDatagenRegistry.addItem(deferredItem, itemModelGenerator, clientModel, customType);
     }
 
     /**
-     * Fluent builder for registering a {@link net.minecraft.world.item.BlockItem} separately from the block.
+     * Fluent builder for registering a {@link BlockItem} separately from the block.
      */
     public static class BlockItemBuilder {
         private final DeferredRegister.Items registry;
@@ -174,7 +329,9 @@ public class RegItemBuilder<I extends Item> {
         private DeferredBlock<? extends Block> deferredBlock;
         private Item.Properties properties = new Item.Properties();
         private final Map<String, String> langNames = new LinkedHashMap<>();
-        private final List<CreativeTabType> creativeTabs = new ArrayList<>();
+        private Function<DeferredItem<BlockItem>, ResourceLocation> clientItemModelFactory;
+        private final List<CreativeTabKey> creativeTabs = new ArrayList<>();
+        private final Map<CreativeTabKey, CreativeTabOrder> creativeTabOrders = new EnumMap<>(CreativeTabKey.class);
         private final List<ResourceLocation> aliases = new ArrayList<>();
 
         public BlockItemBuilder(DeferredRegister.Items registry, String name) {
@@ -218,18 +375,39 @@ public class RegItemBuilder<I extends Item> {
             return this;
         }
 
-        public BlockItemBuilder creativeTab(CreativeTabType tab) {
+        /**
+         * Attaches a client item-model mapping used by the unified model provider.
+         */
+        public BlockItemBuilder clientItem(Function<DeferredItem<BlockItem>, ResourceLocation> modelFactory) {
+            this.clientItemModelFactory = modelFactory;
+            return this;
+        }
+
+        /**
+         * Attaches a fixed client item-model mapping used by the unified model provider.
+         */
+        public BlockItemBuilder clientItem(ResourceLocation modelId) {
+            return clientItem(item -> modelId);
+        }
+
+        public BlockItemBuilder creativeTab(CreativeTabKey tab) {
             this.creativeTabs.add(tab);
             return this;
         }
 
-        public BlockItemBuilder creativeTabs(CreativeTabType... tabs) {
+        public BlockItemBuilder creativeTab(CreativeTabKey tab, CreativeTabOrder order) {
+            this.creativeTabs.add(tab);
+            this.creativeTabOrders.put(tab, order);
+            return this;
+        }
+
+        public BlockItemBuilder creativeTabs(CreativeTabKey... tabs) {
             this.creativeTabs.addAll(Arrays.asList(tabs));
             return this;
         }
 
         public BlockItemBuilder alias(String oldPath) {
-            this.aliases.add(ResourceLocation.fromNamespaceAndPath(ShadowsAndPetals.MOD_ID, oldPath));
+            this.aliases.add(ShadowsAndPetals.asResource(oldPath));
             return this;
         }
 
@@ -246,11 +424,11 @@ public class RegItemBuilder<I extends Item> {
             if (deferredBlock != null) {
                 final var block = deferredBlock;
                 final var props = properties;
-                deferredItem = registry.register(name, key -> new BlockItem(block.get(), props));
+                deferredItem = registry.register(name, () -> new BlockItem(block.get(), props));
             } else if (blockSupplier != null) {
                 final var supplier = blockSupplier;
                 final var props = properties;
-                deferredItem = registry.register(name, key -> new BlockItem(supplier.get(), props));
+                deferredItem = registry.register(name, () -> new BlockItem(supplier.get(), props));
             } else {
                 throw new IllegalStateException("BlockItemBuilder requires a block source via .fromBlock() or .fromDeferredBlock()");
             }
@@ -262,8 +440,13 @@ public class RegItemBuilder<I extends Item> {
             for (Map.Entry<String, String> entry : langNames.entrySet()) {
                 DatagenLangRegistry.add(entry.getKey(), "item." + ShadowsAndPetals.MOD_ID + "." + deferredItem.getId().getPath(), entry.getValue());
             }
-            for (CreativeTabType tab : creativeTabs) {
-                CreativeTabContentsRegistry.add(tab, deferredItem);
+            ResourceLocation modelId = clientItemModelFactory != null
+                    ? clientItemModelFactory.apply(deferredItem)
+                    : null;
+            ModelDatagenRegistry.addItem(deferredItem, null, modelId, null);
+            for (CreativeTabKey tab : creativeTabs) {
+                CreativeTabContentsRegistry.add(tab, deferredItem,
+                        creativeTabOrders.getOrDefault(tab, CreativeTabOrder.DEFAULT));
             }
             return deferredItem;
         }

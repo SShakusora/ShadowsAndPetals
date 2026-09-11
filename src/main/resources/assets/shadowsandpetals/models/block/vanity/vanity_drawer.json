@@ -3,6 +3,7 @@
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
+		"particle": "#vanity"
 	},
 	"elements": [
 		{
@@ -121,13 +122,6 @@
 			}
 		}
 	],
-	"display": {
-		"thirdperson_righthand": {
-			"rotation": [75, 45, 0],
-			"translation": [0, 2.5, 0],
-			"scale": [0.375, 0.375, 0.375]
-		}
-	},
 	"groups": [
 		{
 			"name": "drawer",

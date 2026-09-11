@@ -1,0 +1,59 @@
+{
+  "format_version": 1,
+  "rig": "shadowsandpetals:animation/harrow",
+  "initial": "use/harrow_intro",
+  "states": {
+    "use/harrow": {
+      "clip": "shadowsandpetals:use/harrow",
+      "speed": 1,
+      "wrap": "loop",
+      "mask": [
+        "first_person_right_item",
+        "right_arm",
+        "left_arm"
+      ]
+    },
+    "use/harrow_intro": {
+      "clip": "shadowsandpetals:use/harrow_intro",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "first_person_right_item",
+        "right_arm",
+        "left_arm"
+      ]
+    },
+    "use/harrow_outro": {
+      "clip": "shadowsandpetals:use/harrow_outro",
+      "speed": 1,
+      "wrap": "clamp",
+      "mask": [
+        "first_person_right_item",
+        "right_arm",
+        "left_arm"
+      ]
+    }
+  },
+  "transitions": [
+    {
+      "from": "use/harrow_intro",
+      "to": "use/harrow",
+      "duration": 0
+    },
+    {
+      "from": "use/harrow_intro",
+      "to": "use/harrow_outro",
+      "duration": 0.08
+    },
+    {
+      "from": "use/harrow",
+      "to": "use/harrow_outro",
+      "duration": 0.08
+    },
+    {
+      "from": "use/harrow_outro",
+      "to": "use/harrow_intro",
+      "duration": 0.08
+    }
+  ]
+}

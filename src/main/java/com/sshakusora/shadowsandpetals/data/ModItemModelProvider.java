@@ -1,6 +1,8 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
+import com.sshakusora.shadowsandpetals.data.model.SAPItemModelGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
@@ -16,6 +18,9 @@ public class ModItemModelProvider extends ItemModelProvider {
         for (var generator : DatagenItemModelRegistry.generators()) {
             generator.accept(this);
         }
+        SAPItemModelGenerator generator = new SAPItemModelGenerator(this);
+        ModelDatagenRegistry.generateItemModels(generator);
+        ModelDatagenRegistry.finalizeClientItems(generator);
     }
 
     public void generatedItem(Item item) {

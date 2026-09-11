@@ -1,131 +1,131 @@
 package com.sshakusora.shadowsandpetals.registries;
 
-import com.sshakusora.shadowsandpetals.block.DyedBlockList;
-import com.sshakusora.shadowsandpetals.block.WoodBlockList;
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.*;
+import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
-import com.sshakusora.shadowsandpetals.compat.CompatInfo;
+import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
+import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
+import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
+import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
+import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
+import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
+import com.sshakusora.shadowsandpetals.data.model.generator.*;
+import com.sshakusora.shadowsandpetals.item.CopperTeapotBlockItem;
+import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelBlockItem;
+import com.sshakusora.shadowsandpetals.item.barrel.WoodenBarrelTooltipModifier;
+import com.sshakusora.shadowsandpetals.item.chime.WindChimeTooltipModifier;
+import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
+import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
-import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.neoforged.neoforge.common.NeoForgeMod;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
-import java.util.function.Supplier;
+import java.util.List;
 
 public class BlockRegistry {
-    // TODO: Replace these oak placeholder textures with custom textures for each tree type.
-    private static final ResourceLocation OAK_LOG_SIDE_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_log");
-    private static final ResourceLocation OAK_LOG_END_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_log_top");
-    private static final ResourceLocation OAK_LEAVES_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_leaves");
-    private static final ResourceLocation OAK_SAPLING_TEXTURE = ResourceLocation.withDefaultNamespace("block/oak_sapling");
+    public static final WoodSetList WOOD_SETS = new WoodSetList();
 
-    public static final DeferredBlock<RotatedPillarBlock> SAKURA_LOG = treeLog(
-            "sakura_log",
-            "block_tree_sakura_log",
-            "樱花原木"
-    );
-    public static final DeferredBlock<SaplingBlock> SAKURA_SAPLING = treeSapling(
-            "sakura_sapling",
-            SAPTreeGrowers.SAKURA,
-            "block_tree_sakura_nae",
-            "樱花树苗"
-    );
-    public static final DeferredBlock<LeavesBlock> SAKURA_LEAVES = treeLeaves(
-            "sakura_leaves",
-            SAKURA_SAPLING,
-            "block_tree_sakura_flow",
-            "樱花树叶"
-    );
+    public static final WoodSetList.WoodSet SAKURA_SET = WOOD_SETS.get(WoodSetList.Type.SAKURA);
+    public static final WoodSetList.WoodSet MAPLE_SET = WOOD_SETS.get(WoodSetList.Type.MAPLE);
+    public static final WoodSetList.WoodSet GINKGO_SET = WOOD_SETS.get(WoodSetList.Type.GINKGO);
 
-    public static final DeferredBlock<RotatedPillarBlock> MAPLE_LOG = treeLog(
-            "maple_log",
-            "block_tree_kaede_log",
-            "枫树原木"
-    );
-    public static final DeferredBlock<SaplingBlock> MAPLE_SAPLING = treeSapling(
-            "maple_sapling",
-            SAPTreeGrowers.MAPLE,
-            "block_tree_kaede_nae",
-            "枫树树苗"
-    );
-    public static final DeferredBlock<LeavesBlock> MAPLE_LEAVES = treeLeaves(
-            "maple_leaves",
-            MAPLE_SAPLING,
-            "block_tree_kaede_leaf",
-            "枫树树叶"
-    );
-
-    public static final DeferredBlock<RotatedPillarBlock> GINKGO_LOG = treeLog(
-            "ginkgo_log",
-            "block_tree_ichoh_log",
-            "银杏原木"
-    );
-    public static final DeferredBlock<SaplingBlock> GINKGO_SAPLING = treeSapling(
-            "ginkgo_sapling",
-            SAPTreeGrowers.GINKGO,
-            "block_tree_ichoh_nae",
-            "银杏树苗"
-    );
-    public static final DeferredBlock<LeavesBlock> GINKGO_LEAVES = treeLeaves(
-            "ginkgo_leaves",
-            GINKGO_SAPLING,
-            "block_tree_ichoh_leaf",
-            "银杏树叶"
-    );
-
-    public static final DeferredBlock<SaplingBlock> AUTUMN_OAK_SAPLING = treeSapling(
+    public static final DeferredBlock<SaplingBlock> AUTUMN_OAK_SAPLING = WoodSetList.treeSapling(
             "autumn_oak_sapling",
             SAPTreeGrowers.AUTUMN_OAK,
-            "block_tree_oakkare_nae",
             "秋橡树树苗"
     );
-    public static final DeferredBlock<LeavesBlock> AUTUMN_OAK_LEAVES = treeLeaves(
+    public static final DeferredBlock<LeavesBlock> AUTUMN_OAK_LEAVES = WoodSetList.treeLeaves(
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
-            "block_tree_oakkare_leaf",
-            "秋橡树树叶"
+            "秋橡树树叶",
+            () -> ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, FastColor.ARGB32.color(255, 176, 106, 45)),
+            MapColor.COLOR_ORANGE
+    );
+    public static final DeferredBlock<SlabBlock> AUTUMN_OAK_LEAVES_SLAB = WoodSetList.treeLeavesSlab(
+            "autumn_oak_leaves_slab",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树叶台阶",
+            MapColor.COLOR_ORANGE
+    );
+    public static final DeferredBlock<LeavesVerticalSlabBlock> AUTUMN_OAK_LEAVES_VERTICAL_SLAB = WoodSetList.treeLeavesVerticalSlab(
+            "autumn_oak_leaves_vertical_slab",
+            AUTUMN_OAK_LEAVES_SLAB,
+            AUTUMN_OAK_LEAVES,
+            "竖直秋橡树树叶台阶",
+            MapColor.COLOR_ORANGE
+    );
+    public static final DeferredBlock<StairBlock> AUTUMN_OAK_LEAVES_STAIRS = WoodSetList.treeLeavesStairs(
+            "autumn_oak_leaves_stairs",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树叶楼梯",
+            MapColor.COLOR_ORANGE
+    );
+    public static final DeferredBlock<HedgeBlock> AUTUMN_OAK_HEDGE = WoodSetList.treeHedge(
+            "autumn_oak_hedge",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树篱",
+            MapColor.COLOR_ORANGE
     );
 
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
             .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
-            .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
                     .strength(3.0F, 3.0F)
                     .sound(SoundType.STONE)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, ore) -> provider.cubeAllBlockWithItem(ore.get(), provider.modLoc("block/bauxite_ore/bauxite_ore")))
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
+                    context, generator, generator.modLoc("block/bauxite_ore/bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
-            .lang("zh_cn", "矾土矿石")
+            .lang(DatagenLangRegistry.ZH_CN, "矾土矿石")
             .register();
 
     public static final DeferredBlock<DropExperienceBlock> DEEPSLATE_BAUXITE_ORE = SAPRegistries
             .block("deepslate_bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
-            .alias(CompatInfo.CHINJUFU_MOD, "block_bauxite_ore_deep")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
                     .strength(4.5F, 3.0F)
                     .sound(SoundType.DEEPSLATE)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, ore) -> provider.cubeAllBlockWithItem(ore.get(), provider.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
+                    context, generator, generator.modLoc("block/bauxite_ore/deepslate_bauxite_ore")))
             .loot((provider, ore) -> provider.dropOre(ore.get(), ItemRegistry.RAW_BAUXITE.get()))
-            .lang("zh_cn", "深层矾土矿石")
+            .lang(DatagenLangRegistry.ZH_CN, "深层矾土矿石")
             .register();
 
     public static final DeferredBlock<Block> RAW_BAUXITE_BLOCK = SAPRegistries
@@ -133,14 +133,15 @@ public class BlockRegistry {
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.RAW_IRON_BLOCK)
                     .strength(5.0F, 6.0F)
                     .sound(SoundType.STONE)
+                    .mapColor(MapColor.DIRT)
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
+            .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.RAW_BAUXITE.get(), "raw_bauxite_from_block"))
-            .lang("zh_cn", "粗矾土块")
+            .lang(DatagenLangRegistry.ZH_CN, "粗矾土块")
             .register();
 
     public static final DeferredBlock<Block> ALUMINUM_BLOCK = SAPRegistries
@@ -151,15 +152,152 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, block) -> provider.cubeAllBlockWithItem(block.get()))
+            .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
+            .blockstate(() -> StandardBlockModels::cubeAll)
             .loot((provider, block) -> provider.dropSelf(block.get()))
             .recipe((provider, block) -> DatagenRecipeFactory.storageBlock(provider, block, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_block"))
-            .lang("zh_cn", "铝块")
+            .lang(DatagenLangRegistry.ZH_CN, "铝块")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("aluminum_ingot_pile", IngotPileBlock::new), "block_alumi_block")
+    public static final DeferredBlock<WindChimeBlock> WIND_CHIME = SAPRegistries
+            .block("wind_chime", WindChimeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(1.0F)
+                    .sound(SoundType.GLASS)
+                    .mapColor(MapColor.NONE)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.WOOD_POST_HANGING_CONNECTIONS)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A hanging ornament with independently dyeable _ribbon_ and _vane_.",
+                            "悬绳与短册可_分别染色_的悬挂饰物。")
+                    .behaviour(
+                            "When crafted with dye:", "与染料合成时：",
+                            "Change the _ribbon_ or _vane_ color.", "改变_悬绳_或_短册_颜色。")
+                    .behaviour(
+                            "Over time:", "经过一段时间后：",
+                            "Play soft ambient chimes.", "发出轻柔的环境风铃声。")
+                    .action(
+                            "Right-click", "右键点击",
+                            "_Ring_ the wind chime.", "_敲响_风铃。"))
+            .tooltipModifier(new WindChimeTooltipModifier())
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_CHIMES)
+            .blockstate(() -> WindChimeModels::block)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, windChime) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, windChime.get())
+                        .define('S', Items.STRING)
+                        .define('G', Items.GLASS_PANE)
+                        .define('A', Items.AMETHYST_SHARD)
+                        .define('P', Items.PAPER)
+                        .pattern(" S ")
+                        .pattern("GAG")
+                        .pattern(" P ")
+                        .unlockedBy(provider.hasName(Items.AMETHYST_SHARD), provider.hasItem(Items.AMETHYST_SHARD))
+                        .save(provider.output());
+
+                provider.output().accept(
+                        provider.id("wind_chime_ribbon_dyeing"),
+                        new WindChimeDyeRecipe(WindChimeDyeRecipe.Target.RIBBON),
+                        null
+                );
+                provider.output().accept(
+                        provider.id("wind_chime_vane_dyeing"),
+                        new WindChimeDyeRecipe(WindChimeDyeRecipe.Target.VANE),
+                        null
+                );
+                provider.output().accept(
+                        provider.id("wind_chime_dual_dyeing"),
+                        new WindChimeDyeRecipe(WindChimeDyeRecipe.Target.BOTH),
+                        null
+                );
+            })
+            .itemModel(() -> WindChimeModels::item)
+            .customClientItem(ShadowsAndPetals.asResource("wind_chime"))
+            .lang(DatagenLangRegistry.ZH_CN, "风铃")
+            .register();
+
+    public static final DeferredBlock<CopperTeapotBlock> COPPER_TEAPOT = SAPRegistries
+            .block("copper_teapot", CopperTeapotBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withCustomItem(CopperTeapotBlockItem::new)
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_TEA)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A _decorative copper teapot_ that can hold fluids.",
+                            "可盛装液体的_铜制装饰茶壶_。")
+                    .behaviour(
+                            "Right-click to open:", "右键打开：",
+                            "Open the teapot screen.", "打开茶壶界面。")
+                    .behaviour(
+                            "When placed on an irori:", "放置在围炉上时：",
+                            "Lift to sit on the _irori grate_.", "抬高并摆放在_围炉炉架_上。"))
+            .blockstate(() -> DecorationBlockModels::copperTeapot)
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                        .define('C', Items.COPPER_INGOT)
+                        .pattern("C C")
+                        .pattern("C C")
+                        .pattern(" C ")
+                        .unlockedBy("has_copper_ingot", provider.hasItem(Items.COPPER_INGOT))
+                        .save(provider.output());
+            })
+            .clientItem(ShadowsAndPetals.asResource("item/teapot/copper"))
+            .lang(DatagenLangRegistry.ZH_CN, "铜茶壶")
+            .register();
+
+    public static final DeferredBlock<RawConcreteBlock> RAW_CONCRETE = SAPRegistries
+            .block("raw_concrete", RawConcreteBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.5F, 6.0F)
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.CLAY)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "An unfinished architectural block with _connected textures_.",
+                            "具有_连接纹理_的素面建筑方块。")
+                    .behaviour(
+                            "When placed beside itself:", "与同类方块相邻放置时:",
+                            "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。"))
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_CONCRETE)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
+                    context,
+                    generator,
+                    ShadowsAndPetals.asResource("block/raw_concrete/base")))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .connectedTextures(
+                    ShadowsAndPetals.asResource("block/raw_concrete/base"),
+                    List.of(
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_bleed"),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_hole_bleed"),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_dense_hole_bleed")),
+                    RawConcreteBlock::selectTextureIndex,
+                    CTTextureType.OMNIDIRECTIONAL, 1)
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 8)
+                        .define('P', ItemTags.PLANKS)
+                        .define('C', Tags.Items.CONCRETE_POWDERS)
+                        .pattern("PPP")
+                        .pattern("PCP")
+                        .pattern("PPP")
+                        .unlockedBy("has_concrete_powder", provider.hasTag(Tags.Items.CONCRETE_POWDERS))
+                        .save(provider.output());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, Blocks.WHITE_CONCRETE);
+            })
+            .lang(DatagenLangRegistry.ZH_CN, "清水混凝土")
+            .register();
+
+    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = SAPRegistries
+            .block("aluminum_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.METAL)
@@ -167,15 +305,15 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_INGOT_PILES)
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, ItemRegistry.ALUMINUM_INGOT.get(), "aluminum_ingot_from_pile"))
-            .lang("zh_cn", "铝锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "铝锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("iron_ingot_pile", IngotPileBlock::new), "block_steel_block")
+    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = SAPRegistries
+            .block("iron_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.METAL)
@@ -183,15 +321,15 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_INGOT_PILES)
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.IRON_INGOT, "iron_ingot_from_pile"))
-            .lang("zh_cn", "铁锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "铁锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("copper_ingot_pile", IngotPileBlock::new), "block_copper_block")
+    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = SAPRegistries
+            .block("copper_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
@@ -199,15 +337,15 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_INGOT_PILES)
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.COPPER_INGOT, "copper_ingot_from_pile"))
-            .lang("zh_cn", "铜锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "铜锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("gold_ingot_pile", IngotPileBlock::new), "block_gold_block")
+    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = SAPRegistries
+            .block("gold_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.GOLD_BLOCK)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.METAL)
@@ -215,15 +353,15 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_INGOT_PILES)
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.GOLD_INGOT, "gold_ingot_from_pile"))
-            .lang("zh_cn", "金锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "金锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = CompatInfo.ingotPileStateAlias(SAPRegistries
-            .block("netherite_ingot_pile", IngotPileBlock::new), "block_netherite_block")
+    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = SAPRegistries
+            .block("netherite_ingot_pile", IngotPileBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                     .strength(50.0F, 1200.0F)
                     .sound(SoundType.NETHERITE_BLOCK)
@@ -231,12 +369,491 @@ public class BlockRegistry {
                     .requiresCorrectToolForDrops())
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, pile) -> provider.ingotPileBlock(pile.get()))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_INGOT_PILES)
+            .blockstate(() -> DecorationBlockModels::ingotPile)
             .loot((provider, pile) -> provider.dropSlab(pile.get()))
             .recipe((provider, pile) -> DatagenRecipeFactory.ingotPile(provider, pile, Items.NETHERITE_INGOT, "netherite_ingot_from_pile"))
-            .lang("zh_cn", "下界合金锭堆")
+            .lang(DatagenLangRegistry.ZH_CN, "下界合金锭堆")
             .register();
+
+    public static final DeferredBlock<IroriBlock> IRORI = SAPRegistries
+            .block("irori", IroriBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.STONE)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A modular _hearth_ that shares its grill, fuel, and fire across connected blocks.",
+                            "在相连方块间共享炉架、燃料与火焰的组合式_围炉_。")
+                    .behaviour(
+                            "While burning:", "燃烧时：",
+                            "Cook campfire and smoking recipes on the grill, repel nearby _Phantoms_, and suppress their spawning.",
+                            "在炉架上烹饪篝火与烟熏配方，驱散附近的_幻翼_并抑制其生成。")
+                    .behaviour(
+                            "When all fuel is exhausted:", "所有燃料耗尽时：",
+                            "Leave behind ash that can be collected as _Bone Meal_.", "留下可收集为_骨粉_的灰烬。")
+                    .action(
+                            "Right-click with an Iron Ingot:", "手持铁锭右键：",
+                            "_Install_ a grill across the connected hearth.", "为整组围炉_安装_炉架。")
+                    .action(
+                            "Shift Right-click:", "Shift+右键：",
+                            "Open the shared _menu_ to add or retrieve fuel.", "打开共享_界面_以存取燃料。")
+                    .action(
+                            "Use Flint and Steel or a Fire Charge:", "使用打火石或火焰弹：",
+                            "_Ignite_ the loaded fuel.", "_点燃_已添加的燃料。")
+                    .action(
+                            "Right-click the Grill with Cookable Food:", "手持可烹饪食物右键炉架：",
+                            "Place one item on the _grill_.", "将一份食物放上_炉架_。")
+                    .action(
+                            "Empty-hand Right-click the Food:", "空手右键炉架上的食物：",
+                            "Take it from the _grill_.", "从_炉架_上取回食物。")
+                    .action(
+                            "Right-click the Ash:", "右键点击灰烬：",
+                            "Collect it as _Bone Meal_.", "将其收集为_骨粉_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_IRORI)
+            .blockstate(() -> DecorationBlockModels::irori)
+            .loot((provider, irori) -> provider.dropSelf(irori.get()))
+            .recipe((provider, irori) -> provider.shaped(RecipeCategory.DECORATIONS, irori.get())
+                    .define('L', ItemTags.LOGS)
+                    .define('B', Items.STONE_BRICKS)
+                    .define('G', Items.GRAVEL)
+                    .pattern("LLL")
+                    .pattern("BGB")
+                    .pattern("BBB")
+                    .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
+                    .save(provider.output()))
+            .lang(DatagenLangRegistry.ZH_CN, "日式围炉")
+            .register();
+
+    public static final DeferredBlock<IroriGrillBlock> IRORI_GRILL = SAPRegistries
+            .block("irori_grill", IroriGrillBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.0F, 6.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()
+                    .pushReaction(PushReaction.BLOCK))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .blockstate(() -> DecorationBlockModels::iroriGrill)
+            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .lang(DatagenLangRegistry.ZH_CN, "围炉烤架")
+            .register();
+
+    public static final DeferredBlock<IroriGrillCopperTeapotBlock> IRORI_GRILL_COPPER_TEAPOT = SAPRegistries
+            .block("irori_grill_copper_teapot", IroriGrillCopperTeapotBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
+                    .strength(3.0F, 6.0F)
+                    .sound(SoundType.COPPER)
+                    .noOcclusion()
+                    .requiresCorrectToolForDrops()
+                    .pushReaction(PushReaction.BLOCK))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTagRegistry.OCCUPIES_IRORI_GRILL_SURFACE)
+            .blockstate(() -> DecorationBlockModels::iroriGrillCopperTeapot)
+            .loot((provider, block) -> provider.dropOther(block.get(), COPPER_TEAPOT.get()))
+            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Copper Teapot")
+            .lang(DatagenLangRegistry.ZH_CN, "铜茶壶")
+            .register();
+
+    public static final DeferredBlock<BedroomLampBlock> BEDROOM_LAMP = SAPRegistries
+            .block("bedroom_lamp", BedroomLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(BedroomLampBlock.LIT) ? 10 : 0))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A warm decorative _bedside lamp_.",
+                            "散发温暖光线的装饰性_卧室台灯_。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_LAMPS)
+            .blockstate(() -> DecorationBlockModels::bedroomLamp)
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                    .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                    .requires(Items.GLOWSTONE)
+                    .requires(Tags.Items.INGOTS_IRON)
+                    .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                    .save(provider.output()))
+            .clientItem(ShadowsAndPetals.asResource("block/bedroom_lamp/off"))
+            .lang(DatagenLangRegistry.ZH_CN, "卧室台灯")
+            .register();
+
+    public static final DeferredBlock<WallLampBlock> WALL_LAMP = SAPRegistries
+            .block("wall_lamp", WallLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(WallLampBlock.LIT) ? 10 : 0))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A compact lamp that mounts to a _sturdy wall face_.",
+                            "安装在_坚固墙面_上的小型灯具。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_LAMPS)
+            .blockstate(() -> DecorationBlockModels::wallLamp)
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                    .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                    .requires(Items.GLOWSTONE)
+                    .requires(ItemRegistry.ALUMINUM_INGOT.get())
+                    .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                    .save(provider.output()))
+            .clientItem(ShadowsAndPetals.asResource("block/wall_lamp/off"))
+            .lang(DatagenLangRegistry.ZH_CN, "壁灯")
+            .register();
+
+    public static final DeferredBlock<EmergencyLampBlock> EMERGENCY_LAMP = SAPRegistries
+            .block("emergency_lamp", EmergencyLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(EmergencyLampBlock.LIT) ? 10 : 0))
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A rugged lamp that attaches to _any sturdy face_.",
+                            "可安装在_任意坚固面_上的耐用防爆灯。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_LAMPS)
+            .blockstate(() -> DecorationBlockModels::emergencyLamp)
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> {
+                provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                        .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                        .requires(Items.WHITE_STAINED_GLASS)
+                        .requires(Items.GLOWSTONE)
+                        .requires(Tags.Items.INGOTS_IRON)
+                        .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                        .save(provider.output());
+
+                provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                        .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                        .requires(Items.WHITE_STAINED_GLASS)
+                        .requires(Items.GLOWSTONE)
+                        .requires(ItemRegistry.ALUMINUM_INGOT.get())
+                        .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                        .save(provider.output(), provider.id("emergency_lamp_from_aluminum").toString());
+            })
+            .clientItem(ShadowsAndPetals.asResource("block/emergency_lamp/off"))
+            .lang(DatagenLangRegistry.ZH_CN, "防爆灯")
+            .register();
+
+    public static final DeferredBlock<RecessedLampBlock> RECESSED_LAMP = SAPRegistries
+            .block("recessed_lamp", RecessedLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withCustomItem(RecessedLampBlockItem::new)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A compact light recessed into a _floor or ceiling_.",
+                            "嵌入_地面或天花板_的小型灯具。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_LAMPS)
+            .blockstate(() -> DecorationBlockModels::recessedLamp)
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, lamp.get(), 4)
+                        .define('I', Tags.Items.INGOTS_IRON)
+                        .define('L', Items.GLOWSTONE)
+                        .define('G', Tags.Items.GLASS_PANES_COLORLESS)
+                        .pattern("GIG")
+                        .pattern("ILI")
+                        .pattern("GIG")
+                        .unlockedBy("has_iron_ingot", provider.hasTag(Tags.Items.INGOTS_IRON))
+                        .save(provider.output());
+
+                provider.shaped(RecipeCategory.DECORATIONS, lamp.get(), 4)
+                        .define('I', ItemRegistry.ALUMINUM_INGOT.get())
+                        .define('L', Items.GLOWSTONE)
+                        .define('G', Tags.Items.GLASS_PANES_COLORLESS)
+                        .pattern("GIG")
+                        .pattern("ILI")
+                        .pattern("GIG")
+                        .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
+                        .save(provider.output(), provider.id("recessed_lamp_from_aluminum").toString());
+            })
+            .clientItem(ShadowsAndPetals.asResource("block/recessed_lamp/up_off"))
+            .lang(DatagenLangRegistry.ZH_CN, "嵌灯")
+            .register();
+
+    public static final DeferredBlock<RecessedLampCompositeBlock> RECESSED_LAMP_COMPOSITE = SAPRegistries
+            .block("recessed_lamp_composite", RecessedLampCompositeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .dynamicShape()
+                    .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
+            .blockstate(() -> DecorationBlockModels::recessedLampComposite)
+            .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+            .lang(DatagenLangRegistry.DEFAULT_LOCALE, "Recessed Lamp")
+            .lang(DatagenLangRegistry.ZH_CN, "嵌灯")
+            .register();
+
+    public static final DeferredBlock<DeskLampBlock> DESK_LAMP = SAPRegistries
+            .block("desk_lamp", DeskLampBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.METAL)
+                    .mapColor(MapColor.METAL)
+                    .noOcclusion()
+                    .lightLevel(state -> state.getValue(DeskLampBlock.LIT) ? 10 : 0))
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A focused lamp for a _sturdy tabletop_.",
+                            "放置在_坚固台面_上的聚光台灯。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "Toggle the light _on or off_.", "切换灯的_开关状态_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_LAMPS)
+            .blockstate(() -> DecorationBlockModels::deskLamp)
+            .loot((provider, lamp) -> provider.dropSelf(lamp.get()))
+            .recipe((provider, lamp) -> provider.shapeless(RecipeCategory.DECORATIONS, lamp.get(), 2)
+                    .requires(provider.ingredient(Tags.Items.DUSTS_REDSTONE), 2)
+                    .requires(Items.GLOWSTONE)
+                    .requires(ItemRegistry.ALUMINUM_INGOT.get(), 2)
+                    .unlockedBy(provider.hasName(Items.GLOWSTONE), provider.hasItem(Items.GLOWSTONE))
+                    .save(provider.output()))
+            .clientItem(ShadowsAndPetals.asResource("block/desk_lamp/off"))
+            .lang(DatagenLangRegistry.ZH_CN, "台灯")
+            .register();
+
+    public static final DeferredBlock<BonsaiBlock> BONSAI = SAPRegistries
+            .block("bonsai", BonsaiBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(0.5F)
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.STONE)
+                    .noOcclusion()
+                    .pushReaction(PushReaction.DESTROY))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_BONSAI)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A _decorative pot_ for growing trees.",
+                            "可栽种树木的_装饰花盆_。")
+                    .behaviour(
+                            "Use a Sapling on an empty pot:", "对空花盆使用树苗：",
+                            "Create a miniature tree matching the sapling's _wood and foliage_.",
+                            "栽种具有对应_树干与树叶_的微型盆景。")
+                    .behaviour(
+                            "Use a Dead Bush on an empty pot:", "对空花盆使用枯死的灌木：",
+                            "Create a leafless _dead-tree bonsai_.",
+                            "栽种一株无叶的_枯木盆景_。")
+                    .action(
+                            "Empty-hand Right-click:", "已种植时空手右键：",
+                            "_Cycle_ through four bonsai shapes.",
+                            "切换四种_盆景造型_。")
+                    .action(
+                            "Sneak + Empty-hand Right-click:", "潜行时空手右键：",
+                            "Rotate the pot by _22.5°_.",
+                            "将花盆旋转_22.5°_。")
+                    .action(
+                            "Use Shears on a living bonsai:", "对活盆景使用剪刀：",
+                            "Remove its leaves and turn it into a _dead tree_.",
+                            "剪去树叶，使其变为_枯木盆景_。")
+                    .action(
+                            "Use Shears on a dead bonsai:", "对枯木盆景使用剪刀：",
+                            "Recover the planted item and return to an _empty pot_.",
+                            "取回种植物，并恢复为_空花盆_。"))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get(), 3)
+                    .define('A', ItemRegistry.ALUMINUM_INGOT.get())
+                    .define('D', ItemTags.DIRT)
+                    .pattern("ADA")
+                    .pattern(" A ")
+                    .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
+                    .save(provider.output()))
+            .blockstate(() -> BonsaiBlockModels::block)
+            .lang(DatagenLangRegistry.ZH_CN, "盆栽")
+            .register();
+
+    public static final DeferredBlock<WoodenBarrelBlock> WOODEN_BARREL = SAPRegistries
+            .block("wooden_barrel", WoodenBarrelBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.BARREL)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withCustomItem(WoodenBarrelBlockItem::new)
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A wooden vessel for _storing fluids_.",
+                            "用于_储存流体_的木制容器。"
+                    )
+                    .behaviour(
+                            "When exposed to rain:", "暴露在雨中时：",
+                            "_Slowly collects water_.", "_缓慢收集雨水_。"
+                    )
+                    .behaviour(
+                            "When broken:", "被破坏时：",
+                            "Keeps its _stored fluid_.", "保留其中_储存的流体_。"
+                    )
+                    .action(
+                            "Use a fluid container:", "使用流体容器：",
+                            "_Fill or drain_ the barrel.", "向木桶_灌入或抽取_流体。"
+                    )
+                    .action(
+                            "Use a water bottle:", "使用水瓶：",
+                            "Transfer _250 mB of water_.", "转移 _250 mB 水_。"
+                    )
+                    .action(
+                            "Shift + Right-click with a filled barrel:", "手持装液木桶 Shift + 右键：",
+                            "_Place one bucket_ of its fluid.", "_放出一桶_内部流体。"
+                    )
+            )
+            .tooltipModifier(new WoodenBarrelTooltipModifier())
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CONTAINERS)
+            .blockstate(() -> DecorationBlockModels::woodenBarrel)
+            .customClientItem(ShadowsAndPetals.asResource("wooden_barrel"))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                        .define('S', ItemTags.WOODEN_SLABS)
+                        .pattern(" S ")
+                        .pattern("SSS")
+                        .pattern(" S ")
+                        .unlockedBy(provider.hasName(Items.OAK_PLANKS), provider.hasItem(Items.OAK_PLANKS))
+                        .save(provider.output());
+
+                DatagenRecipeFactory.woodenBarrelFluid(
+                        provider,
+                        block,
+                        Fluids.WATER,
+                        Tags.Items.BUCKETS_WATER,
+                        "wooden_barrel_from_water_bucket"
+                );
+                DatagenRecipeFactory.woodenBarrelFluid(
+                        provider,
+                        block,
+                        NeoForgeMod.MILK.value(),
+                        Tags.Items.BUCKETS_MILK,
+                        "wooden_barrel_from_milk_bucket"
+                );
+            })
+            .lang(DatagenLangRegistry.ZH_CN, "木桶")
+            .register();
+
+    public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile", RoofTileBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICKS)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_ROOF_TILES)
+            .blockstate(() -> (context, generator) -> RoofTileModels.base(
+                    context,
+                    generator,
+                    generator.modLoc("block/roof_tile/" + color.getName())
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> {
+                provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 8)
+                        .define('S', Items.STONE_BRICKS)
+                        .define('D', color.getTag())
+                        .pattern("SSS")
+                        .pattern("SDS")
+                        .pattern("SSS")
+                        .unlockedBy(provider.hasName(Items.STONE_BRICKS), provider.hasItem(Items.STONE_BRICKS))
+                        .save(provider.output());
+            })
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦")
+            .register());
+
+    public static final DyedBlockList<RoofTileSlabBlock> ROOF_TILE_SLABS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile_slab", RoofTileSlabBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_SLAB)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.SLABS)
+            .withItem()
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_ROOF_TILES)
+            .blockstate(() -> (context, generator) -> RoofTileModels.shapes(context, generator, color))
+            .loot((provider, block) -> provider.dropSlab(block.get()))
+            .recipe((provider, block) -> {
+                provider.slabFromBase(RecipeCategory.BUILDING_BLOCKS, block.get(), ROOF_TILES.get(color).get());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
+            })
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦台阶")
+            .register());
+
+    public static final DyedBlockList<RoofTileVerticalSlabBlock> ROOF_TILE_VERTICAL_SLABS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile_vertical_slab", RoofTileVerticalSlabBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_SLAB)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_ROOF_TILES)
+            .clientItem(block -> ShadowsAndPetals.asResource("block/" + block.getId().getPath()))
+            .loot((provider, block) -> provider.dropSlab(block.get()))
+            .recipe((provider, block) -> {
+                var slab = ROOF_TILE_SLABS.get(color).get();
+                provider.shaped(RecipeCategory.BUILDING_BLOCKS, block.get(), 3)
+                        .define('S', slab)
+                        .pattern("S")
+                        .pattern("S")
+                        .pattern("S")
+                        .unlockedBy(provider.hasName(slab), provider.hasItem(slab))
+                        .save(provider.output());
+                provider.shapeless(RecipeCategory.BUILDING_BLOCKS, slab)
+                        .requires(block.get())
+                        .unlockedBy(provider.hasName(block.get()), provider.hasItem(block.get()))
+                        .save(provider.output(), provider.id(color.getName() + "_roof_tile_vertical_slab_revert").toString());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 2, ROOF_TILES.get(color).get());
+            })
+            .lang(DatagenLangRegistry.ZH_CN, "竖直" + DyedBlockList.zhName(color) + "瓦台阶")
+            .register());
+
+    public static final DyedBlockList<StairBlock> ROOF_TILE_STAIRS = new DyedBlockList<>(color -> SAPRegistries
+            .block(color.getName() + "_roof_tile_stairs", properties -> new StairBlock(ROOF_TILES.get(color).get().defaultBlockState(), properties))
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICK_STAIRS)
+                    .strength(1.5F, 6.0F)
+                    .sound(SoundType.DEEPSLATE_TILES)
+                    .mapColor(color)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
+            .withItem()
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_ROOF_TILES)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> {
+                provider.stairsFromBase(block.get(), ROOF_TILES.get(color).get());
+                provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, ROOF_TILES.get(color).get());
+            })
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦楼梯")
+            .register());
 
     public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
             .block(woodType.getName() + "_vanity", VanityBlock::new)
@@ -246,9 +863,18 @@ public class BlockRegistry {
                     .noOcclusion())
             .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, vanity) -> provider.vanityBlock(vanity.get()))
-            .recipe((provider, vanity) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, vanity.get())
+            .tooltipDescription(tooltip -> tooltip
+                    .summary("A decorative _vanity_ with a _usable drawer_.", "带有_抽屉_的装饰性梳妆台。")
+                    .behaviour(
+                            "When the drawer is right-clicked:", "右键点击抽屉时:",
+                            "Open its _9-slot storage_ space.", "打开其_9 格储物空间_。")
+                    .behaviour(
+                            "When the front is obstructed:", "前方被阻挡时:",
+                            "The drawer _cannot open_.", "抽屉_无法打开_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_VANITIES)
+            .blockstate(() -> DecorationBlockModels::vanity)
+            .clientItem(ShadowsAndPetals.asResource("item/vanity/" + woodType.getName()))
+            .recipe((provider, vanity) -> provider.shaped(RecipeCategory.DECORATIONS, vanity.get())
                     .define('S', woodType.getSlab())
                     .define('G', Items.GLASS_PANE)
                     .pattern("S  ")
@@ -256,94 +882,157 @@ public class BlockRegistry {
                     .pattern("SSS")
                     .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
                     .save(provider.output()))
-            .lang("zh_cn", woodType.getZhName() + "梳妆台")
-            .register()
-    );
+            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "梳妆台")
+            .register());
 
-    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
-            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_unitdesk"))
+    public static final DeferredBlock<WindowPaneBlock> RED_LACQUERED_WINDOW_PANE = SAPRegistries
+            .block("red_lacquered_window_pane", WindowPaneBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                    .sound(SoundType.WOOD)
+                    .mapColor(DyeColor.RED)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_WINDOW_PANES)
+            .blockstate(() -> WindowPaneModels::redLacquered)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "红漆窗格")
+            .register();
+
+    public static final WoodBlockList<WindowPaneBlock> WINDOW_PANES = new WoodBlockList<>(woodType ->
+            registerWindowPane(
+                    woodType.getName() + "_window_pane",
+                    woodType,
+                    woodType.getName(),
+                    woodType.getZhName() + "窗格"
+            ));
+
+    public static final DeferredBlock<WoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
+            .block("red_lacquered_wood_pillar", WoodPillarBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
-                    .noOcclusion())
+                    .mapColor(DyeColor.RED))
+            .tags(BlockTags.MINEABLE_WITH_AXE)
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", woodType.getZhName() + "书桌")
-            .recipe((provider, desk) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, desk.get())
-                    .define('W', woodType.getSlab())
-                    .pattern("WWW")
-                    .pattern("W W")
-                    .pattern("W W")
-                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_PILLARS)
+            .blockstate(() -> (context, generator) -> AxisAlignedPillarBlockModels.withItem(
+                    context,
+                    generator,
+                    ShadowsAndPetals.asResource("block/wood_pillar/red_lacquered_wood_pillar")
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shapeless(RecipeCategory.DECORATIONS, block.get())
+                    .requires(provider.ingredient(ItemTagRegistry.STRIPPED_WOOD_PILLARS))
+                    .requires(Items.RED_DYE)
+                    .unlockedBy(
+                            provider.hasName(ItemTagRegistry.STRIPPED_WOOD_PILLARS),
+                            provider.hasTag(ItemTagRegistry.STRIPPED_WOOD_PILLARS)
+                    )
                     .save(provider.output()))
+            .lang(DatagenLangRegistry.ZH_CN, "红漆木圆柱")
+            .register();
+
+    public static final WoodBlockList<WoodPillarBlock> STRIPPED_WOOD_PILLARS = new WoodBlockList<>(woodType -> SAPRegistries
+            .block("stripped_" + woodType.getName() + "_wood_pillar", WoodPillarBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getStrippedLog())
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.WOOD))
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_PILLARS)
+            .blockstate(() -> (context, generator) -> WoodPillarBlockModels.strippedWoodPillar(
+                    context,
+                    generator,
+                    woodType
+            ))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "去皮" + woodType.getZhName() + "木圆柱")
             .register());
 
-    public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
-            block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias1(woodType, "block_cafetable"))
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD)
-                    .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", woodType.getZhName() + "咖啡桌")
-            .recipe((provider, desk) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, desk.get())
-                    .define('W', woodType.getSlab())
-                    .define('S', Items.STICK)
-                    .pattern("WWW")
-                    .pattern(" S ")
-                    .pattern("SSS")
-                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
-                    .save(provider.output()))
-            .register());
-
-    public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
-            .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
-            .stateAliasProperties(CompatInfo.CHINJUFU_MOD, CompatInfo.getWoodBlockAlias2(woodType, "block_diningchair"), legacy -> legacy
-                            .property(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH)
-                            .property(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER)
-                            .property(BlockStateProperties.WATERLOGGED, false),
-                    (legacyState, targetState) -> legacyState.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.LOWER
-                            ? targetState
-                            .setValue(DiningChairBlock.FACING, legacyState.getValue(BlockStateProperties.HORIZONTAL_FACING))
-                            .setValue(DiningChairBlock.WATERLOGGED, legacyState.getValue(BlockStateProperties.WATERLOGGED))
-                            : legacyState.getValue(BlockStateProperties.WATERLOGGED)
-                            ? Blocks.WATER.defaultBlockState()
-                            : Blocks.AIR.defaultBlockState())
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(2.0F, 3.0F)
-                    .sound(SoundType.WOOD)
-                    .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", woodType.getZhName() + "餐椅")
-            .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
-                    .define('W', woodType.getSlab())
-                    .define('S', Items.STICK)
-                    .pattern("W  ")
-                    .pattern("WWW")
-                    .pattern("S S")
-                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
-                    .save(provider.output()))
-            .register());
+//    public static final WoodBlockList<ModularDeskBlock> MODULAR_DESKS = new WoodBlockList<>(woodType -> SAPRegistries.
+//            block(woodType.getName() + "_modular_desk", ModularDeskBlock::new)
+//            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+//                    .strength(2.0F, 3.0F)
+//                    .sound(SoundType.WOOD)
+//                    .noOcclusion())
+//            .withItem()
+//            .creativeTab(CreativeTabType.MAIN)
+//            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "书桌")
+//            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
+//                    .define('W', woodType.getSlab())
+//                    .pattern("WWW")
+//                    .pattern("W W")
+//                    .pattern("W W")
+//                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+//                    .save(provider.output()))
+//            .register());
+//
+//    public static final WoodBlockList<CafeTableBlock> CAFE_TABLES = new WoodBlockList<>(woodType -> SAPRegistries.
+//            block(woodType.getName() + "_cafe_table", CafeTableBlock::new)
+//            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+//                    .strength(2.0F, 3.0F)
+//                    .sound(SoundType.WOOD)
+//                    .noOcclusion())
+//            .withItem()
+//            .creativeTab(CreativeTabType.MAIN)
+//            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "咖啡桌")
+//            .recipe((provider, desk) -> provider.shaped(RecipeCategory.DECORATIONS, desk.get())
+//                    .define('W', woodType.getSlab())
+//                    .define('S', Items.STICK)
+//                    .pattern("WWW")
+//                    .pattern(" S ")
+//                    .pattern("SSS")
+//                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+//                    .save(provider.output()))
+//            .register());
+//
+//    public static final WoodBlockList<DiningChairBlock> DINING_CHAIRS = new WoodBlockList<>(woodType -> SAPRegistries
+//            .block(woodType.getName() + "_dining_chair", DiningChairBlock::new)
+//            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+//                    .strength(2.0F, 3.0F)
+//                    .sound(SoundType.WOOD)
+//                    .noOcclusion())
+//            .withItem()
+//            .creativeTab(CreativeTabType.MAIN)
+//            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "餐椅")
+//            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
+//                    .define('W', woodType.getSlab())
+//                    .define('S', Items.STICK)
+//                    .pattern("W  ")
+//                    .pattern("WWW")
+//                    .pattern("S S")
+//                    .unlockedBy(provider.hasName(woodType.getPlanks()), provider.hasItem(woodType.getPlanks()))
+//                    .save(provider.output()))
+//            .register());
 
     public static final DyedBlockList<CafeChairBlock> CAFE_CHAIRS = new DyedBlockList<>(color -> SAPRegistries
             .block(color.getName() + "_cafe_chair", CafeChairBlock::new)
-            .alias(CompatInfo.CHINJUFU_MOD, CompatInfo.getDyedBlockAlias(color, "block_cafechair"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
+                    .mapColor(color)
                     .noOcclusion())
             .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .lang("zh_cn", DyedBlockList.zhName(color) + "咖啡椅")
-            .blockstate((provider, chair) -> provider.simpleBlockWithItem(
-                    chair.get(),
-                    provider.models().getExistingFile(provider.modLoc("block/cafe_chair/" + color.getName()))
+            .tooltipDescription(tooltip -> tooltip
+                    .summary("A soft seat that can be _recolored_.", "一把可以_重新染色_的柔软座椅。")
+                    .behaviour(
+                            "When right-clicked:", "右键点击时:",
+                            "_Sit_ on the chair.", "_坐_在椅子上。")
+                    .behaviour(
+                            "When landed on:", "落在上面时:",
+                            "_Cushion_ the fall and bounce upward.", "_缓冲_坠落并向上弹起。")
+                    .action(
+                            "Right-click with Dye:", "手持染料右键点击:",
+                            "_Recolor_ the chair.", "为椅子_重新染色_。"))
+            .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_CHAIRS)
+            .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "咖啡椅")
+            .blockstate(() -> (context, generator) -> StandardBlockModels.simpleBlockWithItem(
+                    context,
+                    generator,
+                    generator.modLoc("block/cafe_chair/" + color.getName())
             ))
-            .recipe((provider, chair) -> ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, chair.get())
+            .recipe((provider, chair) -> provider.shaped(RecipeCategory.DECORATIONS, chair.get())
                     .define('W', WoolUtils.getWool(color))
                     .define('S', Items.STICK)
                     .pattern(" W ")
@@ -353,55 +1042,205 @@ public class BlockRegistry {
                     .save(provider.output()))
             .register());
 
+    public static final DeferredBlock<SamonBlock> SAMON = SAPRegistries
+            .block("samon", SamonBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(0.7F)
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.SAND))
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+            .withItem()
+            .blockstate(() -> DecorationBlockModels::samon)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "砂纹")
+            .register();
+
+    public static final DeferredBlock<SandExcavationBlock> SAND_EXCAVATION = SAPRegistries
+            .block("sand_excavation", SandExcavationBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SAND)
+                    .strength(0.5F)
+                    .sound(SoundType.SAND))
+            .tags(BlockTags.MINEABLE_WITH_SHOVEL)
+            .blockstate(() -> NatureBlockModels::sandExcavation)
+            .loot((provider, block) -> provider.addTable(
+                    block.get(),
+                    LootTable.lootTable().withPool(LootPool.lootPool()
+                            .setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(Items.SAND)))
+            ))
+            .lang(DatagenLangRegistry.ZH_CN, "挖掘中的沙子")
+            .register();
+
+    public static final DeferredBlock<ShishiOdoshiBlock> SHISHI_ODOSHI = SAPRegistries
+            .block("shishi_odoshi", ShishiOdoshiBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.BAMBOO)
+                    .mapColor(MapColor.STONE)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A bamboo water feature that fills from above, tips, and _knocks_.",
+                            "从上方蓄液、倾倒并发出_敲击声_的竹制添水。")
+                    .behaviour(
+                            "When supplied by a Pipe above:", "由上方竹管供液时:",
+                            "Fill with the pipe's fluid, then pour and _strike_ in a repeating cycle.", "蓄入竹管提供的流体，随后倾倒并循环_敲击_。"))
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_WATER_FEATURES)
+            .blockstate(() -> DecorationBlockModels::shishiOdoshi)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                    .define('B', Items.BAMBOO)
+                    .define('S', Items.COBBLESTONE)
+                    .pattern("BBB")
+                    .pattern("SSS")
+                    .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
+                    .save(provider.output()))
+            .lang(DatagenLangRegistry.ZH_CN, "添水")
+            .register();
+
+    public static final DeferredBlock<ShishiOdoshiPipeBlock> SHISHI_ODOSHI_PIPE = SAPRegistries
+            .block("shishi_odoshi_pipe", ShishiOdoshiPipeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.of()
+                    .strength(1.0F, 1.5F)
+                    .sound(SoundType.BAMBOO)
+                    .mapColor(MapColor.PLANT)
+                    .noOcclusion())
+            .tags(BlockTags.MINEABLE_WITH_AXE)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A bamboo _spout_ that pours fluid from a source behind it.",
+                            "从背后流体源引出液体的竹制_出水管_。")
+                    .behaviour(
+                            "When attached to a compatible fluid source:", "连接兼容的流体源时:",
+                            "Feed fluid into a _Shishi-Odoshi directly below_.", "向_正下方的添水_持续供液。"))
+            .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_WATER_FEATURES)
+            .blockstate(() -> DecorationBlockModels::shishiOdoshiPipe)
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .recipe((provider, block) -> provider.shaped(RecipeCategory.DECORATIONS, block.get())
+                    .define('B', Items.BAMBOO)
+                    .pattern("B")
+                    .pattern("B")
+                    .unlockedBy(provider.hasName(Items.BAMBOO), provider.hasItem(Items.BAMBOO))
+                    .save(provider.output()))
+            .lang(DatagenLangRegistry.ZH_CN, "添水竹管")
+            .register();
+
+    public static final DyedBlockList<CurtainBlock> CURTAINS = new DyedBlockList<>(color -> SAPRegistries
+                .block(color.getName() + "_curtain", CurtainBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                        .strength(1.0F)
+                        .sound(SoundType.WOOL)
+                        .mapColor(color)
+                        .noOcclusion())
+                .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_CURTAINS)
+                .blockstate(() -> CurtainModels::block)
+                .clientItem(block -> ShadowsAndPetals.asResource(
+                        "block/curtain/item/" + color.getName()))
+                .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
+                .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "窗帘")
+                .register()
+    );
+
+    public static final DyedBlockList<LargeCurtainBlock> LARGE_CURTAINS = new DyedBlockList<>(color -> SAPRegistries
+                .block(color.getName() + "_large_curtain", LargeCurtainBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                        .strength(1.0F)
+                        .sound(SoundType.WOOL)
+                        .mapColor(color)
+                        .noOcclusion())
+                .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_CURTAINS)
+                .blockstate(() -> LargeCurtainModels::block)
+                .clientItem(block -> ShadowsAndPetals.asResource("block/large_curtain/item/"
+                        + color.getName()))
+                .loot((provider, block) -> provider.dropSelfAnchorOnly(block.get(), LargeCurtainBlock.COLUMN))
+                .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "大窗帘")
+                .register()
+    );
+
+    public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
+            .block("orange_tree", OrangeTreeBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH)
+                    .randomTicks()
+                    .instabreak()
+                    .sound(SoundType.GRASS)
+                    .noOcclusion()
+                    .offsetType(BlockBehaviour.OffsetType.XZ)
+                    .pushReaction(PushReaction.DESTROY))
+            .blockstate(() -> NatureBlockModels::orangeTree)
+            .loot((provider, tree) -> provider.addTable(
+                    tree.get(),
+                    LootTable.lootTable().withPool(LootPool.lootPool()
+                            .setRolls(ConstantValue.exactly(1.0F))
+                            .add(LootItem.lootTableItem(ItemRegistry.ORANGE_SEED.get())))
+            ))
+            .lang(DatagenLangRegistry.ZH_CN, "蜜柑树")
+            .register();
+
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x1 = registerRockery(1, 1, 1);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x1x2 = registerRockery(1, 1, 2);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x2x1 = registerRockery(1, 2, 1);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x2x2 = registerRockery(1, 2, 2);
+    public static final DeferredBlock<RockeryBlock> ROCKERY_1x3x1 = registerRockery(1, 3, 1);
+
+    private static DeferredBlock<RockeryBlock> registerRockery(int w, int h, int d) {
+        RockeryDimensions dims = new RockeryDimensions(w, h, d);
+        DeferredBlock<RockeryBlock> result = SAPRegistries
+                .block("rockery_" + w + "_" + h + "_" + d,
+                        props -> new RockeryBlock(dims, props))
+                .properties(p -> BlockBehaviour.Properties.of()
+                        .strength(1.5F, 6.0F)
+                        .sound(SoundType.STONE)
+                        .mapColor(MapColor.STONE)
+                        .noOcclusion()
+                        .requiresCorrectToolForDrops())
+                .withItem()
+                .tooltipComponent(
+                        (rockery, stack) -> new RockeryTooltipComponent(rockery, dims),
+                        100)
+                .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_ROCKERIES)
+                .tags(BlockTags.MINEABLE_WITH_PICKAXE)
+                .blockstate(() -> (context, generator) -> NatureBlockModels.rockery(context, generator, dims))
+                .clientItem(ShadowsAndPetals.asResource("block/rock/1x1x1/0_0_0"))
+                .loot((provider, block) -> provider.addTable(block.get(), provider.noDropTable()))
+                .lang(DatagenLangRegistry.DEFAULT_LOCALE, "rockery")
+                .lang(DatagenLangRegistry.ZH_CN, "石山")
+                .register();
+
+        HammerItem.registerRockery(result, dims);
+        return result;
+    }
+
+    private static DeferredBlock<WindowPaneBlock> registerWindowPane(
+            String id,
+            WoodBlockList.WoodType woodType,
+            String modelName,
+            String zhName
+    ) {
+        return SAPRegistries
+                .block(id, WindowPaneBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
+                        .sound(SoundType.WOOD)
+                        .noOcclusion())
+                .tags(BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_WINDOW_PANES)
+                .blockstate(() -> (context, generator) -> WindowPaneModels.block(
+                        context,
+                        generator,
+                        modelName,
+                        woodType.getPlanks()
+                ))
+                .loot((provider, block) -> provider.dropSelf(block.get()))
+                .lang(DatagenLangRegistry.ZH_CN, zhName)
+                .register();
+    }
+
     public static void init() {}
-
-    private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String compatAlias, String zhName) {
-        return SAPRegistries.block(id, RotatedPillarBlock::new)
-                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
-                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LOG)
-                        .strength(2.0F)
-                        .sound(SoundType.WOOD))
-                .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN, BlockTags.OVERWORLD_NATURAL_LOGS)
-                .withItem()
-                .creativeTab(CreativeTabType.NATURE)
-                .lang("zh_cn", zhName)
-                .blockstate((provider, log) -> provider.logBlockWithItem(log.get(), OAK_LOG_SIDE_TEXTURE, OAK_LOG_END_TEXTURE))
-                .register();
-    }
-
-    private static DeferredBlock<LeavesBlock> treeLeaves(String id, Supplier<SaplingBlock> sapling, String compatAlias, String zhName) {
-        return SAPRegistries.block(id, LeavesBlock::new)
-                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
-                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
-                        .strength(0.2F)
-                        .sound(SoundType.GRASS)
-                        .noOcclusion()
-                        .isValidSpawn((state, getter, pos, type) -> false)
-                        .isSuffocating((state, getter, pos) -> false)
-                        .isViewBlocking((state, getter, pos) -> false))
-                .tags(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
-                .withItem()
-                .creativeTab(CreativeTabType.NATURE)
-                .lang("zh_cn", zhName)
-                .blockstate((provider, leaves) -> provider.leavesBlockWithItem(leaves.get(), OAK_LEAVES_TEXTURE))
-                .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
-                .register();
-    }
-
-    private static DeferredBlock<SaplingBlock> treeSapling(String id, TreeGrower grower, String compatAlias, String zhName) {
-        return SAPRegistries.block(id, properties -> new SaplingBlock(grower, properties))
-                .alias(CompatInfo.CHINJUFU_MOD, compatAlias)
-                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_SAPLING)
-                        .noOcclusion()
-                        .randomTicks()
-                        .instabreak()
-                        .sound(SoundType.GRASS)
-                        .pushReaction(PushReaction.DESTROY))
-                .tags(BlockTags.SAPLINGS)
-                .withItem()
-                .creativeTab(CreativeTabType.NATURE)
-                .lang("zh_cn", zhName)
-                .blockstate((provider, sapling) -> provider.saplingBlockWithItem(sapling.get(), OAK_SAPLING_TEXTURE))
-                .register();
-    }
 }

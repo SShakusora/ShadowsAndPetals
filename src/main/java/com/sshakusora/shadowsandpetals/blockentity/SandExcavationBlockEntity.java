@@ -1,0 +1,248 @@
+package com.sshakusora.shadowsandpetals.blockentity;
+
+import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
+import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationCooldownData;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationLootPool;
+import com.sshakusora.shadowsandpetals.world.excavation.SandExcavationResult;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.RegistryOps;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
+
+public final class SandExcavationBlockEntity extends BlockEntity {
+    public static final int BRUSH_COOLDOWN_TICKS = 10;
+    public static final int BRUSH_RESET_TICKS = 40;
+    public static final int REQUIRED_BRUSHES_TO_COMPLETE = 10;
+
+    private static final int RESET_STEP_TICKS = 4;
+    private static final int RESET_STEP_AMOUNT = 2;
+    private static final long SUCCESS_COOLDOWN_TICKS = 40_960L;
+    private static final long EMPTY_COOLDOWN_TICKS = 2_400L;
+    private static final String BRUSH_COUNT_KEY = "brush_count";
+    private static final String RESET_AT_KEY = "reset_at";
+    private static final String COOLDOWN_END_KEY = "cooldown_end";
+    private static final String HIT_DIRECTION_KEY = "hit_direction";
+    private static final String ITEM_KEY = "item";
+    private static final String RESULT_RESOLVED_KEY = "result_resolved";
+    private static final String RESULT_CATEGORY_KEY = "result_category";
+
+    private int brushCount;
+    private long brushCountResetsAtTick;
+    private long coolDownEndsAtTick;
+    private ItemStack item = ItemStack.EMPTY;
+    private boolean resultResolved;
+    private SandExcavationResult.Category resultCategory = SandExcavationResult.Category.EMPTY;
+    private @Nullable Direction hitDirection;
+
+    public SandExcavationBlockEntity(BlockPos pos, BlockState state) {
+        super(BlockEntityRegistry.SAND_EXCAVATION.get(), pos, state);
+    }
+
+    public void begin(long gameTime) {
+        brushCountResetsAtTick = gameTime + BRUSH_RESET_TICKS;
+        setChanged();
+    }
+
+    public boolean brush(long gameTime, ServerLevel level, Direction direction) {
+        if (hitDirection == null) {
+            hitDirection = direction;
+        }
+
+        brushCountResetsAtTick = gameTime + BRUSH_RESET_TICKS;
+        if (gameTime < coolDownEndsAtTick) {
+            return false;
+        }
+
+        coolDownEndsAtTick = gameTime + BRUSH_COOLDOWN_TICKS;
+        resolveResult(level);
+        int previousDusted = getDustedState();
+        brushCount++;
+        setChanged();
+
+        if (brushCount >= REQUIRED_BRUSHES_TO_COMPLETE) {
+            complete(level);
+            return true;
+        }
+
+        int dusted = getDustedState();
+        if (previousDusted != dusted) {
+            level.setBlock(worldPosition, getBlockState().setValue(SandExcavationBlock.DUSTED, dusted), 3);
+        }
+        level.scheduleTick(worldPosition, getBlockState().getBlock(), 2);
+        return false;
+    }
+
+    public void checkReset(ServerLevel level) {
+        if (brushCount != 0 && level.getGameTime() >= brushCountResetsAtTick) {
+            int previousDusted = getDustedState();
+            brushCount = Math.max(0, brushCount - RESET_STEP_AMOUNT);
+            int dusted = getDustedState();
+            setChanged();
+
+            if (brushCount == 0) {
+                level.setBlock(worldPosition, Blocks.SAND.defaultBlockState(), 3);
+                return;
+            }
+
+            brushCountResetsAtTick = level.getGameTime() + RESET_STEP_TICKS;
+            if (previousDusted != dusted) {
+                level.setBlock(worldPosition, getBlockState().setValue(SandExcavationBlock.DUSTED, dusted), 3);
+            }
+        }
+
+        if (brushCount == 0) {
+            if (brushCountResetsAtTick == 0L || level.getGameTime() >= brushCountResetsAtTick) {
+                level.setBlock(worldPosition, Blocks.SAND.defaultBlockState(), 3);
+            } else {
+                level.scheduleTick(worldPosition, getBlockState().getBlock(), 2);
+            }
+        } else {
+            level.scheduleTick(worldPosition, getBlockState().getBlock(), 2);
+        }
+    }
+
+    private void complete(ServerLevel level) {
+        boolean hasDrop = !item.isEmpty();
+        long cooldownTicks = hasDrop ? SUCCESS_COOLDOWN_TICKS : EMPTY_COOLDOWN_TICKS;
+        SandExcavationCooldownData.startCooldown(
+                level,
+                worldPosition,
+                cooldownTicks
+        );
+
+        BlockState state = getBlockState();
+        level.levelEvent(3008, worldPosition, Block.getId(state));
+        level.playSound(null, worldPosition, SoundEvents.BRUSH_SAND_COMPLETED, SoundSource.BLOCKS);
+        if (hasDrop) {
+            dropContent(level);
+        }
+        level.setBlock(worldPosition, Blocks.SAND.defaultBlockState(), 3);
+    }
+
+    private void resolveResult(ServerLevel level) {
+        if (resultResolved) {
+            return;
+        }
+
+        resultResolved = true;
+        SandExcavationResult result = SandExcavationLootPool.roll(level);
+        resultCategory = result.category();
+        item = result.stack();
+        setChanged();
+        BlockState state = getBlockState();
+        level.sendBlockUpdated(worldPosition, state, state, 3);
+    }
+
+    private void dropContent(ServerLevel level) {
+        Direction dropDirection = hitDirection == null ? Direction.UP : hitDirection;
+        BlockPos dropPos = worldPosition.relative(dropDirection);
+        double itemWidth = EntityType.ITEM.getWidth();
+        double inset = itemWidth / 2.0;
+        double range = 1.0 - itemWidth;
+        ItemEntity entity = new ItemEntity(
+                level,
+                dropPos.getX() + 0.5 * range + inset,
+                dropPos.getY() + 0.5 + EntityType.ITEM.getHeight() / 2.0,
+                dropPos.getZ() + 0.5 * range + inset,
+                item.copy()
+        );
+        entity.setDeltaMovement(Vec3.ZERO);
+        level.addFreshEntity(entity);
+        this.item = ItemStack.EMPTY;
+    }
+
+    public @Nullable Direction getHitDirection() {
+        return hitDirection;
+    }
+
+    public ItemStack getItem() {
+        return item;
+    }
+
+    public SandExcavationResult.Category getResultCategory() {
+        return resultCategory;
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        if (hitDirection != null) {
+            tag.putString(HIT_DIRECTION_KEY, hitDirection.getName());
+        }
+        tag.putBoolean(RESULT_RESOLVED_KEY, resultResolved);
+        if (!item.isEmpty()) {
+            tag.put(ITEM_KEY, item.save(registries));
+        }
+        return tag;
+    }
+
+    @Override
+    public ClientboundBlockEntityDataPacket getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    protected void loadAdditional(CompoundTag input, HolderLookup.Provider registries) {
+        super.loadAdditional(input, registries);
+        brushCount = Math.clamp(input.getInt(BRUSH_COUNT_KEY), 0, REQUIRED_BRUSHES_TO_COMPLETE - 1);
+        brushCountResetsAtTick = input.getLong(RESET_AT_KEY);
+        coolDownEndsAtTick = input.getLong(COOLDOWN_END_KEY);
+        item = input.contains(ITEM_KEY, 10) ? ItemStack.parse(registries, input.getCompound(ITEM_KEY)).orElse(ItemStack.EMPTY) : ItemStack.EMPTY;
+        resultResolved = input.getBoolean(RESULT_RESOLVED_KEY);
+        resultCategory = input.contains(RESULT_CATEGORY_KEY, 8)
+                ? SandExcavationResult.Category.CODEC.parse(NbtOps.INSTANCE, input.get(RESULT_CATEGORY_KEY)).result().orElse(SandExcavationResult.Category.EMPTY)
+                : SandExcavationResult.Category.EMPTY;
+        hitDirection = input.contains(HIT_DIRECTION_KEY, 8)
+                ? Direction.byName(input.getString(HIT_DIRECTION_KEY))
+                : null;
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag output, HolderLookup.Provider registries) {
+        super.saveAdditional(output, registries);
+        if (brushCount != 0) {
+            output.putInt(BRUSH_COUNT_KEY, brushCount);
+            output.putLong(RESET_AT_KEY, brushCountResetsAtTick);
+            output.putLong(COOLDOWN_END_KEY, coolDownEndsAtTick);
+        }
+        if (!item.isEmpty()) {
+            output.put(ITEM_KEY, item.save(registries));
+        }
+        output.putBoolean(RESULT_RESOLVED_KEY, resultResolved);
+        if (resultResolved) {
+            SandExcavationResult.Category.CODEC.encodeStart(NbtOps.INSTANCE, resultCategory)
+                    .result().ifPresent(tag -> output.put(RESULT_CATEGORY_KEY, tag));
+        }
+        if (hitDirection != null) {
+            Direction.CODEC.encodeStart(NbtOps.INSTANCE, hitDirection)
+                    .result().ifPresent(tag -> output.put(HIT_DIRECTION_KEY, tag));
+        }
+    }
+
+    private int getDustedState() {
+        if (brushCount == 0) {
+            return 0;
+        }
+        if (brushCount < 3) {
+            return 1;
+        }
+        return brushCount < 6 ? 2 : 3;
+    }
+}

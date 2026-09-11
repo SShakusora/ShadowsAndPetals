@@ -6,10 +6,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.DismountHelper;
 import net.minecraft.world.level.Level;
@@ -37,7 +36,9 @@ public class SeatEntity extends Entity {
             return null;
         }
 
-        seat.moveTo(pos.getX() + 0.5D, pos.getY() + seatHeight, pos.getZ() + 0.5D, 0.0F, 0.0F);
+        seat.setPos(pos.getX() + 0.5D, pos.getY() + seatHeight, pos.getZ() + 0.5D);
+        seat.setYRot(0.0F);
+        seat.setXRot(0.0F);
         level.addFreshEntity(seat);
         return seat;
     }
@@ -57,7 +58,7 @@ public class SeatEntity extends Entity {
     @Override
     public void tick() {
         super.tick();
-        if (level().isClientSide) {
+        if (level().isClientSide()) {
             return;
         }
 
@@ -112,10 +113,15 @@ public class SeatEntity extends Entity {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {}
 
     @Override
-    protected void readAdditionalSaveData(CompoundTag compound) {}
+    protected void readAdditionalSaveData(CompoundTag input) {}
 
     @Override
-    protected void addAdditionalSaveData(CompoundTag compound) {}
+    protected void addAdditionalSaveData(CompoundTag output) {}
+
+    @Override
+    public boolean hurt(DamageSource source, float damage) {
+        return false;
+    }
 
     @Override
     public boolean shouldRender(double x, double y, double z) {
