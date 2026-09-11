@@ -35,6 +35,31 @@ final class LargeCurtainGeometry {
         return true;
     }
 
+    /**
+     * Chooses the lower outer anchor for a placement whose clicked position
+     * should represent the top of the curtain whenever possible. The first
+     * candidate puts the clicked position in the upper row; the fallback
+     * keeps the old upward-extending behaviour for locations without room
+     * below the clicked position.
+     */
+    static @Nullable Placement choosePlacement(
+            BlockPos clicked,
+            Direction inner,
+            Predicate<BlockPos> replaceable
+    ) {
+        BlockPos downwardAnchor = clicked.below();
+        if (allReplaceable(downwardAnchor, inner, replaceable)) {
+            return new Placement(downwardAnchor, true);
+        }
+        if (allReplaceable(clicked, inner, replaceable)) {
+            return new Placement(clicked, false);
+        }
+        return null;
+    }
+
+    record Placement(BlockPos lowerOuter, boolean clickedIsUpper) {
+    }
+
     static BlockPos anchorOf(BlockPos pos, Direction inner, boolean upper, boolean innerColumn) {
         BlockPos anchor = upper ? pos.below() : pos;
         return innerColumn ? anchor.relative(inner.getOpposite()) : anchor;

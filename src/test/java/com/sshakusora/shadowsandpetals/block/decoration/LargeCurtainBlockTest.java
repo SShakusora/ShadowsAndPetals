@@ -67,6 +67,48 @@ class LargeCurtainBlockTest {
     }
 
     @Test
+    void placementPrefersTheUpperClickedRowWhenTheLowerFootprintFits() {
+        BlockPos clicked = new BlockPos(2, 8, 6);
+        Direction inner = Direction.WEST;
+        Set<BlockPos> footprint = Set.copyOf(Arrays.asList(
+                LargeCurtainGeometry.structurePositions(clicked.below(), inner)
+        ));
+
+        LargeCurtainGeometry.Placement placement = LargeCurtainGeometry.choosePlacement(
+                clicked, inner, footprint::contains
+        );
+
+        assertNotNull(placement);
+        assertEquals(clicked.below(), placement.lowerOuter());
+        assertTrue(placement.clickedIsUpper());
+    }
+
+    @Test
+    void placementFallsBackToTheClickedLowerRowWhenTheLowerFootprintDoesNotFit() {
+        BlockPos clicked = new BlockPos(2, 8, 6);
+        Direction inner = Direction.WEST;
+        Set<BlockPos> footprint = Set.copyOf(Arrays.asList(
+                LargeCurtainGeometry.structurePositions(clicked, inner)
+        ));
+
+        LargeCurtainGeometry.Placement placement = LargeCurtainGeometry.choosePlacement(
+                clicked, inner, footprint::contains
+        );
+
+        assertNotNull(placement);
+        assertEquals(clicked, placement.lowerOuter());
+        assertFalse(placement.clickedIsUpper());
+    }
+
+    @Test
+    void placementIsRejectedWhenNeitherVerticalCandidateFits() {
+        BlockPos clicked = new BlockPos(2, 8, 6);
+        assertNull(LargeCurtainGeometry.choosePlacement(
+                clicked, Direction.WEST, position -> false
+        ));
+    }
+
+    @Test
     void neighbouringSidesMirrorUnlessThePlayerSneaks() {
         for (SideCase testCase : new SideCase[]{
                 new SideCase(false, true, false, true),

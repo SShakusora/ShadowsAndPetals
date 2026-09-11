@@ -1,7 +1,6 @@
 package com.sshakusora.shadowsandpetals.block.decoration.curtain;
 
 import com.mojang.serialization.MapCodec;
-import com.sshakusora.shadowsandpetals.blockentity.LargeCurtainBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.util.VoxelShapeUtils;
 import net.minecraft.core.BlockPos;
@@ -60,7 +59,6 @@ public class LargeCurtainBlock extends CurtainBlock {
     private static final ThreadLocal<Deque<Set<BlockPos>>> ACTIVE_TEARDOWNS =
             ThreadLocal.withInitial(ArrayDeque::new);
 
-    /** Which column of the two-wide curtain this block is. */
     public enum Column implements StringRepresentable {
         OUTER("outer"),
         INNER("inner");
@@ -171,76 +169,57 @@ public class LargeCurtainBlock extends CurtainBlock {
         );
     }
 
-    /** Returns the four positions belonging to the curtain anchored at {@code anchor}. */
+    /**
+     * Returns the four positions belonging to the curtain anchored at {@code anchor}.
+     */
     static BlockPos[] structurePositions(BlockPos anchor, BlockState state) {
         return LargeCurtainGeometry.structurePositions(anchor, innerStep(state));
     }
 
     /**
-     * Places the four blocks anchored at the clicked position: the click
-     * lands on the lower outer block and the structure extends upward and
-     * toward the inner column.
+     * Places the four blocks with the clicked position representing the top
+     * outer block whenever the space below is available. If it is not, the
+     * structure falls back to the lower outer block at the clicked position,
+     * matching the small curtain's upward-extending fallback.
      */
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockPos clickedPos = context.getClickedPos();
         Level level = context.getLevel();
         Direction facing = context.getHorizontalDirection().getOpposite();
-        Side side = sideForNeighbour(level, clickedPos, facing,
-                context.getPlayer() != null && context.getPlayer().isSecondaryUseActive());
-        BlockState anchor = defaultBlockState()
+        boolean sneaking = context.getPlayer() != null
+                && context.getPlayer().isSecondaryUseActive();
+        // The horizontal side is independent of the vertical candidate, but
+        // the side must be known before the inner-column direction can be
+        // checked for all four cells.
+        Side side = CurtainStructure.sideForPlacement(level, clickedPos, facing, sneaking);
+        BlockState placementState = defaultBlockState()
                 .setValue(FACING, facing)
-                .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
-                .setValue(SIDE, side)
-                .setValue(ANCHOR, true);
-        if (!LargeCurtainGeometry.allReplaceable(
+                .setValue(SIDE, side);
+        LargeCurtainGeometry.Placement placement = LargeCurtainGeometry.choosePlacement(
                 clickedPos,
-                innerStep(anchor),
-                part -> level.getBlockState(part).canBeReplaced(context))) {
+                innerStep(placementState),
+                part -> level.getBlockState(part).canBeReplaced(context)
+        );
+        if (placement == null) {
             return null;
         }
-        boolean powered = level.hasNeighborSignal(clickedPos);
+        BlockState anchor = placementState
+                .setValue(HALF, placement.clickedIsUpper()
+                        ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER)
+                .setValue(ANCHOR, !placement.clickedIsUpper());
+        boolean powered = false;
+        for (BlockPos position : LargeCurtainGeometry.structurePositions(
+                placement.lowerOuter(), innerStep(anchor))) {
+            if (level.hasNeighborSignal(position)) {
+                powered = true;
+                break;
+            }
+        }
         return anchor
                 .setValue(POWERED, powered)
                 .setValue(OPEN, powered);
-    }
-
-    /**
-     * Chooses the side from the neighbouring large curtain of the same
-     * facing, mirroring {@link CurtainBlock}'s wall geometry: the neighbour
-     * on the observer's left marks this curtain's window position as the
-     * observer's right, so the curtain is RIGHT, and vice versa. Sneaking
-     * keeps the neighbour's side instead (same-side pairing). Without a
-     * neighbouring curtain the curtain defaults to LEFT.
-     *
-     * <p>Because each curtain is two blocks wide, the partner of a window
-     * pair sits two cells away from this anchor (its inner column borders
-     * this curtain's inner column), while a directly adjacent curtain is
-     * one cell away; both distances are probed.</p>
-     */
-    private static Side sideForNeighbour(Level level, BlockPos lowerPos, Direction facing, boolean sneaking) {
-        Direction leftDir = facing.getClockWise();
-        Direction[] both = {leftDir, leftDir.getOpposite()};
-        for (Direction direction : both) {
-            for (int distance = 1; distance <= 2; distance++) {
-                BlockState neighbour = level.getBlockState(lowerPos.relative(direction, distance));
-                if (neighbour.getBlock() instanceof LargeCurtainBlock
-                        && neighbour.getValue(FACING) == facing) {
-                    if (sneaking) {
-                        return neighbour.getValue(SIDE);
-                    }
-                    // This curtain sits on the opposite window side from the
-                    // neighbour: neighbour at observer-left => this is RIGHT.
-                    return LargeCurtainGeometry.sideFromNeighbour(
-                            neighbour.getValue(SIDE) == Side.RIGHT,
-                            direction == leftDir,
-                            false
-                    ) ? Side.RIGHT : Side.LEFT;
-                }
-            }
-        }
-        return Side.LEFT;
     }
 
     @Override
@@ -274,14 +253,33 @@ public class LargeCurtainBlock extends CurtainBlock {
     ) {
         // Do not call super: CurtainBlock.setPlacedBy would place a second
         // vertical half meant for the one-column curtain.
-        if (!state.getValue(ANCHOR)) {
-            return;
-        }
-        BlockPos innerPos = pos.relative(innerStep(state));
-        level.setBlock(innerPos, state.setValue(COLUMN, Column.INNER).setValue(ANCHOR, false), Block.UPDATE_ALL);
-        level.setBlock(pos.above(), state.setValue(HALF, DoubleBlockHalf.UPPER).setValue(ANCHOR, false), Block.UPDATE_ALL);
-        level.setBlock(innerPos.above(),
-                state.setValue(HALF, DoubleBlockHalf.UPPER).setValue(COLUMN, Column.INNER).setValue(ANCHOR, false),
+        BlockPos lowerOuterPos = state.getValue(HALF) == DoubleBlockHalf.UPPER
+                ? pos.below()
+                : pos;
+        BlockState anchor = state
+                .setValue(HALF, DoubleBlockHalf.LOWER)
+                .setValue(COLUMN, Column.OUTER)
+                .setValue(ANCHOR, true);
+        Direction inner = innerStep(anchor);
+        BlockPos lowerInnerPos = lowerOuterPos.relative(inner);
+        BlockPos upperOuterPos = lowerOuterPos.above();
+        BlockPos upperInnerPos = lowerInnerPos.above();
+
+        // When the clicked position was the preferred upper row, create the
+        // canonical lower anchor first and then rewrite the clicked cell as
+        // the upper outer quadrant. This keeps ANCHOR meaningful regardless
+        // of which vertical placement candidate was selected.
+        level.setBlock(lowerOuterPos, anchor, Block.UPDATE_ALL);
+        level.setBlock(lowerInnerPos,
+                anchor.setValue(COLUMN, Column.INNER).setValue(ANCHOR, false),
+                Block.UPDATE_ALL);
+        level.setBlock(upperOuterPos,
+                anchor.setValue(HALF, DoubleBlockHalf.UPPER).setValue(ANCHOR, false),
+                Block.UPDATE_ALL);
+        level.setBlock(upperInnerPos,
+                anchor.setValue(HALF, DoubleBlockHalf.UPPER)
+                        .setValue(COLUMN, Column.INNER)
+                        .setValue(ANCHOR, false),
                 Block.UPDATE_ALL);
     }
 
@@ -314,7 +312,9 @@ public class LargeCurtainBlock extends CurtainBlock {
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
 
-    /** The two directions from any block of the curtain to its partners. */
+    /**
+     * The two directions from any block of the curtain to its partners.
+     */
     private static Direction[] structuralDirections(BlockState state) {
         Direction vertical = state.getValue(HALF) == DoubleBlockHalf.LOWER
                 ? Direction.UP
@@ -335,7 +335,9 @@ public class LargeCurtainBlock extends CurtainBlock {
                 && neighbour.getValue(COLUMN) != state.getValue(COLUMN)));
     }
 
-    /** The lower outer corner (anchor) of the curtain that owns this block. */
+    /**
+     * The lower outer corner (anchor) of the curtain that owns this block.
+     */
     static BlockPos anchorOf(BlockPos pos, BlockState state) {
         return LargeCurtainGeometry.anchorOf(
                 pos,
@@ -430,7 +432,9 @@ public class LargeCurtainBlock extends CurtainBlock {
                 && candidate.getValue(ANCHOR);
     }
 
-    /** Removes the parts other than the block already handled by the game mode. */
+    /**
+     * Removes the parts other than the block already handled by the game mode.
+     */
     private static void removeStructure(
             Level level, Set<BlockPos> structure, BlockPos anchor, BlockPos hit, BlockState state
     ) {
@@ -479,126 +483,4 @@ public class LargeCurtainBlock extends CurtainBlock {
         return false;
     }
 
-    /**
-     * The anchor of the partner curtain in a window pair, or null. Linking
-     * is geometric like {@link CurtainBlock}'s: the two curtains' anchors
-     * (their lower outer columns) sit side by side at the window center, so
-     * the partner's anchor is the next cell opposite this curtain's
-     * bunching direction. Two same-side curtains never link.
-     */
-    private static @Nullable BlockPos partnerAnchor(Level level, BlockPos anchor, BlockState state) {
-        BlockPos partnerAnchor = LargeCurtainGeometry.partnerAnchor(anchor, innerStep(state));
-        BlockState partner = level.getBlockState(partnerAnchor);
-        if (!isLinkedPartner(partner, state)
-                || partner.getValue(COLUMN) != Column.OUTER
-                || partner.getValue(HALF) != DoubleBlockHalf.LOWER) {
-            return null;
-        }
-        return partnerAnchor;
-    }
-
-    private static boolean isLinkedPartner(BlockState neighbour, BlockState state) {
-        return neighbour.getBlock() instanceof LargeCurtainBlock
-                && neighbour.getValue(FACING) == state.getValue(FACING)
-                && neighbour.getValue(SIDE) != state.getValue(SIDE);
-    }
-
-    @Override
-    protected boolean hasRedstoneSignal(Level level, BlockPos pos, BlockState state) {
-        return hasAnyRedstoneSignal(level, anchorOf(pos, state), innerStep(state));
-    }
-
-    @Override
-    protected void setPairPowered(Level level, BlockPos pos, BlockState state, boolean powered) {
-        setCurtainPowered(level, anchorOf(pos, state), innerStep(state), powered);
-    }
-
-    /**
-     * True when this curtain or its linked partner is powered; a powered
-     * pair ignores manual use, mirroring {@link CurtainBlock}.
-     */
-    @Override
-    protected boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
-        BlockPos anchor = anchorOf(pos, state);
-        if (state.getValue(POWERED) || hasAnyRedstoneSignal(level, anchor, innerStep(state))) {
-            return true;
-        }
-        BlockPos partner = partnerAnchor(level, anchor, state);
-        if (partner == null) {
-            return false;
-        }
-        BlockState partnerState = level.getBlockState(partner);
-        return partnerState.getValue(POWERED)
-                || hasAnyRedstoneSignal(level, partner, innerStep(partnerState));
-    }
-
-    /**
-     * Toggles this curtain plus its linked partner curtain, mirroring
-     * {@link CurtainBlock#togglePair}: a redstone signal on either curtain
-     * forces both open. {@code pos} is any block of this curtain.
-     */
-    @Override
-    protected void togglePair(Level level, BlockPos pos, BlockState state, boolean open) {
-        BlockPos anchor = anchorOf(pos, state);
-        BlockPos partner = partnerAnchor(level, anchor, state);
-        boolean powered = hasAnyRedstoneSignal(level, anchor, innerStep(state));
-        boolean partnerPowered = partner != null
-                && hasAnyRedstoneSignal(level, partner, innerStep(level.getBlockState(partner)));
-        boolean targetOpen = LargeCurtainGeometry.targetOpen(open, powered, partnerPowered);
-
-        toggleCurtain(level, anchor, state, targetOpen);
-        if (partner != null) {
-            toggleCurtain(level, partner, level.getBlockState(partner), targetOpen);
-        }
-    }
-
-    /** Sets a flag on every block of the curtain anchored at {@code anchor}. */
-    private static void setCurtainPowered(Level level, BlockPos anchor, Direction inner, boolean powered) {
-        for (BlockPos part : new BlockPos[]{
-                anchor, anchor.relative(inner), anchor.above(), anchor.above().relative(inner)
-        }) {
-            BlockState partState = level.getBlockState(part);
-            if (partState.getBlock() instanceof LargeCurtainBlock) {
-                level.setBlock(part, partState.setValue(POWERED, powered), Block.UPDATE_ALL);
-            }
-        }
-    }
-
-    /** True if any of the four blocks of this curtain sees redstone. */
-    private static boolean hasAnyRedstoneSignal(Level level, BlockPos anchor, Direction inner) {
-        for (BlockPos pos : new BlockPos[]{
-                anchor, anchor.relative(inner), anchor.above(), anchor.above().relative(inner)
-        }) {
-            if (level.hasNeighborSignal(pos)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    /** Toggles all four blocks of the curtain anchored at {@code anchor}. */
-    private static void toggleCurtain(Level level, BlockPos anchor, BlockState state, boolean open) {
-        long gameTime = level.getGameTime();
-        Direction inner = innerStep(state);
-        // POWERED tracks the live redstone signal, never the open target: a
-        // wrongly-stuck POWERED would lock the curtain against manual use.
-        boolean powered = hasAnyRedstoneSignal(level, anchor, inner);
-        for (BlockPos part : structurePositions(anchor, state)) {
-            BlockState partState = level.getBlockState(part);
-            if (!(partState.getBlock() instanceof LargeCurtainBlock)) {
-                continue;
-            }
-            // Record the clock before setBlock so the block-entity data
-            // packet carries OPEN and the animation timestamp together.
-            if (level.getBlockEntity(part) instanceof LargeCurtainBlockEntity curtain) {
-                curtain.recordTransition(gameTime, open);
-                curtain.setChanged();
-                level.sendBlockUpdated(part, partState, partState, Block.UPDATE_CLIENTS);
-            }
-            level.setBlock(part, partState.setValue(OPEN, open).setValue(POWERED, powered)
-                            .setValue(ANIMATING, true), Block.UPDATE_ALL);
-            level.scheduleTick(part, partState.getBlock(), ANIMATION_TICKS);
-        }
-    }
 }

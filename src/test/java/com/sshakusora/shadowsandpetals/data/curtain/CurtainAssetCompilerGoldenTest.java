@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,7 +80,7 @@ class CurtainAssetCompilerGoldenTest {
             byte[] bytes = digest.digest(canonical(value).getBytes(StandardCharsets.UTF_8));
             StringBuilder result = new StringBuilder(bytes.length * 2);
             for (byte valueByte : bytes) {
-                result.append(String.format(java.util.Locale.ROOT, "%02x", valueByte));
+                result.append(String.format(Locale.ROOT, "%02x", valueByte));
             }
             return result.toString();
         } catch (NoSuchAlgorithmException exception) {

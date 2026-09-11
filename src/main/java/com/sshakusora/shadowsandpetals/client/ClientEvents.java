@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client;
 import com.mojang.datafixers.util.Either;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimationResources;
 import com.sshakusora.shadowsandpetals.client.animation.SAPAnimations;
 import com.sshakusora.shadowsandpetals.client.ct.CTModelRegistry;
@@ -88,6 +89,11 @@ public class ClientEvents {
 
     @SubscribeEvent
     public static void extractBlockOutline(ExtractBlockOutlineRenderStateEvent event) {
+        if (CurtainBlock.isAnimating(event.getBlockState())) {
+            event.setCanceled(true);
+            return;
+        }
+
         var context = new BlockOutlineContext(
                 event.getBlockPos(),
                 event.getHitResult(),
