@@ -11,12 +11,14 @@ import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabContentsRegistry;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabKey;
 import com.sshakusora.shadowsandpetals.registries.CreativeTabOrder;
+import com.sshakusora.shadowsandpetals.registries.ItemTagRegistry;
 import com.sshakusora.shadowsandpetals.tooltip.TooltipComponentRegistry;
 import com.sshakusora.shadowsandpetals.tooltip.TooltipModifier;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -47,6 +49,7 @@ public class RegItemBuilder<I extends Item> {
     private Function<DeferredItem<I>, Identifier> customClientItemTypeFactory;
     private final List<CreativeTabKey> creativeTabs = new ArrayList<>();
     private final Map<CreativeTabKey, CreativeTabOrder> creativeTabOrders = new EnumMap<>(CreativeTabKey.class);
+    private final Set<TagKey<Item>> itemTags = new LinkedHashSet<>();
     private final List<Identifier> aliases = new ArrayList<>();
     private boolean hasTooltipDescription;
     private Consumer<TooltipLangBuilder> tooltipDescriptionGenerator;
@@ -226,6 +229,25 @@ public class RegItemBuilder<I extends Item> {
     }
 
     /**
+     * Adds an item tag for datagen (e.g. a NeoForge food tag).
+     */
+    public RegItemBuilder<I> tag(TagKey<Item> tag) {
+        this.itemTags.add(Objects.requireNonNull(tag));
+        return this;
+    }
+
+    /**
+     * Adds multiple item tags for datagen.
+     */
+    @SafeVarargs
+    public final RegItemBuilder<I> tags(TagKey<Item>... tags) {
+        for (TagKey<Item> tag : tags) {
+            tag(tag);
+        }
+        return this;
+    }
+
+    /**
      * Adds a same-namespace registry alias for this item.
      */
     public RegItemBuilder<I> alias(String oldPath) {
@@ -252,6 +274,8 @@ public class RegItemBuilder<I extends Item> {
         } else {
             deferredItem = registry.registerItem(name, itemFactory, () -> properties);
         }
+
+        registerItemTags(deferredItem);
 
         for (Identifier alias : aliases) {
             registry.addAlias(alias, deferredItem.getId());
@@ -305,8 +329,15 @@ public class RegItemBuilder<I extends Item> {
      */
     public DeferredItem<Item> simple() {
         DeferredItem<Item> deferredItem = registry.registerSimpleItem(name, () -> properties);
+        registerItemTags(deferredItem);
         ModelDatagenRegistry.addItem(deferredItem, null, null, null);
         return deferredItem;
+    }
+
+    private void registerItemTags(DeferredItem<? extends Item> item) {
+        for (TagKey<Item> tag : itemTags) {
+            ItemTagRegistry.add(tag, item);
+        }
     }
 
     private void applyModelDatagen(DeferredItem<I> deferredItem) {
@@ -332,6 +363,7 @@ public class RegItemBuilder<I extends Item> {
         private Function<DeferredItem<BlockItem>, Identifier> clientItemModelFactory;
         private final List<CreativeTabKey> creativeTabs = new ArrayList<>();
         private final Map<CreativeTabKey, CreativeTabOrder> creativeTabOrders = new EnumMap<>(CreativeTabKey.class);
+        private final Set<TagKey<Item>> itemTags = new LinkedHashSet<>();
         private final List<Identifier> aliases = new ArrayList<>();
 
         public BlockItemBuilder(DeferredRegister.Items registry, String name) {
@@ -406,6 +438,25 @@ public class RegItemBuilder<I extends Item> {
             return this;
         }
 
+        /**
+         * Adds an item tag for datagen.
+         */
+        public BlockItemBuilder tag(TagKey<Item> tag) {
+            this.itemTags.add(Objects.requireNonNull(tag));
+            return this;
+        }
+
+        /**
+         * Adds multiple item tags for datagen.
+         */
+        @SafeVarargs
+        public final BlockItemBuilder tags(TagKey<Item>... tags) {
+            for (TagKey<Item> tag : tags) {
+                tag(tag);
+            }
+            return this;
+        }
+
         public BlockItemBuilder alias(String oldPath) {
             this.aliases.add(ShadowsAndPetals.asResource(oldPath));
             return this;
@@ -433,6 +484,8 @@ public class RegItemBuilder<I extends Item> {
                 throw new IllegalStateException("BlockItemBuilder requires a block source via .fromBlock() or .fromDeferredBlock()");
             }
 
+            registerItemTags(deferredItem);
+
             for (Identifier alias : aliases) {
                 registry.addAlias(alias, deferredItem.getId());
             }
@@ -449,6 +502,12 @@ public class RegItemBuilder<I extends Item> {
                         creativeTabOrders.getOrDefault(tab, CreativeTabOrder.DEFAULT));
             }
             return deferredItem;
+        }
+
+        private void registerItemTags(DeferredItem<? extends Item> item) {
+            for (TagKey<Item> tag : itemTags) {
+                ItemTagRegistry.add(tag, item);
+            }
         }
     }
 }

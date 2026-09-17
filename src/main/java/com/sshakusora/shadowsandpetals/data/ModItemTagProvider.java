@@ -36,6 +36,12 @@ public class ModItemTagProvider extends BlockTagCopyingItemTagProvider {
                         .map(block -> block.get().asItem())
                         .toArray(Item[]::new)
         );
+        for (var entry : ItemTagRegistry.getAll().entrySet()) {
+            var appender = tag(entry.getKey());
+            for (var item : entry.getValue()) {
+                appender.add(item.get());
+            }
+        }
         copy(BlockTags.LOGS, ItemTags.LOGS);
         copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);
         copy(BlockTags.PLANKS, ItemTags.PLANKS);
