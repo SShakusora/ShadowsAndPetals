@@ -12,6 +12,7 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 public class ItemRegistry {
@@ -48,28 +49,114 @@ public class ItemRegistry {
             })
             .lang(DatagenLangRegistry.ZH_CN, "蜜柑")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_FRUIT)
             .register();
 
-    public static final DeferredItem<Item> BEAN_POD =
-            registerCuisineCropItem("bean_pod", "豆荚");
+    public static final DeferredItem<Item> BEAN_POD = SAPRegistries.item("bean_pod")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "豆荚")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
 
-    public static final DeferredItem<Item> CHINESE_CABBAGE =
-            registerCuisineCropItem("chinese_cabbage", "白菜");
+    public static final DeferredItem<Item> CABBAGE = SAPRegistries.item("cabbage")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(3)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "卷心菜")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
 
-    public static final DeferredItem<Item> STRAW =
-            registerCuisineCropItem("straw", "稻草");
+    public static final DeferredItem<Item> CHINESE_CABBAGE = SAPRegistries.item("chinese_cabbage")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(3)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "白菜")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
 
-    public static final DeferredItem<Item> CORN =
-            registerCuisineCropItem("corn", "玉米");
+    public static final DeferredItem<Item> CORN = SAPRegistries.item("corn")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(3)
+                    .saturationModifier(0.4F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "玉米")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
 
-    public static final DeferredItem<Item> DRIED_RICE =
-            registerCuisineCropItem("dried_rice", "干水稻");
+    public static final DeferredItem<Item> DRIED_RICE = SAPRegistries.item("dried_rice")
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "干水稻")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
+            .register();
 
-    public static final DeferredItem<Item> RICE =
-            registerCuisineCropItem("rice", "水稻");
+    public static final DeferredItem<Item> GRAPE = SAPRegistries.item("grape")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationModifier(0.2F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "葡萄")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_FRUIT)
+            .register();
 
-    public static final DeferredItem<Item> CABBAGE =
-            registerCuisineCropItem("cabbage", "卷心菜");
+    public static final DeferredItem<Item> ONION = SAPRegistries.item("onion")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "洋葱")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
+
+    public static final DeferredItem<Item> RICE = SAPRegistries.item("rice")
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "水稻")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
+            .register();
+
+    public static final DeferredItem<Item> SPINACH = SAPRegistries.item("spinach")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "菠菜")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
+
+    public static final DeferredItem<Item> STRAW = SAPRegistries.item("straw")
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "稻草")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
+            .register();
+
+    public static final DeferredItem<Item> TOMATO = SAPRegistries.item("tomato")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "番茄")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
 
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
@@ -167,14 +254,6 @@ public class ItemRegistry {
             .creativeTab(CreativeTabKey.TRADITIONS, CreativeTabOrder.TRADITIONS_TOOLS)
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_TOOLS)
             .register();
-
-    private static DeferredItem<Item> registerCuisineCropItem(String id, String zhName) {
-        return SAPRegistries.item(id)
-                .model(() -> (context, generator) -> generator.generatedItem(context.get()))
-                .lang(DatagenLangRegistry.ZH_CN, zhName)
-                .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
-                .register();
-    }
 
     public static void init() {}
 }
