@@ -7,7 +7,6 @@ import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.blockentity.BonsaiBlockEntity;
 import com.sshakusora.shadowsandpetals.client.model.BlockModelRegistry;
 import com.sshakusora.shadowsandpetals.client.model.bonsai.BonsaiTreeGeometryCache;
-import com.sshakusora.shadowsandpetals.mixin.LevelRendererAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.RenderBuffers;
@@ -32,13 +31,13 @@ public final class BonsaiBreakingOverlay {
 
     public static void render(RenderLevelStageEvent event) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.level == null || !(event.getLevelRenderer() instanceof LevelRendererAccessor accessor)) {
+        if (minecraft.level == null) {
             return;
         }
 
         RenderBuffers renderBuffers = minecraft.renderBuffers();
         var crumblingBuffers = renderBuffers.crumblingBufferSource();
-        for (SortedSet<BlockDestructionProgress> progressSet : accessor.shadowsAndPetals$getDestructionProgress().values()) {
+        for (SortedSet<BlockDestructionProgress> progressSet : event.getLevelRenderer().destructionProgress.values()) {
             if (progressSet == null || progressSet.isEmpty()) {
                 continue;
             }
