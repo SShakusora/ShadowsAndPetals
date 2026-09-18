@@ -302,13 +302,15 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
     }
 
     public static boolean usesFullSlabOcclusion(BlockState slabState) {
-        if (!RecessedLampBlockEntity.isValidStoredSlab(slabState)) {
+        if (!RecessedLampBlockEntity.isValidStoredSlab(slabState) || !slabState.canOcclude()) {
             return false;
         }
 
-        VoxelShape expectedShape = slabState.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.TOP
-                ? TOP_SLAB_SHAPE
-                : BOTTOM_SLAB_SHAPE;
+        VoxelShape expectedShape =
+                slabState.getValue(BlockStateProperties.SLAB_TYPE) == SlabType.TOP
+                        ? TOP_SLAB_SHAPE
+                        : BOTTOM_SLAB_SHAPE;
+
         return !Shapes.joinIsNotEmpty(
                 slabState.getOcclusionShape(EmptyBlockGetter.INSTANCE, BlockPos.ZERO),
                 expectedShape,
