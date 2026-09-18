@@ -526,6 +526,31 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .register();
     }
 
+    public static DeferredBlock<LeavesBlock> treeLeaves(
+            String id,
+            DeferredBlock<SaplingBlock> sapling,
+            String zhName,
+            MapColor mapColor
+    ) {
+        return SAPRegistries.block(id, LeavesBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
+                        .strength(0.2F)
+                        .sound(SoundType.GRASS)
+                        .mapColor(mapColor)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type1) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE, BlockTags.LEAVES)
+                .withItem()
+                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_LEAVES)
+                .lang("zh_cn", zhName)
+                .blockstate(() -> (context, generator) -> NatureBlockModels.leaves(
+                        context, generator, ShadowsAndPetals.asResource("block/" + id)))
+                .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
+                .register();
+    }
+
     private static DeferredBlock<VerticalSlabBlock> treeVerticalSlab(
             String id,
             DeferredBlock<SlabBlock> slab,

@@ -67,7 +67,6 @@ public class BlockRegistry {
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
             "秋橡树树叶",
-            () -> ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, FastColor.ARGB32.color(255, 176, 106, 45)),
             MapColor.COLOR_ORANGE
     );
     public static final DeferredBlock<SlabBlock> AUTUMN_OAK_LEAVES_SLAB = WoodSetList.treeLeavesSlab(
