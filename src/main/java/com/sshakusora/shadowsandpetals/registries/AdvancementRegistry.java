@@ -21,7 +21,7 @@ public final class AdvancementRegistry {
     public static final RegisteredAdvancement ROOT = SAPRegistries
             .advancement("root")
             .icon(BlockRegistry.MAPLE_SET.sapling())
-            .background(ShadowsAndPetals.asResource("block/maple_planks"))
+            .background(ShadowsAndPetals.asResource("textures/block/maple_planks.png"))
             .criterion("mod_item", registries -> InventoryChangeTrigger.TriggerInstance.hasItems(
                     ItemPredicate.Builder.item().of(ItemTagRegistry.MOD_ITEMS)
             ))

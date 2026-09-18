@@ -12,7 +12,7 @@
     }
   },
   "display": {
-    "background": "shadowsandpetals:block/maple_planks",
+    "background": "shadowsandpetals:textures/block/maple_planks.png",
     "description": {
       "translate": "advancements.shadowsandpetals.root.description"
     },
