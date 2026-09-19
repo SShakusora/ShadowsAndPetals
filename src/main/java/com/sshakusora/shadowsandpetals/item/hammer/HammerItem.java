@@ -166,12 +166,11 @@ public class HammerItem extends Item {
         Level level = context.getLevel();
         BlockPos clickedPos = context.getClickedPos();
         BlockState clickedState = level.getBlockState(clickedPos);
-        if (clickedState.getBlock() instanceof RawConcreteBlock
-                && RawConcreteBlock.isHolePosition(clickedPos, context.getClickedFace())) {
+        if (clickedState.getBlock() instanceof RawConcreteBlock) {
             if (!level.isClientSide()
                     && level.setBlock(
                     clickedPos,
-                    clickedState.cycle(RawConcreteBlock.DENSE),
+                    clickedState.cycle(RawConcreteBlock.TEXTURE),
                     Block.UPDATE_CLIENTS)) {
                 level.playSound(
                         null,
@@ -179,7 +178,7 @@ public class HammerItem extends Item {
                         SoundEvents.STONE_HIT,
                         SoundSource.BLOCKS,
                         0.7F,
-                        clickedState.getValue(RawConcreteBlock.DENSE) ? 0.65F : 0.8F);
+                        0.75F + clickedState.getValue(RawConcreteBlock.TEXTURE).ordinal() * 0.1F);
             }
             return InteractionResult.SUCCESS;
         }

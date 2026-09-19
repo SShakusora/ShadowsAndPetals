@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_isolated_raw_concrete": {
+      "conditions": {
+        "items": [
+          {
+            "items": "shadowsandpetals:isolated_raw_concrete"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "shadowsandpetals:raw_concrete_from_isolated_raw_concrete"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_isolated_raw_concrete"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "shadowsandpetals:raw_concrete_from_isolated_raw_concrete"
+    ]
+  }
+}

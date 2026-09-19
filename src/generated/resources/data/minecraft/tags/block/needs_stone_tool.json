@@ -2,6 +2,7 @@
   "values": [
     "shadowsandpetals:raw_bauxite_block",
     "shadowsandpetals:aluminum_block",
-    "shadowsandpetals:raw_concrete"
+    "shadowsandpetals:raw_concrete",
+    "shadowsandpetals:isolated_raw_concrete"
   ]
 }

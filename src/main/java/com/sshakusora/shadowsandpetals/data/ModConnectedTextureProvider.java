@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 import com.google.common.hash.Hashing;
+import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.client.ct.CTRegistry;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -21,6 +22,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 public class ModConnectedTextureProvider implements DataProvider {
+    private static final Identifier ISOLATED_RAW_CONCRETE_ITEM_TEXTURE =
+            ShadowsAndPetals.asResource("item/isolated_raw_concrete");
+    private static final Identifier ISOLATED_RAW_CONCRETE_SOURCE_TEXTURE =
+            ShadowsAndPetals.asResource("block/raw_concrete/connected_dense_hole");
+    private static final int OMNIDIRECTIONAL_SHEET_SIZE = 8;
+
     private final PackOutput.PathProvider texturePathProvider;
     private final Path sourceTextureRoot;
 
@@ -68,6 +75,8 @@ public class ModConnectedTextureProvider implements DataProvider {
                         () -> generate(cache, source, output, sourceTexture, sheetSize, padding)));
             }
         }
+
+        scheduleIsolatedRawConcreteItemTexture(cache, tasks);
         return CompletableFuture.allOf(tasks.toArray(CompletableFuture[]::new));
     }
 
@@ -76,6 +85,24 @@ public class ModConnectedTextureProvider implements DataProvider {
         return "ShadowsAndPetals Connected Textures";
     }
 
+    /**
+     * The isolated block uses a fixed inventory preview rather than the
+     * connected-texture sheet used by its placed model.
+     */
+    private void scheduleIsolatedRawConcreteItemTexture(
+            CachedOutput cache,
+            List<CompletableFuture<?>> tasks
+    ) {
+        Path source = sourcePath(ISOLATED_RAW_CONCRETE_SOURCE_TEXTURE);
+        Path output = texturePathProvider.file(ISOLATED_RAW_CONCRETE_ITEM_TEXTURE, "png");
+        tasks.add(CompletableFuture.runAsync(
+                () -> generateBase(
+                        cache,
+                        source,
+                        output,
+                        ISOLATED_RAW_CONCRETE_SOURCE_TEXTURE,
+                        OMNIDIRECTIONAL_SHEET_SIZE)));
+    }
     private static void generateBase(CachedOutput cache, Path source, Path output,
                                      Identifier sourceTexture, int sheetSize) {
         try {
