@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.compat.chinjufu.ChinjufuIds;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.item.harrow.HarrowItem;
@@ -30,12 +31,14 @@ public class ItemRegistry {
                     "orange_seed",
                     properties -> new BlockItem(BlockRegistry.ORANGE_TREE.get(), properties)
             )
+            .alias(ChinjufuIds.MOD_ID, "block_wood_mikan")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "蜜柑种子")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
             .register();
 
     public static final DeferredItem<Item> ORANGE = SAPRegistries.item("orange")
+            .alias(ChinjufuIds.MOD_ID, "item_food_mikan")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(4)
                     .saturationModifier(0.3F)
@@ -64,6 +67,7 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> CABBAGE = SAPRegistries.item("cabbage")
+            .alias(ChinjufuIds.MOD_ID, "item_food_cabbage")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(3)
                     .saturationModifier(0.3F)
@@ -75,6 +79,7 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> CHINESE_CABBAGE = SAPRegistries.item("chinese_cabbage")
+            .alias(ChinjufuIds.MOD_ID, "item_food_hakusai")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(3)
                     .saturationModifier(0.3F)
@@ -86,6 +91,7 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> CORN = SAPRegistries.item("corn")
+            .alias(ChinjufuIds.MOD_ID, "item_food_corn")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(3)
                     .saturationModifier(0.4F)
@@ -97,12 +103,14 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> DRIED_RICE = SAPRegistries.item("dried_rice")
+            .alias(ChinjufuIds.MOD_ID, "item_ine_dry")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "干水稻")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
             .register();
 
     public static final DeferredItem<Item> GRAPE = SAPRegistries.item("grape")
+            .alias(ChinjufuIds.MOD_ID, "item_food_grape")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(2)
                     .saturationModifier(0.2F)
@@ -114,6 +122,8 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> ONION = SAPRegistries.item("onion")
+            .alias(ChinjufuIds.MOD_ID, "item_food_onion")
+            .alias(ChinjufuIds.MOD_ID, "item_food_greenonion")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(2)
                     .saturationModifier(0.3F)
@@ -125,12 +135,15 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> RICE = SAPRegistries.item("rice")
+            .alias(ChinjufuIds.MOD_ID, "item_ine")
+            .alias(ChinjufuIds.MOD_ID, "item_kome")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "水稻")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
             .register();
 
     public static final DeferredItem<Item> SPINACH = SAPRegistries.item("spinach")
+            .alias(ChinjufuIds.MOD_ID, "item_food_spinach")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(2)
                     .saturationModifier(0.3F)
@@ -142,12 +155,14 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> STRAW = SAPRegistries.item("straw")
+            .alias(ChinjufuIds.MOD_ID, "item_inewara")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "稻草")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_CROPS)
             .register();
 
     public static final DeferredItem<Item> TOMATO = SAPRegistries.item("tomato")
+            .alias(ChinjufuIds.MOD_ID, "item_food_tomato")
             .properties(properties -> properties.food(new FoodProperties.Builder()
                     .nutrition(2)
                     .saturationModifier(0.3F)
@@ -159,12 +174,14 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")
+            .alias(ChinjufuIds.MOD_ID, "item_bauxite")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "粗矾土")
             .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_METALS)
             .register();
 
     public static final DeferredItem<Item> ALUMINUM_INGOT = SAPRegistries.item("aluminum_ingot")
+            .alias(ChinjufuIds.MOD_ID, "item_ingot_alumi")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .recipe((provider, ingot) -> {
                 SimpleCookingRecipeBuilder.smelting(Ingredient.of(RAW_BAUXITE.get()), RecipeCategory.MISC, ingot.get(), 0.7F, 200)
@@ -179,12 +196,15 @@ public class ItemRegistry {
             .register();
 
     public static final DeferredItem<Item> CLAM = SAPRegistries.item("clam")
+            .alias(ChinjufuIds.MOD_ID, "item_food_hamaguri")
+            .alias(ChinjufuIds.MOD_ID, "item_hamaguri_shell")
             .model(() -> (context, generator) -> generator.generatedItem(context.get()))
             .lang(DatagenLangRegistry.ZH_CN, "蛤蜊")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
             .register();
 
     public static final DeferredItem<Item> CHISEL = SAPRegistries.item("chisel")
+            .alias(ChinjufuIds.MOD_ID, "item_chisel")
             .tooltipDescription(tooltip -> tooltip
                     .summary(
                             "A stoneworking tool that enables _rockery carving_.",

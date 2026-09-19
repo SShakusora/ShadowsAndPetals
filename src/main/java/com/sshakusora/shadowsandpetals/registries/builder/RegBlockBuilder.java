@@ -11,6 +11,7 @@ import com.sshakusora.shadowsandpetals.data.model.BlockModelCallback;
 import com.sshakusora.shadowsandpetals.data.model.ItemModelCallback;
 import com.sshakusora.shadowsandpetals.data.model.ModelDatagenRegistry;
 import com.sshakusora.shadowsandpetals.legacy.BlockStateAliasRegistry;
+import com.sshakusora.shadowsandpetals.legacy.LegacyBlockAliasRegistry;
 import com.sshakusora.shadowsandpetals.legacy.LegacyCompatIds;
 import com.sshakusora.shadowsandpetals.legacy.LegacyStateBlock;
 import com.sshakusora.shadowsandpetals.registries.*;
@@ -68,6 +69,7 @@ public class RegBlockBuilder<B extends Block> {
     private final List<CreativeTabKey> creativeTabs = new ArrayList<>();
     private final Map<CreativeTabKey, CreativeTabOrder> creativeTabOrders = new EnumMap<>(CreativeTabKey.class);
     private final List<ResourceLocation> aliases = new ArrayList<>();
+    private final List<ResourceLocation> itemAliases = new ArrayList<>();
     private final List<StateAliasSpec<?>> stateAliases = new ArrayList<>();
     private final List<TagKey<Block>> blockTags = new ArrayList<>();
     private boolean hasTooltipDescription;
@@ -440,6 +442,24 @@ public class RegBlockBuilder<B extends Block> {
     }
 
     /**
+     * Adds a same-namespace alias for the block item created by {@link #withItem()}.
+     * <p>
+     * Block and item registries are separate in NeoForge, so a block alias does not make the
+     * corresponding block item id resolve automatically.  Use this method when an old save can
+     * contain the old block item in an inventory or container.
+     */
+    public RegBlockBuilder<B> itemAlias(String oldPath) {
+        this.itemAliases.add(ShadowsAndPetals.asResource(oldPath));
+        return this;
+    }
+
+    /** Adds a cross-namespace alias for the block item created by {@link #withItem()}. */
+    public RegBlockBuilder<B> itemAlias(String oldNamespace, String oldPath) {
+        this.itemAliases.add(ResourceLocation.fromNamespaceAndPath(oldNamespace, oldPath));
+        return this;
+    }
+
+    /**
      * Registers a legacy block-state alias using a dedicated legacy block implementation.
      * <p>
      * Use this when old saves need to deserialize a removed block id that still carries legacy
@@ -517,7 +537,10 @@ public class RegBlockBuilder<B extends Block> {
 
         if (withItem) {
             DeferredItem<BlockItem> blockItem = registerBlockItem(deferredBlock);
+            applyItemAliases(blockItem.getId());
             applyItemDatagenUnchecked(deferredBlock, blockItem);
+        } else if (!itemAliases.isEmpty()) {
+            throw new IllegalStateException("Block '" + name + "' cannot have item aliases without an item");
         }
 
         if (hasTooltipDescription && withItem) {
@@ -573,6 +596,12 @@ public class RegBlockBuilder<B extends Block> {
         }
     }
 
+    private void applyItemAliases(ResourceLocation targetId) {
+        for (ResourceLocation alias : itemAliases) {
+            SAPRegistries.ITEMS.addAlias(alias, targetId);
+        }
+    }
+
     private void registerBlockTags(DeferredBlock<B> block) {
         for (TagKey<Block> tag : blockTags) {
             BlockTagRegistry.add(tag, block);
@@ -603,8 +632,16 @@ public class RegBlockBuilder<B extends Block> {
 
     private <L extends Block> void registerStateAlias(DeferredBlock<B> targetBlock, StateAliasSpec<L> aliasSpec, int index) {
         String compatName = buildCompatAliasName(aliasSpec.aliasId(), index);
-        DeferredBlock<L> compatBlock = registry.registerBlock(compatName, aliasSpec.factory(), propertiesFactory.get());
+        // Keep both the legacy block factory and the target properties lazy.  A number of target
+        // builders (for example the custom-wood vanities) derive their properties from another
+        // deferred block.  Evaluating that supplier while the registry classes are still being
+        // initialized would attempt to resolve an unbound ResourceKey and abort mod loading.
+        DeferredBlock<L> compatBlock = registry.register(
+                compatName,
+                () -> aliasSpec.factory().apply(propertiesFactory.get())
+        );
         registry.addAlias(aliasSpec.aliasId(), compatBlock.getId());
+        LegacyBlockAliasRegistry.add(aliasSpec.aliasId(), compatBlock);
         BlockStateAliasRegistry.add(compatBlock, () -> targetBlock.get().defaultBlockState(), aliasSpec.converter());
         DatagenBlockLootRegistry.add(compatBlock.getId(), provider -> provider.addTable(compatBlock.get(), provider.noDropTable()));
     }
@@ -709,6 +746,7 @@ public class RegBlockBuilder<B extends Block> {
         postRegister(block);
         final Item.Properties props = itemProperties != null ? itemProperties : new Item.Properties();
         DeferredItem<BlockItem> item = SAPRegistries.ITEMS.registerSimpleBlockItem(name, block::get, props);
+        applyItemAliases(item.getId());
         applyItemDatagenUnchecked(block, item);
         return block;
     }

@@ -15,6 +15,8 @@ import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
 import com.sshakusora.shadowsandpetals.client.ct.CTTextureType;
 import com.sshakusora.shadowsandpetals.client.tooltip.RockeryTooltipComponent;
+import com.sshakusora.shadowsandpetals.compat.chinjufu.ChinjufuBlockCompat;
+import com.sshakusora.shadowsandpetals.compat.chinjufu.ChinjufuIds;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
@@ -97,6 +99,8 @@ public class BlockRegistry {
 
     public static final DeferredBlock<DropExperienceBlock> BAUXITE_ORE = SAPRegistries
             .block("bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
+            .alias(ChinjufuIds.MOD_ID, "block_bauxite_ore")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_bauxite_ore")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
                     .strength(3.0F, 3.0F)
                     .sound(SoundType.STONE)
@@ -112,6 +116,8 @@ public class BlockRegistry {
 
     public static final DeferredBlock<DropExperienceBlock> DEEPSLATE_BAUXITE_ORE = SAPRegistries
             .block("deepslate_bauxite_ore", props -> new DropExperienceBlock(UniformInt.of(1, 3), props))
+            .alias(ChinjufuIds.MOD_ID, "block_bauxite_ore_deep")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_bauxite_ore_deep")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.DEEPSLATE)
                     .strength(4.5F, 3.0F)
                     .sound(SoundType.DEEPSLATE)
@@ -293,8 +299,9 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "清水混凝土")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = SAPRegistries
-            .block("aluminum_ingot_pile", IngotPileBlock::new)
+    public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = ChinjufuBlockCompat
+            .ingotPileStateAlias(SAPRegistries.block("aluminum_ingot_pile", IngotPileBlock::new), "block_alumi_block")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_alumi_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.METAL)
@@ -309,8 +316,9 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "铝锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = SAPRegistries
-            .block("iron_ingot_pile", IngotPileBlock::new)
+    public static final DeferredBlock<IngotPileBlock> IRON_INGOT_PILE = ChinjufuBlockCompat
+            .ingotPileStateAlias(SAPRegistries.block("iron_ingot_pile", IngotPileBlock::new), "block_steel_block")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_steel_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)
                     .strength(2.5F, 6.0F)
                     .sound(SoundType.METAL)
@@ -325,8 +333,9 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "铁锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = SAPRegistries
-            .block("copper_ingot_pile", IngotPileBlock::new)
+    public static final DeferredBlock<IngotPileBlock> COPPER_INGOT_PILE = ChinjufuBlockCompat
+            .ingotPileStateAlias(SAPRegistries.block("copper_ingot_pile", IngotPileBlock::new), "block_copper_block")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_copper_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.COPPER_BLOCK)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.COPPER)
@@ -341,8 +350,9 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "铜锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = SAPRegistries
-            .block("gold_ingot_pile", IngotPileBlock::new)
+    public static final DeferredBlock<IngotPileBlock> GOLD_INGOT_PILE = ChinjufuBlockCompat
+            .ingotPileStateAlias(SAPRegistries.block("gold_ingot_pile", IngotPileBlock::new), "block_gold_block")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_gold_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.GOLD_BLOCK)
                     .strength(3.0F, 6.0F)
                     .sound(SoundType.METAL)
@@ -357,8 +367,9 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "金锭堆")
             .register();
 
-    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = SAPRegistries
-            .block("netherite_ingot_pile", IngotPileBlock::new)
+    public static final DeferredBlock<IngotPileBlock> NETHERITE_INGOT_PILE = ChinjufuBlockCompat
+            .ingotPileStateAlias(SAPRegistries.block("netherite_ingot_pile", IngotPileBlock::new), "block_netherite_block")
+            .itemAlias(ChinjufuIds.MOD_ID, "block_netherite_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.NETHERITE_BLOCK)
                     .strength(50.0F, 1200.0F)
                     .sound(SoundType.NETHERITE_BLOCK)
@@ -756,8 +767,12 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "木桶")
             .register();
 
-    public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> SAPRegistries
-            .block(color.getName() + "_roof_tile", RoofTileBlock::new)
+    public static final DyedBlockList<RoofTileBlock> ROOF_TILES = new DyedBlockList<>(color -> ChinjufuBlockCompat
+            .roofTileStateAlias(
+                    SAPRegistries.block(color.getName() + "_roof_tile", RoofTileBlock::new),
+                    ChinjufuIds.dyedBlockAlias(color, "block_kawara")
+            )
+            .itemAlias(ChinjufuIds.MOD_ID, ChinjufuIds.dyedBlockAlias(color, "block_kawara"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE_BRICKS)
                     .strength(1.5F, 6.0F)
                     .sound(SoundType.DEEPSLATE_TILES)
@@ -852,8 +867,11 @@ public class BlockRegistry {
             .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "瓦楼梯")
             .register());
 
-    public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> SAPRegistries
-            .block(woodType.getName() + "_vanity", VanityBlock::new)
+    public static final WoodBlockList<VanityBlock> VANITIES = new WoodBlockList<>(woodType -> ChinjufuBlockCompat
+            .vanityStateAlias(
+                    SAPRegistries.block(woodType.getName() + "_vanity", VanityBlock::new),
+                    woodType
+            )
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
                     .strength(2.5F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -1005,6 +1023,8 @@ public class BlockRegistry {
 
     public static final DyedBlockList<CafeChairBlock> CAFE_CHAIRS = new DyedBlockList<>(color -> SAPRegistries
             .block(color.getName() + "_cafe_chair", CafeChairBlock::new)
+            .alias(ChinjufuIds.MOD_ID, ChinjufuIds.dyedBlockAlias(color, "block_cafechair"))
+            .itemAlias(ChinjufuIds.MOD_ID, ChinjufuIds.dyedBlockAlias(color, "block_cafechair"))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(2.0F, 3.0F)
                     .sound(SoundType.WOOD)
@@ -1161,8 +1181,8 @@ public class BlockRegistry {
                 .register()
     );
 
-    public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = SAPRegistries
-            .block("orange_tree", OrangeTreeBlock::new)
+    public static final DeferredBlock<OrangeTreeBlock> ORANGE_TREE = ChinjufuBlockCompat
+            .orangeTreeStateAlias(SAPRegistries.block("orange_tree", OrangeTreeBlock::new))
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.SWEET_BERRY_BUSH)
                     .randomTicks()
                     .instabreak()
@@ -1237,6 +1257,16 @@ public class BlockRegistry {
                 .loot((provider, block) -> provider.dropSelf(block.get()))
                 .lang(DatagenLangRegistry.ZH_CN, zhName)
                 .register();
+    }
+
+    static {
+        ChinjufuBlockCompat.registerDirectAliases(
+                AUTUMN_OAK_SAPLING,
+                AUTUMN_OAK_LEAVES,
+                SAKURA_SET,
+                MAPLE_SET,
+                GINKGO_SET
+        );
     }
 
     public static void init() {}

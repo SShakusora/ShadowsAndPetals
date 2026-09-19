@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.legacy;
 
+import com.mojang.logging.LogUtils;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +18,7 @@ import net.neoforged.neoforge.event.level.ChunkEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,6 +27,7 @@ import java.util.function.Supplier;
 
 @EventBusSubscriber(modid = ShadowsAndPetals.MOD_ID)
 public final class BlockEntityAliasRegistry {
+    private static final Logger LOGGER = LogUtils.getLogger();
     private static final List<Rule> RULES = new ArrayList<>();
 
     private BlockEntityAliasRegistry() {}
@@ -47,6 +50,12 @@ public final class BlockEntityAliasRegistry {
             return;
         }
 
+        // Chunk deserialization restores block entities before ChunkEvent.Load.  Force the block
+        // state aliases here as well so validation below sees the final target block (not the
+        // temporary compatibility block) regardless of event-priority ordering in the NeoForge
+        // version used by the development runtime.
+        BlockStateAliasRegistry.migrateChunk(chunk);
+
         List<BlockEntity> blockEntities = List.copyOf(chunk.getBlockEntities().values());
         for (BlockEntity blockEntity : blockEntities) {
             for (Rule rule : RULES) {
@@ -61,20 +70,41 @@ public final class BlockEntityAliasRegistry {
     private static void migrate(LevelChunk chunk, LegacyBlockEntity legacyBlockEntity, Rule rule) {
         BlockPos pos = legacyBlockEntity.getBlockPos();
         BlockState state = chunk.getBlockState(pos);
-        chunk.removeBlockEntity(pos);
-
         CompoundTag migratedTag = rule.converter.convert(legacyBlockEntity.getRawData(), state, pos);
-        if (migratedTag == null || state.isAir() || !state.hasBlockEntity() || !rule.targetType.get().isValid(state)) {
+        BlockEntityType<?> targetType = rule.targetType.get();
+        if (migratedTag == null || state.isAir() || !state.hasBlockEntity() || !targetType.isValid(state)) {
+            LOGGER.debug(
+                    "Kept legacy block entity {} at {}: target state {} is not valid for {}",
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(legacyBlockEntity.getType()),
+                    pos,
+                    state,
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(targetType)
+            );
             chunk.getLevel().blockEntityChanged(pos);
             return;
         }
 
-        populateMetadata(migratedTag, pos, rule.targetType.get());
+        populateMetadata(migratedTag, pos, targetType);
         BlockEntity migratedBlockEntity = BlockEntity.loadStatic(pos, state, migratedTag, chunk.getLevel().registryAccess());
         if (migratedBlockEntity != null) {
+            // Do not remove the old entity until the new one has been constructed.  A malformed
+            // converter or an invalid target state must not silently destroy the legacy inventory.
+            chunk.removeBlockEntity(pos);
             chunk.setBlockEntity(migratedBlockEntity);
             migratedBlockEntity.setChanged();
+            LOGGER.debug(
+                    "Migrated legacy block entity {} at {} to {}",
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(legacyBlockEntity.getType()),
+                    pos,
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(migratedBlockEntity.getType())
+            );
         } else {
+            LOGGER.debug(
+                    "Could not deserialize migrated block entity {} at {} for state {}",
+                    BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(legacyBlockEntity.getType()),
+                    pos,
+                    state
+            );
             chunk.getLevel().blockEntityChanged(pos);
         }
     }
