@@ -29,6 +29,24 @@ public final class StandardBlockModels {
         generator.provider().simpleBlockWithItem(block, model);
     }
 
+    /**
+     * Generates a cube block model and a separate cube model for its item.
+     * This is useful when the placed block is backed by a connected-texture
+     * model but the inventory icon should use a fixed preview texture.
+     */
+    public static void cubeAllWithItemTexture(BlockModelContext<? extends Block> context,
+                                              SAPBlockModelGenerator generator,
+                                              ResourceLocation blockTexture,
+                                              ResourceLocation itemTexture) {
+        Block block = context.get();
+        ModelFile blockModel = generator.provider().models().cubeAll(context.name(), blockTexture);
+        generator.provider().simpleBlock(block, blockModel);
+
+        String itemModelName = context.name() + "_item";
+        generator.provider().models().cubeAll(itemModelName, itemTexture);
+        generator.simpleBlockItem(block, generator.modLoc("block/" + itemModelName));
+    }
+
     public static void simpleBlock(BlockModelContext<? extends Block> context,
                                    SAPBlockModelGenerator generator, ResourceLocation modelId) {
         generator.provider().simpleBlock(context.get(), generator.uncheckedModel(modelId));

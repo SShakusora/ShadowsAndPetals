@@ -19,6 +19,7 @@ import com.sshakusora.shadowsandpetals.compat.chinjufu.ChinjufuBlockCompat;
 import com.sshakusora.shadowsandpetals.compat.chinjufu.ChinjufuIds;
 import com.sshakusora.shadowsandpetals.data.DatagenLangRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
+import com.sshakusora.shadowsandpetals.data.ModRecipeProvider;
 import com.sshakusora.shadowsandpetals.data.model.generator.*;
 import com.sshakusora.shadowsandpetals.item.CopperTeapotBlockItem;
 import com.sshakusora.shadowsandpetals.item.RecessedLampBlockItem;
@@ -270,7 +271,11 @@ public class BlockRegistry {
                             "具有_连接纹理_的素面建筑方块。")
                     .behaviour(
                             "When placed beside itself:", "与同类方块相邻放置时:",
-                            "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。"))
+                            "Join into a _continuous concrete surface_.", "连接成_连续的混凝土表面_。")
+                    .behaviour(
+                            "When hit with a Hammer:", "使用锤子敲击时:",
+                            "Cycle between _blank_, _single-hole_, and _four-hole_ textures.",
+                            "在_空白_、_单孔_和_四孔_纹理之间循环切换。"))
             .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_CONCRETE)
             .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAll(
                     context,
@@ -295,8 +300,60 @@ public class BlockRegistry {
                         .unlockedBy("has_concrete_powder", provider.hasTag(Tags.Items.CONCRETE_POWDERS))
                         .save(provider.output());
                 provider.stonecutter(RecipeCategory.BUILDING_BLOCKS, block.get(), 1, Blocks.WHITE_CONCRETE);
+                addIsolatedRawConcreteConversionRecipe(provider, block);
             })
             .lang(DatagenLangRegistry.ZH_CN, "清水混凝土")
+            .register();
+
+    public static final DeferredBlock<RawConcreteBlock> ISOLATED_RAW_CONCRETE = SAPRegistries
+            .block("isolated_raw_concrete", RawConcreteBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.STONE)
+                    .strength(2.5F, 6.0F)
+                    .sound(SoundType.STONE)
+                    .mapColor(MapColor.CLAY)
+                    .requiresCorrectToolForDrops())
+            .tags(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+            .withItem()
+            .tooltipDescription(tooltip -> tooltip
+                    .summary(
+                            "A raw concrete block with a _separate connected-texture island_.",
+                            "与普通清水混凝土保持_纹理分隔_的建筑方块。")
+                    .behaviour(
+                            "When placed beside another isolated block:",
+                            "与其他隔离清水混凝土相邻放置时:",
+                            "Join into a _continuous concrete surface_.",
+                            "连接成_连续的混凝土表面_。")
+                    .behaviour(
+                            "When placed beside raw concrete:",
+                            "与普通清水混凝土相邻放置时:",
+                            "Keep a _visible seam_ between the two texture groups.",
+                            "在两组纹理之间保留_明显接缝_。")
+                    .behaviour(
+                            "When hit with a Hammer:", "使用锤子敲击时:",
+                            "Cycle between _blank_, _single-hole_, and _four-hole_ textures.",
+                            "在_空白_、_单孔_和_四孔_纹理之间循环切换。"))
+            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_ISOLATED_CONCRETE)
+            .blockstate(() -> (context, generator) -> StandardBlockModels.cubeAllWithItemTexture(
+                    context,
+                    generator,
+                    ShadowsAndPetals.asResource("block/raw_concrete/base"),
+                    ShadowsAndPetals.asResource("item/isolated_raw_concrete")))
+            .loot((provider, block) -> provider.dropSelf(block.get()))
+            .connectedTextures(
+                    ShadowsAndPetals.asResource("block/raw_concrete/base"),
+                    List.of(
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_bleed"),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_hole_bleed"),
+                            ShadowsAndPetals.asResource("block/raw_concrete/connected_dense_hole_bleed")),
+                    RawConcreteBlock::selectTextureIndex,
+                    CTTextureType.OMNIDIRECTIONAL, 1)
+            .recipe((provider, block) -> provider.shapeless(
+                            RecipeCategory.BUILDING_BLOCKS,
+                            RAW_CONCRETE.get())
+                    .requires(block.get())
+                    .unlockedBy(provider.hasName(block.get()), provider.hasItem(block.get()))
+                    .save(provider.output(), provider.id("raw_concrete_from_isolated_raw_concrete").toString()))
+            .lang(DatagenLangRegistry.ZH_CN, "隔离清水混凝土")
             .register();
 
     public static final DeferredBlock<IngotPileBlock> ALUMINUM_INGOT_PILE = ChinjufuBlockCompat
@@ -1257,6 +1314,16 @@ public class BlockRegistry {
                 .loot((provider, block) -> provider.dropSelf(block.get()))
                 .lang(DatagenLangRegistry.ZH_CN, zhName)
                 .register();
+    }
+
+    private static void addIsolatedRawConcreteConversionRecipe(
+            ModRecipeProvider provider,
+            DeferredBlock<RawConcreteBlock> rawConcrete
+    ) {
+        provider.shapeless(RecipeCategory.BUILDING_BLOCKS, ISOLATED_RAW_CONCRETE.get())
+                .requires(rawConcrete.get())
+                .unlockedBy(provider.hasName(rawConcrete.get()), provider.hasItem(rawConcrete.get()))
+                .save(provider.output(), provider.id("isolated_raw_concrete_from_raw_concrete").toString());
     }
 
     static {

@@ -4,31 +4,41 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class RawConcreteBlockTest {
     @Test
-    void holeCoordinatesUseTheHoleAndDenseHoleTextures() {
-        BlockPos holePos = new BlockPos(2, 4, 6);
+    void selectedVariantsMapToTheRegisteredTextureSheets() {
+        BlockPos pos = new BlockPos(2, 4, 6);
 
-        assertTrue(RawConcreteBlock.isHolePosition(holePos, Direction.UP));
-        assertEquals(1, RawConcreteBlock.selectTextureIndex(false, holePos, Direction.UP));
-        assertEquals(2, RawConcreteBlock.selectTextureIndex(true, holePos, Direction.UP));
+        assertEquals(0, RawConcreteBlock.textureIndexForVariant(
+                RawConcreteBlock.TextureVariant.BLANK, pos, Direction.UP));
+        assertEquals(1, RawConcreteBlock.textureIndexForVariant(
+                RawConcreteBlock.TextureVariant.SINGLE_HOLE, pos, Direction.UP));
+        assertEquals(2, RawConcreteBlock.textureIndexForVariant(
+                RawConcreteBlock.TextureVariant.FOUR_HOLE, pos, Direction.UP));
     }
 
     @Test
-    void nonHoleCoordinatesAlwaysUseTheContinuousTexture() {
-        BlockPos nonHolePos = new BlockPos(1, 4, 6);
-
-        assertFalse(RawConcreteBlock.isHolePosition(nonHolePos, Direction.UP));
-        assertEquals(0, RawConcreteBlock.selectTextureIndex(false, nonHolePos, Direction.UP));
-        assertEquals(0, RawConcreteBlock.selectTextureIndex(true, nonHolePos, Direction.UP));
+    void textureSelectionDoesNotDependOnPositionOrFace() {
+        for (BlockPos pos : new BlockPos[]{new BlockPos(2, 4, 6), new BlockPos(-1, 7, -9)}) {
+            for (Direction face : Direction.values()) {
+                assertEquals(1, RawConcreteBlock.textureIndexForVariant(
+                        RawConcreteBlock.TextureVariant.SINGLE_HOLE, pos, face));
+            }
+        }
     }
 
     @Test
-    void holeCoordinatesUseTheSameRuleForNegativePositions() {
-        assertTrue(RawConcreteBlock.isHolePosition(new BlockPos(-2, 0, -4), Direction.NORTH));
-        assertFalse(RawConcreteBlock.isHolePosition(new BlockPos(-1, 0, -4), Direction.NORTH));
+    void statePropertyCycleOrderIsBlankSingleHoleAndFourHole() {
+        assertEquals(
+                List.of(
+                        RawConcreteBlock.TextureVariant.BLANK,
+                        RawConcreteBlock.TextureVariant.SINGLE_HOLE,
+                        RawConcreteBlock.TextureVariant.FOUR_HOLE),
+                List.copyOf(RawConcreteBlock.TEXTURE.getPossibleValues()));
     }
 
     @Test

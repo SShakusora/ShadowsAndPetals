@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "shadowsandpetals:raw_concrete"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "shadowsandpetals:isolated_raw_concrete"
+  }
+}
