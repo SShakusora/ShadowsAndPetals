@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": "shadowsandpetals:autumn_oak_leaves"
+  },
+  "pattern": [
+    "LL"
+  ],
+  "result": {
+    "count": 3,
+    "id": "shadowsandpetals:autumn_oak_leaves_carpet"
+  }
+}

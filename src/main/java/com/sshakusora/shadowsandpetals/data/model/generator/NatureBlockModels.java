@@ -18,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.block.CarpetBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.SlabBlock;
@@ -65,6 +66,29 @@ public final class NatureBlockModels {
                         .select(false, randomizedModels)
                         .select(true, BlockModelGenerators.plainVariant(baseModelId.withSuffix("_0")))));
         StandardBlockModels.parentBlockItem(block, generator, baseModelId.withSuffix("_0"));
+    }
+
+    public static void leavesCarpet(
+            BlockModelContext<? extends CarpetBlock> context,
+            SAPBlockModelGenerator generator,
+            Identifier texture
+    ) {
+        CarpetBlock block = context.get();
+        Identifier modelId = generator.blockModelId(block).withSuffix("_0");
+        generator.create(
+                ModelTemplates.CARPET,
+                modelId,
+                new TextureMapping().put(
+                        TextureSlot.WOOL,
+                        new Material(texture.withSuffix("_0"))
+                ),
+                "cutout_mipped"
+        );
+        generator.blockState(MultiVariantGenerator.dispatch(
+                block,
+                BlockModelGenerators.plainVariant(modelId)
+        ));
+        StandardBlockModels.parentBlockItem(block, generator, modelId);
     }
 
     public static void leavesSlab(

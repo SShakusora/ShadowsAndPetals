@@ -73,6 +73,12 @@ public class BlockRegistry {
             () -> ColorParticleOption.create(ParticleTypes.TINTED_LEAVES, ARGB.color(255, 176, 106, 45)),
             MapColor.COLOR_ORANGE
     );
+    public static final DeferredBlock<CarpetBlock> AUTUMN_OAK_LEAVES_CARPET = WoodSetList.treeLeavesCarpet(
+            "autumn_oak_leaves_carpet",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树叶地毯",
+            MapColor.COLOR_ORANGE
+    );
     public static final DeferredBlock<SlabBlock> AUTUMN_OAK_LEAVES_SLAB = WoodSetList.treeLeavesSlab(
             "autumn_oak_leaves_slab",
             AUTUMN_OAK_LEAVES,
