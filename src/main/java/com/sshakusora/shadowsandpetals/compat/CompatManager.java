@@ -13,4 +13,8 @@ public final class CompatManager {
     public static boolean isSereneSeasonsLoaded() {
         return isLoaded(CompatInfo.SERENE_SEASONS);
     }
+
+    public static boolean isCreateLoaded() {
+        return isLoaded(CompatInfo.CREATE);
+    }
 }

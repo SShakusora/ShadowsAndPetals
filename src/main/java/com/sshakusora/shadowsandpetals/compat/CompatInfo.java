@@ -9,6 +9,7 @@ public final class CompatInfo {
     public static final String CHINJUFU_MOD = ChinjufuIds.MOD_ID;
 
     public static final String SERENE_SEASONS = "sereneseasons";
+    public static final String CREATE = "create";
 
     private CompatInfo() {}
 }
