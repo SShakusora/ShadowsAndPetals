@@ -249,6 +249,10 @@ public class LargeCurtainBlock extends CurtainBlock {
             @Nullable LivingEntity placer,
             ItemStack stack
     ) {
+        if (placer == null) {
+            return;
+        }
+
         // Do not call super: CurtainBlock.setPlacedBy would place a second
         // vertical half meant for the one-column curtain.
         BlockPos lowerOuterPos = state.getValue(HALF) == DoubleBlockHalf.UPPER

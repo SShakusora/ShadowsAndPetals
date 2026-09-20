@@ -241,6 +241,10 @@ public class CurtainBlock extends BaseEntityBlock {
             @Nullable LivingEntity placer,
             ItemStack stack
     ) {
+        if (placer == null) {
+            return;
+        }
+
         super.setPlacedBy(level, pos, state, placer, stack);
         BlockPos otherPos = pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
                 ? Direction.UP : Direction.DOWN);

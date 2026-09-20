@@ -123,6 +123,10 @@ public class RockeryBlock extends Block implements BlockOutlineProvider, SimpleW
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
+        if (placer == null || state.getValue(PART) != 0) {
+            return;
+        }
+
         Direction facing = state.getValue(FACING);
         for (int i = 1; i < dimensions.partCount(); i++) {
             BlockPos partPos = partWorldPos(pos, i, facing);
