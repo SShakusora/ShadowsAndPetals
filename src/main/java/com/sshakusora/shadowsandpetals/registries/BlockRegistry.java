@@ -1333,6 +1333,7 @@ public class BlockRegistry {
         ChinjufuBlockCompat.registerDirectAliases(
                 AUTUMN_OAK_SAPLING,
                 AUTUMN_OAK_LEAVES,
+                AUTUMN_OAK_LEAVES_CARPET,
                 SAKURA_SET,
                 MAPLE_SET,
                 GINKGO_SET

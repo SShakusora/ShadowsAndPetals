@@ -98,12 +98,14 @@ public final class ChinjufuBlockCompat {
     public static void registerDirectAliases(
             DeferredBlock<SaplingBlock> autumnOakSapling,
             DeferredBlock<LeavesBlock> autumnOakLeaves,
+            DeferredBlock<? extends Block> autumnOakLeavesCarpet,
             WoodSetList.WoodSet sakura,
             WoodSetList.WoodSet maple,
             WoodSetList.WoodSet ginkgo
     ) {
         addAlias(autumnOakSapling, "block_tree_oakkare_nae");
         addAlias(autumnOakLeaves, "block_tree_oakkare_leaf");
+        addAlias(autumnOakLeavesCarpet, "block_carpet_ochiba");
 
         registerWoodSetAliases(sakura, "sakura", "block_tree_sakura_log", "block_tree_sakura_flow", "block_tree_sakura_nae");
         registerWoodSetAliases(maple, "kaede", "block_tree_kaede_log", "block_tree_kaede_leaf", "block_tree_kaede_nae");
@@ -120,6 +122,7 @@ public final class ChinjufuBlockCompat {
         addAlias(set.log(), legacyLog);
         addAlias(set.leaves(), legacyLeaves);
         addAlias(set.sapling(), legacySapling);
+        addAlias(set.leavesCarpet(), "block_carpet_" + legacyWoodName);
         addAlias(set.planks(), "block_planks_" + legacyWoodName);
         addAlias(set.slab(), "block_slabhalf_" + legacyWoodName);
         addAlias(set.stairs(), "block_stairs_" + legacyWoodName);
