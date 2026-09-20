@@ -106,6 +106,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             DeferredBlock<ButtonBlock> button,
             DeferredBlock<SaplingBlock> sapling,
             DeferredBlock<LeavesBlock> leaves,
+            DeferredBlock<CarpetBlock> leavesCarpet,
             DeferredBlock<SlabBlock> leavesSlab,
             DeferredBlock<LeavesVerticalSlabBlock> leavesVerticalSlab,
             DeferredBlock<StairBlock> leavesStairs,
@@ -140,11 +141,12 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<ButtonBlock> button = treeButton(type.name + "_button", planks, type.woodZhName + "按钮");
         DeferredBlock<SaplingBlock> sapling = treeSapling(type.name + "_sapling", type.grower, type.treeZhName + "树苗");
         DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶", type.fallingLeafParticleSupplier, type.leavesColor);
+        DeferredBlock<CarpetBlock> leavesCarpet = treeLeavesCarpet(type.name + "_leaves_carpet", leaves, type.treeZhName + "树叶地毯", type.leavesColor);
         DeferredBlock<SlabBlock> leavesSlab = treeLeavesSlab(type.name + "_leaves_slab", leaves, type.treeZhName + "树叶台阶", type.leavesColor);
         DeferredBlock<LeavesVerticalSlabBlock> leavesVerticalSlab = treeLeavesVerticalSlab(type.name + "_leaves_vertical_slab", leavesSlab, leaves, "竖直" + type.treeZhName + "树叶台阶", type.leavesColor);
         DeferredBlock<StairBlock> leavesStairs = treeLeavesStairs(type.name + "_leaves_stairs", leaves, type.treeZhName + "树叶楼梯", type.leavesColor);
         DeferredBlock<HedgeBlock> hedge = treeHedge(type.name + "_hedge", leaves, type.treeZhName + "树篱", type.leavesColor);
-        WoodSet result = new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, verticalSlab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesSlab, leavesVerticalSlab, leavesStairs, hedge);
+        WoodSet result = new WoodSet(log, strippedLog, wood, strippedWood, planks, post, strippedPost, woodPost, strippedWoodPost, slab, verticalSlab, stairs, fence, fenceGate, pressurePlate, button, sapling, leaves, leavesCarpet, leavesSlab, leavesVerticalSlab, leavesStairs, hedge);
         modelSet[0] = result;
         return result;
     }
@@ -588,6 +590,39 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                             .unlockedBy(provider.hasName(verticalSlab.get()), provider.hasItem(verticalSlab.get()))
                             .save(provider.output(), provider.id(id + "_revert").toString());
                 })
+                .register();
+    }
+
+    public static DeferredBlock<CarpetBlock> treeLeavesCarpet(
+            String id,
+            DeferredBlock<LeavesBlock> leaves,
+            String zhName,
+            MapColor mapColor
+    ) {
+        return SAPRegistries.block(id, CarpetBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.MOSS_CARPET)
+                        .strength(0.1F)
+                        .sound(SoundType.GRASS)
+                        .mapColor(mapColor)
+                        .noOcclusion()
+                        .isValidSpawn((state, getter, pos, type) -> false)
+                        .isSuffocating((state, getter, pos) -> false)
+                        .isViewBlocking((state, getter, pos) -> false))
+                .tags(BlockTags.MINEABLE_WITH_HOE)
+                .withItem()
+                .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_LEAVES_CARPETS)
+                .lang("zh_cn", zhName)
+                .blockstate(() -> (context, generator) -> NatureBlockModels.leavesCarpet(
+                        context,
+                        generator,
+                        ShadowsAndPetals.asResource("block/" + BuiltInRegistries.BLOCK.getKey(leaves.get()).getPath())
+                ))
+                .loot((provider, carpet) -> provider.dropSelf(carpet.get()))
+                .recipe((provider, carpet) -> provider.shaped(RecipeCategory.DECORATIONS, carpet.get(), 3)
+                        .define('L', leaves.get())
+                        .pattern("LL")
+                        .unlockedBy(provider.hasName(leaves.get()), provider.hasItem(leaves.get()))
+                        .save(provider.output()))
                 .register();
     }
 

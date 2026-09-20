@@ -1,7 +1,7 @@
 package com.sshakusora.shadowsandpetals.compat.chinjufu;
 
-import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList.WoodType;
+import com.sshakusora.shadowsandpetals.block.WoodSetList;
 import com.sshakusora.shadowsandpetals.block.agriculture.OrangeTreeBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.RoofTileBlock;
@@ -13,12 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SaplingBlock;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.ChestType;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.level.block.state.properties.*;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 /** Chinjufu-specific block aliases and state conversions. */

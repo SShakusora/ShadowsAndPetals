@@ -30,12 +30,9 @@ import com.sshakusora.shadowsandpetals.item.hammer.HammerItem;
 import com.sshakusora.shadowsandpetals.recipe.WindChimeDyeRecipe;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
-import net.minecraft.core.particles.ColorParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
-import net.minecraft.util.FastColor;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Items;
@@ -70,6 +67,12 @@ public class BlockRegistry {
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
             "秋橡树树叶",
+            MapColor.COLOR_ORANGE
+    );
+    public static final DeferredBlock<CarpetBlock> AUTUMN_OAK_LEAVES_CARPET = WoodSetList.treeLeavesCarpet(
+            "autumn_oak_leaves_carpet",
+            AUTUMN_OAK_LEAVES,
+            "秋橡树树叶地毯",
             MapColor.COLOR_ORANGE
     );
     public static final DeferredBlock<SlabBlock> AUTUMN_OAK_LEAVES_SLAB = WoodSetList.treeLeavesSlab(

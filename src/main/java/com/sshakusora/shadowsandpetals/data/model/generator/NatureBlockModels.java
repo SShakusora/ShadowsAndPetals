@@ -13,13 +13,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.level.block.LeavesBlock;
-import net.minecraft.world.level.block.SaplingBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.*;
 import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+
+import java.util.Map;
 
 public final class NatureBlockModels {
     private NatureBlockModels() {}
@@ -52,6 +51,26 @@ public final class NatureBlockModels {
     public static void leavesSlab(BlockModelContext<? extends SlabBlock> context, SAPBlockModelGenerator generator,
                                   ResourceLocation texture) {
         StandardBlockModels.slab(context, generator, texture, true);
+    }
+
+    public static void leavesCarpet(BlockModelContext<? extends CarpetBlock> context,
+                                    SAPBlockModelGenerator generator,
+                                    ResourceLocation texture) {
+        ResourceLocation modelId = generator.blockModelId(context.get()).withSuffix("_0");
+        ModelFile model = generator.createModel(
+                modelId.getPath(),
+                ResourceLocation.withDefaultNamespace("block/carpet"),
+                Map.of("wool", texture.withSuffix("_0")),
+                "cutout_mipped"
+        );
+        generator.provider().getVariantBuilder(context.get())
+                .partialState()
+                .addModels(ConfiguredModel.builder().modelFile(model).buildLast());
+        StandardBlockModels.parentBlockItem(
+                context.get(),
+                generator,
+                modelId
+        );
     }
     public static void leavesStairs(BlockModelContext<? extends StairBlock> context, SAPBlockModelGenerator generator,
                                     ResourceLocation texture) {

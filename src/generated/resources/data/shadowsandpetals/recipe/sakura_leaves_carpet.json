@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "shadowsandpetals:sakura_leaves"
+    }
+  },
+  "pattern": [
+    "LL"
+  ],
+  "result": {
+    "count": 3,
+    "id": "shadowsandpetals:sakura_leaves_carpet"
+  }
+}

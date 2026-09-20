@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/carpet",
+  "render_type": "minecraft:cutout_mipped",
+  "textures": {
+    "wool": "shadowsandpetals:block/sakura_leaves_0"
+  }
+}
