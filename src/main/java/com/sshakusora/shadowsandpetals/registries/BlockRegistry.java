@@ -10,6 +10,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBloc
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.sofa.SofaBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
@@ -1119,6 +1120,9 @@ public class BlockRegistry {
                     .save(provider.output()))
             .register());
 
+    // Add another colour when its block/sofa/<colour>.json model family exists.
+    public static final DeferredBlock<SofaBlock> BROWN_SOFA = registerSofa(DyeColor.BROWN);
+
     public static final DeferredBlock<SamonBlock> SAMON = SAPRegistries
             .block("samon", SamonBlock::new)
             .properties(properties -> BlockBehaviour.Properties.of()
@@ -1316,6 +1320,23 @@ public class BlockRegistry {
                 ))
                 .loot((provider, block) -> provider.dropSelf(block.get()))
                 .lang(DatagenLangRegistry.ZH_CN, zhName)
+                .register();
+    }
+
+    private static DeferredBlock<SofaBlock> registerSofa(DyeColor color) {
+        return SAPRegistries
+                .block(color.getName() + "_sofa", SofaBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                        .strength(1.0F)
+                        .sound(SoundType.WOOL)
+                        .mapColor(color)
+                        .noOcclusion())
+                .tags(BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_SOFAS)
+                .blockstate(() -> SofaModels::block)
+                .loot((provider, block) -> provider.dropSelf(block.get()))
+                .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "沙发")
                 .register();
     }
 
