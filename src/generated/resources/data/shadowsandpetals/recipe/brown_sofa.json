@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "P": {
+      "tag": "minecraft:planks"
+    },
+    "W": {
+      "item": "minecraft:brown_wool"
+    }
+  },
+  "pattern": [
+    "PW ",
+    "PWW",
+    "PPW"
+  ],
+  "result": {
+    "count": 4,
+    "id": "shadowsandpetals:brown_sofa"
+  }
+}
