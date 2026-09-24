@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -221,6 +223,24 @@ public class SofaBlock extends AbstractSeatBlock {
             BlockState state, BlockGetter level, BlockPos pos, CollisionContext context
     ) {
         return shapeFor(state);
+    }
+
+    @Override
+    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+        super.fallOn(level, state, pos, entity, fallDistance * 0.5F);
+    }
+
+    @Override
+    public void updateEntityMovementAfterFallOn(BlockGetter level, Entity entity) {
+        if (entity.isSuppressingBounce()) {
+            super.updateEntityMovementAfterFallOn(level, entity);
+            return;
+        }
+        Vec3 deltaMovement = entity.getDeltaMovement();
+        if (deltaMovement.y < 0.0D) {
+            double bounceScale = entity instanceof LivingEntity ? 1.0D : 0.8D;
+            entity.setDeltaMovement(deltaMovement.x, -deltaMovement.y * 0.66D * bounceScale, deltaMovement.z);
+        }
     }
 
     private static SofaShape mirrorShape(SofaShape shape) {
