@@ -100,5 +100,26 @@ public final class CTRegistry {
             }
             return index;
         }
+
+        /**
+         * Returns the standalone, unpadded tile used when this material is
+         * rendered inside a Create Copycat. Copycat crops the material model
+         * after it has been baked; a standalone sprite keeps its UV scale at
+         * one so Create's crop operation can preserve the texture correctly.
+         */
+        public ResourceLocation copycatTexture(int connectedTextureIndex, int tileIndex) {
+            if (connectedTextureIndex < 0 || connectedTextureIndex >= connectedTextures.size()) {
+                throw new IndexOutOfBoundsException("Invalid connected texture index " + connectedTextureIndex);
+            }
+            int tileCount = type.getSheetSize() * type.getSheetSize();
+            if (tileIndex < 0 || tileIndex >= tileCount) {
+                throw new IndexOutOfBoundsException("Invalid connected texture tile index " + tileIndex);
+            }
+
+            ResourceLocation sheet = connectedTextures.get(connectedTextureIndex);
+            return ResourceLocation.fromNamespaceAndPath(
+                    sheet.getNamespace(),
+                    sheet.getPath() + "/copycat/" + tileIndex);
+        }
     }
 }

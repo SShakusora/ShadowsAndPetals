@@ -4,6 +4,7 @@ import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.RawConcreteBlock;
 import com.sshakusora.shadowsandpetals.block.RockeryDimensions;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
+import com.sshakusora.shadowsandpetals.compat.CompatManager;
 import com.sshakusora.shadowsandpetals.registries.ItemRegistry;
 import com.sshakusora.shadowsandpetals.registries.TriggerRegistry;
 import net.minecraft.core.BlockPos;
@@ -57,6 +58,8 @@ public class HammerItem extends Item {
     private static final String TEMPLATE_KEY = "hammer_template_idx";
     private static final String FACING_KEY = "hammer_facing";
     private static final String START_TICK_KEY = "hammer_start_tick";
+    private static final String CREATE_COPYCAT_COMPAT_CLASS =
+            "com.sshakusora.shadowsandpetals.compat.create.copycat.CopycatCompat";
 
     private static final List<RockeryTemplate> ROCKERY_TEMPLATES = new ArrayList<>();
     private static final Map<UUID, HammerSession> HAMMER_SESSIONS = new HashMap<>();
@@ -183,6 +186,15 @@ public class HammerItem extends Item {
             return InteractionResult.SUCCESS;
         }
 
+        if (level.isClientSide()) {
+            if (isCreateRawConcreteCopycat(context)) {
+                return InteractionResult.SUCCESS;
+            }
+        } else if (cycleCreateCopycat(context)) {
+            playCopycatHitSound(level, clickedPos);
+            return InteractionResult.SUCCESS;
+        }
+
         if (!player.getOffhandItem().is(ItemRegistry.CHISEL.get())) {
             return InteractionResult.PASS;
         }
@@ -208,6 +220,46 @@ public class HammerItem extends Item {
         // Begin the hammering animation
         player.startUsingItem(context.getHand());
         return InteractionResult.CONSUME;
+    }
+
+    private static boolean cycleCreateCopycat(UseOnContext context) {
+        if (!CompatManager.isCreateLoaded()) {
+            return false;
+        }
+
+        try {
+            Class<?> compatClass = Class.forName(CREATE_COPYCAT_COMPAT_CLASS);
+            return (Boolean) compatClass
+                    .getMethod("cycleRawConcrete", UseOnContext.class)
+                    .invoke(null, context);
+        } catch (ReflectiveOperationException | LinkageError ignored) {
+            return false;
+        }
+    }
+
+    private static boolean isCreateRawConcreteCopycat(UseOnContext context) {
+        if (!CompatManager.isCreateLoaded()) {
+            return false;
+        }
+
+        try {
+            Class<?> compatClass = Class.forName(CREATE_COPYCAT_COMPAT_CLASS);
+            return (Boolean) compatClass
+                    .getMethod("isRawConcrete", UseOnContext.class)
+                    .invoke(null, context);
+        } catch (ReflectiveOperationException | LinkageError ignored) {
+            return false;
+        }
+    }
+
+    private static void playCopycatHitSound(Level level, BlockPos pos) {
+        level.playSound(
+                null,
+                pos,
+                SoundEvents.STONE_HIT,
+                SoundSource.BLOCKS,
+                0.7F,
+                0.85F);
     }
 
     @Override

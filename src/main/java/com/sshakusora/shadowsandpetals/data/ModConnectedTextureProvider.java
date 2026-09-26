@@ -44,10 +44,12 @@ public class ModConnectedTextureProvider implements DataProvider {
         List<CompletableFuture<?>> tasks = new ArrayList<>();
         Set<ResourceLocation> scheduledOutputs = new HashSet<>();
         Set<ResourceLocation> scheduledBaseOutputs = new HashSet<>();
+        Set<ResourceLocation> scheduledCopycatOutputs = new HashSet<>();
         for (CTRegistry.CTEntry entry : CTRegistry.entries().values()) {
             if (entry.padding() <= 0) {
                 continue;
             }
+            scheduleCopycatTextures(cache, tasks, scheduledCopycatOutputs, entry);
 
             ResourceLocation baseTexture = entry.baseTexture();
             if (scheduledBaseOutputs.add(baseTexture)) {
@@ -98,6 +100,18 @@ public class ModConnectedTextureProvider implements DataProvider {
             for (ResourceLocation texture : entry.connectedTextures()) {
                 if (tracked.add(texture)) {
                     existingFileHelper.trackGenerated(texture, textureType);
+                }
+            }
+            for (int connectedTextureIndex = 0;
+                 connectedTextureIndex < entry.connectedTextures().size();
+                 connectedTextureIndex++) {
+                for (int tileIndex = 0;
+                     tileIndex < entry.type().getSheetSize() * entry.type().getSheetSize();
+                     tileIndex++) {
+                    ResourceLocation copycatTexture = entry.copycatTexture(connectedTextureIndex, tileIndex);
+                    if (tracked.add(copycatTexture)) {
+                        existingFileHelper.trackGenerated(copycatTexture, textureType);
+                    }
                 }
             }
         }
@@ -200,6 +214,71 @@ public class ModConnectedTextureProvider implements DataProvider {
             }
         }
         return result;
+    }
+
+    private static BufferedImage cropTile(BufferedImage source, ResourceLocation sourceTexture,
+                                          int sheetSize, int tileIndex) {
+        if (source.getWidth() != source.getHeight()) {
+            throw new IllegalArgumentException(sourceTexture + " must be square, got "
+                    + source.getWidth() + "x" + source.getHeight());
+        }
+        if (source.getWidth() % sheetSize != 0) {
+            throw new IllegalArgumentException(sourceTexture + " width must be divisible by sheet size " + sheetSize);
+        }
+
+        int tileSize = source.getWidth() / sheetSize;
+        int tileX = Math.floorMod(tileIndex, sheetSize);
+        int tileY = Math.floorDiv(tileIndex, sheetSize);
+        BufferedImage result = new BufferedImage(tileSize, tileSize, BufferedImage.TYPE_INT_ARGB);
+        for (int y = 0; y < tileSize; y++) {
+            for (int x = 0; x < tileSize; x++) {
+                result.setRGB(x, y, source.getRGB(tileX * tileSize + x, tileY * tileSize + y));
+            }
+        }
+        return result;
+    }
+
+    private void scheduleCopycatTextures(CachedOutput cache, List<CompletableFuture<?>> tasks,
+                                          Set<ResourceLocation> scheduledOutputs,
+                                          CTRegistry.CTEntry entry) {
+        int sheetSize = entry.type().getSheetSize();
+        int tileCount = sheetSize * sheetSize;
+        for (int connectedTextureIndex = 0;
+             connectedTextureIndex < entry.connectedTextures().size();
+             connectedTextureIndex++) {
+            ResourceLocation sourceTexture = sourceTexture(entry.connectedTextures().get(connectedTextureIndex));
+            Path source = sourcePath(sourceTexture);
+            for (int tileIndex = 0; tileIndex < tileCount; tileIndex++) {
+                ResourceLocation outputTexture = entry.copycatTexture(connectedTextureIndex, tileIndex);
+                if (!scheduledOutputs.add(outputTexture)) {
+                    continue;
+                }
+                Path output = texturePathProvider.file(outputTexture, "png");
+                int currentTileIndex = tileIndex;
+                tasks.add(CompletableFuture.runAsync(
+                        () -> generateCopycatTile(cache, source, output, sourceTexture, sheetSize, currentTileIndex)));
+            }
+        }
+    }
+
+    private static void generateCopycatTile(CachedOutput cache, Path source, Path output,
+                                            ResourceLocation sourceTexture, int sheetSize, int tileIndex) {
+        try {
+            if (!Files.isRegularFile(source)) {
+                throw new IOException("Missing connected texture source: " + source);
+            }
+
+            BufferedImage sourceImage = ImageIO.read(source.toFile());
+            if (sourceImage == null) {
+                throw new IOException("Unsupported image: " + source);
+            }
+
+            BufferedImage tile = cropTile(sourceImage, sourceTexture, sheetSize, tileIndex);
+            byte[] png = encodePng(tile);
+            cache.writeIfNeeded(output, png, Hashing.sha256().hashBytes(png));
+        } catch (IOException e) {
+            throw new CompletionException(e);
+        }
     }
 
     private static void copyTileWithBleed(BufferedImage source, BufferedImage result, int tileX, int tileY,

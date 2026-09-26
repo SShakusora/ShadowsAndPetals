@@ -46,19 +46,22 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
             return base;
         }
 
+        CTContextBridge bridge = CTContextBridges.find(level, pos, state);
+        boolean copycat = bridge != null;
         EnumMap<Direction, Integer> tileIndices = new EnumMap<>(Direction.class);
         EnumMap<Direction, Integer> textureIndices = new EnumMap<>(Direction.class);
         for (Direction face : Direction.values()) {
             BlockPos neighborPos = pos.relative(face);
-            BlockState neighborState = level.getBlockState(neighborPos);
-            if (!Block.shouldRenderFace(state, level, pos, face, neighborPos)) {
+            if (!shouldBuildTextureData(level, pos, state, face, neighborPos, bridge)) {
                 continue;
             }
-            CTContext context = buildContext(level, pos, state, face);
+            CTContext context = bridge == null
+                    ? buildContext(level, pos, state, face)
+                    : bridge.buildContext(level, pos, state, face);
             tileIndices.put(face, entry.type().getTextureIndex(context));
             textureIndices.put(face, entry.selectTextureIndex(state, pos, face));
         }
-        return base.derive().with(CT_DATA, new CTData(tileIndices, textureIndices)).build();
+        return base.derive().with(CT_DATA, new CTData(tileIndices, textureIndices, copycat)).build();
     }
 
     @Override
@@ -93,6 +96,20 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
         }
 
         Sprites resolvedSprites = ensureSprites();
+        if (ctData.copycat) {
+            if (tileIndex < 0 || tileIndex >= resolvedSprites.copycat.get(textureIndex).size()) {
+                return quads;
+            }
+            TextureAtlasSprite tileSprite = resolvedSprites.copycat.get(textureIndex).get(tileIndex);
+            List<BakedQuad> result = new ArrayList<>(quads.size());
+            for (BakedQuad quad : quads) {
+                result.add(quad.getSprite() == resolvedSprites.base
+                        ? remapQuadToSprite(quad, tileSprite, resolvedSprites.base)
+                        : quad);
+            }
+            return result;
+        }
+
         ConnectedSprite connected = resolvedSprites.connected.get(textureIndex);
         int column = Math.floorMod(tileIndex, entry.type().getSheetSize());
         int row = Math.floorDiv(tileIndex, entry.type().getSheetSize());
@@ -120,7 +137,18 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
                         .map(atlas::getSprite)
                         .map(sprite -> new ConnectedSprite(sprite, entry.type().getSheetSize(), entry.padding()))
                         .toList();
-                resolved = new Sprites(base, connected);
+                List<List<TextureAtlasSprite>> copycat = new ArrayList<>(entry.connectedTextures().size());
+                int tileCount = entry.type().getSheetSize() * entry.type().getSheetSize();
+                for (int connectedTextureIndex = 0;
+                     connectedTextureIndex < entry.connectedTextures().size();
+                     connectedTextureIndex++) {
+                    List<TextureAtlasSprite> tiles = new ArrayList<>(tileCount);
+                    for (int tileIndex = 0; tileIndex < tileCount; tileIndex++) {
+                        tiles.add(atlas.getSprite(entry.copycatTexture(connectedTextureIndex, tileIndex)));
+                    }
+                    copycat.add(List.copyOf(tiles));
+                }
+                resolved = new Sprites(base, connected, List.copyOf(copycat));
                 sprites = resolved;
             }
             return resolved;
@@ -166,8 +194,10 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
 
     private boolean connectsTo(BlockAndTintGetter level, BlockPos pos, BlockState state,
                                BlockPos otherPos, Direction face) {
+        BlockState reference = level.getBlockState(pos);
         BlockState other = level.getBlockState(otherPos);
-        if (other.getBlock() != state.getBlock()) {
+        BlockState appearance = other.getAppearance(level, otherPos, face, reference, pos);
+        if (appearance.getBlock() != state.getBlock()) {
             return false;
         }
         BlockPos blockingPos = otherPos.relative(face);
@@ -179,7 +209,20 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
                 != face.getAxis().choose(otherPos.getX(), otherPos.getY(), otherPos.getZ())) {
             return true;
         }
-        return blockingState.getBlock() != state.getBlock();
+        BlockState blockingAppearance = blockingState.getAppearance(level, blockingPos, face, reference, otherPos);
+        return blockingAppearance.getBlock() != state.getBlock();
+    }
+
+    private static boolean shouldBuildTextureData(BlockAndTintGetter level, BlockPos pos,
+                                                   BlockState state, Direction face, BlockPos neighborPos,
+                                                   @Nullable CTContextBridge bridge) {
+        if (Block.shouldRenderFace(state, level, pos, face, neighborPos)) {
+            return true;
+        }
+        if (bridge != null) {
+            return true;
+        }
+        return false;
     }
 
     private static BakedQuad remapQuad(BakedQuad quad, int column, int row,
@@ -196,6 +239,20 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
                 connected.sprite, quad.isShade(), quad.hasAmbientOcclusion());
     }
 
+    private static BakedQuad remapQuadToSprite(BakedQuad quad, TextureAtlasSprite target,
+                                               TextureAtlasSprite base) {
+        int[] vertices = quad.getVertices().clone();
+        for (int vertex = 0; vertex < 4; vertex++) {
+            int offset = vertex * BLOCK_VERTEX_STRIDE;
+            float u = Float.intBitsToFloat(vertices[offset + 4]);
+            float v = Float.intBitsToFloat(vertices[offset + 5]);
+            vertices[offset + 4] = Float.floatToRawIntBits(target.getU(localU(base, u)));
+            vertices[offset + 5] = Float.floatToRawIntBits(target.getV(localV(base, v)));
+        }
+        return new BakedQuad(vertices, quad.getTintIndex(), quad.getDirection(),
+                target, quad.isShade(), quad.hasAmbientOcclusion());
+    }
+
     private static float localU(TextureAtlasSprite sprite, float atlasU) {
         return clamp01((atlasU - sprite.getU0()) / (sprite.getU1() - sprite.getU0()));
     }
@@ -208,10 +265,12 @@ public final class CTBlockStateModel extends BakedModelWrapper<BakedModel> imple
         return Math.max(0.0F, Math.min(1.0F, value));
     }
 
-    private record CTData(Map<Direction, Integer> tileIndices, Map<Direction, Integer> textureIndices) {
+    private record CTData(Map<Direction, Integer> tileIndices, Map<Direction, Integer> textureIndices,
+                          boolean copycat) {
     }
 
-    private record Sprites(TextureAtlasSprite base, List<ConnectedSprite> connected) {
+    private record Sprites(TextureAtlasSprite base, List<ConnectedSprite> connected,
+                           List<List<TextureAtlasSprite>> copycat) {
     }
 
     private static final class ConnectedSprite {
