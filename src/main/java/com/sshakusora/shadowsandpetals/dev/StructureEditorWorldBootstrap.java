@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.dev;
 import net.minecraft.SharedConstants;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.StringTag;
 
@@ -18,7 +19,7 @@ import java.util.Locale;
  * Build-time bootstrap used by the {@code runStructureEditor} Gradle task.
  */
 public final class StructureEditorWorldBootstrap {
-    public static final String WORLD_DIRECTORY = "sap_structure_editor";
+    public static final String WORLD_DIRECTORY = "sap_structure_editor_1_21_1";
     public static final String REBUILD_MARKER = ".sap-structure-editor-rebuild";
     private static final String WORLD_NAME = "Shadows & Petals Structure Editor";
     private static final int STORAGE_VERSION = 19133;
@@ -52,14 +53,29 @@ public final class StructureEditorWorldBootstrap {
 
     private static void ensureWorldFiles(Path worldDirectory) throws IOException {
         Path levelDat = worldDirectory.resolve("level.dat");
-        if (!Files.exists(levelDat)) {
-            NbtIo.writeCompressed(createLevelData(), levelDat);
+        if (Files.exists(levelDat) && hasCompatibleLevelData(levelDat)) {
+            return;
         }
 
-        Path worldGenSettings = worldDirectory.resolve("data").resolve("minecraft").resolve("world_gen_settings.dat");
-        if (!Files.exists(worldGenSettings)) {
-            Files.createDirectories(worldGenSettings.getParent());
-            NbtIo.writeCompressed(createWorldGenSettings(), worldGenSettings);
+        if (Files.exists(levelDat)) {
+            Files.move(
+                    levelDat,
+                    worldDirectory.resolve("level.dat.incompatible"),
+                    StandardCopyOption.REPLACE_EXISTING
+            );
+        }
+        NbtIo.writeCompressed(createLevelData(), levelDat);
+    }
+
+    private static boolean hasCompatibleLevelData(Path levelDat) {
+        try {
+            CompoundTag root = NbtIo.readCompressed(levelDat, NbtAccounter.unlimitedHeap());
+            CompoundTag data = root.getCompound("Data");
+            return data.getInt("DataVersion") == SharedConstants.WORLD_VERSION
+                    && data.get("WorldGenSettings") instanceof CompoundTag
+                    && data.get("DragonFight") instanceof CompoundTag;
+        } catch (IOException exception) {
+            return false;
         }
     }
 
@@ -70,14 +86,12 @@ public final class StructureEditorWorldBootstrap {
         CompoundTag data = new CompoundTag();
         root.put("Data", data);
 
-        CompoundTag difficulty = new CompoundTag();
-        difficulty.putString("difficulty", "peaceful");
-        difficulty.putBoolean("hardcore", false);
-        difficulty.putBoolean("locked", false);
-        data.put("difficulty_settings", difficulty);
-
         data.putLong("Time", 6000L);
+        data.putLong("DayTime", 6000L);
         data.putInt("GameType", 1);
+        data.putByte("Difficulty", (byte)0);
+        data.putBoolean("DifficultyLocked", false);
+        data.putBoolean("hardcore", false);
         data.putInt("version", STORAGE_VERSION);
         data.putLong("LastPlayed", Instant.now().toEpochMilli());
         data.putString("LevelName", WORLD_NAME);
@@ -89,17 +103,22 @@ public final class StructureEditorWorldBootstrap {
         data.putFloat("neoDayTimeFraction", 0.0F);
         data.putFloat("neoDayTimePerTick", -1.0F);
         data.putString("forgeLifecycle", "stable");
+        data.put("WorldGenSettings", createWorldGenSettings());
+
+        CompoundTag dragonFight = new CompoundTag();
+        dragonFight.putBoolean("NeedsStateScanning", true);
+        dragonFight.putBoolean("DragonKilled", false);
+        dragonFight.putBoolean("PreviouslyKilled", false);
+        data.put("DragonFight", dragonFight);
 
         ListTag serverBrands = new ListTag();
         serverBrands.add(StringTag.valueOf("neoforge"));
         data.put("ServerBrands", serverBrands);
 
-        CompoundTag spawn = new CompoundTag();
-        spawn.putIntArray("pos", new int[]{0, StructureEditorLayout.SPAWN_Y, 0});
-        spawn.putString("dimension", "minecraft:overworld");
-        spawn.putFloat("yaw", 0.0F);
-        spawn.putFloat("pitch", 0.0F);
-        data.put("spawn", spawn);
+        data.putInt("SpawnX", 0);
+        data.putInt("SpawnY", StructureEditorLayout.SPAWN_Y);
+        data.putInt("SpawnZ", 0);
+        data.putFloat("SpawnAngle", 0.0F);
 
         CompoundTag version = new CompoundTag();
         version.putBoolean("Snapshot", false);
@@ -115,17 +134,13 @@ public final class StructureEditorWorldBootstrap {
         return root;
     }
 
-    @SuppressWarnings("deprecation")
     private static CompoundTag createWorldGenSettings() {
-        CompoundTag root = new CompoundTag();
-        CompoundTag data = new CompoundTag();
-        root.put("data", data);
-        data.putBoolean("bonus_chest", false);
-        data.putLong("seed", 0L);
-        data.putBoolean("generate_structures", false);
-        data.put("dimensions", createDimensions());
-        root.putInt("DataVersion", SharedConstants.WORLD_VERSION);
-        return root;
+        CompoundTag settings = new CompoundTag();
+        settings.putLong("seed", 0L);
+        settings.putBoolean("generate_features", false);
+        settings.putBoolean("bonus_chest", false);
+        settings.put("dimensions", createDimensions());
+        return settings;
     }
 
     private static CompoundTag createDimensions() {
@@ -181,7 +196,7 @@ public final class StructureEditorWorldBootstrap {
 
     private static void ensureStructureJunction(Path worldDirectory, Path sourceStructures) throws IOException, InterruptedException {
         Path namespaceDirectory = worldDirectory.resolve("generated").resolve("shadowsandpetals");
-        Path link = namespaceDirectory.resolve("structure");
+        Path link = namespaceDirectory.resolve("structures");
         Files.createDirectories(namespaceDirectory);
 
         if (Files.exists(link)) {

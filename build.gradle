@@ -76,7 +76,7 @@ neoForge {
         structureEditor {
             client()
             gameDirectory = project.file('run')
-            programArguments = ['--quickPlaySingleplayer', 'sap_structure_editor']
+            programArguments = ['--quickPlaySingleplayer', 'sap_structure_editor_1_21_1']
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
             systemProperty 'shadowsandpetals.structureEditor', 'true'
         }
