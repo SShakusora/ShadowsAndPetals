@@ -1,6 +1,8 @@
-// 26.1.2	2026-09-22T21:27:07.4660818	Tags for minecraft:item mod id shadowsandpetals
+// 26.1.2	2026-09-26T19:50:36.9044367	Tags for minecraft:item mod id shadowsandpetals
 063164d2c16f676688f5728e574df670128c3db8 data/c/tags/item/foods/fruit.json
 5784871df0093b874abacb177603d4b8c495cb3e data/c/tags/item/foods/vegetable.json
+97d183c60f795558d27f7161ac5abbcb4e0b3749 data/c/tags/item/stripped_logs.json
+88a58fc62baef45a46d22e616bbb432345965a71 data/c/tags/item/stripped_woods.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/item/fence_gates.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/item/logs.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/item/logs_that_burn.json

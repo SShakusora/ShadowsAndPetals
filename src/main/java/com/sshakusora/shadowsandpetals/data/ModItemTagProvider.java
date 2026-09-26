@@ -12,6 +12,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.data.BlockTagCopyingItemTagProvider;
 
 import java.util.concurrent.CompletableFuture;
@@ -44,6 +45,8 @@ public class ModItemTagProvider extends BlockTagCopyingItemTagProvider {
         }
         copy(BlockTags.LOGS, ItemTags.LOGS);
         copy(BlockTags.LOGS_THAT_BURN, ItemTags.LOGS_THAT_BURN);
+        copy(Tags.Blocks.STRIPPED_LOGS, Tags.Items.STRIPPED_LOGS);
+        copy(Tags.Blocks.STRIPPED_WOODS, Tags.Items.STRIPPED_WOODS);
         copy(BlockTags.PLANKS, ItemTags.PLANKS);
         copy(BlockTags.WOODEN_STAIRS, ItemTags.WOODEN_STAIRS);
         copy(BlockTags.WOODEN_SLABS, ItemTags.WOODEN_SLABS);

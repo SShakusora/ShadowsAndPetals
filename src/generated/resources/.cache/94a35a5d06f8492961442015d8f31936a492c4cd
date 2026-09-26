@@ -1,4 +1,6 @@
-// 26.1.2	2026-09-22T21:27:07.48308	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-09-26T19:50:36.9084558	Tags for minecraft:block mod id shadowsandpetals
+97d183c60f795558d27f7161ac5abbcb4e0b3749 data/c/tags/block/stripped_logs.json
+88a58fc62baef45a46d22e616bbb432345965a71 data/c/tags/block/stripped_woods.json
 853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
 9a9705f5e6981b25ee8e01d3b61470d2baa9361f data/minecraft/tags/block/fences.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/block/fence_gates.json

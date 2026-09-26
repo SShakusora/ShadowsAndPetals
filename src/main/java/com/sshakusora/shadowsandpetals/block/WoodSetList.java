@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.registries.DeferredBlock;
 
 import java.util.function.Supplier;
@@ -170,7 +171,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .strength(2.0F)
                         .sound(SoundType.WOOD)
                         .mapColor(mapColor))
-                .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+                .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN, Tags.Blocks.STRIPPED_LOGS)
                 .withItem()
                 .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_LOGS)
                 .lang("zh_cn", zhName)
@@ -202,7 +203,7 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                         .strength(2.0F)
                         .sound(SoundType.WOOD)
                         .mapColor(mapColor))
-                .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN)
+                .tags(BlockTags.MINEABLE_WITH_AXE, BlockTags.LOGS, BlockTags.LOGS_THAT_BURN, Tags.Blocks.STRIPPED_WOODS)
                 .withItem()
                 .creativeTab(CreativeTabKey.NATURE, CreativeTabOrder.NATURE_STRIPPED_WOOD)
                 .lang("zh_cn", zhName)
