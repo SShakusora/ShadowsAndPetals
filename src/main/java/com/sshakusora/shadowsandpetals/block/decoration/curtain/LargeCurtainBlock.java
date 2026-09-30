@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -31,6 +32,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Experimental four-block large curtain: each block renders its own
@@ -44,13 +46,14 @@ import java.util.Set;
  * picks the block of that row — {@code OUTER} is the anchor column (in a
  * window pair the two OUTER columns meet at the window center) and
  * {@code INNER} is the column the fabric bunches to when opening.
- * {@link Side} marks which side of the window the whole 2x2 curtain hangs
- * on, mirroring {@link CurtainBlock}: the LEFT curtain bunches to the
+ * {@link CurtainSide} marks which side of the window the whole 2x2 curtain hangs
+ * on, mirroring the other curtain sizes: the LEFT curtain bunches to the
  * observer's left and pairs with the RIGHT curtain on its right, and vice
  * versa.</p>
  */
-public class LargeCurtainBlock extends CurtainBlock {
+public class LargeCurtainBlock extends AbstractCurtainBlock {
     public static final MapCodec<LargeCurtainBlock> CODEC = simpleCodec(LargeCurtainBlock::new);
+    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
     private static final int STRUCTURE_REMOVAL_FLAGS = Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS;
@@ -136,7 +139,7 @@ public class LargeCurtainBlock extends CurtainBlock {
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
-                .setValue(SIDE, Side.RIGHT)
+                .setValue(SIDE, CurtainSide.RIGHT)
                 .setValue(OPEN, false)
                 .setValue(POWERED, false)
                 .setValue(ANIMATING, false)
@@ -150,7 +153,8 @@ public class LargeCurtainBlock extends CurtainBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, COLUMN, SIDE, OPEN, POWERED, ANIMATING, ANCHOR);
+        super.createBlockStateDefinition(builder);
+        builder.add(HALF, COLUMN, ANCHOR);
     }
 
     /**
@@ -163,7 +167,7 @@ public class LargeCurtainBlock extends CurtainBlock {
     static Direction innerStep(BlockState state) {
         return LargeCurtainGeometry.innerStep(
                 state.getValue(FACING),
-                state.getValue(SIDE) == Side.RIGHT
+                state.getValue(SIDE) == CurtainSide.RIGHT
         );
     }
 
@@ -187,19 +191,35 @@ public class LargeCurtainBlock extends CurtainBlock {
         Direction facing = context.getHorizontalDirection().getOpposite();
         boolean sneaking = context.getPlayer() != null
                 && context.getPlayer().isSecondaryUseActive();
-        // The horizontal side is independent of the vertical candidate, but
-        // the side must be known before the inner-column direction can be
-        // checked for all four cells.
-        Side side = CurtainStructure.sideForPlacement(level, clickedPos, facing, sneaking);
+        // The side is derived from the actual upper rail row of the selected
+        // vertical candidate. The downward candidate uses clickedPos as its
+        // rail; the fallback candidate uses clickedPos.above().
+        CurtainSide side = CurtainStructure.sideForPlacement(level, clickedPos, facing, sneaking);
         BlockState placementState = defaultBlockState()
                 .setValue(FACING, facing)
                 .setValue(COLUMN, Column.OUTER)
                 .setValue(SIDE, side);
-        LargeCurtainGeometry.Placement placement = LargeCurtainGeometry.choosePlacement(
-                clickedPos,
+        Predicate<BlockPos> replaceable =
+                part -> level.getBlockState(part).canBeReplaced(context);
+        LargeCurtainGeometry.Placement placement = LargeCurtainGeometry.choosePlacementAt(
+                clickedPos.below(),
+                true,
                 innerStep(placementState),
-                part -> level.getBlockState(part).canBeReplaced(context)
+                replaceable
         );
+        if (placement == null) {
+            side = CurtainStructure.sideForPlacement(level, clickedPos.above(), facing, sneaking);
+            placementState = defaultBlockState()
+                    .setValue(FACING, facing)
+                    .setValue(COLUMN, Column.OUTER)
+                    .setValue(SIDE, side);
+            placement = LargeCurtainGeometry.choosePlacementAt(
+                    clickedPos,
+                    false,
+                    innerStep(placementState),
+                    replaceable
+            );
+        }
         if (placement == null) {
             return null;
         }
@@ -232,7 +252,7 @@ public class LargeCurtainBlock extends CurtainBlock {
                     ? OPEN_RAIL_SHAPES.get(facing)
                     : Shapes.empty();
         }
-        if (state.getValue(SIDE) == Side.LEFT) {
+        if (state.getValue(SIDE) == CurtainSide.LEFT) {
             return (upper ? OPEN_PILE_LEFT_UPPER_SHAPES : OPEN_PILE_LEFT_LOWER_SHAPES).get(facing);
         }
         return (upper ? OPEN_PILE_RIGHT_UPPER_SHAPES : OPEN_PILE_RIGHT_LOWER_SHAPES).get(facing);
@@ -349,10 +369,6 @@ public class LargeCurtainBlock extends CurtainBlock {
                 state.getValue(HALF) == DoubleBlockHalf.UPPER,
                 state.getValue(COLUMN) == Column.INNER
         );
-    }
-
-    protected boolean handlesVanillaPairedBreak() {
-        return false;
     }
 
     /**

@@ -47,14 +47,21 @@ final class LargeCurtainGeometry {
             Direction inner,
             Predicate<BlockPos> replaceable
     ) {
-        BlockPos downwardAnchor = clicked.below();
-        if (allReplaceable(downwardAnchor, inner, replaceable)) {
-            return new Placement(downwardAnchor, true);
-        }
-        if (allReplaceable(clicked, inner, replaceable)) {
-            return new Placement(clicked, false);
-        }
-        return null;
+        Placement downward = choosePlacementAt(clicked.below(), true, inner, replaceable);
+        return downward != null
+                ? downward
+                : choosePlacementAt(clicked, false, inner, replaceable);
+    }
+
+    static @Nullable Placement choosePlacementAt(
+            BlockPos lowerOuter,
+            boolean clickedIsUpper,
+            Direction inner,
+            Predicate<BlockPos> replaceable
+    ) {
+        return allReplaceable(lowerOuter, inner, replaceable)
+                ? new Placement(lowerOuter, clickedIsUpper)
+                : null;
     }
 
     record Placement(BlockPos lowerOuter, boolean clickedIsUpper) {

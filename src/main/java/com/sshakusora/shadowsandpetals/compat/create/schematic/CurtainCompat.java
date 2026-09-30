@@ -4,8 +4,10 @@ import com.simibubi.create.api.schematic.nbt.SafeNbtWriterRegistry;
 import com.simibubi.create.api.schematic.requirement.SchematicRequirementRegistries;
 import com.simibubi.create.api.schematic.state.SchematicStateFilterRegistry;
 import com.simibubi.create.content.schematics.requirement.ItemRequirement;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.AbstractCurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LongCurtainBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.HolderLookup;
@@ -15,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 /**
- * Create schematic support for the two curtain block families.
+ * Create schematic support for the three curtain block families.
  *
  * <p>Create places every saved block state and invokes {@code setPlacedBy}
  * with a null placer. Curtain placement therefore must not synthesize another
@@ -35,7 +37,10 @@ public final class CurtainCompat {
         }
 
         for (var block : BlockRegistry.CURTAINS) {
-            registerSmallCurtain(block.get());
+            registerCurtain(block.get());
+        }
+        for (var block : BlockRegistry.LONG_CURTAINS) {
+            registerLongCurtain(block.get());
         }
         for (var block : BlockRegistry.LARGE_CURTAINS) {
             registerLargeCurtain(block.get());
@@ -46,16 +51,31 @@ public final class CurtainCompat {
                 CurtainCompat::writeSafeCurtainNbt
         );
         SafeNbtWriterRegistry.REGISTRY.register(
+                BlockEntityRegistry.LONG_CURTAIN.get(),
+                CurtainCompat::writeSafeCurtainNbt
+        );
+        SafeNbtWriterRegistry.REGISTRY.register(
                 BlockEntityRegistry.LARGE_CURTAIN.get(),
                 CurtainCompat::writeSafeCurtainNbt
         );
         registered = true;
     }
 
-    private static void registerSmallCurtain(CurtainBlock block) {
+    private static void registerCurtain(CurtainBlock block) {
         SchematicRequirementRegistries.BLOCKS.register(
                 block,
-                CurtainCompat::getSmallCurtainRequirement
+                CurtainCompat::getCurtainRequirement
+        );
+        SchematicStateFilterRegistry.REGISTRY.register(
+                block,
+                CurtainCompat::filterAnimationState
+        );
+    }
+
+    private static void registerLongCurtain(LongCurtainBlock block) {
+        SchematicRequirementRegistries.BLOCKS.register(
+                block,
+                CurtainCompat::getLongCurtainRequirement
         );
         SchematicStateFilterRegistry.REGISTRY.register(
                 block,
@@ -74,11 +94,20 @@ public final class CurtainCompat {
         );
     }
 
-    private static ItemRequirement getSmallCurtainRequirement(
+    private static ItemRequirement getCurtainRequirement(
             BlockState state,
             BlockEntity blockEntity
     ) {
-        return isSmallCurtainRoot(state)
+        return isCurtainRoot(state)
+                ? itemRequirement(state)
+                : ItemRequirement.NONE;
+    }
+
+    private static ItemRequirement getLongCurtainRequirement(
+            BlockState state,
+            BlockEntity blockEntity
+    ) {
+        return isLongCurtainRoot(state)
                 ? itemRequirement(state)
                 : ItemRequirement.NONE;
     }
@@ -99,14 +128,18 @@ public final class CurtainCompat {
         );
     }
 
-    /** The lower half is the canonical root of a two-block curtain. */
-    static boolean isSmallCurtainRoot(BlockState state) {
-        return state.getBlock() instanceof CurtainBlock
-                && !(state.getBlock() instanceof LargeCurtainBlock)
-                && isSmallCurtainRoot(state.getValue(CurtainBlock.HALF));
+    /** A one-block curtain is always its own schematic root. */
+    static boolean isCurtainRoot(BlockState state) {
+        return state.getBlock() instanceof CurtainBlock;
     }
 
-    static boolean isSmallCurtainRoot(DoubleBlockHalf half) {
+    /** The lower half is the canonical root of a long curtain. */
+    static boolean isLongCurtainRoot(BlockState state) {
+        return state.getBlock() instanceof LongCurtainBlock
+                && isLongCurtainRoot(state.getValue(LongCurtainBlock.HALF));
+    }
+
+    static boolean isLongCurtainRoot(DoubleBlockHalf half) {
         return half == DoubleBlockHalf.LOWER;
     }
 
@@ -133,11 +166,11 @@ public final class CurtainCompat {
      * destination world recalculate POWERED from its own neighbours.
      */
     static BlockState filterAnimationState(BlockEntity blockEntity, BlockState state) {
-        if (state.hasProperty(CurtainBlock.ANIMATING)) {
-            state = state.setValue(CurtainBlock.ANIMATING, false);
+        if (state.hasProperty(AbstractCurtainBlock.ANIMATING)) {
+            state = state.setValue(AbstractCurtainBlock.ANIMATING, false);
         }
-        if (state.hasProperty(CurtainBlock.POWERED)) {
-            state = state.setValue(CurtainBlock.POWERED, false);
+        if (state.hasProperty(AbstractCurtainBlock.POWERED)) {
+            state = state.setValue(AbstractCurtainBlock.POWERED, false);
         }
         return state;
     }

@@ -97,11 +97,25 @@ class CurtainAssetCompilerGoldenTest {
         }
     }
 
+    @Test
+    void oneCellItemReusesLongCurtainDisplayTransformsWithoutReusingItsGeometry() {
+        Map<String, JsonElement> actual = new CurtainAssetCompiler(projectRoot()).compile();
+        JsonObject curtainItem = actual.get("models/block/curtain/item/white.json")
+                .getAsJsonObject();
+        JsonObject longCurtainItem = actual.get("models/block/long_curtain/item/white.json")
+                .getAsJsonObject();
+
+        assertEquals(longCurtainItem.get("display"), curtainItem.get("display"));
+        assertNotEquals(longCurtainItem.get("elements"), curtainItem.get("elements"));
+        assertEquals(14, longCurtainItem.getAsJsonArray("elements").size());
+        assertEquals(10, curtainItem.getAsJsonArray("elements").size());
+    }
+
     private static Path projectRoot() {
         Path current = Path.of("").toAbsolutePath().normalize();
         while (current != null) {
             Path blockModels = current.resolve("src/main/resources/assets/shadowsandpetals/models/block");
-            if (Files.isDirectory(blockModels.resolve("curtain/source"))
+            if (Files.isDirectory(blockModels.resolve("long_curtain/source"))
                     && Files.isDirectory(blockModels.resolve("large_curtain/source"))) {
                 return current;
             }

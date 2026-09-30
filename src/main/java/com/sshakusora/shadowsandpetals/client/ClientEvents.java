@@ -63,6 +63,7 @@ public final class ClientEvents {
         event.registerBlockEntityRenderer(BlockEntityRegistry.SHISHI_ODOSHI_PIPE.get(), ShishiOdoshiPipeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.WOODEN_BARREL.get(), WoodenBarrelBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.CURTAIN.get(), CurtainBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.LONG_CURTAIN.get(), CurtainBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.WIND_CHIME.get(), WindChimeBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.LARGE_CURTAIN.get(), LargeCurtainBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.COPPER_TEAPOT.get(), CopperTeapotBlockEntityRenderer::new);
@@ -112,6 +113,7 @@ public final class ClientEvents {
         SAPAnimations.init();
         event.registerReloadListener(SAPAnimationResources.INSTANCE);
         CurtainOutlineCache.register(event);
+        LongCurtainOutlineCache.register(event);
         LargeCurtainOutlineCache.register(event);
         LampOutlineCache.register(event);
         TeapotOutlineCache.register(event);

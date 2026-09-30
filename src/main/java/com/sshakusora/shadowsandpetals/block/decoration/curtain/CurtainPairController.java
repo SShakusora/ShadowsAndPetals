@@ -7,7 +7,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.Optional;
 
 /**
- * Coordinates interaction, redstone and animation for either curtain family.
+ * Coordinates interaction, redstone and animation for any curtain family.
  */
 final class CurtainPairController {
     private CurtainPairController() {
@@ -16,7 +16,7 @@ final class CurtainPairController {
     static boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
         Optional<CurtainStructure> current = CurtainStructure.resolve(level, pos);
         if (current.isEmpty()) {
-            return state.getValue(CurtainBlock.POWERED) || level.hasNeighborSignal(pos);
+            return state.getValue(AbstractCurtainBlock.POWERED) || level.hasNeighborSignal(pos);
         }
 
         CurtainStructure structure = current.get();
@@ -50,11 +50,21 @@ final class CurtainPairController {
     }
 
     private static Optional<CurtainStructure> findPartner(Level level, CurtainStructure structure) {
-        BlockPos partnerAnchor = structure.partnerAnchor();
-        return CurtainStructure.resolve(level, partnerAnchor)
-                .filter(partner -> partner.anchor().equals(partnerAnchor))
-                .filter(partner -> partner.facing() == structure.facing())
-                .filter(partner -> partner.side() != structure.side())
-                .filter(partner -> partner.partnerAnchor().equals(structure.anchor()));
+        BlockPos partnerRail = structure.partnerRailPosition();
+        return CurtainStructure.resolve(level, partnerRail)
+                .filter(partner -> isCompatiblePartner(structure, partner));
+    }
+
+    /**
+     * Curtain size is deliberately not part of the pairing contract. A
+     * one-cell, two-cell, and four-cell logical curtain can share a window as
+     * long as their upper rail positions and common placement properties
+     * describe the same mutual pair.
+     */
+    static boolean isCompatiblePartner(CurtainStructure structure, CurtainStructure partner) {
+        return partner.railPosition().equals(structure.partnerRailPosition())
+                && partner.facing() == structure.facing()
+                && partner.side() != structure.side()
+                && partner.partnerRailPosition().equals(structure.railPosition());
     }
 }
