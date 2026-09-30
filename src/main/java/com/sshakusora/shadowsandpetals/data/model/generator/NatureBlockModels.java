@@ -126,6 +126,20 @@ public final class NatureBlockModels {
         generator.generatedItem(context.get(), texture);
     }
 
+    public static void pottedPlant(
+            BlockModelContext<? extends FlowerPotBlock> context,
+            SAPBlockModelGenerator generator,
+            Identifier plantTexture
+    ) {
+        Identifier modelId = generator.create(
+                ModelTemplates.FLOWER_POT_CROSS,
+                context.get(),
+                new TextureMapping().put(TextureSlot.PLANT, new Material(plantTexture)),
+                "cutout"
+        );
+        StandardBlockModels.simpleBlock(context, generator, modelId);
+    }
+
     public static void hedge(
             BlockModelContext<? extends HedgeBlock> context,
             SAPBlockModelGenerator generator,

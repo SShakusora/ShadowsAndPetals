@@ -24,6 +24,7 @@ public class ShadowsAndPetals {
         AttachmentRegistry.init();
         ItemRegistry.init();
         BlockRegistry.init();
+        FlowerPotRegistry.init();
         BlockEntityRegistry.init();
         MenuRegistry.init();
         EntityRegistry.init();

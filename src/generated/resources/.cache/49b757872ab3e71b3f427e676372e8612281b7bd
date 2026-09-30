@@ -1,6 +1,6 @@
-// 26.1.2	2026-09-26T19:50:36.9044367	Tags for minecraft:item mod id shadowsandpetals
-063164d2c16f676688f5728e574df670128c3db8 data/c/tags/item/foods/fruit.json
-5784871df0093b874abacb177603d4b8c495cb3e data/c/tags/item/foods/vegetable.json
+// 26.1.2	2026-09-30T13:45:27.2331705	Tags for minecraft:item mod id shadowsandpetals
+e4374bac6abfe940a3b643346963877f4d0832d0 data/c/tags/item/foods/fruit.json
+0a9b5d220562cbd61d65c7b7a546fab3f8a76af4 data/c/tags/item/foods/vegetable.json
 97d183c60f795558d27f7161ac5abbcb4e0b3749 data/c/tags/item/stripped_logs.json
 88a58fc62baef45a46d22e616bbb432345965a71 data/c/tags/item/stripped_woods.json
 942fa5c66b6b033a1cd7633d47b5bf0e3cb62ea3 data/minecraft/tags/item/fence_gates.json
@@ -13,5 +13,5 @@
 21ae918c7f6060df9d0283ddc26fad549e75f5b6 data/minecraft/tags/item/wooden_pressure_plates.json
 6bc11a2d4177a0d9611945df44d13193b6a789ff data/minecraft/tags/item/wooden_slabs.json
 9644ee46dbcf0b61308350c014ab90f94fb07807 data/minecraft/tags/item/wooden_stairs.json
-6e27abf32c06923eb314f5be1d6c2c3112945d9f data/shadowsandpetals/tags/item/mod_items.json
+4c1eed5b34ac3bb9332a75f0ee2f61fb2c57035d data/shadowsandpetals/tags/item/mod_items.json
 829ed52dfdc8ea0a8f2001a92ac21176bcccf5d2 data/shadowsandpetals/tags/item/stripped_wood_pillars.json

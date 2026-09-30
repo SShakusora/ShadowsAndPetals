@@ -27,7 +27,11 @@ class ItemTagRegistryTest {
     @Test
     void generatedFruitTagPreservesBuilderDeclarations() throws IOException {
         assertEquals(
-                List.of("shadowsandpetals:orange", "shadowsandpetals:grape"),
+                List.of(
+                        "shadowsandpetals:orange",
+                        "shadowsandpetals:cherry",
+                        "shadowsandpetals:grape"
+                ),
                 readValues("data/c/tags/item/foods/fruit.json")
         );
     }
@@ -39,6 +43,7 @@ class ItemTagRegistryTest {
         assertEquals(List.of(
                 "shadowsandpetals:bean_pod",
                 "shadowsandpetals:cabbage",
+                "shadowsandpetals:chili_pepper",
                 "shadowsandpetals:chinese_cabbage",
                 "shadowsandpetals:corn",
                 "shadowsandpetals:onion",
@@ -54,6 +59,8 @@ class ItemTagRegistryTest {
         Set<String> expected = Set.of(
                 "shadowsandpetals:bean_pod",
                 "shadowsandpetals:cabbage",
+                "shadowsandpetals:cherry",
+                "shadowsandpetals:chili_pepper",
                 "shadowsandpetals:chinese_cabbage",
                 "shadowsandpetals:corn",
                 "shadowsandpetals:grape",
