@@ -58,6 +58,10 @@ public class ModBlockLootProvider extends BlockLootSubProvider {
         add(block, createSingleItemTable(item));
     }
 
+    public void dropPottedPlant(Block pottedBlock, ItemLike plant) {
+        add(pottedBlock, createPotFlowerItemTable(plant));
+    }
+
     /**
      * Drops the item only when the broken block state is the lower half,
      * like vanilla doors: one item per curtain no matter which half broke.

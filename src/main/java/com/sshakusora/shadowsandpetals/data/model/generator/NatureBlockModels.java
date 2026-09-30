@@ -82,6 +82,19 @@ public final class NatureBlockModels {
         model.renderType("cutout");
         generator.provider().simpleBlock(context.get(), model);
     }
+
+    public static void pottedPlant(BlockModelContext<? extends FlowerPotBlock> context,
+                                   SAPBlockModelGenerator generator,
+                                   ResourceLocation plantTexture) {
+        BlockModelBuilder model = generator.provider().models()
+                .withExistingParent(
+                        context.name(),
+                        ResourceLocation.withDefaultNamespace("block/flower_pot_cross"))
+                .texture("plant", plantTexture)
+                .renderType("cutout");
+        generator.provider().simpleBlock(context.get(), model);
+    }
+
     public static void hedge(BlockModelContext<? extends HedgeBlock> context, SAPBlockModelGenerator generator,
                              ResourceLocation texture) {
         for (int mask = 0; mask < 16; mask++) {

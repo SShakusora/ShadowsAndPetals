@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import com.sshakusora.shadowsandpetals.api.shishiOdoshi.RegisterShishiOdoshiFluidsEvent;
 import com.sshakusora.shadowsandpetals.api.shishiOdoshi.ShishiOdoshiFluidRegistry;
 import com.sshakusora.shadowsandpetals.compat.CompatManager;
+import com.sshakusora.shadowsandpetals.registries.FlowerPotRegistry;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModLoader;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -27,6 +28,7 @@ public final class CustomEventBootstrap {
 
     private static void commonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            FlowerPotRegistry.registerPlants();
             ModLoader.postEvent(new RegisterShishiOdoshiFluidsEvent());
             registerCreateSchematicCompat();
             LOGGER.debug(
