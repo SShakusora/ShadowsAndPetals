@@ -52,5 +52,6 @@ public enum CreativeTabOrder {
     CUISINE_TEA,
     CUISINE_INGREDIENTS,
     CUISINE_CROPS,
+    CUISINE_DISHES,
     DEFAULT
 }

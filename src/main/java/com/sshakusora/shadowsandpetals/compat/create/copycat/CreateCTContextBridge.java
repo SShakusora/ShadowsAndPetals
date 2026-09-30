@@ -4,6 +4,7 @@ import com.simibubi.create.foundation.block.connected.CTSpriteShiftEntry;
 import com.simibubi.create.foundation.block.connected.ConnectedTextureBehaviour;
 import com.sshakusora.shadowsandpetals.client.ct.CTContext;
 import com.sshakusora.shadowsandpetals.client.ct.CTContextBridge;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -37,7 +38,7 @@ public final class CreateCTContextBridge implements CTContextBridge {
         public @Nullable CTSpriteShiftEntry getShift(
                 BlockState state,
                 Direction direction,
-                @Nullable net.minecraft.client.renderer.texture.TextureAtlasSprite sprite
+                @Nullable TextureAtlasSprite sprite
         ) {
             return null;
         }

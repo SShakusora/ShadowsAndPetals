@@ -10,10 +10,7 @@ import com.sshakusora.shadowsandpetals.data.lang.TooltipLangBuilder;
 import com.sshakusora.shadowsandpetals.data.model.generator.NatureBlockModels;
 import com.sshakusora.shadowsandpetals.data.model.generator.StandardBlockModels;
 import com.sshakusora.shadowsandpetals.data.model.generator.WoodBlockModels;
-import com.sshakusora.shadowsandpetals.registries.CreativeTabKey;
-import com.sshakusora.shadowsandpetals.registries.CreativeTabOrder;
-import com.sshakusora.shadowsandpetals.registries.ParticleRegistry;
-import com.sshakusora.shadowsandpetals.registries.SAPRegistries;
+import com.sshakusora.shadowsandpetals.registries.*;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleOptions;
@@ -21,6 +18,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -141,7 +139,16 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
         DeferredBlock<PressurePlateBlock> pressurePlate = treePressurePlate(type.name + "_pressure_plate", planks, type.woodZhName + "压力板", type.planksColor);
         DeferredBlock<ButtonBlock> button = treeButton(type.name + "_button", planks, type.woodZhName + "按钮");
         DeferredBlock<SaplingBlock> sapling = treeSapling(type.name + "_sapling", type.grower, type.treeZhName + "树苗");
-        DeferredBlock<LeavesBlock> leaves = treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶", type.fallingLeafParticleSupplier, type.leavesColor);
+        DeferredBlock<LeavesBlock> leaves = type == Type.SAKURA
+                ? treeLeaves(
+                        type.name + "_leaves",
+                        sapling,
+                        type.treeZhName + "树叶",
+                        type.fallingLeafParticleSupplier,
+                        type.leavesColor,
+                        () -> ItemRegistry.CHERRY.get()
+                )
+                : treeLeaves(type.name + "_leaves", sapling, type.treeZhName + "树叶", type.fallingLeafParticleSupplier, type.leavesColor);
         DeferredBlock<CarpetBlock> leavesCarpet = treeLeavesCarpet(type.name + "_leaves_carpet", leaves, type.treeZhName + "树叶地毯", type.leavesColor);
         DeferredBlock<SlabBlock> leavesSlab = treeLeavesSlab(type.name + "_leaves_slab", leaves, type.treeZhName + "树叶台阶", type.leavesColor);
         DeferredBlock<LeavesVerticalSlabBlock> leavesVerticalSlab = treeLeavesVerticalSlab(type.name + "_leaves_vertical_slab", leavesSlab, leaves, "竖直" + type.treeZhName + "树叶台阶", type.leavesColor);
@@ -510,6 +517,17 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             Supplier<? extends ParticleOptions> fallingLeafParticleSupplier,
             MapColor mapColor
     ) {
+        return treeLeaves(id, sapling, zhName, fallingLeafParticleSupplier, mapColor, null);
+    }
+
+    public static DeferredBlock<LeavesBlock> treeLeaves(
+            String id,
+            DeferredBlock<SaplingBlock> sapling,
+            String zhName,
+            Supplier<? extends ParticleOptions> fallingLeafParticleSupplier,
+            MapColor mapColor,
+            Supplier<? extends ItemLike> fruit
+    ) {
         return SAPRegistries.<LeavesBlock>block(id, properties -> new SAPLeavesBlock(0.01F, properties, fallingLeafParticleSupplier))
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
                         .strength(0.2F)
@@ -525,7 +543,13 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .lang("zh_cn", zhName)
                 .blockstate(() -> (context, generator) -> NatureBlockModels.leaves(
                         context, generator, ShadowsAndPetals.asResource("block/" + id)))
-                .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
+                .loot((provider, leaves) -> {
+                    if (fruit == null) {
+                        provider.dropLeaves(leaves.get(), sapling.get());
+                    } else {
+                        provider.dropLeavesWithFruit(leaves.get(), sapling.get(), fruit.get());
+                    }
+                })
                 .register();
     }
 
@@ -534,6 +558,16 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
             DeferredBlock<SaplingBlock> sapling,
             String zhName,
             MapColor mapColor
+    ) {
+        return treeLeaves(id, sapling, zhName, mapColor, null);
+    }
+
+    public static DeferredBlock<LeavesBlock> treeLeaves(
+            String id,
+            DeferredBlock<SaplingBlock> sapling,
+            String zhName,
+            MapColor mapColor,
+            Supplier<? extends ItemLike> fruit
     ) {
         return SAPRegistries.block(id, LeavesBlock::new)
                 .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_LEAVES)
@@ -550,7 +584,13 @@ public class WoodSetList extends BlockList<WoodSetList.Type, WoodSetList.WoodSet
                 .lang("zh_cn", zhName)
                 .blockstate(() -> (context, generator) -> NatureBlockModels.leaves(
                         context, generator, ShadowsAndPetals.asResource("block/" + id)))
-                .loot((provider, leaves) -> provider.dropLeaves(leaves.get(), sapling.get()))
+                .loot((provider, leaves) -> {
+                    if (fruit == null) {
+                        provider.dropLeaves(leaves.get(), sapling.get());
+                    } else {
+                        provider.dropLeavesWithFruit(leaves.get(), sapling.get(), fruit.get());
+                    }
+                })
                 .register();
     }
 

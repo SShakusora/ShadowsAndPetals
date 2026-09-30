@@ -78,6 +78,38 @@ public class ItemRegistry {
             .tag(Tags.Items.FOODS_VEGETABLE)
             .register();
 
+    public static final DeferredItem<Item> CHERRY = SAPRegistries.item("cherry")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(2)
+                    .saturationModifier(0.2F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "樱桃")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_FRUIT)
+            .register();
+
+    public static final DeferredItem<Item> CHESTNUT = SAPRegistries.item("chestnut")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(3)
+                    .saturationModifier(0.3F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "栗子")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .register();
+
+    public static final DeferredItem<Item> CHILI_PEPPER = SAPRegistries.item("chili_pepper")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(1)
+                    .saturationModifier(0.2F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "辣椒")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
+            .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
+
     public static final DeferredItem<Item> CHINESE_CABBAGE = SAPRegistries.item("chinese_cabbage")
             .alias(ChinjufuIds.MOD_ID, "item_food_hakusai")
             .properties(properties -> properties.food(new FoodProperties.Builder()
@@ -171,6 +203,26 @@ public class ItemRegistry {
             .lang(DatagenLangRegistry.ZH_CN, "番茄")
             .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_INGREDIENTS)
             .tag(Tags.Items.FOODS_VEGETABLE)
+            .register();
+
+    public static final DeferredItem<Item> PICKLED_CHINESE_CABBAGE = SAPRegistries.item("pickled_chinese_cabbage")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(5)
+                    .saturationModifier(0.6F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "腌白菜")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_DISHES)
+            .register();
+
+    public static final DeferredItem<Item> RICE_BALL = SAPRegistries.item("rice_ball")
+            .properties(properties -> properties.food(new FoodProperties.Builder()
+                    .nutrition(5)
+                    .saturationModifier(0.6F)
+                    .build()))
+            .model(() -> (context, generator) -> generator.generatedItem(context.get()))
+            .lang(DatagenLangRegistry.ZH_CN, "饭团")
+            .creativeTab(CreativeTabKey.CUISINE, CreativeTabOrder.CUISINE_DISHES)
             .register();
 
     public static final DeferredItem<Item> RAW_BAUXITE = SAPRegistries.item("raw_bauxite")

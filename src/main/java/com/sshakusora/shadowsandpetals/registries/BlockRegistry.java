@@ -68,7 +68,8 @@ public class BlockRegistry {
             "autumn_oak_leaves",
             AUTUMN_OAK_SAPLING,
             "秋橡树树叶",
-            MapColor.COLOR_ORANGE
+            MapColor.COLOR_ORANGE,
+            () -> ItemRegistry.CHESTNUT.get()
     );
     public static final DeferredBlock<CarpetBlock> AUTUMN_OAK_LEAVES_CARPET = WoodSetList.treeLeavesCarpet(
             "autumn_oak_leaves_carpet",
