@@ -1,6 +1,7 @@
 {
   "parent": "shadowsandpetals:block/curtain/item/white",
   "textures": {
-    "1": "shadowsandpetals:block/curtain/black"
+    "1": "shadowsandpetals:block/curtain/black",
+    "particle": "shadowsandpetals:block/curtain/black"
   }
 }

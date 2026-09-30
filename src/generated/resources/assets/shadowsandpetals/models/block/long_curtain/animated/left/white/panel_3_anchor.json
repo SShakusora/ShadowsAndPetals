@@ -1,0 +1,89 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "rotation": 90,
+          "texture": "#2",
+          "uv": [
+            0,
+            2,
+            2,
+            3
+          ]
+        },
+        "east": {
+          "texture": "#2",
+          "uv": [
+            0,
+            1,
+            2,
+            3
+          ]
+        },
+        "north": {
+          "texture": "#2",
+          "uv": [
+            1,
+            1,
+            2,
+            3
+          ]
+        },
+        "south": {
+          "texture": "#2",
+          "uv": [
+            0,
+            1,
+            1,
+            3
+          ]
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#2",
+          "uv": [
+            0,
+            1,
+            1,
+            3
+          ]
+        },
+        "west": {
+          "rotation": 90,
+          "texture": "#2",
+          "uv": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "from": [
+        5,
+        13.2,
+        13.5
+      ],
+      "rotation": {
+        "angle": -45,
+        "axis": "x",
+        "origin": [
+          5.5,
+          14.2,
+          14.5
+        ]
+      },
+      "to": [
+        6,
+        15.2,
+        15.5
+      ]
+    }
+  ],
+  "textures": {
+    "1": "shadowsandpetals:block/curtain/white",
+    "2": "shadowsandpetals:block/curtain/curtain_deco",
+    "particle": "shadowsandpetals:block/curtain/white"
+  }
+}

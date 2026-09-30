@@ -33,38 +33,38 @@ public final class SAPAnimations {
                     .register();
 
     public static final BlockAnimationDefinition CURTAIN_UPPER_RIGHT =
-            SAPAnimationRegistries.blockAnimation("curtain/upper_right")
-                    .rig("curtain/upper_right")
-                    .controller("curtain/upper_right")
-                    .clip("curtain/upper_right/opening")
-                    .clip("curtain/upper_right/closing")
+            SAPAnimationRegistries.blockAnimation("long_curtain/upper_right")
+                    .rig("long_curtain/upper_right")
+                    .controller("long_curtain/upper_right")
+                    .clip("long_curtain/upper_right/opening")
+                    .clip("long_curtain/upper_right/closing")
                     .defaultState("open")
                     .register();
 
     public static final BlockAnimationDefinition CURTAIN_LOWER_RIGHT =
-            SAPAnimationRegistries.blockAnimation("curtain/lower_right")
-                    .rig("curtain/lower_right")
-                    .controller("curtain/lower_right")
-                    .clip("curtain/lower_right/opening")
-                    .clip("curtain/lower_right/closing")
+            SAPAnimationRegistries.blockAnimation("long_curtain/lower_right")
+                    .rig("long_curtain/lower_right")
+                    .controller("long_curtain/lower_right")
+                    .clip("long_curtain/lower_right/opening")
+                    .clip("long_curtain/lower_right/closing")
                     .defaultState("open")
                     .register();
 
     public static final BlockAnimationDefinition CURTAIN_UPPER_LEFT =
-            SAPAnimationRegistries.blockAnimation("curtain/upper_left")
-                    .rig("curtain/upper_left")
-                    .controller("curtain/upper_left")
-                    .clip("curtain/upper_left/opening")
-                    .clip("curtain/upper_left/closing")
+            SAPAnimationRegistries.blockAnimation("long_curtain/upper_left")
+                    .rig("long_curtain/upper_left")
+                    .controller("long_curtain/upper_left")
+                    .clip("long_curtain/upper_left/opening")
+                    .clip("long_curtain/upper_left/closing")
                     .defaultState("open")
                     .register();
 
     public static final BlockAnimationDefinition CURTAIN_LOWER_LEFT =
-            SAPAnimationRegistries.blockAnimation("curtain/lower_left")
-                    .rig("curtain/lower_left")
-                    .controller("curtain/lower_left")
-                    .clip("curtain/lower_left/opening")
-                    .clip("curtain/lower_left/closing")
+            SAPAnimationRegistries.blockAnimation("long_curtain/lower_left")
+                    .rig("long_curtain/lower_left")
+                    .controller("long_curtain/lower_left")
+                    .clip("long_curtain/lower_left/opening")
+                    .clip("long_curtain/lower_left/closing")
                     .defaultState("open")
                     .register();
 

@@ -9,9 +9,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CurtainCompatTest {
     @Test
-    void smallCurtainChargesOnlyItsLowerHalf() {
-        assertTrue(CurtainCompat.isSmallCurtainRoot(DoubleBlockHalf.LOWER));
-        assertFalse(CurtainCompat.isSmallCurtainRoot(DoubleBlockHalf.UPPER));
+    void longCurtainChargesOnlyItsLowerHalf() {
+        assertTrue(CurtainCompat.isLongCurtainRoot(DoubleBlockHalf.LOWER));
+        assertFalse(CurtainCompat.isLongCurtainRoot(DoubleBlockHalf.UPPER));
     }
 
     @Test

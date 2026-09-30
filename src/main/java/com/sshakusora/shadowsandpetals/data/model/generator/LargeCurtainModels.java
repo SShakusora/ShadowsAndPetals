@@ -1,5 +1,6 @@
 package com.sshakusora.shadowsandpetals.data.model.generator;
 
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainSide;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelContext;
 import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
@@ -18,7 +19,7 @@ public final class LargeCurtainModels {
         generator.provider().getVariantBuilder(block).forAllStatesExcept(state -> {
             String half = state.getValue(LargeCurtainBlock.HALF) == DoubleBlockHalf.UPPER ? "upper" : "lower";
             String column = state.getValue(LargeCurtainBlock.COLUMN) == LargeCurtainBlock.Column.OUTER ? "outer" : "inner";
-            String side = state.getValue(LargeCurtainBlock.SIDE) == LargeCurtainBlock.Side.RIGHT ? "right" : "left";
+            String side = state.getValue(LargeCurtainBlock.SIDE) == CurtainSide.RIGHT ? "right" : "left";
             String pose = state.getValue(LargeCurtainBlock.OPEN) ? "open" : "closed";
             ResourceLocation id = generator.modLoc("block/large_curtain/static/" + side + "/" + pose + "/" + color + "/" + half + "_" + column);
             Direction facing = state.getValue(LargeCurtainBlock.FACING);

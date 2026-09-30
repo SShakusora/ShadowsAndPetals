@@ -2,6 +2,8 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.AbstractCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainSide;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.blockentity.LargeCurtainBlockEntity;
 import com.sshakusora.shadowsandpetals.client.animation.*;
@@ -53,13 +55,13 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
     public void render(LargeCurtainBlockEntity blockEntity, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         BlockState state = blockEntity.getBlockState();
-        if (!state.getValue(LargeCurtainBlock.ANIMATING)
+        if (!state.getValue(AbstractCurtainBlock.ANIMATING)
                 || !state.getValue(LargeCurtainBlock.ANCHOR)
                 || blockEntity.getLevel() == null) {
             return;
         }
 
-        boolean left = state.getValue(LargeCurtainBlock.SIDE) == LargeCurtainBlock.Side.LEFT;
+        boolean left = state.getValue(AbstractCurtainBlock.SIDE) == CurtainSide.LEFT;
         DyeColor color = dyeColorOf(state);
         BlockAnimationDefinition definition = left
                 ? SAPAnimations.LARGE_CURTAIN_LEFT : SAPAnimations.LARGE_CURTAIN_RIGHT;
@@ -68,7 +70,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
             return;
         }
 
-        boolean stateOpen = state.getValue(LargeCurtainBlock.OPEN);
+        boolean stateOpen = state.getValue(AbstractCurtainBlock.OPEN);
         boolean beSynced = blockEntity.isOpen() == stateOpen;
         float seconds = blockEntity.transitionTimeSeconds(
                 blockEntity.getLevel().getGameTime(), partialTick);
@@ -79,7 +81,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
                 definition.controller().id(), stateOpen ? "open" : "closed", seconds);
 
         poseStack.pushPose();
-        Direction facing = state.getValue(LargeCurtainBlock.FACING);
+        Direction facing = state.getValue(AbstractCurtainBlock.FACING);
         poseStack.translate(0.5D, 0.0D, 0.5D);
         poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot() + 180.0F));
         poseStack.translate(-0.5D, 0.0D, -0.5D);
