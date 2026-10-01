@@ -5,6 +5,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Coordinates interaction, redstone and animation for either curtain family.
@@ -16,7 +17,7 @@ final class CurtainPairController {
     static boolean isPoweredPair(Level level, BlockPos pos, BlockState state) {
         Optional<CurtainStructure> current = CurtainStructure.resolve(level, pos);
         if (current.isEmpty()) {
-            return state.getValue(CurtainBlock.POWERED) || level.hasNeighborSignal(pos);
+            return state.getValue(AbstractCurtainBlock.POWERED) || level.hasNeighborSignal(pos);
         }
 
         CurtainStructure structure = current.get();
@@ -49,12 +50,27 @@ final class CurtainPairController {
         partner.ifPresent(candidate -> candidate.setOpen(level, targetOpen, gameTime));
     }
 
+    /**
+     * Tests whether two logical curtains meet on the same upper rail. The
+     * physical anchors differ by size, so compatibility is based on the rail
+     * positions rather than requiring the block anchors themselves to match.
+     */
+    static boolean isCompatiblePartner(CurtainStructure structure, CurtainStructure partner) {
+        return structure != null
+                && partner != null
+                && structure.facing() == partner.facing()
+                && structure.side() != partner.side()
+                && structure.partnerRailPosition().equals(partner.railPosition())
+                && partner.partnerRailPosition().equals(structure.railPosition());
+    }
+
     private static Optional<CurtainStructure> findPartner(Level level, CurtainStructure structure) {
-        BlockPos partnerAnchor = structure.partnerAnchor();
-        return CurtainStructure.resolve(level, partnerAnchor)
-                .filter(partner -> partner.anchor().equals(partnerAnchor))
-                .filter(partner -> partner.facing() == structure.facing())
-                .filter(partner -> partner.side() != structure.side())
-                .filter(partner -> partner.partnerAnchor().equals(structure.anchor()));
+        BlockPos partnerRail = structure.partnerRailPosition();
+        return Stream.of(partnerRail, partnerRail.below())
+                .distinct()
+                .map(candidate -> CurtainStructure.resolve(level, candidate))
+                .flatMap(Optional::stream)
+                .filter(partner -> isCompatiblePartner(structure, partner))
+                .findFirst();
     }
 }

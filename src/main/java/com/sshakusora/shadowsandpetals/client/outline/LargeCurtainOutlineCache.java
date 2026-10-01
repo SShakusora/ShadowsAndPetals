@@ -6,7 +6,8 @@ import com.mojang.logging.LogUtils;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.api.outline.BlockOutlineContext;
 import com.sshakusora.shadowsandpetals.api.outline.OutlineGeometry;
-import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.AbstractCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainSide;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.core.Direction;
@@ -61,7 +62,7 @@ public final class LargeCurtainOutlineCache
     private static OutlineGeometry getOutline(BlockState state, BlockOutlineContext context) {
         Pose pose = Pose.from(state);
         Map<Direction, OutlineGeometry> byDirection = INSTANCE.outlines.get(pose);
-        return byDirection == null ? null : byDirection.get(state.getValue(CurtainBlock.FACING));
+        return byDirection == null ? null : byDirection.get(state.getValue(AbstractCurtainBlock.FACING));
     }
 
     @Override
@@ -128,73 +129,73 @@ public final class LargeCurtainOutlineCache
 
     enum Pose {
         UPPER_RIGHT_OUTER_CLOSED(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.RIGHT, false,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainSide.RIGHT, false,
                 "right/closed/white/upper_outer", false
         ),
         UPPER_RIGHT_INNER_CLOSED(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.RIGHT, false,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainSide.RIGHT, false,
                 "right/closed/white/upper_inner", false
         ),
         LOWER_RIGHT_OUTER_CLOSED(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.RIGHT, false,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainSide.RIGHT, false,
                 "right/closed/white/lower_outer", false
         ),
         LOWER_RIGHT_INNER_CLOSED(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.RIGHT, false,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainSide.RIGHT, false,
                 "right/closed/white/lower_inner", false
         ),
         UPPER_LEFT_OUTER_CLOSED(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.LEFT, false,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainSide.LEFT, false,
                 "left/closed/white/upper_outer", false
         ),
         UPPER_LEFT_INNER_CLOSED(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.LEFT, false,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainSide.LEFT, false,
                 "left/closed/white/upper_inner", false
         ),
         LOWER_LEFT_OUTER_CLOSED(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.LEFT, false,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainSide.LEFT, false,
                 "left/closed/white/lower_outer", false
         ),
         LOWER_LEFT_INNER_CLOSED(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.LEFT, false,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainSide.LEFT, false,
                 "left/closed/white/lower_inner", false
         ),
         UPPER_RIGHT_OUTER_OPEN(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.RIGHT, true,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainSide.RIGHT, true,
                 "right/open/white/upper_outer", false
         ),
         UPPER_RIGHT_INNER_OPEN(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.RIGHT, true,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainSide.RIGHT, true,
                 "right/open/white/upper_inner", false
         ),
         LOWER_RIGHT_OUTER_OPEN(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.RIGHT, true,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainSide.RIGHT, true,
                 "right/open/white/lower_outer", true
         ),
         LOWER_RIGHT_INNER_OPEN(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.RIGHT, true,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainSide.RIGHT, true,
                 "right/open/white/lower_inner", false
         ),
         UPPER_LEFT_OUTER_OPEN(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.LEFT, true,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.OUTER, CurtainSide.LEFT, true,
                 "left/open/white/upper_outer", false
         ),
         UPPER_LEFT_INNER_OPEN(
-                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.LEFT, true,
+                DoubleBlockHalf.UPPER, LargeCurtainBlock.Column.INNER, CurtainSide.LEFT, true,
                 "left/open/white/upper_inner", false
         ),
         LOWER_LEFT_OUTER_OPEN(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainBlock.Side.LEFT, true,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.OUTER, CurtainSide.LEFT, true,
                 "left/open/white/lower_outer", true
         ),
         LOWER_LEFT_INNER_OPEN(
-                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainBlock.Side.LEFT, true,
+                DoubleBlockHalf.LOWER, LargeCurtainBlock.Column.INNER, CurtainSide.LEFT, true,
                 "left/open/white/lower_inner", false
         );
 
         private final DoubleBlockHalf half;
         private final LargeCurtainBlock.Column column;
-        private final CurtainBlock.Side side;
+        private final CurtainSide side;
         private final boolean open;
         private final String modelPath;
         private final boolean emptyModel;
@@ -202,7 +203,7 @@ public final class LargeCurtainOutlineCache
         Pose(
                 DoubleBlockHalf half,
                 LargeCurtainBlock.Column column,
-                CurtainBlock.Side side,
+                CurtainSide side,
                 boolean open,
                 String modelPath,
                 boolean emptyModel
@@ -216,10 +217,10 @@ public final class LargeCurtainOutlineCache
         }
 
         private static Pose from(BlockState state) {
-            DoubleBlockHalf half = state.getValue(CurtainBlock.HALF);
+            DoubleBlockHalf half = state.getValue(LargeCurtainBlock.HALF);
             LargeCurtainBlock.Column column = state.getValue(LargeCurtainBlock.COLUMN);
-            CurtainBlock.Side side = state.getValue(CurtainBlock.SIDE);
-            boolean open = state.getValue(CurtainBlock.OPEN);
+            CurtainSide side = state.getValue(AbstractCurtainBlock.SIDE);
+            boolean open = state.getValue(AbstractCurtainBlock.OPEN);
             for (Pose pose : values()) {
                 if (pose.half == half
                         && pose.column == column

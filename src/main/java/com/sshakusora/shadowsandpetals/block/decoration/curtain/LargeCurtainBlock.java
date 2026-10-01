@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -46,13 +47,14 @@ import java.util.Set;
  * picks the block of that row — {@code OUTER} is the anchor column (in a
  * window pair the two OUTER columns meet at the window center) and
  * {@code INNER} is the column the fabric bunches to when opening.
- * {@link Side} marks which side of the window the whole 2x2 curtain hangs
+ * {@link CurtainSide} marks which side of the window the whole 2x2 curtain hangs
  * on, mirroring {@link CurtainBlock}: the LEFT curtain bunches to the
  * observer's left and pairs with the RIGHT curtain on its right, and vice
  * versa.</p>
  */
-public class LargeCurtainBlock extends CurtainBlock {
+public class LargeCurtainBlock extends AbstractCurtainBlock {
     public static final MapCodec<LargeCurtainBlock> CODEC = simpleCodec(LargeCurtainBlock::new);
+    public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final EnumProperty<Column> COLUMN = EnumProperty.create("column", Column.class);
     public static final BooleanProperty ANCHOR = BooleanProperty.create("anchor");
     private static final int STRUCTURE_REMOVAL_FLAGS = Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS;
@@ -138,7 +140,7 @@ public class LargeCurtainBlock extends CurtainBlock {
                 .setValue(FACING, Direction.NORTH)
                 .setValue(HALF, DoubleBlockHalf.LOWER)
                 .setValue(COLUMN, Column.OUTER)
-                .setValue(SIDE, Side.RIGHT)
+                .setValue(SIDE, CurtainSide.RIGHT)
                 .setValue(OPEN, false)
                 .setValue(POWERED, false)
                 .setValue(ANIMATING, false)
@@ -152,7 +154,8 @@ public class LargeCurtainBlock extends CurtainBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, HALF, COLUMN, SIDE, OPEN, POWERED, ANIMATING, ANCHOR);
+        super.createBlockStateDefinition(builder);
+        builder.add(HALF, COLUMN, ANCHOR);
     }
 
     /**
@@ -165,7 +168,7 @@ public class LargeCurtainBlock extends CurtainBlock {
     static Direction innerStep(BlockState state) {
         return LargeCurtainGeometry.innerStep(
                 state.getValue(FACING),
-                state.getValue(SIDE) == Side.RIGHT
+                state.getValue(SIDE) == CurtainSide.RIGHT
         );
     }
 
@@ -192,7 +195,7 @@ public class LargeCurtainBlock extends CurtainBlock {
         // The horizontal side is independent of the vertical candidate, but
         // the side must be known before the inner-column direction can be
         // checked for all four cells.
-        Side side = CurtainStructure.sideForPlacement(level, clickedPos, facing, sneaking);
+        CurtainSide side = CurtainStructure.sideForPlacement(level, clickedPos, facing, sneaking);
         BlockState placementState = defaultBlockState()
                 .setValue(FACING, facing)
                 .setValue(COLUMN, Column.OUTER)
@@ -234,7 +237,7 @@ public class LargeCurtainBlock extends CurtainBlock {
                     ? OPEN_RAIL_SHAPES.get(facing)
                     : Shapes.empty();
         }
-        if (state.getValue(SIDE) == Side.LEFT) {
+        if (state.getValue(SIDE) == CurtainSide.LEFT) {
             return (upper ? OPEN_PILE_LEFT_UPPER_SHAPES : OPEN_PILE_LEFT_LOWER_SHAPES).get(facing);
         }
         return (upper ? OPEN_PILE_RIGHT_UPPER_SHAPES : OPEN_PILE_RIGHT_LOWER_SHAPES).get(facing);

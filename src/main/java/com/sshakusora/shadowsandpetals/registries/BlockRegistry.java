@@ -7,6 +7,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LongCurtainBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
@@ -1209,8 +1210,26 @@ public class BlockRegistry {
                 .blockstate(() -> CurtainModels::block)
                 .clientItem(block -> ShadowsAndPetals.asResource(
                         "block/curtain/item/" + color.getName()))
-                .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
+                .loot((provider, block) -> provider.dropSelf(block.get()))
                 .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "窗帘")
+                .register()
+    );
+
+    public static final DyedBlockList<LongCurtainBlock> LONG_CURTAINS = new DyedBlockList<>(color -> SAPRegistries
+                .block(color.getName() + "_long_curtain", LongCurtainBlock::new)
+                .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.WHITE_WOOL)
+                        .strength(1.0F)
+                        .sound(SoundType.WOOL)
+                        .mapColor(color)
+                        .noOcclusion())
+                .tags(BlockTags.WOOL, BlockTags.MINEABLE_WITH_AXE)
+                .withItem()
+                .creativeTab(CreativeTabKey.FURNISHINGS, CreativeTabOrder.FURNISHINGS_CURTAINS)
+                .blockstate(() -> LongCurtainModels::block)
+                .clientItem(block -> ShadowsAndPetals.asResource(
+                        "block/long_curtain/item/" + color.getName()))
+                .loot((provider, block) -> provider.dropSelfLowerHalfOnly(block.get()))
+                .lang(DatagenLangRegistry.ZH_CN, DyedBlockList.zhName(color) + "长窗帘")
                 .register()
     );
 

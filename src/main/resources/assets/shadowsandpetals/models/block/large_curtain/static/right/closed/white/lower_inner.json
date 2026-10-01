@@ -3,7 +3,7 @@
 	"credit": "Made with Blockbench",
 	"textures": {
 		"1": "shadowsandpetals:block/curtain/white",
-		"particle": "shadowsandpetals:block/curtain/curtain_deco"
+		"particle": "shadowsandpetals:block/curtain/white"
 	},
 	"elements": [
 		{

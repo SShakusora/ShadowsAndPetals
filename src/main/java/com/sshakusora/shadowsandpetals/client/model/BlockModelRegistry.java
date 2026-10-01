@@ -138,6 +138,15 @@ public final class BlockModelRegistry {
     public static final StandaloneBlockModelSet<CurtainBoneKey> CURTAIN_LOWER_LEFT =
             curtainBoneSet("curtain_lower_left", "left", CURTAIN_LOWER_BONES);
 
+    public static final StandaloneBlockModelSet<CurtainBoneKey> LONG_CURTAIN_UPPER_RIGHT =
+            longCurtainBoneSet("long_curtain_upper_right", "right", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> LONG_CURTAIN_LOWER_RIGHT =
+            longCurtainBoneSet("long_curtain_lower_right", "right", CURTAIN_LOWER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> LONG_CURTAIN_UPPER_LEFT =
+            longCurtainBoneSet("long_curtain_upper_left", "left", CURTAIN_UPPER_BONES);
+    public static final StandaloneBlockModelSet<CurtainBoneKey> LONG_CURTAIN_LOWER_LEFT =
+            longCurtainBoneSet("long_curtain_lower_left", "left", CURTAIN_LOWER_BONES);
+
     /** Per-bone baked models of the large-curtain rigs, keyed by dye color and bone. */
     public static final String[] LARGE_CURTAIN_BONES = {
             "panel_1_anchor", "panel_1_fabric", "panel_2_anchor", "panel_2_fabric",
@@ -164,6 +173,19 @@ public final class BlockModelRegistry {
                 .keyPath(key -> key.color().getName() + "/" + key.bone())
                 .model(key -> ShadowsAndPetals.asResource(
                         "block/curtain/animated/" + side + "/"
+                                + key.color().getName() + "/" + key.bone()))
+                .register();
+    }
+
+    private static StandaloneBlockModelSet<CurtainBoneKey> longCurtainBoneSet(
+            String setName, String side, String[] bones
+    ) {
+        return ClientModelRegistry
+                .<CurtainBoneKey>blockStateSet(setName)
+                .keys(() -> curtainBoneKeys(bones))
+                .keyPath(key -> key.color().getName() + "/" + key.bone())
+                .model(key -> ShadowsAndPetals.asResource(
+                        "block/long_curtain/animated/" + side + "/"
                                 + key.color().getName() + "/" + key.bone()))
                 .register();
     }

@@ -19,10 +19,9 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Full-output golden test for the Java replacement of the two Node compilers.
  *
- * <p>The checked-in manifest was generated from the former Node pipeline's
- * resource output.  It stores canonical JSON digests instead of copies of
- * every generated file, so the runtime resource tree can be moved to
- * {@code src/generated/resources} without making the golden fixture huge.</p>
+ * <p>The checked-in manifest stores canonical JSON digests instead of copies
+ * of every generated file, so the runtime resource tree can be regenerated
+ * without making the golden fixture huge.</p>
  */
 class CurtainAssetCompilerGoldenTest {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -59,7 +58,7 @@ class CurtainAssetCompilerGoldenTest {
         Path current = Path.of("").toAbsolutePath().normalize();
         while (current != null) {
             Path blockModels = current.resolve("src/main/resources/assets/shadowsandpetals/models/block");
-            if (Files.isDirectory(blockModels.resolve("curtain/source"))
+            if (Files.isDirectory(blockModels.resolve("long_curtain/source"))
                     && Files.isDirectory(blockModels.resolve("large_curtain/source"))) {
                 return current;
             }

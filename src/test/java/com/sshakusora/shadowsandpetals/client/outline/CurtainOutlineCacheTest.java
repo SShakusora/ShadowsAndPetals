@@ -22,11 +22,7 @@ class CurtainOutlineCacheTest {
             "static/right/closed/white/upper",
             "static/right/open/white/upper",
             "static/left/closed/white/upper",
-            "static/left/open/white/upper",
-            "static/right/closed/white/lower",
-            "static/right/open/white/lower",
-            "static/left/closed/white/lower",
-            "static/left/open/white/lower"
+            "static/left/open/white/upper"
     );
 
     @Test

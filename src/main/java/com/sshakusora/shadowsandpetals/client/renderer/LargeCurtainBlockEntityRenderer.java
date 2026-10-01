@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainSide;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.blockentity.LargeCurtainBlockEntity;
 import com.sshakusora.shadowsandpetals.client.animation.AnimatedBlockModel;
@@ -100,7 +101,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         boolean beSynced = blockEntity.isOpen() == stateOpen;
         state.open = beSynced ? blockEntity.isOpen() : stateOpen;
 
-        boolean left = state.side == LargeCurtainBlock.Side.LEFT;
+        boolean left = state.side == CurtainSide.LEFT;
         AnimationResourceRef.Rig rig = left ? RIG_LEFT : RIG_RIGHT;
         BlockAndTintGetter tintGetter = (BlockAndTintGetter) blockEntity.getLevel();
         AnimatedBlockModel model = resolveModel(
@@ -207,7 +208,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
         poseStack.translate(0.5D, 0.0D, 0.5D);
         poseStack.mulPose(Axis.YP.rotationDegrees(-state.facing.toYRot() + 180.0F));
         poseStack.translate(-0.5D, 0.0D, -0.5D);
-        if (state.side == LargeCurtainBlock.Side.LEFT) {
+        if (state.side == CurtainSide.LEFT) {
             // The left rig is a mirror of the right rig about x=0, so its
             // frame covers the anchor cell and the cell beyond the outer
             // column; shift it one cell toward the inner column.
@@ -221,7 +222,7 @@ public class LargeCurtainBlockEntityRenderer implements BlockEntityRenderer<Larg
 
     public static class State extends BlockEntityRenderState {
         public Direction facing = Direction.NORTH;
-        public LargeCurtainBlock.Side side = LargeCurtainBlock.Side.RIGHT;
+        public CurtainSide side = CurtainSide.RIGHT;
         public boolean open = true;
         public @Nullable RigPose animationPose;
         public @Nullable AnimatedBlockModel model;

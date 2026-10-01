@@ -1,5 +1,7 @@
 package com.sshakusora.shadowsandpetals.data.model.generator;
 
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.AbstractCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainSide;
 import com.sshakusora.shadowsandpetals.block.decoration.curtain.LargeCurtainBlock;
 import com.sshakusora.shadowsandpetals.data.model.BlockModelContext;
 import com.sshakusora.shadowsandpetals.data.model.SAPBlockModelGenerator;
@@ -32,13 +34,13 @@ public final class LargeCurtainModels {
         PropertyDispatch<MultiVariant> dispatch = PropertyDispatch.initial(
                         LargeCurtainBlock.HALF,
                         LargeCurtainBlock.COLUMN,
-                        LargeCurtainBlock.SIDE,
-                        LargeCurtainBlock.OPEN,
-                        LargeCurtainBlock.ANIMATING)
+                        AbstractCurtainBlock.SIDE,
+                        AbstractCurtainBlock.OPEN,
+                        AbstractCurtainBlock.ANIMATING)
                 .generate((half, column, side, open, animating) -> {
                     String halfName = half == DoubleBlockHalf.UPPER ? "upper" : "lower";
                     String columnName = column == LargeCurtainBlock.Column.OUTER ? "outer" : "inner";
-                    String sideName = side == LargeCurtainBlock.Side.RIGHT ? "right" : "left";
+                    String sideName = side == CurtainSide.RIGHT ? "right" : "left";
                     String poseName = open ? "open" : "closed";
                     String modelName = "static/" + sideName + "/" + poseName + "/" + color
                             + "/" + halfName + "_" + columnName;

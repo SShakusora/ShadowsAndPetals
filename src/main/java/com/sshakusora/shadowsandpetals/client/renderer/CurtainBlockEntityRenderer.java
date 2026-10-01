@@ -3,8 +3,10 @@ package com.sshakusora.shadowsandpetals.client.renderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
-import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainBlock;
-import com.sshakusora.shadowsandpetals.blockentity.CurtainBlockEntity;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.AbstractCurtainBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.CurtainSide;
+import com.sshakusora.shadowsandpetals.block.decoration.curtain.LongCurtainBlock;
+import com.sshakusora.shadowsandpetals.blockentity.AbstractCurtainBlockEntity;
 import com.sshakusora.shadowsandpetals.client.animation.AnimatedBlockModel;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationControllerEvaluator;
 import com.sshakusora.shadowsandpetals.client.animation.AnimationResourceRef;
@@ -39,32 +41,31 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Experimental renderer for the two-block curtain. Submits the per-bone baked
- * models of the matching half and side through its resource-driven animation
- * rig.
+ * Renderer for animated curtain blocks. Submits the per-bone baked models of
+ * the matching half and side through the long-curtain animation rig.
  */
-public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBlockEntity, CurtainBlockEntityRenderer.State> {
+public class CurtainBlockEntityRenderer implements BlockEntityRenderer<AbstractCurtainBlockEntity, CurtainBlockEntityRenderer.State> {
     private static final RandomSource PART_COLLECT_RANDOM = RandomSource.create(42L);
     private static final int[] TINTS = new int[0];
     /** Beyond this local time the clip has clamped to its final keyframe. */
     private static final float FALLBACK_END_POSE_SECONDS = 1.0F;
 
     private static final AnimationResourceRef.Rig UPPER_RIGHT_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/upper_right"));
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("long_curtain/upper_right"));
     private static final AnimationResourceRef.Rig LOWER_RIGHT_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/lower_right"));
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("long_curtain/lower_right"));
     private static final AnimationResourceRef.Rig UPPER_LEFT_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/upper_left"));
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("long_curtain/upper_left"));
     private static final AnimationResourceRef.Rig LOWER_LEFT_RIG =
-            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("curtain/lower_left"));
+            new AnimationResourceRef.Rig(ShadowsAndPetals.asResource("long_curtain/lower_left"));
 
     private static final String[] UPPER_BONES = BlockModelRegistry.CURTAIN_UPPER_BONES;
     private static final String[] LOWER_BONES = BlockModelRegistry.CURTAIN_LOWER_BONES;
 
-    /** Baked per-bone models keyed by (half, side, dye color). */
+    /** Baked per-bone models keyed by (curtain type, half, side, dye color). */
     private final Map<CurtainVariant, AnimatedBlockModel> cachedModels = new HashMap<>();
 
-    private record CurtainVariant(boolean upper, boolean left, DyeColor color) {
+    private record CurtainVariant(boolean longCurtain, boolean upper, boolean left, DyeColor color) {
     }
 
     public CurtainBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -76,7 +77,7 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
     }
 
     @Override
-    public AABB getRenderBoundingBox(CurtainBlockEntity blockEntity) {
+    public AABB getRenderBoundingBox(AbstractCurtainBlockEntity blockEntity) {
         // The closed curtain folds beyond the block face; keep the whole
         // moving volume inside the render culling box.
         return new AABB(blockEntity.getBlockPos()).inflate(0.25D);
@@ -84,23 +85,25 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
 
     @Override
     public void extractRenderState(
-            CurtainBlockEntity blockEntity, State state, float partialTicks,
+            AbstractCurtainBlockEntity blockEntity, State state, float partialTicks,
             Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(blockEntity, state, partialTicks, cameraPosition, breakProgress);
 
-        state.facing = blockEntity.getBlockState().getValue(CurtainBlock.FACING);
+        state.facing = blockEntity.getBlockState().getValue(AbstractCurtainBlock.FACING);
         state.animationPose = null;
         state.model = null;
         // Outside the animation window the block-state model renders the
         // curtain; the block-entity renderer stays idle.
-        if (!blockEntity.getBlockState().getValue(CurtainBlock.ANIMATING)
+        if (!blockEntity.getBlockState().getValue(AbstractCurtainBlock.ANIMATING)
                 || blockEntity.getLevel() == null) {
             return;
         }
-        boolean upper = blockEntity.getBlockState().getValue(CurtainBlock.HALF) == DoubleBlockHalf.UPPER;
-        boolean left = blockEntity.getBlockState().getValue(CurtainBlock.SIDE) == CurtainBlock.Side.LEFT;
-        boolean stateOpen = blockEntity.getBlockState().getValue(CurtainBlock.OPEN);
+        boolean longCurtain = blockEntity.getBlockState().getBlock() instanceof LongCurtainBlock;
+        boolean upper = !longCurtain
+                || blockEntity.getBlockState().getValue(LongCurtainBlock.HALF) == DoubleBlockHalf.UPPER;
+        boolean left = blockEntity.getBlockState().getValue(AbstractCurtainBlock.SIDE) == CurtainSide.LEFT;
+        boolean stateOpen = blockEntity.getBlockState().getValue(AbstractCurtainBlock.OPEN);
         boolean beSynced = blockEntity.isOpen() == stateOpen;
         state.open = beSynced ? blockEntity.isOpen() : stateOpen;
 
@@ -111,13 +114,20 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
         } else {
             rig = left ? LOWER_LEFT_RIG : LOWER_RIGHT_RIG;
         }
-        StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet = upper
-                ? (left ? BlockModelRegistry.CURTAIN_UPPER_LEFT : BlockModelRegistry.CURTAIN_UPPER_RIGHT)
-                : (left ? BlockModelRegistry.CURTAIN_LOWER_LEFT : BlockModelRegistry.CURTAIN_LOWER_RIGHT);
+        StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet;
+        if (longCurtain) {
+            modelSet = upper
+                    ? (left ? BlockModelRegistry.LONG_CURTAIN_UPPER_LEFT : BlockModelRegistry.LONG_CURTAIN_UPPER_RIGHT)
+                    : (left ? BlockModelRegistry.LONG_CURTAIN_LOWER_LEFT : BlockModelRegistry.LONG_CURTAIN_LOWER_RIGHT);
+        } else {
+            modelSet = upper
+                    ? (left ? BlockModelRegistry.CURTAIN_UPPER_LEFT : BlockModelRegistry.CURTAIN_UPPER_RIGHT)
+                    : (left ? BlockModelRegistry.CURTAIN_LOWER_LEFT : BlockModelRegistry.CURTAIN_LOWER_RIGHT);
+        }
         DyeColor color = dyeColorOf(blockEntity.getBlockState());
         AnimatedBlockModel model = resolveModel(
                 tintGetter, blockEntity, rig, upper ? UPPER_BONES : LOWER_BONES, modelSet,
-                new CurtainVariant(upper, left, color));
+                new CurtainVariant(longCurtain, upper, left, color), longCurtain);
         if (model == null) {
             return;
         }
@@ -144,7 +154,8 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
     private static DyeColor dyeColorOf(BlockState blockState) {
         Block block = blockState.getBlock();
         for (DyeColor color : DyeColor.values()) {
-            if (block == BlockRegistry.CURTAINS.get(color).get()) {
+            if (block == BlockRegistry.CURTAINS.get(color).get()
+                    || block == BlockRegistry.LONG_CURTAINS.get(color).get()) {
                 return color;
             }
         }
@@ -153,11 +164,11 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
 
     private AnimatedBlockModel resolveModel(
             BlockAndTintGetter tintGetter,
-            CurtainBlockEntity blockEntity,
+            AbstractCurtainBlockEntity blockEntity,
             AnimationResourceRef.Rig rig,
             String[] boneNames,
             StandaloneBlockModelSet<BlockModelRegistry.CurtainBoneKey> modelSet,
-            CurtainVariant variant
+            CurtainVariant variant, boolean longCurtain
     ) {
         AnimatedBlockModel cached = cachedModels.get(variant);
         if (cached != null) {
@@ -177,7 +188,7 @@ public class CurtainBlockEntityRenderer implements BlockEntityRenderer<CurtainBl
 
     private static AnimatedBlockModel bakeModel(
             BlockAndTintGetter tintGetter,
-            CurtainBlockEntity blockEntity,
+            AbstractCurtainBlockEntity blockEntity,
             AnimationResourceRef.Rig rig,
             String[] boneNames,
             BlockStateModel[] models

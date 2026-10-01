@@ -53,7 +53,8 @@ public final class CurtainAssetCompiler {
      */
     public Map<String, JsonElement> compile() {
         Map<String, JsonElement> assets = new LinkedHashMap<>();
-        new SmallCurtainCompiler(this, assets).compile();
+        new LongCurtainCompiler(this, assets).compile();
+        new CurtainCompiler(this, assets).compile();
         new LargeCurtainCompiler(this, assets).compile();
         return Collections.unmodifiableMap(assets);
     }

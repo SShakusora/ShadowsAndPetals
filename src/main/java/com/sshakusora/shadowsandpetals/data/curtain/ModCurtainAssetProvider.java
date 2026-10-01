@@ -66,7 +66,7 @@ public final class ModCurtainAssetProvider implements DataProvider {
         Path models = root.resolve("src/main/resources/assets")
                 .resolve(ShadowsAndPetals.MOD_ID)
                 .resolve("models/block");
-        return Files.isDirectory(models.resolve("curtain/source"))
+        return Files.isDirectory(models.resolve("long_curtain/source"))
                 && Files.isDirectory(models.resolve("large_curtain/source"));
     }
 }
