@@ -1,0 +1,9 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "shadowsandpetals:block/window/window_R",
+	"textures": {
+		"particle": "shadowsandpetals:block/window/birch",
+		"windowR": "shadowsandpetals:block/window/birch"
+	}
+}
