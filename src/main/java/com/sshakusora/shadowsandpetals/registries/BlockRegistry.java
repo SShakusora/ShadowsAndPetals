@@ -12,6 +12,7 @@ import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriGrillCopperTeapotBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.sofa.SofaBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.window.CasementWindowBlock;
 import com.sshakusora.shadowsandpetals.block.nature.LeavesVerticalSlabBlock;
 import com.sshakusora.shadowsandpetals.block.nature.RockeryBlock;
 import com.sshakusora.shadowsandpetals.block.nature.SandExcavationBlock;
@@ -984,6 +985,31 @@ public class BlockRegistry {
                     woodType.getName(),
                     woodType.getZhName() + "窗格"
             ));
+
+    public static final WoodBlockList<CasementWindowBlock> CASEMENT_WINDOWS =
+            new WoodBlockList<>(woodType -> SAPRegistries
+                            .block(woodType.getName() + "_casement_window", CasementWindowBlock::new)
+                            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(woodType.getPlanks())
+                                    .sound(SoundType.WOOD)
+                                    .noOcclusion())
+                            .tags(BlockTags.MINEABLE_WITH_AXE)
+                            .withItem()
+                            .creativeTab(CreativeTabKey.ARCHITECTURE, CreativeTabOrder.ARCHITECTURE_WINDOWS)
+                            .blockstate(() -> CasementWindowModels::block)
+                            .recipe((provider, block) -> provider.shaped(
+                                            RecipeCategory.DECORATIONS, block.get(), 8)
+                                    .define('P', woodType.getPlanks())
+                                    .define('G', Tags.Items.GLASS_BLOCKS_COLORLESS)
+                                    .pattern("   ")
+                                    .pattern("GP ")
+                                    .pattern("   ")
+                                    .unlockedBy(
+                                            provider.hasName(woodType.getPlanks()),
+                                            provider.hasItem(woodType.getPlanks()))
+                                    .save(provider.output()))
+                            .loot((provider, block) -> provider.dropSelf(block.get()))
+                            .lang(DatagenLangRegistry.ZH_CN, woodType.getZhName() + "平开窗")
+                            .register());
 
     public static final DeferredBlock<WoodPillarBlock> RED_LACQUERED_WOOD_PILLAR = SAPRegistries
             .block("red_lacquered_wood_pillar", WoodPillarBlock::new)

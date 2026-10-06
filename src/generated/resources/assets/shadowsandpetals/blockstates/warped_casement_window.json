@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=east,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left",
+      "y": 90
+    },
+    "facing=east,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right",
+      "y": 90
+    },
+    "facing=east,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left",
+      "y": 90
+    },
+    "facing=east,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right",
+      "y": 90
+    },
+    "facing=north,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left"
+    },
+    "facing=north,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right"
+    },
+    "facing=north,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left"
+    },
+    "facing=north,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right"
+    },
+    "facing=south,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left",
+      "y": 180
+    },
+    "facing=south,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right",
+      "y": 180
+    },
+    "facing=south,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left",
+      "y": 180
+    },
+    "facing=south,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right",
+      "y": 180
+    },
+    "facing=west,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left",
+      "y": 270
+    },
+    "facing=west,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right",
+      "y": 270
+    },
+    "facing=west,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/warped_left",
+      "y": 270
+    },
+    "facing=west,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/warped_right",
+      "y": 270
+    }
+  }
+}
