@@ -54,7 +54,6 @@ class LampOutlineCacheTest {
                 "bedroom_lamp", new String[]{"off", "on"},
                 "desk_lamp", new String[]{"off", "on"},
                 "emergency_lamp", new String[]{"off", "on"},
-                "recessed_lamp", new String[]{"down_off", "down_on", "up_off", "up_on"},
                 "wall_lamp", new String[]{"off", "on"}
         );
 
@@ -90,30 +89,101 @@ class LampOutlineCacheTest {
 
     @Test
     void blockstatesAndItemParentsResolveToMigratedObjModels() throws IOException {
-        for (String family : new String[]{"bedroom_lamp", "desk_lamp", "emergency_lamp", "recessed_lamp", "wall_lamp"}) {
+        for (String family : new String[]{"bedroom_lamp", "desk_lamp", "emergency_lamp", "wall_lamp"}) {
             JsonObject blockstate = loadJson("assets/shadowsandpetals/blockstates/" + family + ".json");
             for (Map.Entry<String, JsonElement> variant
                     : blockstate.getAsJsonObject("variants").entrySet()) {
                 JsonObject state = variant.getValue().getAsJsonObject();
                 String modelId = state.get("model").getAsString();
                 JsonObject model = loadJson(modelResource(modelId));
-                if (model.has("loader")) {
-                    assertEquals("neoforge:obj", model.get("loader").getAsString(), variant.getKey());
-                } else {
-                    assertTrue(model.has("parent"), variant.getKey());
-                    assertTrue(model.get("parent").getAsString().startsWith(
-                            "shadowsandpetals:block/recessed_lamp/"), variant.getKey());
-                    double expectedSlabOffset = modelId.contains("down_slab") ? -0.5D : 0.5D;
-                    assertEquals(expectedSlabOffset,
-                            model.getAsJsonObject("transform").getAsJsonArray("translation").get(1).getAsDouble(),
-                            variant.getKey());
-                }
+                assertEquals("neoforge:obj", model.get("loader").getAsString(), variant.getKey());
             }
 
             JsonObject item = loadJson("assets/shadowsandpetals/models/item/" + family + ".json");
             String parentId = item.get("parent").getAsString();
             JsonObject parent = loadJson(modelResource(parentId));
             assertEquals("neoforge:obj", parent.get("loader").getAsString(), family + " item");
+        }
+    }
+
+    @Test
+    void recessedLampFallbacksAndItemUseCompleteJsonModelsAtTheirInstallationHeights() throws IOException {
+        for (String family : new String[]{"recessed_lamp", "recessed_lamp_composite"}) {
+            JsonObject blockstate = loadJson("assets/shadowsandpetals/blockstates/" + family + ".json");
+            for (Map.Entry<String, JsonElement> variant : blockstate.getAsJsonObject("variants").entrySet()) {
+                JsonObject model = loadJson(modelResource(variant.getValue().getAsJsonObject()
+                        .get("model").getAsString()));
+                double translation = 0.0D;
+                if (model.has("parent")) {
+                    translation = model.getAsJsonObject("transform").getAsJsonArray("translation")
+                            .get(1).getAsDouble();
+                    model = loadJson(modelResource(model.get("parent").getAsString()));
+                }
+                assertFalse(model.has("loader"), variant.getKey());
+                assertEquals(16, model.getAsJsonArray("elements").size(), variant.getKey());
+                Bounds bounds = Bounds.of(RockeryOutlineGeometry.fromModel(model));
+                assertEquals(1.0D, bounds.minX(), EPSILON);
+                assertEquals(15.0D, bounds.maxX(), EPSILON);
+                assertEquals(1.0D, bounds.minZ(), EPSILON);
+                assertEquals(15.0D, bounds.maxZ(), EPSILON);
+                boolean ceiling = variant.getKey().contains("mount=ceiling");
+                boolean slab = variant.getKey().contains("mount=ceiling_slab")
+                        || variant.getKey().contains("mount=floor_slab");
+                double expectedTranslation = slab ? (ceiling ? 0.5D : -0.5D) : 0.0D;
+                if (family.equals("recessed_lamp_composite")) {
+                    expectedTranslation = -expectedTranslation;
+                }
+                assertEquals(expectedTranslation, translation, EPSILON, variant.getKey());
+                if (variant.getKey().contains("lit=true")) {
+                    for (JsonElement element : model.getAsJsonArray("elements")) {
+                        for (JsonElement face : element.getAsJsonObject().getAsJsonObject("faces").asMap().values()) {
+                            JsonObject faceData = face.getAsJsonObject();
+                            if (faceData.get("texture").getAsString().equals("#light")) {
+                                assertEquals(15, faceData.getAsJsonObject("neoforge_data").get("block_light").getAsInt());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        JsonObject item = loadJson("assets/shadowsandpetals/models/item/recessed_lamp.json");
+        JsonObject parent = loadJson(modelResource(item.get("parent").getAsString()));
+        assertFalse(parent.has("loader"));
+        assertEquals(16, parent.getAsJsonArray("elements").size());
+    }
+
+    @Test
+    void completeRecessedLampFramesAlwaysUseTheOpaqueBindingTexture() throws IOException {
+        for (String direction : new String[]{"up", "down"}) {
+            for (String mode : new String[]{"off", "on"}) {
+                JsonObject model = loadJson("assets/shadowsandpetals/models/block/recessed_lamp/"
+                        + direction + "_" + mode + ".json");
+                JsonObject textures = model.getAsJsonObject("textures");
+                int frameCount = 0;
+                int overlayCount = 0;
+                for (JsonElement entry : model.getAsJsonArray("elements")) {
+                    JsonObject element = entry.getAsJsonObject();
+                    double height = element.getAsJsonArray("to").get(1).getAsDouble()
+                            - element.getAsJsonArray("from").get(1).getAsDouble();
+                    JsonObject faces = element.getAsJsonObject("faces");
+                    if (height == 4.0D) {
+                        frameCount++;
+                        for (JsonElement face : faces.asMap().values()) {
+                            String alias = face.getAsJsonObject().get("texture").getAsString().substring(1);
+                            assertEquals("shadowsandpetals:block/recessed_lamp/edge_binding",
+                                    textures.get(alias).getAsString(), direction + "_" + mode);
+                        }
+                    } else if (faces.size() == 1) {
+                        overlayCount++;
+                        String alias = faces.asMap().values().iterator().next().getAsJsonObject()
+                                .get("texture").getAsString().substring(1);
+                        assertEquals("shadowsandpetals:block/recessed_lamp/edge",
+                                textures.get(alias).getAsString(), direction + "_" + mode);
+                    }
+                }
+                assertEquals(8, frameCount, direction + "_" + mode);
+                assertEquals(4, overlayCount, direction + "_" + mode);
+            }
         }
     }
 
@@ -212,4 +282,3 @@ class LampOutlineCacheTest {
         }
     }
 }
-

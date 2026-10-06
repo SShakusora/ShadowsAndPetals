@@ -161,13 +161,13 @@ public final class DecorationBlockModels {
         ResourceLocation downOff = generator.modLoc("block/recessed_lamp/down_off");
         ResourceLocation downOn = generator.modLoc("block/recessed_lamp/down_on");
         ResourceLocation upSlabOff = generator.createTranslatedParentModel(
-                "block/recessed_lamp/up_slab_off", upOff, 0.0F, 0.5F, 0.0F);
+                "block/recessed_lamp/up_slab_off", upOff, 0.0F, -0.5F, 0.0F);
         ResourceLocation upSlabOn = generator.createTranslatedParentModel(
-                "block/recessed_lamp/up_slab_on", upOn, 0.0F, 0.5F, 0.0F);
+                "block/recessed_lamp/up_slab_on", upOn, 0.0F, -0.5F, 0.0F);
         ResourceLocation downSlabOff = generator.createTranslatedParentModel(
-                "block/recessed_lamp/down_slab_off", downOff, 0.0F, -0.5F, 0.0F);
+                "block/recessed_lamp/down_slab_off", downOff, 0.0F, 0.5F, 0.0F);
         ResourceLocation downSlabOn = generator.createTranslatedParentModel(
-                "block/recessed_lamp/down_slab_on", downOn, 0.0F, -0.5F, 0.0F);
+                "block/recessed_lamp/down_slab_on", downOn, 0.0F, 0.5F, 0.0F);
         generator.provider().getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
                 .modelFile(generator.uncheckedModel(recessedModel(state.getValue(RecessedLampBlock.MOUNT),
                         state.getValue(RecessedLampBlock.LIT), upOff, upOn, downOff, downOn,
@@ -183,10 +183,14 @@ public final class DecorationBlockModels {
         ResourceLocation upOn = generator.modLoc("block/recessed_lamp/up_on");
         ResourceLocation downOff = generator.modLoc("block/recessed_lamp/down_off");
         ResourceLocation downOn = generator.modLoc("block/recessed_lamp/down_on");
-        ResourceLocation upSlabOff = generator.modLoc("block/recessed_lamp/up_slab_off");
-        ResourceLocation upSlabOn = generator.modLoc("block/recessed_lamp/up_slab_on");
-        ResourceLocation downSlabOff = generator.modLoc("block/recessed_lamp/down_slab_off");
-        ResourceLocation downSlabOn = generator.modLoc("block/recessed_lamp/down_slab_on");
+        ResourceLocation upSlabOff = generator.createTranslatedParentModel(
+                "block/recessed_lamp/up_composite_off", upOff, 0.0F, 0.5F, 0.0F);
+        ResourceLocation upSlabOn = generator.createTranslatedParentModel(
+                "block/recessed_lamp/up_composite_on", upOn, 0.0F, 0.5F, 0.0F);
+        ResourceLocation downSlabOff = generator.createTranslatedParentModel(
+                "block/recessed_lamp/down_composite_off", downOff, 0.0F, -0.5F, 0.0F);
+        ResourceLocation downSlabOn = generator.createTranslatedParentModel(
+                "block/recessed_lamp/down_composite_on", downOn, 0.0F, -0.5F, 0.0F);
         generator.provider().getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
                 .modelFile(generator.uncheckedModel(recessedModel(state.getValue(RecessedLampBlock.MOUNT),
                         state.getValue(RecessedLampBlock.LIT), upOff, upOn, downOff, downOn,

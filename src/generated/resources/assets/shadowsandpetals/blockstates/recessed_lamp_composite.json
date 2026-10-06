@@ -13,16 +13,16 @@
       "model": "shadowsandpetals:block/recessed_lamp/down_off"
     },
     "lit=false,mount=ceiling_slab,occludes=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_off"
     },
     "lit=false,mount=ceiling_slab,occludes=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_off"
     },
     "lit=false,mount=ceiling_slab,occludes=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_off"
     },
     "lit=false,mount=ceiling_slab,occludes=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_off"
     },
     "lit=false,mount=floor,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/up_off"
@@ -37,16 +37,16 @@
       "model": "shadowsandpetals:block/recessed_lamp/up_off"
     },
     "lit=false,mount=floor_slab,occludes=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_off"
     },
     "lit=false,mount=floor_slab,occludes=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_off"
     },
     "lit=false,mount=floor_slab,occludes=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_off"
     },
     "lit=false,mount=floor_slab,occludes=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_off"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_off"
     },
     "lit=true,mount=ceiling,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/down_on"
@@ -61,16 +61,16 @@
       "model": "shadowsandpetals:block/recessed_lamp/down_on"
     },
     "lit=true,mount=ceiling_slab,occludes=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_on"
     },
     "lit=true,mount=ceiling_slab,occludes=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_on"
     },
     "lit=true,mount=ceiling_slab,occludes=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_on"
     },
     "lit=true,mount=ceiling_slab,occludes=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/down_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/down_composite_on"
     },
     "lit=true,mount=floor,occludes=false,waterlogged=false": {
       "model": "shadowsandpetals:block/recessed_lamp/up_on"
@@ -85,16 +85,16 @@
       "model": "shadowsandpetals:block/recessed_lamp/up_on"
     },
     "lit=true,mount=floor_slab,occludes=false,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_on"
     },
     "lit=true,mount=floor_slab,occludes=false,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_on"
     },
     "lit=true,mount=floor_slab,occludes=true,waterlogged=false": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_on"
     },
     "lit=true,mount=floor_slab,occludes=true,waterlogged=true": {
-      "model": "shadowsandpetals:block/recessed_lamp/up_slab_on"
+      "model": "shadowsandpetals:block/recessed_lamp/up_composite_on"
     }
   }
 }

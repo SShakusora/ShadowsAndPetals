@@ -41,9 +41,6 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
 
     private static final VoxelShape BOTTOM_SLAB_SHAPE = box(0.0, 0.0, 0.0, 16.0, 8.0, 16.0);
     private static final VoxelShape TOP_SLAB_SHAPE = box(0.0, 8.0, 0.0, 16.0, 16.0, 16.0);
-    private static final VoxelShape BOTTOM_LAMP_SHAPE = box(1.0, 5.0, 1.0, 15.0, 9.0, 15.0);
-    private static final VoxelShape TOP_LAMP_SHAPE = box(1.0, 7.0, 1.0, 15.0, 11.0, 15.0);
-
     public RecessedLampCompositeBlock(Properties properties) {
         super(properties);
         registerDefaultState(defaultBlockState()
@@ -89,7 +86,7 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
         VoxelShape slabShape = storedSlab != null
                 ? storedSlab.getShape(level, pos, context)
                 : fallbackSlabShape(state);
-        return Shapes.or(slabShape, lampShape(state));
+        return Shapes.or(slabShape, lampShape(state, level, pos));
     }
 
     @Override
@@ -202,6 +199,22 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
+    }
+
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide() && oldState.getBlock() != state.getBlock()) {
+            RecessedLampConnection.notifyNeighbors(level, pos);
+        }
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide() && state.getBlock() != newState.getBlock()) {
+            RecessedLampConnection.notifyNeighbors(level, pos);
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
@@ -322,8 +335,14 @@ public final class RecessedLampCompositeBlock extends BaseEntityBlock implements
         return slabType(state) == SlabType.TOP ? TOP_SLAB_SHAPE : BOTTOM_SLAB_SHAPE;
     }
 
-    private static VoxelShape lampShape(BlockState state) {
-        return slabType(state) == SlabType.TOP ? TOP_LAMP_SHAPE : BOTTOM_LAMP_SHAPE;
+    private static VoxelShape lampShape(BlockState state, BlockGetter level, BlockPos pos) {
+        double minX = RecessedLampConnection.hasConnection(level, pos, state, Direction.WEST) ? 0.0 : 1.0;
+        double maxX = RecessedLampConnection.hasConnection(level, pos, state, Direction.EAST) ? 16.0 : 15.0;
+        double minZ = RecessedLampConnection.hasConnection(level, pos, state, Direction.NORTH) ? 0.0 : 1.0;
+        double maxZ = RecessedLampConnection.hasConnection(level, pos, state, Direction.SOUTH) ? 16.0 : 15.0;
+        return slabType(state) == SlabType.TOP
+                ? box(minX, 7.0, minZ, maxX, 11.0, maxZ)
+                : box(minX, 5.0, minZ, maxX, 9.0, maxZ);
     }
 
     private static SlabType slabType(BlockState state) {

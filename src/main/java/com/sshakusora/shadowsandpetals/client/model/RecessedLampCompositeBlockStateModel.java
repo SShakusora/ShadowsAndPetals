@@ -4,8 +4,10 @@ import com.sshakusora.shadowsandpetals.blockentity.RecessedLampBlockEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
@@ -28,11 +30,22 @@ public final class RecessedLampCompositeBlockStateModel extends BakedModelWrappe
     }
 
     @Override
+    public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData originalData) {
+        ModelData base = super.getModelData(level, pos, state, originalData);
+        if (state.getBlock() != expectedBlock) {
+            return base;
+        }
+        return RecessedLampConnectedBlockStateModel.addConnectionData(level, pos, state, base);
+    }
+
+    @Override
     public ChunkRenderTypeSet getRenderTypes(BlockState state, RandomSource random, ModelData data) {
         ChunkRenderTypeSet result = super.getRenderTypes(state, random, data);
         if (state.getBlock() != expectedBlock) {
             return result;
         }
+
+        result = ChunkRenderTypeSet.union(result, ChunkRenderTypeSet.of(RenderType.cutout()));
 
         BlockState storedSlab = data.get(RecessedLampBlockEntity.STORED_SLAB_MODEL_PROPERTY);
         if (!RecessedLampBlockEntity.isValidStoredSlab(storedSlab)) {
@@ -52,8 +65,8 @@ public final class RecessedLampCompositeBlockStateModel extends BakedModelWrappe
             ModelData data,
             @Nullable RenderType renderType
     ) {
-        List<BakedQuad> lampQuads = getQuadsForRenderType(
-                originalModel, state, face, random, data, renderType);
+        List<BakedQuad> lampQuads = RecessedLampConnectedBlockStateModel.getConnectedLampQuads(
+                state, face, random, data, renderType, originalModel);
         List<BakedQuad> result = new ArrayList<>(lampQuads);
         if (state.getBlock() != expectedBlock) {
             return result;

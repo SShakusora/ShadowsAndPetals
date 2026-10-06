@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.client.model;
 
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
+import com.sshakusora.shadowsandpetals.block.decoration.RecessedLampBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
@@ -91,6 +92,16 @@ public final class BlockModelRegistry {
             .model(WindChimeColors::blockVaneModelId)
             .register();
 
+    public static final StandaloneBlockModelSet<RecessedLampModelKey> RECESSED_LAMP_CONNECTED =
+            ClientModelRegistry.<RecessedLampModelKey>blockStateSet("recessed_lamp_connected")
+                    .keys(BlockModelRegistry::recessedLampModelKeys)
+                    .keyPath(key -> (key.ceiling() ? "down" : "up") + "/" + key.index()
+                            + (key.lit() ? "_on" : "_off"))
+                    .model(key -> ShadowsAndPetals.asResource(
+                            "block/recessed_lamp/" + (key.ceiling() ? "down" : "up") + "_"
+                                    + key.index() + (key.lit() ? "_on" : "_off")))
+                    .register();
+
     public static final StandaloneBlockModel WIND_CHIME_ITEM_BODY = ClientModelRegistry
             .blockState("wind_chime_item_body")
             .model(WindChimeColors.itemBodyModelId())
@@ -177,6 +188,9 @@ public final class BlockModelRegistry {
         BlockStateModelDecoratorRegistry.forBlock(CasementWindowBlock.class)
                 .wrapWithState(CasementWindowBlockStateModel::new)
                 .register();
+        BlockStateModelDecoratorRegistry.forBlock(RecessedLampBlock.class)
+                .wrap(RecessedLampConnectedBlockStateModel::new)
+                .register();
     }
 
     private BlockModelRegistry() {
@@ -188,6 +202,11 @@ public final class BlockModelRegistry {
 
     public static void cacheBakedModels(ModelEvent.BakingCompleted event) {
         ClientModelRegistry.cacheBakedModels(event);
+        RecessedLampConnectedBlockStateModel.clearCache();
+    }
+
+    public static @Nullable BakedModel getRecessedLampModel(RecessedLampModelKey key) {
+        return RECESSED_LAMP_CONNECTED.get(key);
     }
 
     public static void wrapBlockStateModels(ModelEvent.ModifyBakingResult event) {
@@ -284,6 +303,18 @@ public final class BlockModelRegistry {
         return keys;
     }
 
+    private static Iterable<RecessedLampModelKey> recessedLampModelKeys() {
+        List<RecessedLampModelKey> keys = new ArrayList<>();
+        for (boolean ceiling : new boolean[]{false, true}) {
+            for (boolean lit : new boolean[]{false, true}) {
+                for (int index = 1; index <= 15; index++) {
+                    keys.add(new RecessedLampModelKey(ceiling, lit, index));
+                }
+            }
+        }
+        return keys;
+    }
+
     private static Iterable<WoodPostLinkModelKey> woodPostLinkKeys() {
         List<WoodPostLinkModelKey> keys = new ArrayList<>();
         for (Block block : BuiltInRegistries.BLOCK) {
@@ -344,6 +375,14 @@ public final class BlockModelRegistry {
     private record WoodPostLinkModelKey(ResourceLocation blockId, Direction direction) {
         private String blockName() {
             return blockId.getPath();
+        }
+    }
+
+    public record RecessedLampModelKey(boolean ceiling, boolean lit, int index) {
+        public RecessedLampModelKey {
+            if (index < 1 || index > 15) {
+                throw new IllegalArgumentException("Recessed lamp model index must be between 1 and 15");
+            }
         }
     }
 }

@@ -1,5 +1,5 @@
 {
-  "parent": "shadowsandpetals:block/recessed_lamp/down_on",
+  "parent": "shadowsandpetals:block/recessed_lamp/up_off",
   "transform": {
     "translation": [
       0.0,
