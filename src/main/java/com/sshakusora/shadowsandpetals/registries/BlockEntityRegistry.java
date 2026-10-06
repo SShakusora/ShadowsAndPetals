@@ -72,6 +72,13 @@ public class BlockEntityRegistry {
             .validBlocks(BlockRegistry.CURTAINS.toArray())
             .register();
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CasementWindowBlockEntity>>
+            CASEMENT_WINDOW = SAPRegistries
+            .<CasementWindowBlockEntity>blockEntity("casement_window")
+            .factory(CasementWindowBlockEntity::new)
+            .validBlocks(BlockRegistry.CASEMENT_WINDOWS.toArray())
+            .register();
+
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<LongCurtainBlockEntity>> LONG_CURTAIN = SAPRegistries
             .<LongCurtainBlockEntity>blockEntity("long_curtain")
             .factory(LongCurtainBlockEntity::new)

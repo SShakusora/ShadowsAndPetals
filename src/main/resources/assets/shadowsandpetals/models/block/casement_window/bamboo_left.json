@@ -1,0 +1,9 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "shadowsandpetals:block/casement_window/template_left",
+	"textures": {
+		"particle": "shadowsandpetals:block/window/bamboo",
+		"windowL": "shadowsandpetals:block/window/bamboo"
+	}
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#c:glass_blocks/colorless",
+    "P": "minecraft:spruce_planks"
+  },
+  "pattern": [
+    "   ",
+    "GP ",
+    "   "
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:spruce_casement_window"
+  }
+}

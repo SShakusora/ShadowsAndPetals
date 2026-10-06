@@ -1,4 +1,4 @@
-// 26.1.2	2026-10-01T00:51:35.6702594	Tags for minecraft:block mod id shadowsandpetals
+// 26.1.2	2026-10-06T19:23:15.9551538	Tags for minecraft:block mod id shadowsandpetals
 97d183c60f795558d27f7161ac5abbcb4e0b3749 data/c/tags/block/stripped_logs.json
 88a58fc62baef45a46d22e616bbb432345965a71 data/c/tags/block/stripped_woods.json
 853891dff36b8020f95f3b8f18961994873094c4 data/minecraft/tags/block/buttons.json
@@ -7,7 +7,7 @@
 2114dfe95c5751600e4996734af9fbd2ef4defba data/minecraft/tags/block/leaves.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs.json
 4c2dab6d71b84eda05f1f82fd88066d7faac77ca data/minecraft/tags/block/logs_that_burn.json
-008ec66abe2d4a139afe0e7705de5734b2cbdfd7 data/minecraft/tags/block/mineable/axe.json
+d4bd620ea2922464792f045333f3d752e932988f data/minecraft/tags/block/mineable/axe.json
 95f42bb20a504a1426c86a14fbfd470551af7f95 data/minecraft/tags/block/mineable/hoe.json
 5e2490d46431086587ff30769cebd5f28551eb71 data/minecraft/tags/block/mineable/pickaxe.json
 0e0d8c1b2029eb3131315384f9ae503dc0895800 data/minecraft/tags/block/mineable/shovel.json

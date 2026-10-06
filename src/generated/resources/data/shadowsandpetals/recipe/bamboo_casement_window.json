@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#c:glass_blocks/colorless",
+    "P": "minecraft:bamboo_planks"
+  },
+  "pattern": [
+    "   ",
+    "GP ",
+    "   "
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:bamboo_casement_window"
+  }
+}

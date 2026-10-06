@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#c:glass_blocks/colorless",
+    "P": "minecraft:warped_planks"
+  },
+  "pattern": [
+    "   ",
+    "GP ",
+    "   "
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:warped_casement_window"
+  }
+}

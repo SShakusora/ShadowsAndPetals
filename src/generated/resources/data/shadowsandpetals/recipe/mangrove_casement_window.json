@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": "#c:glass_blocks/colorless",
+    "P": "minecraft:mangrove_planks"
+  },
+  "pattern": [
+    "   ",
+    "GP ",
+    "   "
+  ],
+  "result": {
+    "count": 8,
+    "id": "shadowsandpetals:mangrove_casement_window"
+  }
+}

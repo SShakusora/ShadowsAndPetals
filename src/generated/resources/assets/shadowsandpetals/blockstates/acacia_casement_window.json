@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "animating=false,facing=east,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 90
+    },
+    "animating=false,facing=east,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 90
+    },
+    "animating=false,facing=east,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 90
+    },
+    "animating=false,facing=east,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 90
+    },
+    "animating=false,facing=north,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left"
+    },
+    "animating=false,facing=north,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right"
+    },
+    "animating=false,facing=north,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left"
+    },
+    "animating=false,facing=north,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right"
+    },
+    "animating=false,facing=south,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 180
+    },
+    "animating=false,facing=south,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 180
+    },
+    "animating=false,facing=south,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 180
+    },
+    "animating=false,facing=south,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 180
+    },
+    "animating=false,facing=west,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 270
+    },
+    "animating=false,facing=west,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 270
+    },
+    "animating=false,facing=west,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 270
+    },
+    "animating=false,facing=west,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 270
+    },
+    "animating=true,facing=east,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 90
+    },
+    "animating=true,facing=east,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 90
+    },
+    "animating=true,facing=east,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 90
+    },
+    "animating=true,facing=east,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 90
+    },
+    "animating=true,facing=north,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left"
+    },
+    "animating=true,facing=north,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right"
+    },
+    "animating=true,facing=north,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left"
+    },
+    "animating=true,facing=north,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right"
+    },
+    "animating=true,facing=south,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 180
+    },
+    "animating=true,facing=south,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 180
+    },
+    "animating=true,facing=south,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 180
+    },
+    "animating=true,facing=south,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 180
+    },
+    "animating=true,facing=west,open=false,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 270
+    },
+    "animating=true,facing=west,open=false,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 270
+    },
+    "animating=true,facing=west,open=true,side=left": {
+      "model": "shadowsandpetals:block/casement_window/acacia_left",
+      "y": 270
+    },
+    "animating=true,facing=west,open=true,side=right": {
+      "model": "shadowsandpetals:block/casement_window/acacia_right",
+      "y": 270
+    }
+  }
+}
