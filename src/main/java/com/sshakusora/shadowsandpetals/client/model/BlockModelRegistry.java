@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.client.model;
 import com.mojang.math.Quadrant;
 import com.sshakusora.shadowsandpetals.ShadowsAndPetals;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
+import com.sshakusora.shadowsandpetals.block.decoration.RecessedLampBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.WoodPostBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.bonsai.BonsaiBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.irori.IroriBlock;
@@ -103,6 +104,39 @@ public final class BlockModelRegistry {
             .keyPath(DyeColor::getName)
             .model(WindChimeColors::blockVaneModelId)
             .register();
+
+    private static final StandaloneBlockModelSet<RecessedLampModelKey> RECESSED_LAMP_CONNECTED =
+            ClientModelRegistry.<RecessedLampModelKey>blockStateSet("recessed_lamp_connected")
+                    .keys(BlockModelRegistry::recessedLampModelKeys)
+                    .keyPath(key -> (key.ceiling() ? "down" : "up") + "/" + key.index()
+                            + (key.lit() ? "_on" : "_off"))
+                    .model(key -> ShadowsAndPetals.asResource("block/recessed_lamp/"
+                            + (key.ceiling() ? "down" : "up") + "_" + key.index() + (key.lit() ? "_on" : "_off")))
+                    .register();
+
+    private static Iterable<RecessedLampModelKey> recessedLampModelKeys() {
+        List<RecessedLampModelKey> keys = new ArrayList<>();
+        for (boolean ceiling : new boolean[]{false, true}) {
+            for (boolean lit : new boolean[]{false, true}) {
+                for (int index = 1; index <= 15; index++) {
+                    keys.add(new RecessedLampModelKey(ceiling, lit, index));
+                }
+            }
+        }
+        return keys;
+    }
+
+    public static @Nullable BlockStateModel getRecessedLampModel(RecessedLampModelKey key) {
+        return RECESSED_LAMP_CONNECTED.get(key);
+    }
+
+    public record RecessedLampModelKey(boolean ceiling, boolean lit, int index) {
+        public RecessedLampModelKey {
+            if (index < 1 || index > 15) {
+                throw new IllegalArgumentException("Recessed lamp model index must be between 1 and 15");
+            }
+        }
+    }
 
     public static final StandaloneBlockModel COPPER_TEAPOT_LID = ClientModelRegistry
             .blockState("copper_teapot_lid")
@@ -213,6 +247,9 @@ public final class BlockModelRegistry {
     }
 
     static {
+        BlockStateModelDecoratorRegistry.forBlock(RecessedLampBlock.class)
+                .wrap(RecessedLampConnectedBlockStateModel::new)
+                .register();
         BlockStateModelDecoratorRegistry.forBlock(IroriBlock.class)
                 .wrap(IroriBlockStateModel::new)
                 .register();
@@ -236,6 +273,7 @@ public final class BlockModelRegistry {
 
     public static void cacheBakedModels(ModelEvent.BakingCompleted event) {
         ClientModelRegistry.cacheBakedModels(event);
+        RecessedLampConnectedBlockStateModel.clearCache();
     }
 
     public static void wrapBlockStateModels(ModelEvent.ModifyBakingResult event) {

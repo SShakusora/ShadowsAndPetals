@@ -630,6 +630,7 @@ public class BlockRegistry {
                     .sound(SoundType.METAL)
                     .mapColor(MapColor.METAL)
                     .noOcclusion()
+                    .dynamicShape()
                     .lightLevel(state -> state.getValue(RecessedLampBlock.LIT) ? 10 : 0))
             .tags(BlockTags.MINEABLE_WITH_PICKAXE)
             .withCustomItem(RecessedLampBlockItem::new)
@@ -664,7 +665,7 @@ public class BlockRegistry {
                         .unlockedBy("has_aluminum_ingot", provider.hasItem(ItemRegistry.ALUMINUM_INGOT.get()))
                         .save(provider.output(), provider.id("recessed_lamp_from_aluminum").toString());
             })
-            .clientItem(ShadowsAndPetals.asResource("block/recessed_lamp/up_off"))
+            .clientItem(ShadowsAndPetals.asResource("item/recessed_lamp"))
             .lang(DatagenLangRegistry.ZH_CN, "嵌灯")
             .register();
 

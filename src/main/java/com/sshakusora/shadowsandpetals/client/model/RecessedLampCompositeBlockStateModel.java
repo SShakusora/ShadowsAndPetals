@@ -27,7 +27,7 @@ public final class RecessedLampCompositeBlockStateModel extends DelegateBlockSta
             BlockStateModel lampModel,
             Map<BlockState, BlockStateModel> slabModels
     ) {
-        super(lampModel);
+        super(new RecessedLampConnectedBlockStateModel(expectedBlock, lampModel));
         this.expectedBlock = expectedBlock;
         this.slabModels = slabModels;
     }

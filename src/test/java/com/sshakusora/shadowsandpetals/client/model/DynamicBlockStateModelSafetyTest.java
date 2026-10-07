@@ -119,6 +119,17 @@ class DynamicBlockStateModelSafetyTest {
     }
 
     @Test
+    void connectedRecessedLampFallsBackForBreakingOverlayState() {
+        RecordingModel delegate = new RecordingModel();
+        RecessedLampConnectedBlockStateModel model = new RecessedLampConnectedBlockStateModel(null, delegate);
+        List<BlockStateModelPart> parts = new ArrayList<>();
+        model.collectParts(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create(), parts);
+        assertEquals(1, delegate.contextFreeCollects);
+        assertSame(delegate.part, parts.getFirst());
+        assertNotNull(model.createGeometryKey(EMPTY_LEVEL, EMPTY_POS, null, RandomSource.create()));
+    }
+
+    @Test
     void iroriGrillCopperTeapotFallsBackForBreakingOverlayState() {
         Block block = null;
         RecordingModel delegate = new RecordingModel();

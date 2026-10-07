@@ -214,10 +214,10 @@ public final class DecorationBlockModels {
         Identifier upOn = generator.modLoc("block/recessed_lamp/up_on");
         Identifier downOff = generator.modLoc("block/recessed_lamp/down_off");
         Identifier downOn = generator.modLoc("block/recessed_lamp/down_on");
-        Identifier upSlabOff = translatedLampModel(generator, "up_slab_off", upOff, 0.5F);
-        Identifier upSlabOn = translatedLampModel(generator, "up_slab_on", upOn, 0.5F);
-        Identifier downSlabOff = translatedLampModel(generator, "down_slab_off", downOff, -0.5F);
-        Identifier downSlabOn = translatedLampModel(generator, "down_slab_on", downOn, -0.5F);
+        Identifier upSlabOff = translatedLampModel(generator, "up_slab_off", upOff, -0.5F);
+        Identifier upSlabOn = translatedLampModel(generator, "up_slab_on", upOn, -0.5F);
+        Identifier downSlabOff = translatedLampModel(generator, "down_slab_off", downOff, 0.5F);
+        Identifier downSlabOn = translatedLampModel(generator, "down_slab_on", downOn, 0.5F);
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(RecessedLampBlock.MOUNT, RecessedLampBlock.LIT)
                         .select(RecessedLampBlock.Mount.FLOOR, false, BlockModelGenerators.plainVariant(upOff))
@@ -242,10 +242,10 @@ public final class DecorationBlockModels {
         Identifier upOn = generator.modLoc("block/recessed_lamp/up_on");
         Identifier downOff = generator.modLoc("block/recessed_lamp/down_off");
         Identifier downOn = generator.modLoc("block/recessed_lamp/down_on");
-        Identifier upSlabOff = generator.modLoc("block/recessed_lamp/up_slab_off");
-        Identifier upSlabOn = generator.modLoc("block/recessed_lamp/up_slab_on");
-        Identifier downSlabOff = generator.modLoc("block/recessed_lamp/down_slab_off");
-        Identifier downSlabOn = generator.modLoc("block/recessed_lamp/down_slab_on");
+        Identifier upSlabOff = translatedLampModel(generator, "up_composite_off", upOff, 0.5F);
+        Identifier upSlabOn = translatedLampModel(generator, "up_composite_on", upOn, 0.5F);
+        Identifier downSlabOff = translatedLampModel(generator, "down_composite_off", downOff, -0.5F);
+        Identifier downSlabOn = translatedLampModel(generator, "down_composite_on", downOn, -0.5F);
         generator.blockState(MultiVariantGenerator.dispatch(block)
                 .with(PropertyDispatch.initial(RecessedLampBlock.MOUNT, RecessedLampBlock.LIT)
                         .select(RecessedLampBlock.Mount.FLOOR, false, BlockModelGenerators.plainVariant(upOff))

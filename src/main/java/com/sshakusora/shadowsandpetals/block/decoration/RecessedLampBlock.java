@@ -3,6 +3,7 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
@@ -32,11 +33,6 @@ public class RecessedLampBlock extends Block implements SimpleWaterloggedBlock {
     public static final EnumProperty<Mount> MOUNT = EnumProperty.create("mount", Mount.class);
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-
-    private static final VoxelShape FLOOR_SHAPE = box(1.0, -3.0, 1.0, 15.0, 1.0, 15.0);
-    private static final VoxelShape FLOOR_SLAB_SHAPE = box(1.0, -11.0, 1.0, 15.0, -7.0, 15.0);
-    private static final VoxelShape CEILING_SHAPE = box(1.0, 15.0, 1.0, 15.0, 19.0, 15.0);
-    private static final VoxelShape CEILING_SLAB_SHAPE = box(1.0, 23.0, 1.0, 15.0, 27.0, 15.0);
 
     public RecessedLampBlock(Properties properties) {
         super(properties);
@@ -90,17 +86,35 @@ public class RecessedLampBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide() && oldState.getBlock() != state.getBlock()) {
+            RecessedLampConnection.notifyNeighbors(level, pos);
+        }
+    }
+
+    @Override
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
+        RecessedLampConnection.notifyNeighbors(level, pos);
+    }
+
+    @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        double minX = RecessedLampConnection.hasConnection(level, pos, state, Direction.WEST) ? 0.0 : 1.0;
+        double maxX = RecessedLampConnection.hasConnection(level, pos, state, Direction.EAST) ? 16.0 : 15.0;
+        double minZ = RecessedLampConnection.hasConnection(level, pos, state, Direction.NORTH) ? 0.0 : 1.0;
+        double maxZ = RecessedLampConnection.hasConnection(level, pos, state, Direction.SOUTH) ? 16.0 : 15.0;
         return switch (state.getValue(MOUNT)) {
-            case FLOOR -> FLOOR_SHAPE;
-            case FLOOR_SLAB -> FLOOR_SLAB_SHAPE;
-            case CEILING -> CEILING_SHAPE;
-            case CEILING_SLAB -> CEILING_SLAB_SHAPE;
+            case FLOOR -> box(minX, -3.0, minZ, maxX, 1.0, maxZ);
+            case FLOOR_SLAB -> box(minX, -11.0, minZ, maxX, -7.0, maxZ);
+            case CEILING -> box(minX, 15.0, minZ, maxX, 19.0, maxZ);
+            case CEILING_SLAB -> box(minX, 23.0, minZ, maxX, 27.0, maxZ);
         };
     }
 
