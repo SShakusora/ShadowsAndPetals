@@ -5,7 +5,7 @@
 	"textures": {
 		"2": "shadowsandpetals:block/sofa/wood",
 		"particle": "shadowsandpetals:block/sofa/wood",
-		"sofaoutercorner": "#sofa"
+		"sofaoutercorner": ""
 	},
 	"elements": [
 		{
@@ -25,7 +25,6 @@
 			"rotation": {"angle": 0, "axis": "y", "origin": [14, 13.025, 12]},
 			"faces": {
 				"north": {"uv": [5.33333, 7, 6, 10.33333], "texture": "#sofaoutercorner"},
-				"west": {"uv": [11.33333, 12, 12, 15.33333], "texture": "#sofaoutercorner"},
 				"up": {"uv": [5.33333, 7.66667, 6, 7], "rotation": 180, "texture": "#sofaoutercorner"}
 			}
 		},

@@ -37,7 +37,7 @@
 			"to": [14.5, 4.5, 16.05],
 			"rotation": {"angle": 90, "axis": "y", "origin": [7.5, 0, 7.55]},
 			"faces": {
-				"east": {"uv": [4, 2.33333, 0.33333, 3.66667], "texture": "#sofaleftedge"},
+				"east": {"uv": [0, 2.33333, 4.66667, 3.66666], "texture": "#sofaleftedge"},
 				"down": {"uv": [15, 4.66667, 10.33333, 0], "rotation": 90, "texture": "#sofaleftedge"}
 			}
 		},
