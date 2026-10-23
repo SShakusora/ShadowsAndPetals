@@ -143,6 +143,21 @@ public class BlockRegistry {
             .lang("zh_cn", "粗矾土块")
             .register();
 
+    public static final DeferredBlock<BoxBlock> RAW_PORKCHOP_BOX = SAPRegistries
+            .block("raw_porkchop_box", BoxBlock::new)
+            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
+                    .strength(1.0F)
+                    .sound(SoundType.WOOD)
+                    .noOcclusion())
+            .withItem()
+            .creativeTab(CreativeTabType.MAIN)
+            .blockstate((provider, box) -> provider.simpleBlockWithItem(
+                    box.get(),
+                    provider.models().getExistingFile(provider.modLoc("block/raw_porkchop_box"))
+            ))
+            .lang("zh_cn", "生猪排盒子")
+            .register();
+
     public static final DeferredBlock<Block> ALUMINUM_BLOCK = SAPRegistries
             .block("aluminum_block")
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.IRON_BLOCK)

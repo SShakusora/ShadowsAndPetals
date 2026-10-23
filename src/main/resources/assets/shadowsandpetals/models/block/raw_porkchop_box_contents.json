@@ -1,0 +1,112 @@
+{
+	"loader": "neoforge:composite",
+	"textures": {
+		"particle": "minecraft:item/porkchop"
+	},
+	"children": {
+		"layer_0": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": -4.941
+				},
+				"translation": [
+					0.03488,
+					0.0625,
+					0.00419
+				]
+			}
+		},
+		"layer_1": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": -5.186
+				},
+				"translation": [
+					-0.01663,
+					0.1125,
+					-0.01162
+				]
+			}
+		},
+		"layer_2": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": 7.488
+				},
+				"translation": [
+					0.0365,
+					0.1625,
+					-0.0235
+				]
+			}
+		},
+		"layer_3": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": -4.079
+				},
+				"translation": [
+					0.01119,
+					0.2125,
+					0.00962
+				]
+			}
+		},
+		"layer_4": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": 7.488
+				},
+				"translation": [
+					-0.05713,
+					0.2625,
+					-0.01206
+				]
+			}
+		},
+		"layer_5": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": -7.117
+				},
+				"translation": [
+					0.04562,
+					0.3125,
+					0.01206
+				]
+			}
+		},
+		"layer_6": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": -2.474
+				},
+				"translation": [
+					-0.02606,
+					0.3625,
+					0.057
+				]
+			}
+		},
+		"layer_7": {
+			"parent": "shadowsandpetals:block/porkchop_layer",
+			"transform": {
+				"rotation": {
+					"y": -4.303
+				},
+				"translation": [
+					0.00931,
+					0.4125,
+					-0.02994
+				]
+			}
+		}
+	}
+}
