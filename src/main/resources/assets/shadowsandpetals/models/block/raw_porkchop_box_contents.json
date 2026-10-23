@@ -26,10 +26,10 @@
 			"parent": "shadowsandpetals:block/porkchop_layer",
 			"transform": {
 				"rotation": {
-					"y": 84.814
+					"y": 174.814
 				},
 				"translation": [
-					0.02615,
+					-0.02615,
 					0.1125,
 					-0.03102
 				],
@@ -44,12 +44,12 @@
 			"parent": "shadowsandpetals:block/porkchop_layer",
 			"transform": {
 				"rotation": {
-					"y": 187.488
+					"y": 7.488
 				},
 				"translation": [
-					-0.0785,
+					0.0785,
 					0.1625,
-					-0.03709
+					0.03709
 				],
 				"origin": [
 					0.5,
@@ -62,12 +62,12 @@
 			"parent": "shadowsandpetals:block/porkchop_layer",
 			"transform": {
 				"rotation": {
-					"y": 265.921
+					"y": 175.921
 				},
 				"translation": [
 					-0.02078,
 					0.2125,
-					0.02095
+					-0.02095
 				],
 				"origin": [
 					0.5,
@@ -98,10 +98,10 @@
 			"parent": "shadowsandpetals:block/porkchop_layer",
 			"transform": {
 				"rotation": {
-					"y": 82.883
+					"y": 172.883
 				},
 				"translation": [
-					0.03524,
+					-0.03524,
 					0.3125,
 					-0.08755
 				],
@@ -116,12 +116,12 @@
 			"parent": "shadowsandpetals:block/porkchop_layer",
 			"transform": {
 				"rotation": {
-					"y": 177.526
+					"y": -2.474
 				},
 				"translation": [
-					-0.04715,
+					0.04715,
 					0.3625,
-					-0.11614
+					0.11614
 				],
 				"origin": [
 					0.5,
@@ -134,12 +134,12 @@
 			"parent": "shadowsandpetals:block/porkchop_layer",
 			"transform": {
 				"rotation": {
-					"y": 265.697
+					"y": 175.697
 				},
 				"translation": [
 					-0.06111,
 					0.4125,
-					0.01407
+					-0.01407
 				],
 				"origin": [
 					0.5,
