@@ -6,10 +6,12 @@ import com.sshakusora.shadowsandpetals.util.BoxContents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
@@ -22,6 +24,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -73,6 +76,21 @@ public class BoxBlock extends BaseEntityBlock {
             case TOP -> TOP_SHAPE;
             default -> BOTTOM_SHAPE;
         };
+    }
+
+    /**
+     * Rebuilds the picked stack from the block entity so middle-click pick block and Jade show
+     * the stored content instead of a bare box. {@link BlockEntity#saveToItem} keeps the item
+     * data identical to the loot drop path.
+     */
+    @Override
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        ItemStack stack = new ItemStack(asItem());
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof BoxBlockEntity boxEntity) {
+            boxEntity.saveToItem(stack, level.registryAccess());
+        }
+        return stack;
     }
 
     @Nullable

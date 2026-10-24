@@ -6,14 +6,12 @@ import com.sshakusora.shadowsandpetals.block.decoration.BoxBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
-import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
  * Draws the shared shell and the stacked voxelized content copies used by both the placed
@@ -50,14 +48,14 @@ public final class BoxContentRenderer {
     ) {
         BlockState state = BlockRegistry.BOX.get().defaultBlockState()
                 .setValue(BoxBlock.TYPE, type);
+        // Let NeoForge pick the entity render type (cutout shader with normal-based diffuse
+        // lighting) so the shell shades identically to the plain empty-box item in GUIs.
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
                 state,
                 poseStack,
                 buffer,
                 packedLight,
-                packedOverlay,
-                ModelData.EMPTY,
-                RenderType.cutout()
+                packedOverlay
         );
     }
 

@@ -6,7 +6,8 @@ import org.jetbrains.annotations.Nullable;
 
 public enum CreativeTabType {
     MAIN("main", "Shadows & Petals", "织影落花"),
-    NATURE("nature", "Shadows & Petals: Nature", "织影落花：自然");
+    NATURE("nature", "Shadows & Petals: Nature", "织影落花：自然"),
+    BOXES("boxes", "Shadows & Petals: Boxes", "织影落花：盒子");
 
     private final String name;
     @Nullable

@@ -19,7 +19,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.function.Predicate;
 
 /**
  * Shared content discovery and serialization for the tagged food boxes.
@@ -38,7 +40,21 @@ public final class BoxContents {
 
     private static final List<TagKey<Item>> CONTENT_TAGS = List.of(RAW_FISH, RAW_MEAT, VEGETABLE, BERRY, CROPS);
 
+    /**
+     * Optional filter applied to tag candidates before they become creative box stacks. It stays
+     * accept-all by default so dedicated-server code never depends on client-only model data.
+     */
+    private static volatile Predicate<Item> contentFilter = item -> true;
+
     private BoxContents() {}
+
+    /**
+     * Installs the candidate filter, replacing any previously installed one. Client setup installs
+     * a model-based filter; the default accepts every tagged item.
+     */
+    public static void setContentFilter(Predicate<Item> filter) {
+        contentFilter = Objects.requireNonNull(filter, "filter");
+    }
 
     /**
      * Resolves the content held by a box stack. A stack without stored data keeps the legacy
@@ -129,6 +145,7 @@ public final class BoxContents {
             return List.of();
         }
 
+        Predicate<Item> filter = contentFilter;
         Map<ResourceLocation, Item> sortedItems = new TreeMap<>();
         for (TagKey<Item> tag : CONTENT_TAGS) {
             for (Holder<Item> holder : BuiltInRegistries.ITEM.getTagOrEmpty(tag)) {
@@ -138,9 +155,11 @@ public final class BoxContents {
                 }
 
                 ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
-                if (id != null) {
-                    sortedItems.putIfAbsent(id, item);
+                if (id == null || sortedItems.containsKey(id) || !filter.test(item)) {
+                    continue;
                 }
+
+                sortedItems.put(id, item);
             }
         }
 

@@ -1,9 +1,11 @@
 package com.sshakusora.shadowsandpetals.gametest;
 
 import com.sshakusora.shadowsandpetals.block.decoration.BoxBlock;
+import com.sshakusora.shadowsandpetals.block.decoration.BoxItem;
 import com.sshakusora.shadowsandpetals.blockentity.BoxBlockEntity;
 import com.sshakusora.shadowsandpetals.registries.BlockEntityRegistry;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
+import com.sshakusora.shadowsandpetals.registries.CreativeTabRegistry;
 import com.sshakusora.shadowsandpetals.util.BoxContents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,7 +19,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -42,9 +47,11 @@ import java.util.List;
 public final class BoxGameTests {
     private static final BlockPos FLOOR_POS = new BlockPos(1, 0, 1);
     private static final BlockPos BOX_POS = new BlockPos(1, 1, 1);
+    private static final BlockPos WALL_POS = new BlockPos(2, 1, 1);
     private static final String BOX_ID = "shadowsandpetals:box";
     private static final String BEEF_ID = "minecraft:beef";
     private static final String COD_ID = "minecraft:cod";
+    private static final String SALMON_ID = "minecraft:salmon";
 
     private BoxGameTests() {
     }
@@ -127,6 +134,98 @@ public final class BoxGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = "box_merge", timeoutTicks = 200)
+    public static void boxCloneStackMatchesContents(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        helper.setBlock(FLOOR_POS, Blocks.STONE);
+        Player player = helper.makeMockPlayer(GameType.CREATIVE);
+        BlockPos absBox = helper.absolutePos(BOX_POS);
+
+        // 1. A single bottom half keeps its content and must not become a double item.
+        InteractionResult beefPlacement = placeOnFloor(helper, level, player, boxWithContent(BEEF_ID));
+        helper.assertTrue(beefPlacement.consumesAction(), "beef box placement should consume the action, got " + beefPlacement);
+        BlockState bottomState = level.getBlockState(absBox);
+        helper.assertTrue(bottomState.getValue(BoxBlock.TYPE) == SlabType.BOTTOM,
+                "expected BOTTOM before cloning, got " + bottomState.getValue(BoxBlock.TYPE));
+
+        ItemStack bottomClone = cloneStack(level, absBox, player);
+        helper.assertTrue(BOX_ID.equals(itemId(bottomClone)), "expected clone item " + BOX_ID + ", got " + itemId(bottomClone));
+        helper.assertTrue(!BoxContents.isDoubleItem(bottomClone), "single bottom clone must not be a double item");
+        assertContent(helper, "cloned bottom half", BoxContents.contentStack(bottomClone), BEEF_ID);
+
+        // 2. A merged double box clones both halves.
+        InteractionResult codPlacement = mergeOntoExistingBox(helper, level, player, boxWithContent(COD_ID));
+        helper.assertTrue(codPlacement.consumesAction(), "cod box merge should consume the action, got " + codPlacement);
+        BlockState doubleState = level.getBlockState(absBox);
+        helper.assertTrue(doubleState.getValue(BoxBlock.TYPE) == SlabType.DOUBLE,
+                "expected DOUBLE before cloning, got " + doubleState.getValue(BoxBlock.TYPE));
+
+        ItemStack doubleClone = cloneStack(level, absBox, player);
+        helper.assertTrue(BoxContents.isDoubleItem(doubleClone), "merged clone must be a double item");
+        assertContent(helper, "cloned bottom half of double", BoxContents.contentStack(doubleClone), BEEF_ID);
+        assertContent(helper, "cloned top half of double", BoxContents.topContentStack(doubleClone), COD_ID);
+
+        // 3. A single top half placed against the western face of a stone wall keeps its top flag.
+        helper.destroyBlock(BOX_POS);
+        helper.setBlock(WALL_POS, Blocks.STONE);
+        InteractionResult salmonPlacement = placeOnWallWestFace(helper, level, player, boxWithContent(SALMON_ID));
+        helper.assertTrue(salmonPlacement.consumesAction(), "salmon top box placement should consume the action, got " + salmonPlacement);
+
+        BlockState topState = level.getBlockState(absBox);
+        helper.assertTrue(topState.is(BlockRegistry.BOX.get()), "expected box after wall placement, got " + topState);
+        helper.assertTrue(topState.getValue(BoxBlock.TYPE) == SlabType.TOP,
+                "expected TOP before cloning, got " + topState.getValue(BoxBlock.TYPE));
+
+        ItemStack topClone = cloneStack(level, absBox, player);
+        helper.assertTrue(!BoxContents.isDoubleItem(topClone), "single top clone must not be a double item");
+        helper.assertTrue(BoxContents.isTopItem(topClone), "single top clone must keep the top flag");
+        assertContent(helper, "cloned top half", BoxContents.contentStack(topClone), SALMON_ID);
+
+        helper.succeed();
+    }
+
+    @GameTest(template = "box_merge", timeoutTicks = 200)
+    public static void emptyBoxTabHoldsEmptyBoxFirst(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        Item emptyBoxItem = BlockRegistry.EMPTY_BOX.get().asItem();
+        helper.assertTrue(emptyBoxItem != Items.AIR, "empty box item should be registered");
+
+        CreativeModeTab tab = CreativeTabRegistry.BOXES.get();
+        tab.buildContents(new CreativeModeTab.ItemDisplayParameters(level.enabledFeatures(), true, level.registryAccess()));
+        List<ItemStack> contents = List.copyOf(tab.getDisplayItems());
+        helper.assertTrue(!contents.isEmpty(), "boxes tab should not be empty");
+        helper.assertTrue(contents.get(0).is(emptyBoxItem),
+                "empty box should be the first boxes tab entry, got " + contents.get(0));
+        helper.assertTrue(tab.getIconItem().is(emptyBoxItem),
+                "boxes tab icon should be the empty box item, got " + tab.getIconItem());
+        for (int i = 1; i < contents.size(); i++) {
+            ItemStack stack = contents.get(i);
+            helper.assertTrue(!stack.is(emptyBoxItem), "empty box must only appear once, found a duplicate at " + i);
+            helper.assertTrue(stack.getItem() instanceof BoxItem,
+                    "boxes tab entry " + i + " should be a content box, got " + stack);
+        }
+
+        // Placement path, half-block collision and self drop of the static empty box.
+        helper.setBlock(FLOOR_POS, Blocks.STONE);
+        Player player = helper.makeMockPlayer(GameType.CREATIVE);
+        InteractionResult placement = placeOnFloor(helper, level, player, new ItemStack(emptyBoxItem));
+        helper.assertTrue(placement.consumesAction(), "empty box placement should consume the action, got " + placement);
+
+        BlockPos absBox = helper.absolutePos(BOX_POS);
+        BlockState state = level.getBlockState(absBox);
+        helper.assertTrue(state.is(BlockRegistry.EMPTY_BOX.get()), "expected empty box after placement, got " + state);
+        helper.assertTrue(state.getProperties().isEmpty(), "empty box must not have block state properties, got " + state.getProperties());
+        double collisionTop = state.getCollisionShape(level, absBox).max(Direction.Axis.Y);
+        helper.assertTrue(Math.abs(collisionTop - 0.5D) < 1.0E-6D,
+                "empty box collision should be half a block tall, got " + collisionTop);
+
+        List<ItemStack> drops = Block.getDrops(state, level, absBox, null);
+        helper.assertTrue(drops.stream().anyMatch(stack -> stack.is(emptyBoxItem)),
+                "empty box should drop itself, got " + drops);
+
+        helper.succeed();
+    }
+
     private static ItemStack boxWithContent(String contentId) {
         ItemStack stack = new ItemStack(BlockRegistry.BOX.get().asItem());
         CompoundTag tag = new CompoundTag();
@@ -150,6 +249,23 @@ public final class BoxGameTests {
         BlockPos absBox = helper.absolutePos(BOX_POS);
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absBox), Direction.UP, absBox, false);
         return stack.useOn(new UseOnContext(level, player, InteractionHand.MAIN_HAND, stack, hit));
+    }
+
+    private static InteractionResult placeOnWallWestFace(GameTestHelper helper, ServerLevel level, Player player, ItemStack stack) {
+        BlockPos absWall = helper.absolutePos(WALL_POS);
+        BlockHitResult hit = new BlockHitResult(
+                new Vec3(absWall.getX(), absWall.getY() + 0.75D, absWall.getZ() + 0.5D),
+                Direction.WEST,
+                absWall,
+                false
+        );
+        return stack.useOn(new UseOnContext(level, player, InteractionHand.MAIN_HAND, stack, hit));
+    }
+
+    private static ItemStack cloneStack(ServerLevel level, BlockPos absPos, Player player) {
+        BlockState state = level.getBlockState(absPos);
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(absPos), Direction.UP, absPos, false);
+        return state.getCloneItemStack(hit, level, absPos, player);
     }
 
     private static BoxBlockEntity requireBoxEntity(GameTestHelper helper, ServerLevel level, BlockPos pos) {

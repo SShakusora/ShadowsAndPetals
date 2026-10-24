@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -31,7 +32,17 @@ public class ModItemModelProvider extends ItemModelProvider {
                 .parent(new ModelFile.UncheckedModelFile("builtin/entity"))
                 .texture("particle", modLoc("block/empty_box"))
                 .guiLight(BlockModel.GuiLight.SIDE);
+        boxDisplay(builder);
+    }
 
+    public void emptyBoxItem(Item item) {
+        var builder = withExistingParent(name(item), modLoc("block/" + name(item)))
+                .texture("particle", modLoc("block/" + name(item)))
+                .guiLight(BlockModel.GuiLight.SIDE);
+        boxDisplay(builder);
+    }
+
+    private static void boxDisplay(ItemModelBuilder builder) {
         builder.transforms()
                 .transform(ItemDisplayContext.GUI)
                     .rotation(30.0F, 225.0F, 0.0F)
