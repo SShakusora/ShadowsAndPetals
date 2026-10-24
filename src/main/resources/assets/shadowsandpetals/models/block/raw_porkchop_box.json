@@ -1,15 +1,4 @@
 {
-	"parent": "minecraft:block/block",
-	"loader": "neoforge:composite",
-	"textures": {
-		"particle": "shadowsandpetals:block/empty_box"
-	},
-	"children": {
-		"box": {
-			"parent": "shadowsandpetals:block/empty_box"
-		},
-		"contents": {
-			"parent": "shadowsandpetals:block/raw_porkchop_box_contents"
-		}
-	}
+	"parent": "shadowsandpetals:block/empty_box",
+	"render_type": "minecraft:cutout"
 }

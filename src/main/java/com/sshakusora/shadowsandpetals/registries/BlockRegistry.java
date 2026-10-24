@@ -4,7 +4,9 @@ import com.sshakusora.shadowsandpetals.block.DyedBlockList;
 import com.sshakusora.shadowsandpetals.block.WoodBlockList;
 import com.sshakusora.shadowsandpetals.block.decoration.*;
 import com.sshakusora.shadowsandpetals.compat.CompatInfo;
+import com.sshakusora.shadowsandpetals.data.DatagenItemModelRegistry;
 import com.sshakusora.shadowsandpetals.data.DatagenRecipeFactory;
+import com.sshakusora.shadowsandpetals.util.BoxContents;
 import com.sshakusora.shadowsandpetals.util.WoolUtils;
 import com.sshakusora.shadowsandpetals.worldgen.SAPTreeGrowers;
 import net.minecraft.core.Direction;
@@ -13,6 +15,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.grower.TreeGrower;
@@ -149,12 +152,12 @@ public class BlockRegistry {
                     .strength(1.0F)
                     .sound(SoundType.WOOD)
                     .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.MAIN)
-            .blockstate((provider, box) -> provider.simpleBlockWithItem(
+            .withCustomItem(block -> new BoxItem(block, new Item.Properties()))
+            .blockstate((provider, box) -> provider.simpleBlock(
                     box.get(),
                     provider.models().getExistingFile(provider.modLoc("block/raw_porkchop_box"))
             ))
+            .loot((provider, box) -> provider.addTable(box.get(), provider.createBoxTable(box.get())))
             .lang("zh_cn", "生猪排盒子")
             .register();
 
@@ -368,7 +371,13 @@ public class BlockRegistry {
                     .save(provider.output()))
             .register());
 
-    public static void init() {}
+    public static void init() {
+        DatagenItemModelRegistry.add(RAW_PORKCHOP_BOX.getId(), provider -> provider.boxItem(RAW_PORKCHOP_BOX.get().asItem()));
+        CreativeTabContentsRegistry.addStacks(CreativeTabType.MAIN, () -> BoxContents.creativeTabStacks(
+                RAW_PORKCHOP_BOX.get().asItem(),
+                BlockEntityRegistry.RAW_PORKCHOP_BOX.get()
+        ));
+    }
 
     private static DeferredBlock<RotatedPillarBlock> treeLog(String id, String compatAlias, String zhName) {
         return SAPRegistries.block(id, RotatedPillarBlock::new)

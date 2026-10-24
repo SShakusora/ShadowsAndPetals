@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.registries;
 
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.function.Supplier;
 
 public final class CreativeTabContentsRegistry {
     private static final Map<CreativeTabType, List<Supplier<? extends ItemLike>>> CONTENTS = new EnumMap<>(CreativeTabType.class);
+    private static final Map<CreativeTabType, List<Supplier<List<ItemStack>>>> STACK_CONTENTS = new EnumMap<>(CreativeTabType.class);
 
     private CreativeTabContentsRegistry() {}
 
@@ -19,10 +21,19 @@ public final class CreativeTabContentsRegistry {
         CONTENTS.computeIfAbsent(tab, ignored -> new ArrayList<>()).add(supplier);
     }
 
+    public static void addStacks(CreativeTabType tab, Supplier<List<ItemStack>> supplier) {
+        STACK_CONTENTS.computeIfAbsent(tab, ignored -> new ArrayList<>()).add(supplier);
+    }
+
     public static Consumer<CreativeModeTab.Output> generator(CreativeTabType tab) {
         return output -> {
             for (Supplier<? extends ItemLike> supplier : CONTENTS.getOrDefault(tab, List.of())) {
                 output.accept(supplier.get());
+            }
+            for (Supplier<List<ItemStack>> supplier : STACK_CONTENTS.getOrDefault(tab, List.of())) {
+                for (ItemStack stack : supplier.get()) {
+                    output.accept(stack);
+                }
             }
         };
     }

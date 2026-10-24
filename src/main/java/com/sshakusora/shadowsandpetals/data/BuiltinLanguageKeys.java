@@ -21,6 +21,11 @@ public final class BuiltinLanguageKeys {
             .en_us("Vanity")
             .zh_cn("梳妆台");
 
+    public static final DatagenLangRegistry.TranslationKey RAW_PORKCHOP_BOX_CONTENT_NAME = DatagenLangRegistry
+            .key("item.shadowsandpetals.raw_porkchop_box.content_name")
+            .en_us("%s Box")
+            .zh_cn("%s盒子");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}
