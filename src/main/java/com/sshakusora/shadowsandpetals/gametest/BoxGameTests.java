@@ -153,7 +153,7 @@ public final class BoxGameTests {
         helper.assertTrue(!BoxContents.isDoubleItem(bottomClone), "single bottom clone must not be a double item");
         assertContent(helper, "cloned bottom half", BoxContents.contentStack(bottomClone), BEEF_ID);
 
-        // 2. A merged double box clones both halves.
+        // 2. A merged double box picks the single topmost box, never the stacked item.
         InteractionResult codPlacement = mergeOntoExistingBox(helper, level, player, boxWithContent(COD_ID));
         helper.assertTrue(codPlacement.consumesAction(), "cod box merge should consume the action, got " + codPlacement);
         BlockState doubleState = level.getBlockState(absBox);
@@ -161,9 +161,9 @@ public final class BoxGameTests {
                 "expected DOUBLE before cloning, got " + doubleState.getValue(BoxBlock.TYPE));
 
         ItemStack doubleClone = cloneStack(level, absBox, player);
-        helper.assertTrue(BoxContents.isDoubleItem(doubleClone), "merged clone must be a double item");
-        assertContent(helper, "cloned bottom half of double", BoxContents.contentStack(doubleClone), BEEF_ID);
-        assertContent(helper, "cloned top half of double", BoxContents.topContentStack(doubleClone), COD_ID);
+        helper.assertTrue(!BoxContents.isDoubleItem(doubleClone), "picked clone must be a single box, not the stacked item");
+        helper.assertTrue(BoxContents.isTopItem(doubleClone), "picked clone must represent the top half");
+        assertContent(helper, "picked top half of double", BoxContents.contentStack(doubleClone), COD_ID);
 
         // 3. A single top half placed against the western face of a stone wall keeps its top flag.
         helper.destroyBlock(BOX_POS);
@@ -236,6 +236,11 @@ public final class BoxGameTests {
         double fullHeight = doubleEmpty.getCollisionShape(level, absBox).max(Direction.Axis.Y);
         helper.assertTrue(Math.abs(fullHeight - 1.0D) < 1.0E-6D,
                 "a merged empty box should be a full block tall, got " + fullHeight);
+
+        ItemStack emptyTopClone = cloneStack(level, absBox, player);
+        helper.assertTrue(!BoxContents.isDoubleItem(emptyTopClone), "picked empty clone must be a single box");
+        helper.assertTrue(BoxContents.isTopItem(emptyTopClone), "picked empty clone must represent the top half");
+        assertEmpty(helper, "picked empty top half", BoxContents.contentStack(emptyTopClone));
 
         // The full empty box round-trips through its drop.
         List<ItemStack> drops = Block.getDrops(doubleEmpty, level, absBox, doubleEmptyEntity, player, ItemStack.EMPTY);

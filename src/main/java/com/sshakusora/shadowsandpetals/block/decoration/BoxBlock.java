@@ -5,8 +5,11 @@ import com.sshakusora.shadowsandpetals.blockentity.BoxBlockEntity;
 import com.sshakusora.shadowsandpetals.util.BoxContents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -80,7 +83,8 @@ public class BoxBlock extends BaseEntityBlock {
 
     /**
      * Rebuilds the picked stack from the block entity so middle-click pick block and Jade show
-     * the stored content instead of a bare box. {@link BlockEntity#saveToItem} keeps the item
+     * the stored content instead of a bare box. A double box yields the single topmost box,
+     * never the stacked double item; {@link BlockEntity#saveToItem} keeps the half-box item
      * data identical to the loot drop path.
      */
     @Override
@@ -88,8 +92,26 @@ public class BoxBlock extends BaseEntityBlock {
         ItemStack stack = new ItemStack(asItem());
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof BoxBlockEntity boxEntity) {
+            if (state.getValue(TYPE) == SlabType.DOUBLE) {
+                return topHalfItem(boxEntity);
+            }
             boxEntity.saveToItem(stack, level.registryAccess());
         }
+        return stack;
+    }
+
+    /**
+     * Builds a single top-half box stack carrying the upper content of a double box.
+     */
+    private static ItemStack topHalfItem(BoxBlockEntity boxEntity) {
+        ItemStack stack = new ItemStack(boxEntity.getBlockState().getBlock().asItem());
+        CompoundTag tag = new CompoundTag();
+        ItemStack topContent = boxEntity.topContentStack();
+        if (!topContent.isEmpty()) {
+            tag.putString(BoxContents.CONTENT_TAG, BuiltInRegistries.ITEM.getKey(topContent.getItem()).toString());
+        }
+        tag.putBoolean(BoxContents.PRIMARY_IS_TOP_TAG, true);
+        BlockItem.setBlockEntityData(stack, boxEntity.getType(), tag);
         return stack;
     }
 
