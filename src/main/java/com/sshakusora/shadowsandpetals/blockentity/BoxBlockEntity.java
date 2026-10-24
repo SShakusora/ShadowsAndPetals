@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Stores the item represented by a box. A half box keeps its content in {@code Content}; a
  * full box additionally stores the upper half in {@code TopContent}. A missing content value
- * keeps the legacy porkchop default.
+ * means the box is empty.
  */
 public class BoxBlockEntity extends BlockEntity {
     @Nullable
@@ -103,7 +103,7 @@ public class BoxBlockEntity extends BlockEntity {
         }
         if (this.isDoubleState()) {
             tag.putString(BoxContents.TOP_CONTENT_TAG,
-                    this.topContentRaw != null ? this.topContentRaw : BoxContents.DEFAULT_CONTENT_ID);
+                    this.topContentRaw != null ? this.topContentRaw : BoxContents.EMPTY_CONTENT_ID);
         } else if (this.topContentRaw != null) {
             tag.putString(BoxContents.TOP_CONTENT_TAG, this.topContentRaw);
         }
@@ -127,9 +127,9 @@ public class BoxBlockEntity extends BlockEntity {
             hasData = true;
         }
         if (type == SlabType.DOUBLE) {
-            // Always present so a full box item stays full even with two default contents.
+            // Always present so a full box item stays full even when a half is empty.
             tag.putString(BoxContents.TOP_CONTENT_TAG,
-                    this.topContentRaw != null ? this.topContentRaw : BoxContents.DEFAULT_CONTENT_ID);
+                    this.topContentRaw != null ? this.topContentRaw : BoxContents.EMPTY_CONTENT_ID);
             hasData = true;
         } else if (type == SlabType.TOP) {
             tag.putBoolean(BoxContents.PRIMARY_IS_TOP_TAG, true);

@@ -146,22 +146,6 @@ public class BlockRegistry {
             .lang("zh_cn", "粗矾土块")
             .register();
 
-    public static final DeferredBlock<EmptyBoxBlock> EMPTY_BOX = SAPRegistries
-            .block("empty_box", EmptyBoxBlock::new)
-            .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
-                    .strength(1.0F)
-                    .sound(SoundType.WOOD)
-                    .noOcclusion())
-            .withItem()
-            .creativeTab(CreativeTabType.BOXES)
-            .blockstate((provider, box) -> provider.simpleBlock(
-                    box.get(),
-                    provider.models().getExistingFile(provider.modLoc("block/empty_box"))
-            ))
-            .lang("en_us", "Empty Box")
-            .lang("zh_cn", "空盒子")
-            .register();
-
     public static final DeferredBlock<BoxBlock> BOX = SAPRegistries
             .block("box", BoxBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
@@ -386,7 +370,6 @@ public class BlockRegistry {
 
     public static void init() {
         DatagenItemModelRegistry.add(BOX.getId(), provider -> provider.boxItem(BOX.get().asItem()));
-        DatagenItemModelRegistry.add(EMPTY_BOX.getId(), provider -> provider.emptyBoxItem(EMPTY_BOX.get().asItem()));
         CreativeTabContentsRegistry.addStacks(CreativeTabType.BOXES, () -> BoxContents.creativeTabStacks(
                 BOX.get().asItem(),
                 BlockEntityRegistry.BOX.get()

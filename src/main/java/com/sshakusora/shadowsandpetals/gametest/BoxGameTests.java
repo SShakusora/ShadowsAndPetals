@@ -185,43 +185,88 @@ public final class BoxGameTests {
     }
 
     @GameTest(template = "box_merge", timeoutTicks = 200)
-    public static void emptyBoxTabHoldsEmptyBoxFirst(GameTestHelper helper) {
+    public static void emptyBoxIsBareBoxAndMerges(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
-        Item emptyBoxItem = BlockRegistry.EMPTY_BOX.get().asItem();
-        helper.assertTrue(emptyBoxItem != Items.AIR, "empty box item should be registered");
+        Item boxItem = BlockRegistry.BOX.get().asItem();
+        ItemStack emptyBox = new ItemStack(boxItem);
+        helper.assertTrue(!BoxContents.isDoubleItem(emptyBox), "the empty box must not be a double item");
+        helper.assertTrue(BoxContents.contentStack(emptyBox).isEmpty(), "a bare box must be empty");
+        helper.assertTrue(BuiltInRegistries.ITEM.getOptional(
+                ResourceLocation.fromNamespaceAndPath("shadowsandpetals", "empty_box")).isEmpty(),
+                "the empty_box item registration should be gone");
 
+        // The bare box is the first boxes tab entry and the tab icon.
         CreativeModeTab tab = CreativeTabRegistry.BOXES.get();
         tab.buildContents(new CreativeModeTab.ItemDisplayParameters(level.enabledFeatures(), true, level.registryAccess()));
         List<ItemStack> contents = List.copyOf(tab.getDisplayItems());
         helper.assertTrue(!contents.isEmpty(), "boxes tab should not be empty");
-        helper.assertTrue(contents.get(0).is(emptyBoxItem),
-                "empty box should be the first boxes tab entry, got " + contents.get(0));
-        helper.assertTrue(tab.getIconItem().is(emptyBoxItem),
-                "boxes tab icon should be the empty box item, got " + tab.getIconItem());
+        helper.assertTrue(contents.get(0).is(boxItem), "empty box should be the first boxes tab entry, got " + contents.get(0));
+        helper.assertTrue(BoxContents.contentStack(contents.get(0)).isEmpty(), "the first tab entry should be empty");
+        helper.assertTrue(tab.getIconItem().is(boxItem), "boxes tab icon should be the box item, got " + tab.getIconItem());
         for (int i = 1; i < contents.size(); i++) {
-            ItemStack stack = contents.get(i);
-            helper.assertTrue(!stack.is(emptyBoxItem), "empty box must only appear once, found a duplicate at " + i);
-            helper.assertTrue(stack.getItem() instanceof BoxItem,
-                    "boxes tab entry " + i + " should be a content box, got " + stack);
+            helper.assertTrue(contents.get(i).getItem() instanceof BoxItem,
+                    "boxes tab entry " + i + " should be a box, got " + contents.get(i));
         }
 
-        // Placement path, half-block collision and self drop of the static empty box.
+        // Place a bare box: it is a bottom half with no content and half-block collision.
         helper.setBlock(FLOOR_POS, Blocks.STONE);
         Player player = helper.makeMockPlayer(GameType.CREATIVE);
-        InteractionResult placement = placeOnFloor(helper, level, player, new ItemStack(emptyBoxItem));
+        InteractionResult placement = placeOnFloor(helper, level, player, new ItemStack(boxItem));
         helper.assertTrue(placement.consumesAction(), "empty box placement should consume the action, got " + placement);
 
         BlockPos absBox = helper.absolutePos(BOX_POS);
-        BlockState state = level.getBlockState(absBox);
-        helper.assertTrue(state.is(BlockRegistry.EMPTY_BOX.get()), "expected empty box after placement, got " + state);
-        helper.assertTrue(state.getProperties().isEmpty(), "empty box must not have block state properties, got " + state.getProperties());
-        double collisionTop = state.getCollisionShape(level, absBox).max(Direction.Axis.Y);
-        helper.assertTrue(Math.abs(collisionTop - 0.5D) < 1.0E-6D,
-                "empty box collision should be half a block tall, got " + collisionTop);
+        BlockState bottom = level.getBlockState(absBox);
+        helper.assertTrue(bottom.is(BlockRegistry.BOX.get()), "expected box after placement, got " + bottom);
+        helper.assertTrue(bottom.getValue(BoxBlock.TYPE) == SlabType.BOTTOM,
+                "expected BOTTOM after empty box placement, got " + bottom.getValue(BoxBlock.TYPE));
+        assertEmpty(helper, "placed empty box", requireBoxEntity(helper, level, absBox).contentStack());
+        double halfHeight = bottom.getCollisionShape(level, absBox).max(Direction.Axis.Y);
+        helper.assertTrue(Math.abs(halfHeight - 0.5D) < 1.0E-6D,
+                "empty box collision should be half a block tall, got " + halfHeight);
 
-        List<ItemStack> drops = Block.getDrops(state, level, absBox, null);
-        helper.assertTrue(drops.stream().anyMatch(stack -> stack.is(emptyBoxItem)),
-                "empty box should drop itself, got " + drops);
+        // Merging an empty box onto the empty box yields a full box with two empty halves.
+        InteractionResult emptyMerge = mergeOntoExistingBox(helper, level, player, new ItemStack(boxItem));
+        helper.assertTrue(emptyMerge.consumesAction(), "empty box merge should consume the action, got " + emptyMerge);
+        BlockState doubleEmpty = level.getBlockState(absBox);
+        helper.assertTrue(doubleEmpty.getValue(BoxBlock.TYPE) == SlabType.DOUBLE,
+                "expected DOUBLE after empty merge, got " + doubleEmpty.getValue(BoxBlock.TYPE));
+        BoxBlockEntity doubleEmptyEntity = requireBoxEntity(helper, level, absBox);
+        assertEmpty(helper, "merged empty bottom half", doubleEmptyEntity.contentStack());
+        assertEmpty(helper, "merged empty top half", doubleEmptyEntity.topContentStack());
+        double fullHeight = doubleEmpty.getCollisionShape(level, absBox).max(Direction.Axis.Y);
+        helper.assertTrue(Math.abs(fullHeight - 1.0D) < 1.0E-6D,
+                "a merged empty box should be a full block tall, got " + fullHeight);
+
+        // The full empty box round-trips through its drop.
+        List<ItemStack> drops = Block.getDrops(doubleEmpty, level, absBox, doubleEmptyEntity, player, ItemStack.EMPTY);
+        helper.assertTrue(drops.size() == 1, "expected exactly one box drop, got " + drops);
+        ItemStack doubleDrop = drops.get(0);
+        helper.assertTrue(BoxContents.isDoubleItem(doubleDrop), "dropped empty full box must stay double");
+        assertEmpty(helper, "dropped empty bottom half", BoxContents.contentStack(doubleDrop));
+        assertEmpty(helper, "dropped empty top half", BoxContents.topContentStack(doubleDrop));
+
+        helper.destroyBlock(BOX_POS);
+        InteractionResult doubleRePlacement = placeOnFloor(helper, level, player, doubleDrop);
+        helper.assertTrue(doubleRePlacement.consumesAction(), "full empty box re-placement should consume the action, got " + doubleRePlacement);
+        helper.assertTrue(level.getBlockState(absBox).getValue(BoxBlock.TYPE) == SlabType.DOUBLE,
+                "re-placed full empty box should stay DOUBLE");
+
+        // An empty half merges with a filled half in both orders.
+        helper.destroyBlock(BOX_POS);
+        placeOnFloor(helper, level, player, new ItemStack(boxItem));
+        InteractionResult beefOntoEmpty = mergeOntoExistingBox(helper, level, player, boxWithContent(BEEF_ID));
+        helper.assertTrue(beefOntoEmpty.consumesAction(), "beef merge onto empty box should consume the action, got " + beefOntoEmpty);
+        BoxBlockEntity emptyThenBeef = requireBoxEntity(helper, level, absBox);
+        assertEmpty(helper, "empty bottom half after beef merge", emptyThenBeef.contentStack());
+        assertContent(helper, "beef top half after merge", emptyThenBeef.topContentStack(), BEEF_ID);
+
+        helper.destroyBlock(BOX_POS);
+        placeOnFloor(helper, level, player, boxWithContent(COD_ID));
+        InteractionResult emptyOntoBeef = mergeOntoExistingBox(helper, level, player, new ItemStack(boxItem));
+        helper.assertTrue(emptyOntoBeef.consumesAction(), "empty merge onto filled box should consume the action, got " + emptyOntoBeef);
+        BoxBlockEntity filledThenEmpty = requireBoxEntity(helper, level, absBox);
+        assertContent(helper, "cod bottom half after merge", filledThenEmpty.contentStack(), COD_ID);
+        assertEmpty(helper, "empty top half after merge", filledThenEmpty.topContentStack());
 
         helper.succeed();
     }
@@ -273,6 +318,10 @@ public final class BoxGameTests {
         helper.assertTrue(blockEntity instanceof BoxBlockEntity,
                 "expected BoxBlockEntity at " + pos + ", got " + blockEntity);
         return (BoxBlockEntity) blockEntity;
+    }
+
+    private static void assertEmpty(GameTestHelper helper, String label, ItemStack stack) {
+        helper.assertTrue(stack.isEmpty(), label + " should be empty, got " + stack);
     }
 
     private static void assertContent(GameTestHelper helper, String label, ItemStack stack, String expectedId) {

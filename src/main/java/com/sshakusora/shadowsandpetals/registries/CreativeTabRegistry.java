@@ -13,7 +13,7 @@ public class CreativeTabRegistry {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> NATURE = register(CreativeTabType.NATURE, null);
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BOXES = register(
             CreativeTabType.BOXES,
-            () -> BlockRegistry.EMPTY_BOX.get()
+            () -> BlockRegistry.BOX.get()
     );
 
     private static DeferredHolder<CreativeModeTab, CreativeModeTab> register(CreativeTabType type, @Nullable Supplier<ItemLike> icon) {

@@ -35,13 +35,6 @@ public class ModItemModelProvider extends ItemModelProvider {
         boxDisplay(builder);
     }
 
-    public void emptyBoxItem(Item item) {
-        var builder = withExistingParent(name(item), modLoc("block/" + name(item)))
-                .texture("particle", modLoc("block/" + name(item)))
-                .guiLight(BlockModel.GuiLight.SIDE);
-        boxDisplay(builder);
-    }
-
     private static void boxDisplay(ItemModelBuilder builder) {
         builder.transforms()
                 .transform(ItemDisplayContext.GUI)

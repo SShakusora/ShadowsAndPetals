@@ -31,6 +31,11 @@ public final class BuiltinLanguageKeys {
             .en_us("%s + %s Box")
             .zh_cn("%s + %s盒子");
 
+    public static final DatagenLangRegistry.TranslationKey BOX_EMPTY_NAME = DatagenLangRegistry
+            .key("item.shadowsandpetals.box.empty_name")
+            .en_us("Empty Box")
+            .zh_cn("空盒子");
+
     private BuiltinLanguageKeys() {}
 
     public static void bootstrap() {}

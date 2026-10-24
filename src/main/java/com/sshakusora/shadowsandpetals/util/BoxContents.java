@@ -30,7 +30,8 @@ public final class BoxContents {
     public static final String CONTENT_TAG = "Content";
     public static final String TOP_CONTENT_TAG = "TopContent";
     public static final String PRIMARY_IS_TOP_TAG = "PrimaryIsTop";
-    public static final String DEFAULT_CONTENT_ID = "minecraft:porkchop";
+    /** Marker written for an empty top half so a double box round-trips as double. */
+    public static final String EMPTY_CONTENT_ID = "minecraft:air";
 
     public static final TagKey<Item> RAW_FISH = commonTag("foods/raw_fish");
     public static final TagKey<Item> RAW_MEAT = commonTag("foods/raw_meat");
@@ -57,26 +58,23 @@ public final class BoxContents {
     }
 
     /**
-     * Resolves the content held by a box stack. A stack without stored data keeps the legacy
-     * raw porkchop behaviour, while an unreadable or missing item resolves to an empty stack.
+     * Resolves the content held by a box stack. A stack without stored data is an empty box;
+     * an unreadable or missing item also resolves to an empty stack.
      */
     public static ItemStack contentStack(ItemStack boxStack) {
-        String rawContent = contentId(boxStack);
-        return rawContent == null ? defaultContent() : resolveContent(rawContent);
+        return resolveContent(contentId(boxStack));
     }
 
     /**
-     * Resolves the upper content of a double box stack. Missing or default data yields the
-     * legacy porkchop default, matching {@link #contentStack(ItemStack)}.
+     * Resolves the upper content of a double box stack. Missing data means that half is empty.
      */
     public static ItemStack topContentStack(ItemStack boxStack) {
-        String rawContent = topContentId(boxStack);
-        return rawContent == null ? defaultContent() : resolveContent(rawContent);
+        return resolveContent(topContentId(boxStack));
     }
 
     /**
      * A box stack with a stored top content represents a full (double) box. The top value is
-     * always written for double boxes so the item round-trips even when both halves are default.
+     * always written for double boxes so the item round-trips even when a half is empty.
      */
     public static boolean isDoubleItem(ItemStack boxStack) {
         return topContentId(boxStack) != null;
@@ -116,12 +114,12 @@ public final class BoxContents {
     }
 
     /**
-     * Resolves a stored content id. A {@code null} value means no stored data (porkchop);
-     * malformed or missing items resolve to an empty stack so rendering can safely skip them.
+     * Resolves a stored content id. A {@code null} value means the box is empty; malformed or
+     * missing items also resolve to an empty stack so rendering can safely skip them.
      */
     public static ItemStack resolveContent(@Nullable String rawContent) {
         if (rawContent == null) {
-            return defaultContent();
+            return ItemStack.EMPTY;
         }
 
         ResourceLocation contentId = ResourceLocation.tryParse(rawContent);
@@ -133,12 +131,9 @@ public final class BoxContents {
         return item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
     }
 
-    public static ItemStack defaultContent() {
-        return new ItemStack(Items.PORKCHOP);
-    }
-
     /**
-     * Builds the creative-tab variants for every unique item in the five content tags.
+     * Builds the creative-tab entries: the bare (empty) box first, then one box per unique item
+     * in the five content tags.
      */
     public static List<ItemStack> creativeTabStacks(Item boxItem, BlockEntityType<?> boxType) {
         if (boxItem == Items.AIR) {
@@ -163,20 +158,20 @@ public final class BoxContents {
             }
         }
 
-        List<ItemStack> stacks = new ArrayList<>(sortedItems.size());
+        List<ItemStack> stacks = new ArrayList<>(sortedItems.size() + 1);
+        // The bare box is the empty box; keep it first in the tab.
+        stacks.add(new ItemStack(boxItem));
         for (Map.Entry<ResourceLocation, Item> entry : sortedItems.entrySet()) {
-            stacks.add(createBoxStack(boxItem, entry.getValue(), entry.getKey(), boxType));
+            stacks.add(createBoxStack(boxItem, entry.getKey(), boxType));
         }
         return stacks;
     }
 
-    private static ItemStack createBoxStack(Item boxItem, Item content, ResourceLocation contentId, BlockEntityType<?> boxType) {
+    private static ItemStack createBoxStack(Item boxItem, ResourceLocation contentId, BlockEntityType<?> boxType) {
         ItemStack stack = new ItemStack(boxItem);
-        if (content != Items.PORKCHOP) {
-            CompoundTag tag = new CompoundTag();
-            tag.putString(CONTENT_TAG, contentId.toString());
-            BlockItem.setBlockEntityData(stack, boxType, tag);
-        }
+        CompoundTag tag = new CompoundTag();
+        tag.putString(CONTENT_TAG, contentId.toString());
+        BlockItem.setBlockEntityData(stack, boxType, tag);
         return stack;
     }
 

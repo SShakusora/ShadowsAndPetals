@@ -17,21 +17,20 @@ public class BoxItem extends BlockItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        if (BoxContents.isDoubleItem(stack)) {
-            ItemStack bottom = BoxContents.contentStack(stack);
-            ItemStack top = BoxContents.topContentStack(stack);
-            if (!bottom.isEmpty() && !top.isEmpty()) {
-                return Component.translatable(
-                        BuiltinLanguageKeys.BOX_DOUBLE_NAME.key(),
-                        bottom.getHoverName(),
-                        top.getHoverName()
-                );
-            }
+        ItemStack bottom = BoxContents.contentStack(stack);
+        ItemStack top = BoxContents.isDoubleItem(stack) ? BoxContents.topContentStack(stack) : ItemStack.EMPTY;
+
+        if (!bottom.isEmpty() && !top.isEmpty()) {
+            return Component.translatable(
+                    BuiltinLanguageKeys.BOX_DOUBLE_NAME.key(),
+                    bottom.getHoverName(),
+                    top.getHoverName()
+            );
         }
 
-        ItemStack content = BoxContents.contentStack(stack);
+        ItemStack content = bottom.isEmpty() ? top : bottom;
         if (content.isEmpty()) {
-            return super.getName(stack);
+            return Component.translatable(BuiltinLanguageKeys.BOX_EMPTY_NAME.key());
         }
 
         return Component.translatable(
