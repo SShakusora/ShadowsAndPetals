@@ -44,7 +44,15 @@ public class BoxBlock extends BaseEntityBlock {
 
     private static final VoxelShape BOTTOM_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
     private static final VoxelShape TOP_SHAPE = Block.box(0.0D, 8.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-    private static final VoxelShape DOUBLE_SHAPE = Shapes.block();
+    // A solid collision shape makes vanilla sample inner faces from the neighboring block.
+    private static final VoxelShape DOUBLE_SHAPE = Shapes.or(
+            Block.box(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D),
+            Block.box(0.0D, 8.0D, 0.0D, 16.0D, 9.0D, 16.0D),
+            Block.box(0.0D, 1.0D, 0.0D, 1.0D, 16.0D, 16.0D),
+            Block.box(15.0D, 1.0D, 0.0D, 16.0D, 16.0D, 16.0D),
+            Block.box(1.0D, 1.0D, 0.0D, 15.0D, 16.0D, 1.0D),
+            Block.box(1.0D, 1.0D, 15.0D, 15.0D, 16.0D, 16.0D)
+    );
 
     public BoxBlock(BlockBehaviour.Properties properties) {
         super(properties);
