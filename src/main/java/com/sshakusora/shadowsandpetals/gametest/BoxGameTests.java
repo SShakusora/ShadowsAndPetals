@@ -162,7 +162,9 @@ public final class BoxGameTests {
 
         ItemStack doubleClone = cloneStack(level, absBox, player);
         helper.assertTrue(!BoxContents.isDoubleItem(doubleClone), "picked clone must be a single box, not the stacked item");
-        helper.assertTrue(BoxContents.isTopItem(doubleClone), "picked clone must represent the top half");
+        helper.assertTrue(!BoxContents.isTopItem(doubleClone), "picked clone must be a regular box, not the upper model");
+        helper.assertTrue(ItemStack.isSameItemSameComponents(doubleClone, boxWithContent(COD_ID)),
+                "picked clone must stack with a regular " + COD_ID + " box");
         assertContent(helper, "picked top half of double", BoxContents.contentStack(doubleClone), COD_ID);
 
         // 3. A single top half placed against the western face of a stone wall keeps its top flag.
@@ -239,7 +241,9 @@ public final class BoxGameTests {
 
         ItemStack emptyTopClone = cloneStack(level, absBox, player);
         helper.assertTrue(!BoxContents.isDoubleItem(emptyTopClone), "picked empty clone must be a single box");
-        helper.assertTrue(BoxContents.isTopItem(emptyTopClone), "picked empty clone must represent the top half");
+        helper.assertTrue(!BoxContents.isTopItem(emptyTopClone), "picked empty clone must be a regular box");
+        helper.assertTrue(ItemStack.isSameItemSameComponents(emptyTopClone, new ItemStack(boxItem)),
+                "picked empty clone must stack with a regular empty box");
         assertEmpty(helper, "picked empty top half", BoxContents.contentStack(emptyTopClone));
 
         // The full empty box round-trips through its drop.
