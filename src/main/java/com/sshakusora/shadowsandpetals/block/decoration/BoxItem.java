@@ -5,7 +5,6 @@ import com.sshakusora.shadowsandpetals.util.BoxContents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 
 /**
@@ -18,13 +17,25 @@ public class BoxItem extends BlockItem {
 
     @Override
     public Component getName(ItemStack stack) {
+        if (BoxContents.isDoubleItem(stack)) {
+            ItemStack bottom = BoxContents.contentStack(stack);
+            ItemStack top = BoxContents.topContentStack(stack);
+            if (!bottom.isEmpty() && !top.isEmpty()) {
+                return Component.translatable(
+                        BuiltinLanguageKeys.BOX_DOUBLE_NAME.key(),
+                        bottom.getHoverName(),
+                        top.getHoverName()
+                );
+            }
+        }
+
         ItemStack content = BoxContents.contentStack(stack);
-        if (content.isEmpty() || content.is(Items.PORKCHOP)) {
+        if (content.isEmpty()) {
             return super.getName(stack);
         }
 
         return Component.translatable(
-                BuiltinLanguageKeys.RAW_PORKCHOP_BOX_CONTENT_NAME.key(),
+                BuiltinLanguageKeys.BOX_CONTENT_NAME.key(),
                 content.getHoverName()
         );
     }

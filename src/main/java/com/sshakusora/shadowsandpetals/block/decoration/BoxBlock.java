@@ -2,31 +2,49 @@ package com.sshakusora.shadowsandpetals.block.decoration;
 
 import com.mojang.serialization.MapCodec;
 import com.sshakusora.shadowsandpetals.blockentity.BoxBlockEntity;
+import com.sshakusora.shadowsandpetals.util.BoxContents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A half-block-tall open box that stores its content in a block entity.
+ * A half-block-tall open box that stores its content in a block entity. Two boxes can be
+ * stacked into a full block, keeping one content stack per vertical half.
  */
 public class BoxBlock extends BaseEntityBlock {
     public static final MapCodec<BoxBlock> CODEC = simpleCodec(BoxBlock::new);
+    public static final EnumProperty<SlabType> TYPE = BlockStateProperties.SLAB_TYPE;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-    private static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
+    private static final VoxelShape BOTTOM_SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 8.0D, 16.0D);
+    private static final VoxelShape TOP_SHAPE = Block.box(0.0D, 8.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    private static final VoxelShape DOUBLE_SHAPE = Shapes.block();
 
     public BoxBlock(BlockBehaviour.Properties properties) {
         super(properties);
+        registerDefaultState(defaultBlockState()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(TYPE, SlabType.BOTTOM));
     }
 
     @Override
@@ -41,18 +59,88 @@ public class BoxBlock extends BaseEntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return shapeFor(state.getValue(TYPE));
     }
 
     @Override
     public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return shapeFor(state.getValue(TYPE));
+    }
+
+    private static VoxelShape shapeFor(SlabType type) {
+        return switch (type) {
+            case DOUBLE -> DOUBLE_SHAPE;
+            case TOP -> TOP_SHAPE;
+            default -> BOTTOM_SHAPE;
+        };
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BoxBlockEntity(pos, state);
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockState currentState = context.getLevel().getBlockState(context.getClickedPos());
+        boolean doubleItem = BoxContents.isDoubleItem(context.getItemInHand());
+        if (currentState.is(this)) {
+            if (doubleItem || currentState.getValue(TYPE) == SlabType.DOUBLE) {
+                return null;
+            }
+
+            return currentState.setValue(TYPE, SlabType.DOUBLE);
+        }
+
+        BlockState state = defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection().getOpposite());
+        if (doubleItem) {
+            return state.setValue(TYPE, SlabType.DOUBLE);
+        }
+
+        Direction face = context.getClickedFace();
+        boolean top = face == Direction.DOWN
+                || (face != Direction.UP && context.getClickLocation().y - context.getClickedPos().getY() > 0.5D);
+        return state.setValue(TYPE, top ? SlabType.TOP : SlabType.BOTTOM);
+    }
+
+    @Override
+    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+        if (!context.getItemInHand().is(asItem()) || BoxContents.isDoubleItem(context.getItemInHand())) {
+            return false;
+        }
+
+        SlabType type = state.getValue(TYPE);
+        if (type == SlabType.DOUBLE) {
+            return false;
+        }
+
+        if (!context.replacingClickedOnBlock()) {
+            return true;
+        }
+
+        boolean upper = context.getClickLocation().y - context.getClickedPos().getY() > 0.5D;
+        Direction face = context.getClickedFace();
+        return type == SlabType.BOTTOM
+                ? face == Direction.UP || upper && face.getAxis().isHorizontal()
+                : face == Direction.DOWN || !upper && face.getAxis().isHorizontal();
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING, TYPE);
+    }
+
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
     }
 
     @Override

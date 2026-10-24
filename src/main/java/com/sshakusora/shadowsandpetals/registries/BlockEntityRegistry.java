@@ -6,10 +6,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class BlockEntityRegistry {
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BoxBlockEntity>> RAW_PORKCHOP_BOX = SAPRegistries
-            .<BoxBlockEntity>blockEntity("raw_porkchop_box")
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BoxBlockEntity>> BOX = SAPRegistries
+            .<BoxBlockEntity>blockEntity("box")
             .factory(BoxBlockEntity::new)
-            .validBlocks(BlockRegistry.RAW_PORKCHOP_BOX)
+            .validBlocks(BlockRegistry.BOX)
             .register();
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<VanityBlockEntity>> VANITY = SAPRegistries

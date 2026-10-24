@@ -24,7 +24,7 @@ public class ModEntityRenderers {
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntityRegistry.RAW_PORKCHOP_BOX.get(), BoxBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(BlockEntityRegistry.BOX.get(), BoxBlockEntityRenderer::new);
     }
 
     @SubscribeEvent
@@ -40,7 +40,7 @@ public class ModEntityRenderers {
                 }
                 return renderer;
             }
-        }, BlockRegistry.RAW_PORKCHOP_BOX.get().asItem());
+        }, BlockRegistry.BOX.get().asItem());
     }
 
     @SubscribeEvent

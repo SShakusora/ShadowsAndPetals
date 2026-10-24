@@ -20,11 +20,11 @@
               "source": "block_entity"
             }
           ],
-          "name": "shadowsandpetals:raw_porkchop_box"
+          "name": "shadowsandpetals:box"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "shadowsandpetals:blocks/raw_porkchop_box"
+  "random_sequence": "shadowsandpetals:blocks/box"
 }

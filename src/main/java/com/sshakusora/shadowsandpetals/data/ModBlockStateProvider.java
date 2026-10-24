@@ -1,6 +1,7 @@
 package com.sshakusora.shadowsandpetals.data;
 
 
+import com.sshakusora.shadowsandpetals.block.decoration.BoxBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.IngotPileBlock;
 import com.sshakusora.shadowsandpetals.block.decoration.VanityBlock;
 import net.minecraft.core.Direction;
@@ -71,6 +72,30 @@ public class ModBlockStateProvider extends BlockStateProvider {
         var model = models().cross(name(block), texture).renderType("cutout");
         simpleBlock(block, model);
         simpleBlockItem(block, model);
+    }
+
+    public void boxBlock(BoxBlock block) {
+        var bottomModel = models().getExistingFile(modLoc("block/box"));
+        var topModel = models().getExistingFile(modLoc("block/box_top"));
+        var doubleModel = models().getExistingFile(modLoc("block/box_double"));
+
+        getVariantBuilder(block).forAllStates(state -> {
+            var model = switch (state.getValue(BoxBlock.TYPE)) {
+                case DOUBLE -> doubleModel;
+                case TOP -> topModel;
+                default -> bottomModel;
+            };
+            int rotationY = switch (state.getValue(BoxBlock.FACING)) {
+                case EAST -> 90;
+                case SOUTH -> 180;
+                case WEST -> 270;
+                default -> 0;
+            };
+            return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationY(rotationY)
+                    .build();
+        });
     }
 
     public void ingotPileBlock(IngotPileBlock block) {

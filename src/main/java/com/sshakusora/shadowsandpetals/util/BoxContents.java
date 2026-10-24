@@ -26,6 +26,9 @@ import java.util.TreeMap;
  */
 public final class BoxContents {
     public static final String CONTENT_TAG = "Content";
+    public static final String TOP_CONTENT_TAG = "TopContent";
+    public static final String PRIMARY_IS_TOP_TAG = "PrimaryIsTop";
+    public static final String DEFAULT_CONTENT_ID = "minecraft:porkchop";
 
     public static final TagKey<Item> RAW_FISH = commonTag("foods/raw_fish");
     public static final TagKey<Item> RAW_MEAT = commonTag("foods/raw_meat");
@@ -42,17 +45,58 @@ public final class BoxContents {
      * raw porkchop behaviour, while an unreadable or missing item resolves to an empty stack.
      */
     public static ItemStack contentStack(ItemStack boxStack) {
+        String rawContent = contentId(boxStack);
+        return rawContent == null ? defaultContent() : resolveContent(rawContent);
+    }
+
+    /**
+     * Resolves the upper content of a double box stack. Missing or default data yields the
+     * legacy porkchop default, matching {@link #contentStack(ItemStack)}.
+     */
+    public static ItemStack topContentStack(ItemStack boxStack) {
+        String rawContent = topContentId(boxStack);
+        return rawContent == null ? defaultContent() : resolveContent(rawContent);
+    }
+
+    /**
+     * A box stack with a stored top content represents a full (double) box. The top value is
+     * always written for double boxes so the item round-trips even when both halves are default.
+     */
+    public static boolean isDoubleItem(ItemStack boxStack) {
+        return topContentId(boxStack) != null;
+    }
+
+    /**
+     * A single box stack that was picked up from a top half keeps that half's placement for
+     * rendering and later merge routing.
+     */
+    public static boolean isTopItem(ItemStack boxStack) {
+        CompoundTag tag = blockEntityTag(boxStack);
+        return tag != null
+                && !tag.contains(TOP_CONTENT_TAG, Tag.TAG_STRING)
+                && tag.getBoolean(PRIMARY_IS_TOP_TAG);
+    }
+
+    @Nullable
+    public static String contentId(ItemStack boxStack) {
+        CompoundTag tag = blockEntityTag(boxStack);
+        return tag != null && tag.contains(CONTENT_TAG, Tag.TAG_STRING)
+                ? tag.getString(CONTENT_TAG)
+                : null;
+    }
+
+    @Nullable
+    public static String topContentId(ItemStack boxStack) {
+        CompoundTag tag = blockEntityTag(boxStack);
+        return tag != null && tag.contains(TOP_CONTENT_TAG, Tag.TAG_STRING)
+                ? tag.getString(TOP_CONTENT_TAG)
+                : null;
+    }
+
+    @Nullable
+    private static CompoundTag blockEntityTag(ItemStack boxStack) {
         CustomData data = boxStack.get(DataComponents.BLOCK_ENTITY_DATA);
-        if (data == null) {
-            return defaultContent();
-        }
-
-        CompoundTag tag = data.copyTag();
-        if (!tag.contains(CONTENT_TAG, Tag.TAG_STRING)) {
-            return defaultContent();
-        }
-
-        return resolveContent(tag.getString(CONTENT_TAG));
+        return data == null ? null : data.copyTag();
     }
 
     /**

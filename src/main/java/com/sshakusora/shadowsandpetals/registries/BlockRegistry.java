@@ -146,19 +146,16 @@ public class BlockRegistry {
             .lang("zh_cn", "粗矾土块")
             .register();
 
-    public static final DeferredBlock<BoxBlock> RAW_PORKCHOP_BOX = SAPRegistries
-            .block("raw_porkchop_box", BoxBlock::new)
+    public static final DeferredBlock<BoxBlock> BOX = SAPRegistries
+            .block("box", BoxBlock::new)
             .properties(properties -> BlockBehaviour.Properties.ofFullCopy(Blocks.OAK_PLANKS)
                     .strength(1.0F)
                     .sound(SoundType.WOOD)
                     .noOcclusion())
             .withCustomItem(block -> new BoxItem(block, new Item.Properties()))
-            .blockstate((provider, box) -> provider.simpleBlock(
-                    box.get(),
-                    provider.models().getExistingFile(provider.modLoc("block/raw_porkchop_box"))
-            ))
+            .blockstate((provider, box) -> provider.boxBlock(box.get()))
             .loot((provider, box) -> provider.addTable(box.get(), provider.createBoxTable(box.get())))
-            .lang("zh_cn", "生猪排盒子")
+            .lang("zh_cn", "盒子")
             .register();
 
     public static final DeferredBlock<Block> ALUMINUM_BLOCK = SAPRegistries
@@ -372,10 +369,10 @@ public class BlockRegistry {
             .register());
 
     public static void init() {
-        DatagenItemModelRegistry.add(RAW_PORKCHOP_BOX.getId(), provider -> provider.boxItem(RAW_PORKCHOP_BOX.get().asItem()));
+        DatagenItemModelRegistry.add(BOX.getId(), provider -> provider.boxItem(BOX.get().asItem()));
         CreativeTabContentsRegistry.addStacks(CreativeTabType.MAIN, () -> BoxContents.creativeTabStacks(
-                RAW_PORKCHOP_BOX.get().asItem(),
-                BlockEntityRegistry.RAW_PORKCHOP_BOX.get()
+                BOX.get().asItem(),
+                BlockEntityRegistry.BOX.get()
         ));
     }
 

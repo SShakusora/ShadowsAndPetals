@@ -21,10 +21,15 @@ public final class BuiltinLanguageKeys {
             .en_us("Vanity")
             .zh_cn("梳妆台");
 
-    public static final DatagenLangRegistry.TranslationKey RAW_PORKCHOP_BOX_CONTENT_NAME = DatagenLangRegistry
-            .key("item.shadowsandpetals.raw_porkchop_box.content_name")
+    public static final DatagenLangRegistry.TranslationKey BOX_CONTENT_NAME = DatagenLangRegistry
+            .key("item.shadowsandpetals.box.content_name")
             .en_us("%s Box")
             .zh_cn("%s盒子");
+
+    public static final DatagenLangRegistry.TranslationKey BOX_DOUBLE_NAME = DatagenLangRegistry
+            .key("item.shadowsandpetals.box.double_name")
+            .en_us("%s + %s Box")
+            .zh_cn("%s + %s盒子");
 
     private BuiltinLanguageKeys() {}
 

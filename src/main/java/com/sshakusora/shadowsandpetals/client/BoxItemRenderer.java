@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 /**
  * Renders inventory, held, and dropped boxes with the shell plus their stored content.
@@ -26,7 +27,28 @@ public class BoxItemRenderer extends BlockEntityWithoutLevelRenderer {
             int packedLight,
             int packedOverlay
     ) {
-        BoxContentRenderer.renderShell(poseStack, buffer, packedLight, packedOverlay);
-        BoxContentRenderer.renderContents(BoxContents.contentStack(stack), poseStack, buffer, packedLight, packedOverlay);
+        if (BoxContents.isDoubleItem(stack)) {
+            BoxContentRenderer.renderShell(poseStack, buffer, packedLight, packedOverlay, SlabType.DOUBLE);
+            BoxContentRenderer.renderContents(BoxContents.contentStack(stack), poseStack, buffer, packedLight, packedOverlay);
+            BoxContentRenderer.renderContents(BoxContents.topContentStack(stack), poseStack, buffer, packedLight, packedOverlay, 0.5F);
+            return;
+        }
+
+        boolean top = BoxContents.isTopItem(stack);
+        BoxContentRenderer.renderShell(
+                poseStack,
+                buffer,
+                packedLight,
+                packedOverlay,
+                top ? SlabType.TOP : SlabType.BOTTOM
+        );
+        BoxContentRenderer.renderContents(
+                BoxContents.contentStack(stack),
+                poseStack,
+                buffer,
+                packedLight,
+                packedOverlay,
+                top ? 0.5F : 0.0F
+        );
     }
 }

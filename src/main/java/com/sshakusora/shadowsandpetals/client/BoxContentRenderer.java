@@ -2,6 +2,7 @@ package com.sshakusora.shadowsandpetals.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import com.sshakusora.shadowsandpetals.block.decoration.BoxBlock;
 import com.sshakusora.shadowsandpetals.registries.BlockRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -11,6 +12,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 /**
@@ -36,7 +38,18 @@ public final class BoxContentRenderer {
     private BoxContentRenderer() {}
 
     public static void renderShell(PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        BlockState state = BlockRegistry.RAW_PORKCHOP_BOX.get().defaultBlockState();
+        renderShell(poseStack, buffer, packedLight, packedOverlay, SlabType.BOTTOM);
+    }
+
+    public static void renderShell(
+            PoseStack poseStack,
+            MultiBufferSource buffer,
+            int packedLight,
+            int packedOverlay,
+            SlabType type
+    ) {
+        BlockState state = BlockRegistry.BOX.get().defaultBlockState()
+                .setValue(BoxBlock.TYPE, type);
         Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
                 state,
                 poseStack,
@@ -49,6 +62,17 @@ public final class BoxContentRenderer {
     }
 
     public static void renderContents(ItemStack content, PoseStack poseStack, MultiBufferSource buffer, int packedLight, int packedOverlay) {
+        renderContents(content, poseStack, buffer, packedLight, packedOverlay, 0.0F);
+    }
+
+    public static void renderContents(
+            ItemStack content,
+            PoseStack poseStack,
+            MultiBufferSource buffer,
+            int packedLight,
+            int packedOverlay,
+            float yOffset
+    ) {
         if (content.isEmpty()) {
             return;
         }
@@ -64,7 +88,7 @@ public final class BoxContentRenderer {
             float[] translation = LAYER_TRANSLATIONS[i];
 
             poseStack.pushPose();
-            poseStack.translate(0.5D + translation[0], 0.5D + translation[1], 0.5D + translation[2]);
+            poseStack.translate(0.5D + translation[0], 0.5D + yOffset + translation[1], 0.5D + translation[2]);
             poseStack.mulPose(Axis.YP.rotationDegrees(LAYER_ROTATIONS[i]));
             poseStack.translate(0.025D, -0.475D, 0.025D);
             poseStack.mulPose(Axis.XN.rotationDegrees(90.0F));
