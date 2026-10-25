@@ -31,7 +31,7 @@ public class ModEntityRenderers {
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(EntityRegistry.SEAT.get(), NoopRenderer::new);
         event.registerBlockEntityRenderer(BlockEntityRegistry.VANITY.get(), VanityBlockEntityRenderer::new);
-        event.registerBlockEntityRenderer(BlockEntityRegistry.BOX.get(), BoxBlockEntityRenderer::new);
+        // The box content is baked into the chunk mesh by BoxBakedModel; no BER is registered.
     }
 
     @SubscribeEvent

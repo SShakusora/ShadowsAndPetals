@@ -34,21 +34,13 @@ public class BoxItemRenderer extends BlockEntityWithoutLevelRenderer {
             return;
         }
 
-        boolean top = BoxContents.isTopItem(stack);
-        BoxContentRenderer.renderShell(
-                poseStack,
-                buffer,
-                packedLight,
-                packedOverlay,
-                top ? SlabType.TOP : SlabType.BOTTOM
-        );
+        BoxContentRenderer.renderShell(poseStack, buffer, packedLight, packedOverlay, SlabType.BOTTOM);
         BoxContentRenderer.renderContents(
                 BoxContents.contentStack(stack),
                 poseStack,
                 buffer,
                 packedLight,
-                packedOverlay,
-                top ? 0.5F : 0.0F
+                packedOverlay
         );
     }
 }

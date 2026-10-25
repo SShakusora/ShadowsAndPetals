@@ -7,16 +7,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.SlabType;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -25,11 +32,28 @@ import org.jetbrains.annotations.Nullable;
  * means the box is empty.
  */
 public class BoxBlockEntity extends BlockEntity {
+    /**
+     * Client model data key. The value is an immutable snapshot of the resolved content ids,
+     * which keeps the chunk compiler off the live block entity state.
+     */
+    public static final ModelProperty<RenderData> RENDER_DATA = new ModelProperty<>();
+
+    /**
+     * Resolved content snapshot consumed by the baked block model. Both ids are already
+     * validated against the item registry and never point at air; {@code null} means that
+     * half of the box is empty. {@code content} is the lower half (or the only half of a
+     * single box), {@code topContent} is only present on a full box's upper half.
+     */
+    public record RenderData(@Nullable ResourceLocation content, @Nullable ResourceLocation topContent) {}
+
+    private static final RenderData EMPTY_RENDER_DATA = new RenderData(null, null);
+
     @Nullable
     private String contentRaw;
     @Nullable
     private String topContentRaw;
     private boolean primaryIsTop;
+    private RenderData renderData = EMPTY_RENDER_DATA;
 
     /**
      * Set while an existing half is being turned into a full box. During that window the
@@ -63,6 +87,9 @@ public class BoxBlockEntity extends BlockEntity {
         }
 
         super.setBlockState(state);
+        // The slab type decides which half the stored contents belong to, so the snapshot may
+        // need to be re-published even though the raw ids themselves did not change.
+        this.refreshRenderData();
     }
 
     @Override
@@ -82,6 +109,7 @@ public class BoxBlockEntity extends BlockEntity {
                 ? tag.getString(BoxContents.TOP_CONTENT_TAG)
                 : null;
         this.primaryIsTop = tag.getBoolean(BoxContents.PRIMARY_IS_TOP_TAG);
+        this.refreshRenderData();
     }
 
     @Override
@@ -131,9 +159,6 @@ public class BoxBlockEntity extends BlockEntity {
             tag.putString(BoxContents.TOP_CONTENT_TAG,
                     this.topContentRaw != null ? this.topContentRaw : BoxContents.EMPTY_CONTENT_ID);
             hasData = true;
-        } else if (type == SlabType.TOP) {
-            tag.putBoolean(BoxContents.PRIMARY_IS_TOP_TAG, true);
-            hasData = true;
         }
 
         if (!hasData) {
@@ -162,6 +187,7 @@ public class BoxBlockEntity extends BlockEntity {
             }
             this.primaryIsTop = false;
             this.mergePending = false;
+            this.refreshRenderData();
             this.setChanged();
             return;
         }
@@ -179,6 +205,7 @@ public class BoxBlockEntity extends BlockEntity {
         }
 
         this.mergePending = false;
+        this.refreshRenderData();
         this.setChanged();
     }
 
@@ -191,6 +218,62 @@ public class BoxBlockEntity extends BlockEntity {
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public ModelData getModelData() {
+        return ModelData.of(RENDER_DATA, this.renderData);
+    }
+
+    /**
+     * Re-resolves the stored raw ids into an immutable snapshot and publishes it. The raw
+     * strings are the source of truth, so the snapshot always contains only registered,
+     * non-air item ids; unknown or malformed values become {@code null}. The model data cache
+     * is refreshed unconditionally so even an empty box exposes a (null, null) snapshot, while
+     * the chunk section is only re-meshed when the snapshot actually changed.
+     */
+    private void refreshRenderData() {
+        RenderData next = new RenderData(
+                resolveContentId(this.contentRaw),
+                resolveContentId(this.topContentRaw));
+        boolean changed = !next.equals(this.renderData);
+        this.renderData = next;
+
+        // Refreshes the per-section ModelData cache on the client; a no-op on a server level.
+        this.requestModelDataUpdate();
+        if (changed) {
+            this.markClientSectionDirty();
+        }
+    }
+
+    /**
+     * Schedules a chunk section rebuild on the client. {@code requestModelDataUpdate} only
+     * invalidates the ModelData cache, and {@code ClientLevel.sendBlockUpdated} merely dirties
+     * the renderer without emitting a packet, so this is the client-side path that makes the
+     * new quads appear. Both no-op when this entity is not attached to a client level.
+     */
+    private void markClientSectionDirty() {
+        if (this.level == null || !this.level.isClientSide) {
+            return;
+        }
+
+        BlockState state = this.getBlockState();
+        this.level.sendBlockUpdated(this.worldPosition, state, state, Block.UPDATE_CLIENTS);
+    }
+
+    @Nullable
+    private static ResourceLocation resolveContentId(@Nullable String rawContent) {
+        if (rawContent == null) {
+            return null;
+        }
+
+        ResourceLocation contentId = ResourceLocation.tryParse(rawContent);
+        if (contentId == null) {
+            return null;
+        }
+
+        Item item = BuiltInRegistries.ITEM.getOptional(contentId).orElse(Items.AIR);
+        return item == Items.AIR ? null : BuiltInRegistries.ITEM.getKey(item);
     }
 
     @Nullable

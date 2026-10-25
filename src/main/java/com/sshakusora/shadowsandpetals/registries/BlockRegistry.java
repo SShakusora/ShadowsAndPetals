@@ -155,6 +155,7 @@ public class BlockRegistry {
             .withCustomItem(block -> new BoxItem(block, new Item.Properties()))
             .blockstate((provider, box) -> provider.boxBlock(box.get()))
             .loot((provider, box) -> provider.addTable(box.get(), provider.createBoxTable(box.get())))
+            .recipe((provider, box) -> DatagenRecipeFactory.boxes(provider, box.get(), BlockEntityRegistry.BOX.get()))
             .lang("zh_cn", "盒子")
             .register();
 

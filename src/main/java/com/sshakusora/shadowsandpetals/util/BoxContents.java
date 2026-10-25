@@ -7,7 +7,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.TagKey;
+import net.minecraft.tags.TagLoader;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,9 +19,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
@@ -36,10 +41,11 @@ public final class BoxContents {
     public static final TagKey<Item> RAW_FISH = commonTag("foods/raw_fish");
     public static final TagKey<Item> RAW_MEAT = commonTag("foods/raw_meat");
     public static final TagKey<Item> VEGETABLE = commonTag("foods/vegetable");
+    public static final TagKey<Item> FRUIT = commonTag("foods/fruit");
     public static final TagKey<Item> BERRY = commonTag("foods/berry");
     public static final TagKey<Item> CROPS = commonTag("crops");
 
-    private static final List<TagKey<Item>> CONTENT_TAGS = List.of(RAW_FISH, RAW_MEAT, VEGETABLE, BERRY, CROPS);
+    private static final List<TagKey<Item>> CONTENT_TAGS = List.of(RAW_FISH, RAW_MEAT, VEGETABLE, FRUIT, BERRY, CROPS);
 
     /**
      * Optional filter applied to tag candidates before they become creative box stacks. It stays
@@ -78,17 +84,6 @@ public final class BoxContents {
      */
     public static boolean isDoubleItem(ItemStack boxStack) {
         return topContentId(boxStack) != null;
-    }
-
-    /**
-     * A single box stack that was picked up from a top half keeps that half's placement for
-     * rendering and later merge routing.
-     */
-    public static boolean isTopItem(ItemStack boxStack) {
-        CompoundTag tag = blockEntityTag(boxStack);
-        return tag != null
-                && !tag.contains(TOP_CONTENT_TAG, Tag.TAG_STRING)
-                && tag.getBoolean(PRIMARY_IS_TOP_TAG);
     }
 
     @Nullable
@@ -133,7 +128,7 @@ public final class BoxContents {
 
     /**
      * Builds the creative-tab entries: the bare (empty) box first, then one box per unique item
-     * in the five content tags.
+     * in the content tags.
      */
     public static List<ItemStack> creativeTabStacks(Item boxItem, BlockEntityType<?> boxType) {
         if (boxItem == Items.AIR) {
@@ -165,6 +160,41 @@ public final class BoxContents {
             stacks.add(createBoxStack(boxItem, entry.getKey(), boxType));
         }
         return stacks;
+    }
+
+    /**
+     * Collects the unique items reachable from the content tags by reading real tag files
+     * from the datagen resource manager. The registry lookup passed to data providers does not
+     * carry tags, so enumerating tag contents has to go through {@link TagLoader}. The filter is
+     * the same model check the client applies to the boxes tab.
+     */
+    public static List<Item> taggedContentItems(ResourceManager resourceManager, Predicate<Item> filter) {
+        Map<ResourceLocation, Collection<Item>> tags = new TagLoader<Item>(
+                id -> BuiltInRegistries.ITEM.getOptional(id),
+                "tags/item"
+        ).loadAndBuild(resourceManager);
+
+        Set<Item> items = new LinkedHashSet<>();
+        for (TagKey<Item> tag : CONTENT_TAGS) {
+            for (Item item : tags.getOrDefault(tag.location(), List.of())) {
+                if (item != Items.AIR && filter.test(item)) {
+                    items.add(item);
+                }
+            }
+        }
+        return List.copyOf(items);
+    }
+
+    /**
+     * Builds a box stack holding the given content item, matching the components written by the
+     * creative-tab box stacks.
+     */
+    public static ItemStack createContentBox(Item boxItem, Item content, BlockEntityType<?> boxType) {
+        ResourceLocation contentId = BuiltInRegistries.ITEM.getKey(content);
+        if (contentId == null) {
+            throw new IllegalArgumentException("Unregistered content item " + content);
+        }
+        return createBoxStack(boxItem, contentId, boxType);
     }
 
     private static ItemStack createBoxStack(Item boxItem, ResourceLocation contentId, BlockEntityType<?> boxType) {

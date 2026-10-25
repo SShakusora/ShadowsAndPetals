@@ -92,8 +92,8 @@ public class BoxBlock extends BaseEntityBlock {
     /**
      * Rebuilds the picked stack from the block entity so middle-click pick block and Jade show
      * the stored content instead of a bare box. A double box yields a regular single box item
-     * carrying the topmost content, never the stacked double item; {@link BlockEntity#saveToItem}
-     * keeps the half-box item data identical to the loot drop path.
+     * carrying the topmost content, never the stacked double item. Single halves use the same
+     * implicit components as the loot drop, so a top half never yields an "upper" item variant.
      */
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
@@ -103,7 +103,7 @@ public class BoxBlock extends BaseEntityBlock {
             if (state.getValue(TYPE) == SlabType.DOUBLE) {
                 return topContentItem(boxEntity);
             }
-            boxEntity.saveToItem(stack, level.registryAccess());
+            stack.applyComponents(boxEntity.collectComponents());
         }
         return stack;
     }

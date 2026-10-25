@@ -162,12 +162,11 @@ public final class BoxGameTests {
 
         ItemStack doubleClone = cloneStack(level, absBox, player);
         helper.assertTrue(!BoxContents.isDoubleItem(doubleClone), "picked clone must be a single box, not the stacked item");
-        helper.assertTrue(!BoxContents.isTopItem(doubleClone), "picked clone must be a regular box, not the upper model");
         helper.assertTrue(ItemStack.isSameItemSameComponents(doubleClone, boxWithContent(COD_ID)),
                 "picked clone must stack with a regular " + COD_ID + " box");
         assertContent(helper, "picked top half of double", BoxContents.contentStack(doubleClone), COD_ID);
 
-        // 3. A single top half placed against the western face of a stone wall keeps its top flag.
+        // 3. A single top half placed against the western face of a stone wall picks as a regular box.
         helper.destroyBlock(BOX_POS);
         helper.setBlock(WALL_POS, Blocks.STONE);
         InteractionResult salmonPlacement = placeOnWallWestFace(helper, level, player, boxWithContent(SALMON_ID));
@@ -180,7 +179,8 @@ public final class BoxGameTests {
 
         ItemStack topClone = cloneStack(level, absBox, player);
         helper.assertTrue(!BoxContents.isDoubleItem(topClone), "single top clone must not be a double item");
-        helper.assertTrue(BoxContents.isTopItem(topClone), "single top clone must keep the top flag");
+        helper.assertTrue(ItemStack.isSameItemSameComponents(topClone, boxWithContent(SALMON_ID)),
+                "single top clone must be a regular box carrying the top content");
         assertContent(helper, "cloned top half", BoxContents.contentStack(topClone), SALMON_ID);
 
         helper.succeed();
@@ -241,7 +241,6 @@ public final class BoxGameTests {
 
         ItemStack emptyTopClone = cloneStack(level, absBox, player);
         helper.assertTrue(!BoxContents.isDoubleItem(emptyTopClone), "picked empty clone must be a single box");
-        helper.assertTrue(!BoxContents.isTopItem(emptyTopClone), "picked empty clone must be a regular box");
         helper.assertTrue(ItemStack.isSameItemSameComponents(emptyTopClone, new ItemStack(boxItem)),
                 "picked empty clone must stack with a regular empty box");
         assertEmpty(helper, "picked empty top half", BoxContents.contentStack(emptyTopClone));
