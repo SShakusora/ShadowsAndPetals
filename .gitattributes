@@ -1,0 +1,21 @@
+# Keep repository text stable across Windows, Linux, and macOS.
+* text=auto eol=lf
+
+# Windows command scripts require CRLF when executed by native tooling.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Never run text or line-ending filters on binary assets.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ogg binary
+*.wav binary
+*.jar binary
+*.zip binary
+*.nbt binary
+*.ttf binary
+*.woff binary
+*.woff2 binary
